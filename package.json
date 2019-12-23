@@ -1,0 +1,34 @@
+{
+  "name": "wickrio-Broadcast-Bot",
+  "version": "5.38.15",
+  "description": "WickrIO Broadcast Bot",
+  "main": "broadcast-bot.js",
+  "dependencies": {
+    "cron": "^1.7.1",
+    "csv-writer": "^1.5.0",
+    "log4js": "^5.2.1",
+    "pm2": "^3.5.1",
+    "prompt": "^1.0.0",
+    "wickrio-bot-api": "5.38.14",
+    "wickrio_addon": "5.38.14"
+  },
+  "scripts": {
+    "start": "pm2 start processes.json --update-env",
+    "stop": "pm2 delete processes.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WickrInc/wickrio-example-app"
+  },
+  "keywords": [
+    "wickr",
+    "wickrio",
+    "wickrbot",
+    "bot",
+    "bots",
+    "secure",
+    "messaging",
+    "api"
+  ],
+  "database": true
+}
