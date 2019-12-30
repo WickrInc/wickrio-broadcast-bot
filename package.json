@@ -9,8 +9,8 @@
     "log4js": "^5.2.1",
     "pm2": "^3.5.1",
     "prompt": "^1.0.0",
-    "wickrio-bot-api": "5.38.14",
-    "wickrio_addon": "5.38.14"
+    "wickrio-bot-api": "5.38.x",
+    "wickrio_addon": "5.38.x"
   },
   "scripts": {
     "start": "pm2 start processes.json --update-env",
