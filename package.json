@@ -1,6 +1,6 @@
 {
   "name": "wickrio-Broadcast-Bot",
-  "version": "5.46.1",
+  "version": "5.46.2",
   "description": "WickrIO Broadcast Bot",
   "main": "broadcast-bot.js",
   "dependencies": {
@@ -30,5 +30,11 @@
     "messaging",
     "api"
   ],
-  "database": true
+  "database": true,
+  "com_wickr" : {
+    "supports" : [
+      "cloud",
+      "enterprise"
+    ]
+  }
 }
