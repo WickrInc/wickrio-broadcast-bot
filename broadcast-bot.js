@@ -10,6 +10,7 @@ const pkgjson = require('./package.json');
 var CronJob = require('cron').CronJob;
 var log4js = require('log4js');
 var logger = log4js.getLogger();
+var strings = require('./strings');
 logger.level = 'debug';
 var createCsvWriter = require('csv-writer').createObjectCsvWriter;
 var whitelisted_users, job;
@@ -51,9 +52,9 @@ var repeatFlag = false;
 var voiceMemoFlag = false;;
 var fileFlag = false;
 var cronInterval;
-var messageIdEntries = [];
 var displayName;
 var askForAckFlag = false;
+var messagesForReport = [];
 
 async function main() {
   try {
@@ -118,22 +119,22 @@ function listen(message) {
 
     // Do not support interaction with Rooms or Groups 
     if(convoType !== 'personal') {
-      var reply = "Sorry, the Broadcast Bot currently only supports commands vi 1:1 conversations only!";
+      var reply = strings["one-to-one"];
       var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       return;
     }
  
     if (!verifyUser(userEmail)) {
-      var reply = "Sorry, you are not authorized to send broadcast messages. If you think this is a mistake please contact your system administrator."
+      var reply = strings["not-authorized"];
       var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       logger.debug(sMessage);
       return;
     }
 
     if (command === '/version') {
-      var reply = "*Versions*\nIntegration: " + pkgjson.version +
-                            "\nWickrIO Addon: " + pkgjson.dependencies["wickrio_addon"] +
-                            "\nWickrIO API: " + pkgjson.dependencies["wickrio-bot-api"] ;
+      var reply = strings["version"].replace("%{integrationVersion}", pkgjson.version)
+                                   .replace("%{addonVersion}", pkgjson.dependencies["wickrio_addon"])
+                                   .replace("%{apiVersion}", pkgjson.dependencies["wickrio-bot-api"]);
       var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       return;
     }
@@ -155,21 +156,7 @@ function listen(message) {
     logger.debug('user:', user)
     
     if (command === '/help') {
-      var reply = "*Messaging Commands*\n" +
-                  "/broadcast <Message> : to send a broadcast message\n" +
-                  "To send a file as a broadcast message - Click the + sign and share the file with the bot\n" +
-                  "To send a voice memo as a broadcast message - Click the microphone button and send a voice memo to the bot\n" +
-                  "/ack  : To acknowledge a broadcast message \n" +
-                  "/status : To get status of a broadcast message \n" +
-                  "/report : To get a CSV file with the status of each user of a broadcast message \n" +
-                  "/cancel : To cancel the last operation and enter a new command \n\n" + 
-                  "*Admin Commands*\n" +
-                  "/admin list : Get list of admin users \n" +
-                  "/admin add <users> : Add one or more admin users \n" +
-                  "/admin remove <users> : Remove one or more admin users \n\n" +
-                  "*Other Commands*\n" +
-                  "/help : Show help information";
-
+      var reply = strings["help"];
       var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       user.confirm = '';
       logger.debug(sMessage);
@@ -180,14 +167,15 @@ function listen(message) {
       var reply;
       var uMessage;
       if (! argument) {
-        reply = "Usage: /broadcast <Message>\nPlease type the message you would like to send after the /broadcast";
+        reply = strings["usage"];
         uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
         return;
       }
       user.broadcast = argument;
-      reply = "Would you like to ask the recipients for an acknowledgement?"
+      reply = strings["askForAck"];
       user.confirm = 'askForAck';
-      uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+      //uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+      uMessage = replyWithYesNoButtons(vGroupID, reply);
     }
 
     if (command === '/status') {
@@ -195,29 +183,32 @@ function listen(message) {
       //check argument here!
       //args = argument.split(' ');
       if (argument === ''){
-        messageIdEntries = getMessageEntries(userEmail);
+        var messageIdEntries = getMessageEntries(userEmail);
         var reply = "";
         if(messageIdEntries.length < 1){
-          reply = "There are no previous messages to display";
+          reply = strings["noPrevious"];
           var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
           return;
         }
         var length = Math.min(messageIdEntries.length, 5);
-        reply = "Here are the past " + length + " broadcast message(s):\n";
         var contentData;
         var index = 1;
+        var messageList = [];
+        var messageString = "";
         //for (let entry of messageIdEntries) {
         for (var i = 0; i < messageIdEntries.length; i++){
           contentData = WickrIOAPI.cmdGetMessageIDEntry(messageIdEntries[i].message_id);
           var contentParsed = JSON.parse(contentData);
-          reply += '(' + index++ + ') ' +  contentParsed.message + '\n';
+          messageList.push(contentParsed.message);
+          messageString += '(' + index++ + ') ' + contentParsed.message + "\n";
         }
-        reply += "Which message would you like to see the status of?";
+        reply = strings["whichMessage"].replace("%{length}", length).replace("%{messageList}", messageString);
+        //var uMessage = replyWithButtons(vGroupID, reply, messageList);
         var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
         user.confirm = 'askMessageId';
         //TODO keep working on this!!
-      }else if (isNaN(argument)) {
-        var reply = "Please enter a number for the messageID";
+      } else if (isNaN(argument)) {
+        var reply = strings["enterID"];
         var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       }
       //fix later~
@@ -225,39 +216,41 @@ function listen(message) {
     }
 
     if (command === '/report') {
-      messageIdEntries = getMessageEntries(userEmail);
+      var messageIdEntries = getMessageEntries(userEmail);
       var reply = "";
       if(messageIdEntries.length < 1){
-        reply = "There are no previous messages to display";
+        reply = strings["noPrevious"];
         var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
         return;
       }
       var length = Math.min(messageIdEntries.length, 5);
-      reply = "Here are the past " + length + " broadcast message(s):\n";
       var contentData;
       var index = 1;
+      var messageString = "";
+      var messageList = [];
       //for (let entry of messageIdEntries) {
+      //TODO put this into the strings file
       for (var i = 0; i < messageIdEntries.length; i++){
         contentData = WickrIOAPI.cmdGetMessageIDEntry(messageIdEntries[i].message_id);
         var contentParsed = JSON.parse(contentData);
-        reply += '(' + index++ + ')' +  contentParsed.message + '\n';
+        messageString += '(' + index++ + ')' +  contentParsed.message + '\n';
+        messageList.push(contentParsed.message);
       }
-      reply += "Which message would you like to receive a report of?";
+      reply = strings["whichReport"].replace("%{length}", length).replace("%{messageList}", messageString);
+      //var uMessage = replyWithButtons(vGroupID, reply, messageList);
       var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       user.confirm = 'idForReport';
-      logger.debug("this is the path:" + process.cwd());
     }
     if (command === '/cancel') {
       user.confrim = '';
-      var reply = "Previous command canceled, send a new command or enter /help for a list of commands."
+      var reply = strings["canceled"];
       var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-      securityGroupFlag =false;
+      securityGroupFlag = false;
       securityGroupsToSend = [];
       securityGroups = [];
       repeatFlag = false;
       voiceMemoFlag = false;;
       fileFlag = false;
-      messageIdEntries = [];
       displayName = "";
       askForAckFlag = false;
       return;
@@ -270,78 +263,92 @@ function listen(message) {
 
     // TODO check if user.confrim for flow!!
     if (command === '/admin') {
-        var action = argument.toLowerCase().trim();
-        logger.debug(action);
-        if (action === 'list') {
-            var userList = whitelisted_users.join('\n');
-            var reply = "Current admins:\n" + userList;
+      user.confirm = '';
+      var action = argument.toLowerCase().trim();
+      logger.debug(action);
+      if (action === 'list') {
+        var userList = whitelisted_users.join('\n');
+        var reply = strings["currentAdmins"].replace("%{userList}", userList);
+        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+      } else if (action.startsWith("add")) {
+        // Process the list of users to be added from the white list
+        var values = action.split(' ');
+        values.shift();
+        var addFails = [];
+        if (values.length >= 1) {
+          for(var i = 0; i < values.length; i++){
+            if (whitelisted_users.includes(values[i])) {
+              addFails.push(values.splice(i,1));
+              i--;
+            }
+          }
+          if (addFails.length >= 1) {
+            var reply = strings["alreadyContains"].replace("%{user}", addFails.join("\n"));
             var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-        } else if (action.startsWith("add")) {
-            // Process the list of users to be added from the white list
-            var values = action.split(' ');
-            values.shift();
-            if (values.length >= 1) {
-                for(var i = 0; i < values.length; i++){
-                    if (whitelisted_users.includes(values[i])) {
-                        var reply = "Failed, current list of admins already contains " + values[i];
-                        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-                        return;
-                    }
-                }
+          } 
+          if (values.length >= 1) {
+            // Send the initial response
+            var userList = values.join('\n');
+            var reply = strings["adminsToAdd"].replace("%{userList}", userList);
+            var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
 
-                // Send the initial response
-                var userList = values.join('\n');
-                var reply = "Going to add admins:\n" + userList;
-                var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-
-                // add the user(s) from the white list and update the config file
-                for (var i = 0; i < values.length; i++) {
-                    whitelisted_users.push( values[i] );
-                }
-                logger.debug(whitelisted_users);
-                updateWhiteList();
-
-                // Send a message to all the current white listed users
-                var donereply = userEmail + " has added the following admins:\n" + userList;
-                var uMessage = WickrIOAPI.cmdSend1to1Message(whitelisted_users, donereply);
-            } else {
-                var reply = "Command contains no user names to add!";
-                var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+            // add the user(s) from the white list and update the config file
+            logger.debug("Here is values" + values.toString());
+            for (var i = 0; i < values.length; i++) {
+              whitelisted_users.push( values[i] );
             }
-        } else if (action.startsWith("remove")) {
-            // Process the list of users to be removed from the white list
-            var values = action.split(' ');
-            values.shift();
-            if (values.length >= 1) {
-                for(var i = 0; i < values.length; i++){
-                    if (! whitelisted_users.includes(values[i])) {
-                        var reply = "Failed, current list of admins does not contain " + values[i];
-                        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-                        return;
-                    }
-                }
+            logger.debug(whitelisted_users);
+            updateWhiteList();
 
-                // Send the initial response
-                var userList = values.join('\n');
-                var reply = "Going to delete admins:\n" + userList;
-                var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-
-                // Remove the user(s) from the white list and update the config file
-                for (var i = 0; i < values.length; i++) {
-                    whitelisted_users.splice( whitelisted_users.indexOf(values[i]), 1);
-                }
-                logger.debug(whitelisted_users);
-                updateWhiteList();
-
-                // Send a message to all the current white listed users
-                var donereply = userEmail + " has removed the following admins:\n" + userList;
-                var uMessage = WickrIOAPI.cmdSend1to1Message(whitelisted_users, donereply);
-            } else {
-                var reply = "Command contains no user names to remove!";
-                var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-            }
+            // Send a message to all the current white listed users
+            var donereply = strings["adminsAdded"].replace("%{userEmail}", userEmail).replace("%{userList}", userList);
+            var uMessage = WickrIOAPI.cmdSend1to1Message(whitelisted_users, donereply);
+          }
         } else {
-            var reply = "Invalid /admin command, usage:\n/admin list|add <user(s)>|remove <user(s)>";
+          var reply = strings["noNewAdmins"];
+          var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+        }
+      } else if (action.startsWith("remove")) {
+        // Process the list of users to be removed from the white list
+        // TODO potentially add buttons here?
+        var values = action.split(' ');
+        values.shift();
+        var removeFails = [];
+        if (values.length >= 1) {
+          for(var i = 0; i < values.length; i++){
+            if (! whitelisted_users.includes(values[i])) {
+              removeFails.push(values.splice(i, 1));
+              i--;
+            }
+          }
+          if (removeFails.length >= 1) {
+            var reply = strings["removeFail"].replace("%{user}", removeFails.join("\n"));
+            var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+          }
+
+          // Send the initial response
+          var userList = values.join('\n');
+          if (values.length >= 1) {
+            var reply = strings["adminsToDelete"].replace("%{userList}", userList);
+            var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+
+            // Remove the user(s) from the white list and update the config file
+            for (var i = 0; i < values.length; i++) {
+              whitelisted_users.splice( whitelisted_users.indexOf(values[i]), 1);
+            }
+            logger.debug(whitelisted_users);
+            updateWhiteList();
+
+            // Send a message to all the current white listed users
+            var donereply = strings["adminsDeleted"].replace("%{userEmail}", userEmail).replace("%{userList}", userList);
+            var uMessage = WickrIOAPI.cmdSend1to1Message(whitelisted_users, donereply);
+          }
+        } else {
+          var reply = strings["noRemoveAdmins"];
+          var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+        }
+      } else {
+            var reply = strings["invalidAdminCommand"];
             var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
         }
     }
@@ -351,35 +358,35 @@ function listen(message) {
     if (parsedMessage.file){
       var msg = "";
       if (parsedMessage.isVoiceMemo){
-        msg = "Would you like to send this voice memo as a broadcast message?";
+        msg = strings["voiceMemoBroadcast"];
         user.confirm = 'sendVoiceMemo';
         user.command = '/voicememo';
         user.voiceMemoLocation = parsedMessage.file;
         user.voiceMemoDuration = parsedMessage.voiceMemoDuration;
       } else {
-        msg = "Would you like to send file named: '" + parsedMessage.filename + "' as a broadcast message?";
+        msg = strings["fileBroadcast"].replace("%{filename}", parsedMessage.filename);
         displayName = parsedMessage.filename;
         user.confirm = 'sendFile';
         user.command = '/file';
       }
       user.filename = parsedMessage.file;
-      var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, msg);
+      //var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, msg);
+      var sMessage = replyWithYesNoButtons(vGroupID, msg);
       return logger.debug(sMessage);
     }
-    //what if input is not yes, no, y, or n??
     if (user.confirm === 'sendFile'){
       var reply = "";
       if (affirmativeReply(fullMessage)) {
         user.confirm = 'askForAck';
         fileFlag = true;
-        reply = "Would you like to ask the recipients for an acknowledgement?"
+        reply = strings["askForAck"];
       } else if (negativeReply(fullMessage)) {
         user.confirm = "";
         fileFlag = false;
-        reply = "File will not be sent as a broadcast message.";
+        reply = strings["fileNotSent"];
       } else {
         user.confirm = 'sendFile';
-        reply = "Invalid input, please reply with yes or no";
+        reply = strings["invalidInput"];
       } 
       var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
     } else if (user.confirm === 'sendVoiceMemo') {
@@ -388,14 +395,14 @@ function listen(message) {
         user.confirm = 'askForAck';
         voiceMemoFlag = true;
         logger.debug("voiceMEmoFlag: " + voiceMemoFlag);
-        reply = "Would you like to ask the recipients for an acknowledgement?"
+        reply = strings["askForAck"];
       } else if (negativeReply(fullMessage)) {
         user.confirm = "";
         voiceMemoFlag = false;
-        reply = "Voice Memo will not be sent as a broadcast message.";
+        reply = strings["voiceMemoNotSent"];
       } else {
         user.confirm = 'sendVoiceMemo';
-        reply = "Invalid input, please reply with yes or no";
+        reply = strings["invalidInput"];
       }
       var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
     } else if (user.confirm === 'askForAck' && !fullMessage.startsWith("/broadcast")) {
@@ -405,24 +412,31 @@ function listen(message) {
         askForAckFlag = false;
       } else {
         user.confirm === 'askForAck';
-        var reply = 'Input not recognized please reply with yes or no.'
+        var reply = strings["invalidInput"];
         var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
         return;
       }
       user.confirm = 'whichGroup';
-      var reply = "Who would you like to receive this message?\n\n"; 
       var getGroups = WickrIOAPI.cmdGetSecurityGroups();
       securityGroups = JSON.parse(getGroups);
-      var groupList = "Here is a list of the security groups:\n";
+      var groupMessage = "";
+      var groupList = [];
       for(var i = 0; i < securityGroups.length; i++){
         logger.debug(securityGroups[i].name);
-        if (securityGroups[i].size === undefined)
-            groupList = groupList + "(" + i + ") " +  securityGroups[i].name + "\n";
-        else
-            groupList = groupList + "(" + i + ") " +  securityGroups[i].name + " (users: " + securityGroups[i].size + ")\n";
+        //TODO when would size be undefinded?? Should this just be the all option??
+        if (securityGroups[i].size === undefined) {
+          groupMessage = groupMessage + "(" + i + ") " +  securityGroups[i].name + "\n";
+          groupList.push(securityGroups[i].name);
+        } else {
+          groupMessage = groupMessage + "(" + i + ") " +  securityGroups[i].name + " (users: " + securityGroups[i].size + ")\n";
+          groupList.push(securityGroups[i].name);
+        }
       }
-      reply = reply + groupList + "Please enter the number(s) of the security group(s) you would like to send your message to.\n\nOr reply *all* to send the message to everyone in the network";
+      reply = strings["whichGroup"].replace("%{securityGroupList}", groupMessage);
       var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+      //Send an array of buttons not just strings.
+      groupList.push("all");
+      //var uMessage = replyWithButtons(vGroupID, reply);
     } else if (user.confirm === 'whichGroup') {
       var reply;
       if (fullMessage.toLowerCase() === 'all') {
@@ -433,55 +447,57 @@ function listen(message) {
         } else {
           //TODO Should we confirm sending even if to the whole network??
           user.confirm = "askRepeat";
-          //var userNumber = 666;
+          // TODO we could make this question how many times send message so not having to ask repeat and ask number of repeats??
           //reply = "Message will be sent to network of " + userNumber + "\nWould you like to repeat this broadcast message?";
-          reply = "Would you like to repeat this broadcast message?";
+          reply = strings["askRepeat"];
         }
       } else {
         user.confirm = "confirmSecurityGroups";
         var groups = fullMessage.split(/[^0-9]/);
         var groupsString = "";
         var reply;
+        securityGroupsToSend = [];
         for (let group of groups){
           var index = parseInt(group);
           if (index >= 0 && index < securityGroups.length){
             securityGroupsToSend.push(securityGroups[index].id);
-            logger.debug("Group added: " + securityGroups[index].name + " at " + securityGroups[index].id);
             groupsString = groupsString + securityGroups[index].name + "\n";
             securityGroupFlag = true;
-            //add number of users to this string
-            reply = "Your message will send to the following security group(s):\n" + groupsString + "Continue?"; 
+            reply = strings["confirmGroups"].replace("%{groupsList}", groupsString);
             //TODO what if some indexes are good and others are not??
           } else {
             user.confirm = 'whichGroup';
-            reply = "Invalid input: " + index + " please enter the number(s) of the security group(s) or reply all to send the message to everyone in the network.";
+            reply = strings["invalidIndex"].replace("%{index}", index);
             var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
             logger.error("index not in bounds" + index);
+            securityGroupsToSend = [];
             return;
           }
         }
       }
       logger.debug("Groups to send!: " + securityGroupsToSend);
-      var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+      var uMessage = replyWithYesNoButtons(vGroupID, reply);
     } else if (user.confirm === 'confirmSecurityGroups') {
       var reply;
       if (affirmativeReply(fullMessage)) {
         if (voiceMemoFlag || fileFlag){
           sendMessage(user, vGroupID, userEmail);
-          return;
         } else {
-            user.confirm = "askRepeat";
-            reply = "Would you like to repeat this broadcast message?";
+          user.confirm = "askRepeat";
+          reply = strings["askRepeat"];
+          replyWithYesNoButtons(vGroupID, reply);
         }
       } else if (negativeReply(fullMessage)){
         user.confirm = 'whichGroup';
-        reply = "Please enter the number(s) of the security group(s) or reply all to send the message to everyone in the network.";
+        //TODO should buttons go here?
+        reply = strings["whichGroupAgain"];
+        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       } else {
-        user.confirm = 'whichGroup';
-        reply = 'Input not recognized please reply with yes or no.';
+        user.confirm = 'confirmSecurityGroups';
+        reply = strings["invalidInput"];
+        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       }
-      var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-      //TODO handle this better
+    //TODO handle this better
     } else if (user.confirm === 'askRepeat') {
       var reply;
       if (negativeReply(fullMessage)) {
@@ -492,43 +508,50 @@ function listen(message) {
       } else if (affirmativeReply(fullMessage)) {
         if (user.cronJobActive) {
           user.confirm = "activeRepeat";
-          reply = "You already have a repeating broadcast message active, do you want to cancel it?";
+          reply = strings["activeRepeat"];
         } else {
           user.confirm = "timesRepeat";
-          reply = "How many times would you like to repeat this message?";
+          reply = strings["timesRepeat"];
         }
       } else {
         user.confirm = "askRepeat";
-        reply = 'Input not recognized please reply with yes or no.';
+        reply = strings["askRepeat"];
       }
+      // TODO turn this into reply yes no
       var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-    } else if (user.confirm === 'activeRepeat' && affirmativeReply(fullMessage)) {
-      user.cronJobActive = false;
-      if(job) {
-        job.stop();
+    } else if (user.confirm === 'activeRepeat') {
+      if (affirmativeReply(fullMessage)) {
+        user.cronJobActive = false;
+        if(job) {
+          job.stop();
+        }
+        user.confirm = "askRepeat";
+        listen(message);
+      } else if (negativeReply(fullMessage)) {
+        // Do Nothing??
+      } else {
+        user.confirm = "activeRepeat";
+        reply = string["invalidInput"];
       }
-      user.confirm = "askRepeat";
-      listen(message);
     } else if (user.confirm === 'timesRepeat') {
       user.confirm = "yesRepeat";
       if(!isInt(fullMessage) || parseInt(fullMessage) === 0){
         user.confirm = "timesRepeat";
-        var reply = "Wrong Input, please send a number value.\nHow many times do you want to repeat this message?";
+        var reply = strings["invalidNumberValue"];
         var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
         return;
       }
       user.repeat = parseInt(fullMessage);
       user.count = 0;
-      var reply = "How often do you want to repeat this message(choose every 5, 10 or 15 minutes)?";
+      var reply = strings["repeatFrequency"];
       var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
     } else if (user.confirm === 'yesRepeat') {
-      //var broadcast = user.broadcast + "\n\nBroadcast message sent by: " + userEmail;
       var now = new Date();
       var minutes = now.getMinutes();
       minutes = minutes.toString();
       if (minutes.length === 2)
         minutes = minutes.charAt(1);
-
+      //Do we need the current time to make this work?? Idts
       //Setting a cron time interval based on current time
       if (minutes === '0') {
         minutes = '*'
@@ -550,66 +573,46 @@ function listen(message) {
       }else {
         logger.debug('ELSE')
         user.confirm = "yesRepeat";
-        var reply = "Wrong Input, please send a number value.\nHow often do you want to repeat this message(choose every 5, 10 or 15 minutes)?";
+        var reply = strings["invalidFrequency"];
         var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
         return;
       }
       repeatFlag = true;
       sendMessage(user, vGroupID, userEmail);
       //TODO IMPORTANT Fix this! 
+      //TODO just use one no more array for message id entries!!
     } else if (user.confirm === 'askMessageId' && fullMessage != "/status") {
-      var groups = fullMessage.split(/[^0-9]/);
-      //TODO turn array into a single variable
-      var messageIdEntriesToSend = []
-      for(let group of groups){
-        var index = parseInt(group);
-        //TODO fix this for now keep so user doesn't see 0 based!
-        //TODO fix this because we don't necessarily need an array!
-        index = index - 1;
-        if(index >= 0 && index < messageIdEntries.length){
-          messageIdEntriesToSend.push(messageIdEntries[index]);
-          logger.debug("Message Added: " + messageIdEntries[index].message_id + " at " + index);
-          user.confirm = '';
-        } else {
-          user.confirm = 'askMessageId';
-          var reply = "Invalid input: " + (index + 1) + " please enter a number between 1 and " + messageIdEntries.length;
-          var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-          logger.error("index not in bounds" + index);
-          return;
-        }
-      }
+      //Subtract one to account for 0 based indexes
+      var index = parseInt(fullMessage) - 1;
+      var messageIdEntries = getMessageEntries(userEmail);
+      var length = Math.min(messageIdEntries.length, 5);
       var reply = "";
-      for (let entry of messageIdEntriesToSend){
-        var replyObj = getStatus(entry.message_id, "summary", false);
-        logger.debug("replyOBJ ois " + replyObj);
-        //logger.debug("replyOBJ.status string is " + replyObj.statusString);
-        reply += replyObj;//.statusString;
+      if(isNaN(index) || index < 0 || index >= length){
+        user.confirm = 'askMessageId';
+        reply = strings["wrongId"].replace("%{index}", (index + 1)).replace("%{length}", length);
+        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+      } else {
+        user.confirm = '';
+        reply += getStatus(messageIdEntries[index].message_id, "summary", false);
         var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       }
     } else if (user.confirm === 'idForReport' && fullMessage != "/report") {
-      var groups = fullMessage.split(/[^0-9]/);
-      //TODO turn array into a single variable
-      var messageIdEntriesToSend = []
-      for(let group of groups){
-        var index = parseInt(group);
-        index = index - 1;
-        if(index >= 0 && index < messageIdEntries.length){
-          messageIdEntriesToSend.push(messageIdEntries[index]);
-          logger.debug("Message Added: " + messageIdEntries[index].message_id + " at " + index);
-          user.confirm = '';
-        } else {
-          user.confirm = 'idForReport';
-          //fix 1 to five for if there are fewer entries!!
-          var reply = "Invalid input: " + (index + 1) + "  please enter a number between 1 and " + messageIdEntries.length;
-          var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-          logger.error("index not in bounds" + (index + 1));
-          return;
-        }
+      //Subtract one to account for 0 based indexes
+      var index = parseInt(fullMessage) - 1;
+      var reply = "";
+      //TODO make this a global~?
+      var messageIdEntries = getMessageEntries(userEmail);
+      var length = Math.min(messageIdEntries.length, 5);
+      if(isNaN(index) || index < 0 || index >= length){
+        user.confirm = 'idForReport';
+        reply = strings["wrongId"].replace("%{index}", (index + 1)).replace("{%length}", length);
+        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+      } else {
+        user.confirm = '';
+        var path = getCSVReport(messageIdEntries[index].message_id);
+        var uMessage = WickrIOAPI.cmdSendRoomAttachment(vGroupID, path, path);
+        logger.debug(uMessage);
       }
-      //TODO check results of this
-      var path = getCSVReport(messageIdEntries[index].message_id);
-      var uMessage = WickrIOAPI.cmdSendRoomAttachment(vGroupID, path, path);
-      logger.debug(uMessage);
     }
   } catch (err) {
     console.log(err);
@@ -667,15 +670,18 @@ function updateWhiteList()
     }
 }
 
-function cronJob(job, cronInterval, user, broadcast, sgFlag, userEmail, target){
+function cronJob(job, cronInterval, user, broadcast, sgFlag, ackFlag, securityGroupsToSend, userEmail, target){
 job = new CronJob(cronInterval, function() {
   var currentDate = new Date();
   var jsonDateTime = currentDate.toJSON();
   var bMessage;
   var messageId = updateLastID();
-  logger.debug("CronJob");
-  //Repeated messages should get new Message IDs
-  var broadcastMsgToSend = broadcast + "\n\nBroadcast message sent by: " + userEmail;
+  logger.debug("CronJob", sgFlag);
+  var broadcastMsgToSend = broadcast;
+  if (ackFlag) {
+    broadcastMsgToSend = broadcastMsgToSend + "\nPlease acknowledge this message by replying with /ack";
+  }
+  broadcastMsgToSend = broadcastMsgToSend + "\n\nBroadcast message sent by: " + userEmail;
   if(sgFlag) {
     bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(broadcastMsgToSend, securityGroupsToSend, "", "", messageId);
     messageId = "" + messageId;
@@ -683,15 +689,13 @@ job = new CronJob(cronInterval, function() {
     asyncStatus(messageId, user.vGroupID);
   } else {
     messageId = "" + messageId;
-
     bMessage = WickrIOAPI.cmdSendNetworkMessage(broadcastMsgToSend, "", "", messageId);
     logger.debug("messageId: " + messageId + "userEmail" + userEmail + "target" + target + "dt" + jsonDateTime + "bcast" + broadcast);
     writeToMessageIdDB(messageId, userEmail, target, jsonDateTime, broadcast);
     asyncStatus(messageId, user.vGroupID);
   }
   logger.debug(bMessage);
-  var reply = "Broadcast message # " + (
-  user.count + 1) + " in process of being sent";
+  var reply = strings["repeatMessageSent"].replace("%{count}", (user.count + 1));
   var uMessage = WickrIOAPI.cmdSendRoomMessage(user.vGroupID, reply);
   //Will this stay the same or could user be reset?? I believe only can send one repeat message
   user.count += 1;
@@ -709,11 +713,8 @@ user.cronJobActive = true;
 function asyncStatus(messageId, groupId){
 logger.debug("asyncStatus we are in");
 var asyncJob = new CronJob("*/30 * * * * *", function() {
-  logger.debug("inside the job function now");
   var statusObj = getStatus(messageId, "summary", true);
-  logger.debug("Status obj string is " + statusObj.statusString);
   var uMessage = WickrIOAPI.cmdSendRoomMessage(groupId, statusObj.statusString);
-  logger.debug("Umessage inside asyncstatus" + uMessage);
   if (statusObj.complete) {
     logger.debug("ending job for complete string");
     return asyncJob.stop();
@@ -730,6 +731,38 @@ function negativeReply(message){
   return message.toLowerCase() === 'no' || message.toLowerCase() === 'n';
 }
 
+function replyWithYesNoButtons(vGroupID, reply) {
+  var button1 = {
+    type : "message",
+    text : "Yes",
+    message : "yes"
+  };
+  var button2 = {
+    type : "message",
+    text : "No",
+    message : "no"
+  };
+  var buttons = [button1, button2];
+
+//  replyWithButtons(reply + "NETWORK" , buttons);
+  return WickrIOAPI.cmdSendRoomMessage(vGroupID, reply, "", "", "", [], buttons); 
+  //return WickrIOAPI.cmdSendNetworkMessage(vGroupId, "", "", messageID, flags, buttons);
+}
+
+function replyWithButtons(message, buttonList) {
+  var buttons = [];
+  for (let button of buttonList) {
+    var buttonObj =  {
+      type : "message",
+      text :  button,
+      message : button
+    }
+    buttons.push(buttonObj);
+  }
+  //return  WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID, [], buttons);
+  return  WickrIOAPI.cmdSendNetworkMessage(message, "", "", "1", [], buttons);
+}
+
 function verifyUser(user) {
   var found = whitelisted_users.indexOf(user);
   if (found === -1) {
@@ -744,9 +777,10 @@ function isInt(value) {
 }
 
 function sendMessage(user, vGroupID, userEmail){
-  var reply = "Broadcast message in process of being sent";
+  var reply = "";
   var broadcast = user.broadcast;
   var broadcastMsgToSend = user.broadcast + "\n\nBroadcast message sent by: " + userEmail;
+  var broadcastRepeat = user.broadcast;
   var sentby = "Broadcast message sent by: " + userEmail;
   var askForAckString = "";
   if (askForAckFlag) {
@@ -768,22 +802,18 @@ function sendMessage(user, vGroupID, userEmail){
       var sendVoiceMemo = WickrIOAPI.cmdSendSecurityGroupVoiceMemo(securityGroupsToSend, user.voiceMemoLocation, "VoiceMemo", duration, "", "",  messageID, sentby);
       logger.debug(sendVoiceMemo);
       //optionally add to which groups?
-      reply = "Broadcast voice memo message in process of being sent to security group";
+      reply = strings["voiceMemoSentSG"];
     } else if (fileFlag){
-      logger.debug("Here is the filename:" + user.filename);
       var send = WickrIOAPI.cmdSendSecurityGroupAttachment(securityGroupsToSend, user.filename, displayName, "", "", messageID, sentby);
       logger.debug(send)
-      reply = "Broadcast file message in process of being sent to security group";
+      reply = strings["fileSentSG"];
     } else {
       if(repeatFlag){
-        repeatMessage(broadcast, user, vGroupID, messageID, userEmail, target);
+        repeatMessage(broadcastRepeat, user, vGroupID, messageID, userEmail, target);
       } else {
-        logger.debug("This is messageID:" + messageID +":");
-        logger.debug("this is the securityGroupsToSend" + securityGroupsToSend);
-        logger.debug("this is the broadcastMsgToSend" + broadcastMsgToSend);
         var send = WickrIOAPI.cmdSendSecurityGroupMessage(broadcastMsgToSend, securityGroupsToSend, "", "", messageID);
         logger.debug("this is send:" + send)
-        reply = "Broadcast message in process of being sent to security group";
+        reply = strings["messageSentSG"];
       }
     }
   } else {
@@ -791,20 +821,20 @@ function sendMessage(user, vGroupID, userEmail){
       var duration = "" + user.voiceMemoDuration;
       var sendVoiceMemo = WickrIOAPI.cmdSendNetworkVoiceMemo(user.voiceMemoLocation, "VoiceMemo", duration, "", "", messageID, sentby);
       logger.debug(sendVoiceMemo);
-      reply = "Broadcast voice memo message in process of being sent";
+      reply = strings["voiceMemoSent"];
     } else if(fileFlag){
       logger.debug("This is the sentby" + sentby);
       var send = WickrIOAPI.cmdSendNetworkAttachment(user.filename, displayName, "", "", messageID, sentby);
       logger.debug("this is send" + send)
-      reply = "Broadcast file message in process of being sent";
+      reply = strings["fileSent"];
     } else {
       if(repeatFlag){
-        repeatMessage(broadcast, user, vGroupID, messageID, userEmail, target);
+        repeatMessage(broadcastRepeat, user, vGroupID, messageID, userEmail, target);
       } else {
         logger.debug("This is messageID:" + messageID +":");
         var bMessage = WickrIOAPI.cmdSendNetworkMessage(broadcastMsgToSend, "", "", messageID);
         logger.debug("This is bMessage: " + bMessage)
-        reply = "Broadcast message in process of being sent";
+        reply = strings["messageSent"];
       }
     }
   }
@@ -860,10 +890,10 @@ function repeatMessage(broadcast, user, vGroupID, messageID, userEmail, target) 
     bMessage = WickrIOAPI.cmdSendNetworkMessage(broadcastMsgToSend, "", "", messageID);
   }
   logger.debug(bMessage)
-  var reply = "Broadcast message # " + (user.count + 1) + " in process of being sent";
+  var reply = strings["repeatMessageSent"].replace("%{count}", (user.count + 1));
   var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
   user.count += 1;
-  cronJob(job, cronInterval, user, broadcast, securityGroupFlag, userEmail, target);
+  cronJob(job, cronInterval, user, broadcast, securityGroupFlag, askForAckFlag, securityGroupsToSend, userEmail, target);
 }
 
 function getMessageEntries(userEmail){
@@ -881,17 +911,12 @@ function getMessageEntries(userEmail){
       break;
     }
   }
-  for (let entry of messageIdEntries) {
-  //  var status = getStatus(entry.id, "summary");
-    logger.debug(entry.message_id);
-    //logger.debug(entry.message);
-  }
   return messageIdEntries;
-  //var statusData = WickrIOAPI.cmdGetMessageStatus(messageID, type, "0", "1000");
 }
 
+//TODO add these strings to file
 function getStatus(messageID, type, async){
-  //Here we need which Message??
+  //TODO Here we need which Message??
   messageID = "" + messageID;
   var statusData;
   try{
@@ -908,14 +933,7 @@ function getStatus(messageID, type, async){
     }
   }
   var messageStatus = JSON.parse(statusData);
-  var output = [];
-  var totalUsers = "Total Users: " + messageStatus.num2send + '\n';
-  var sentUsers = "Messages Sent: " + messageStatus.sent + '\n';
-  var ackedUsers = "Users Acknowledged: " + messageStatus.acked + '\n';
-  var pendingUsers = "Message pending to Users: "  + messageStatus.pending + '\n';
-  var failedUsers = "Message failed to send: " + messageStatus.failed;
-  output.push("*Message Status:*\n", totalUsers, sentUsers, ackedUsers, pendingUsers, failedUsers);
-  var statusString = output.join("");
+  var statusString = strings["messageStatus"].replace("%{num2send}", messageStatus.num2send).replace("%{sent}", messageStatus.sent).replace("%{acked}", messageStatus.acked).replace("%{pending}", messageStatus.pending).replace("%{failed}", messageStatus.failed);
   logger.debug("here is the message status" + statusString);
   if(async) {
     var complete = messageStatus.pending === 0;
