@@ -1,6 +1,6 @@
 {
   "name": "wickrio-Broadcast-Bot",
-  "version": "5.38.15",
+  "version": "5.46.1",
   "description": "WickrIO Broadcast Bot",
   "main": "broadcast-bot.js",
   "dependencies": {
@@ -9,8 +9,8 @@
     "log4js": "^5.2.1",
     "pm2": "^3.5.1",
     "prompt": "^1.0.0",
-    "wickrio-bot-api": "5.38.x",
-    "wickrio_addon": "5.38.x"
+    "wickrio-bot-api": "5.44.x",
+    "wickrio_addon": "5.44.x"
   },
   "scripts": {
     "start": "pm2 start processes.json --update-env",
