@@ -1,5 +1,5 @@
 {
-  "name": "wickrio-Broadcast-Bot",
+  "name": "wickrio-broadcast-bot",
   "version": "5.38.16",
   "description": "WickrIO Broadcast Bot",
   "main": "broadcast-bot.js",
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/WickrInc/wickrio-example-app"
+    "url": "https://github.com/WickrInc/wickrio-broadcast-bot"
   },
   "keywords": [
     "wickr",
