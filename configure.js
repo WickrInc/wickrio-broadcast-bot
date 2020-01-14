@@ -42,8 +42,6 @@ main();
 async function main() {
   try {
     var cp = execSync('cp processes.json processes_backup.json');
-    //console.log("DataParsed: ", dataParsed);
-    //console.log('env', dataParsed.apps[0].env);
     if (dataParsed.apps[0].env.tokens.WICKRIO_BOT_NAME.value !== undefined) {
       var newName = "WickrIO-Broadcast-Bot_" + dataParsed.apps[0].env.tokens.WICKRIO_BOT_NAME.value;
     } else {
