@@ -40,6 +40,21 @@ process.on('uncaughtException', exitHandler.bind(null, {
 main();
 
 async function main() {
+  try {
+    var cp = execSync('cp processes.json processes_backup.json');
+    //console.log("DataParsed: ", dataParsed);
+    //console.log('env', dataParsed.apps[0].env);
+    if (dataParsed.apps[0].env.tokens.WICKRIO_BOT_NAME.value !== undefined) {
+      var newName = "WickrIO-Broadcast-Bot_" + dataParsed.apps[0].env.tokens.WICKRIO_BOT_NAME.value;
+    } else {
+      var newName = "WickrIO-Broadcast-Bot";
+    }
+    //var assign = Object.assign(dataParsed.apps[0].name, newName);
+    dataParsed.apps[0].name = newName;
+    var ps = fs.writeFileSync('./processes.json', JSON.stringify(dataParsed, null, 2));
+  } catch (err) {
+    console.log(err);
+  }
   if (processConfigured()) {
     console.log("Already configured");
     process.exit();
@@ -177,6 +192,15 @@ async function inputTokens() {
     }
     try {
       var cp = execSync('cp processes.json processes_backup.json');
+      if (process.env.WICKRIO_BOT_NAME !== undefined) {
+        var newName = "WickrIO-Broadcast-Bot_" + process.env.WICKRIO_BOT_NAME;
+      } else {
+        var newName = "WickrIO-Broadcast-Bot";
+      }
+
+      //var assign = Object.assign(dataParsed.apps[0].name, newName);
+      dataParsed.apps[0].name = newName;
+
       var assign = Object.assign(dataParsed.apps[0].env.tokens, newObjectResult);
       var ps = fs.writeFileSync('./processes.json', JSON.stringify(dataParsed, null, 2));
     } catch (err) {
