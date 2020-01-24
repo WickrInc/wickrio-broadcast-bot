@@ -900,7 +900,7 @@ function getMessageEntries(userEmail){
   var messageIdEntries = []
   var tableDataRaw = WickrIOAPI.cmdGetMessageIDTable("0","1000");
   var tableData = JSON.parse(tableDataRaw);
-  for(var i = tableData.length - 1; i > 0; i--) {
+  for(var i = tableData.length - 1; i >= 0; i--) {
     var entry = tableData[i];
     logger.debug("entry: " + entry);
     //logger.debug("entry keys: " + Object.keys(entry));
