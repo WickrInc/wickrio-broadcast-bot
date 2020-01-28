@@ -4,6 +4,9 @@ const processes = require('./processes.json');
 const dataStringify = JSON.stringify(processes);
 const dataParsed = JSON.parse(dataStringify);
 const {exec, execSync, execFileSync} = require('child_process');
+//Add any tokens(as strings separated by commas) you want to prompt for in the configuration process here
+const tokens = ['WICKRIO_BOT_NAME', 'DATABASE_ENCRYPTION_KEY', 'WHITELISTED_USERS'];
+
 prompt.colors = false;
 
 process.stdin.resume(); //so the program will not close instantly
@@ -60,32 +63,18 @@ async function main() {
     try {
       var it = await inputTokens();
       process.exit();
-      } catch (err) {
+    } catch (err) {
       console.log(err);
     }
   }
 }
 
 async function inputTokens() {
-  var tokens = ['DATABASE_ENCRYPTION_KEY', 'WICKRIO_BOT_NAME', 'WHITELISTED_USERS']; //Add any tokens(as strings separated by commas) you want to prompt for in the configuration process here
   var config = [];
   var i = 0;
-  var inputResult = await readFileInput();
-  let objectKeyArray = [];
-  let objectValueArray = [];
-  if (inputResult !== "" || inputResult !== undefined) {
-    for (var x = 0; x < inputResult.length; x++) {
-      let locationEqual = inputResult[x].indexOf("=");
-      let objectKey = inputResult[x].slice(0, locationEqual);
-      let objectValue = inputResult[x].slice(locationEqual + 1, inputResult[x].length); //Input value
-      objectKeyArray.push(objectKey);
-      objectValueArray.push(objectValue);
-    }
-    var newObjectResult = {};
-    for (var j = 0; j < inputResult.length; j++) {
-      newObjectResult[objectKeyArray[j]] = objectValueArray[j];
-    }
-  }
+
+  newObjectResult = getCurrentValues();
+
   return new Promise((resolve, reject) => {
     var recursivePrompt = function() {
       var token = tokens[i];
@@ -192,6 +181,8 @@ async function inputTokens() {
       var cp = execSync('cp processes.json processes_backup.json');
       if (process.env.WICKRIO_BOT_NAME !== undefined) {
         var newName = "WickrIO-Broadcast-Bot_" + process.env.WICKRIO_BOT_NAME;
+      } else if (newObjectResult.WICKRIO_BOT_NAME !== undefined) {
+        var newName = "WickrIO-Broadcast-Bot_" + newObjectResult.WICKRIO_BOT_NAME.value;
       } else {
         var newName = "WickrIO-Broadcast-Bot";
       }
@@ -211,19 +202,38 @@ async function inputTokens() {
   });
 }
 
-function readFileInput() {
-  try {
-    var rfs = fs.readFileSync('./processes.json', 'utf-8');
-    if (!rfs) {
-      console.log("Error reading processes.json!")
-      return rfs;
-    } else
-      return rfs.trim().split('\n');
+function getCurrentValues()
+{
+    var newObjectResult = {};
+    var processes;
+    try {
+        processes = fs.readFileSync('./processes.json', 'utf-8');
+        if (!processes) {
+          console.log("Error reading processes.json!")
+          return newObjectResult;
+        }
     }
-  catch (err) {
-    console.log(err);
-    process.exit();
-  }
+    catch (err) {
+        console.log(err);
+        return newObjectResult;
+    }
+
+    var pjson = JSON.parse(processes);
+    if (pjson.apps[0].env.tokens === undefined) {
+        return newObjectResult;
+    }
+
+    if (pjson.apps[0].env.tokens.WICKRIO_BOT_NAME !== undefined) {
+      newObjectResult['WICKRIO_BOT_NAME'] = pjson.apps[0].env.tokens.WICKRIO_BOT_NAME.value;
+    }
+    if (pjson.apps[0].env.tokens.DATABASE_ENCRYPTION_KEY !== undefined) {
+      newObjectResult['DATABASE_ENCRYPTION_KEY'] = pjson.apps[0].env.tokens.DATABASE_ENCRYPTION_KEY.value;
+    }
+    if (pjson.apps[0].env.tokens.WHITELISTED_USERS !== undefined) {
+      newObjectResult['WHITELISTED_USERS'] = pjson.apps[0].env.tokens.WHITELISTED_USERS.value;
+    }
+
+    return newObjectResult;
 }
 
 function processConfigured()
@@ -246,6 +256,9 @@ function processConfigured()
         return false;
     }
 
+    if (pjson.apps[0].env.tokens.WICKRIO_BOT_NAME === undefined) {
+        return false;
+    }
     if (pjson.apps[0].env.tokens.WHITELISTED_USERS === undefined) {
         return false;
     }
