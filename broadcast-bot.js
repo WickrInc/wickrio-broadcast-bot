@@ -79,6 +79,8 @@ async function main() {
       whitelisted_users[i] = whitelisted_users[i].trim();
     }
 
+    bot.setAdminOnly(true);
+
     await bot.startListening(listen); //Passes a callback function that will receive incoming messages into the bot client
   } catch (err) {
     console.log(err);
@@ -87,10 +89,15 @@ async function main() {
 
 function listen(message) {
   try {
-    var parsedMessage = bot.parseMessage(message); //Parses an incoming message and returns and object with command, argument, vGroupID and Sender fields
+    /*
+     * Parses an incoming message and returns and object with command,
+     * argument, vGroupID and Sender fields
+     */
+    var parsedMessage = bot.parseMessage(message);
     if (!parsedMessage) {
       return;
     }
+
     logger.debug('New incoming Message:', parsedMessage);
     var wickrUser;
     var fullMessage = parsedMessage.message;
