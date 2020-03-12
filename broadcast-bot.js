@@ -80,6 +80,8 @@ async function main() {
     }
 
     bot.setAdminOnly(true);
+    bot.setVerificationMode('manual');
+
 
     await bot.startListening(listen); //Passes a callback function that will receive incoming messages into the bot client
   } catch (err) {
