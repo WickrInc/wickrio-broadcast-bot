@@ -13,7 +13,8 @@ var logger = log4js.getLogger();
 var strings = require('./strings');
 logger.level = 'debug';
 var createCsvWriter = require('csv-writer').createObjectCsvWriter;
-var whitelisted_users, job;
+var job;
+var verifyUsersMode;
 
 process.stdin.resume(); //so the program will not close instantly
 if(!fs.existsSync(process.cwd() + "/attachments")) {
@@ -67,20 +68,15 @@ async function main() {
       });
     }
 
-    if (tokens.WHITELISTED_USERS.encrypted) {
-      whitelisted_users = WickrIOAPI.cmdDecryptString(tokens.WHITELISTED_USERS.value);
+    bot.setAdminOnly(false);
+
+    // set the verification mode to true
+    if (tokens.VERIFY_USERS.encrypted) {
+      verifyUsersMode = WickrIOAPI.cmdDecryptString(tokens.VERIFY_USERS.value);
     } else {
-      whitelisted_users = tokens.WHITELISTED_USERS.value;
+      verifyUsersMode = tokens.VERIFY_USERS.value;
     }
-    whitelisted_users = whitelisted_users.split(',');
-
-    // Make sure there are no white spaces on the whitelisted users
-    for(var i = 0; i < whitelisted_users.length; i++){
-      whitelisted_users[i] = whitelisted_users[i].trim();
-    }
-
-    bot.setAdminOnly(true);
-    bot.setVerificationMode('manual');
+    bot.setVerificationMode(verifyUsersMode);
 
 
     await bot.startListening(listen); //Passes a callback function that will receive incoming messages into the bot client
@@ -111,6 +107,7 @@ function listen(message) {
     var userEmail = parsedMessage.userEmail;
     var vGroupID = parsedMessage.vgroupid;
     var convoType = parsedMessage.convotype;
+    var isAdmin = parsedMessage.isAdmin;
     var personal_vGroupID = "";
 
     //Go back to dev toolkit and fix
@@ -133,7 +130,7 @@ function listen(message) {
       return;
     }
  
-    if (!verifyUser(userEmail)) {
+    if (!isAdmin) {
       var reply = strings["not-authorized"];
       var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       logger.debug(sMessage);
@@ -545,42 +542,6 @@ function readFileInput() {
   }
 }
 
-function updateWhiteList()
-{
-    var processes;
-    try {
-        processes = fs.readFileSync('./processes.json', 'utf-8');
-        if (!processes) {
-          console.log("Error reading processes.json!")
-          return;
-        }
-    }
-    catch (err) {
-        console.log(err);
-        return;
-    }
-
-    var pjson = JSON.parse(processes);
-    console.log(pjson);
-
-    var wlUsers = whitelisted_users.join(',');
-    if (pjson.apps[0].env.tokens.WHITELISTED_USERS.encrypted) {
-        var wlUsersEncrypted = WickrIOAPI.cmdEncryptString(wlUsers);
-        pjson.apps[0].env.tokens.WHITELISTED_USERS.value = wlUsersEncrypted;
-    } else {
-        pjson.apps[0].env.tokens.WHITELISTED_USERS.value = wlUsers;
-    }
-
-    console.log(pjson);
-
-    try {
-        var cp = execSync('cp processes.json processes_backup.json');
-        var ps = fs.writeFileSync('./processes.json', JSON.stringify(pjson, null, 2));
-    } catch (err) {
-        console.log(err);
-    }
-}
-
 function cronJob(job, cronInterval, user, broadcast, sgFlag, ackFlag, securityGroupsToSend, userEmail, target){
 job = new CronJob(cronInterval, function() {
   var currentDate = new Date();
@@ -672,15 +633,6 @@ function replyWithButtons(message, buttonList) {
   }
   //return  WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID, [], buttons);
   return  WickrIOAPI.cmdSendNetworkMessage(message, "", "", "1", [], buttons);
-}
-
-function verifyUser(user) {
-  var found = whitelisted_users.indexOf(user);
-  if (found === -1) {
-    return false;
-  } else {
-    return true;
-  }
 }
 
 function isInt(value) {
