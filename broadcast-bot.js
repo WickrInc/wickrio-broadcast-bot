@@ -163,7 +163,7 @@ function listen(message) {
     logger.debug('user:', user)
     
     if (command === '/help') {
-      var reply = strings["help"];
+      var reply = bot.getAdminHelp(strings["help"]);
       var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       user.confirm = '';
       logger.debug(sMessage);
@@ -262,104 +262,6 @@ function listen(message) {
       askForAckFlag = false;
       return;
     }
-    // else if(command === '/directory'){
-    //   logger.debug(directory)
-    //   var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, directory);
-    //   logger.debug(sMessage);
-    // }
-
-    // TODO check if user.confrim for flow!!
-    if (command === '/admin') {
-      user.confirm = '';
-      var action = argument.toLowerCase().trim();
-      logger.debug(action);
-      if (action === 'list') {
-        var userList = whitelisted_users.join('\n');
-        var reply = strings["currentAdmins"].replace("%{userList}", userList);
-        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-      } else if (action.startsWith("add")) {
-        // Process the list of users to be added from the white list
-        var values = action.split(' ');
-        values.shift();
-        var addFails = [];
-        if (values.length >= 1) {
-          for(var i = 0; i < values.length; i++){
-            if (whitelisted_users.includes(values[i])) {
-              addFails.push(values.splice(i,1));
-              i--;
-            }
-          }
-          if (addFails.length >= 1) {
-            var reply = strings["alreadyContains"].replace("%{user}", addFails.join("\n"));
-            var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-          } 
-          if (values.length >= 1) {
-            // Send the initial response
-            var userList = values.join('\n');
-            var reply = strings["adminsToAdd"].replace("%{userList}", userList);
-            var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-
-            // add the user(s) from the white list and update the config file
-            logger.debug("Here is values" + values.toString());
-            for (var i = 0; i < values.length; i++) {
-              whitelisted_users.push( values[i] );
-            }
-            logger.debug(whitelisted_users);
-            updateWhiteList();
-
-            // Send a message to all the current white listed users
-            var donereply = strings["adminsAdded"].replace("%{userEmail}", userEmail).replace("%{userList}", userList);
-            var uMessage = WickrIOAPI.cmdSend1to1Message(whitelisted_users, donereply);
-          }
-        } else {
-          var reply = strings["noNewAdmins"];
-          var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-        }
-      } else if (action.startsWith("remove")) {
-        // Process the list of users to be removed from the white list
-        // TODO potentially add buttons here?
-        var values = action.split(' ');
-        values.shift();
-        var removeFails = [];
-        if (values.length >= 1) {
-          for(var i = 0; i < values.length; i++){
-            if (! whitelisted_users.includes(values[i])) {
-              removeFails.push(values.splice(i, 1));
-              i--;
-            }
-          }
-          if (removeFails.length >= 1) {
-            var reply = strings["removeFail"].replace("%{user}", removeFails.join("\n"));
-            var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-          }
-
-          // Send the initial response
-          var userList = values.join('\n');
-          if (values.length >= 1) {
-            var reply = strings["adminsToDelete"].replace("%{userList}", userList);
-            var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-
-            // Remove the user(s) from the white list and update the config file
-            for (var i = 0; i < values.length; i++) {
-              whitelisted_users.splice( whitelisted_users.indexOf(values[i]), 1);
-            }
-            logger.debug(whitelisted_users);
-            updateWhiteList();
-
-            // Send a message to all the current white listed users
-            var donereply = strings["adminsDeleted"].replace("%{userEmail}", userEmail).replace("%{userList}", userList);
-            var uMessage = WickrIOAPI.cmdSend1to1Message(whitelisted_users, donereply);
-          }
-        } else {
-          var reply = strings["noRemoveAdmins"];
-          var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-        }
-      } else {
-            var reply = strings["invalidAdminCommand"];
-            var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-        }
-    }
-
 
     //TODO check if user.confrim for flow!!
     if (parsedMessage.file){

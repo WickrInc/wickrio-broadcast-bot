@@ -16,9 +16,7 @@ module.exports = {
           "/report : To get a CSV file with the status of each user of a broadcast message \n" +
           "/cancel : To cancel the last operation and enter a new command \n\n" + 
           "*Admin Commands*\n" +
-          "/admin list : Get list of admin users \n" +
-          "/admin add <users> : Add one or more admin users \n" +
-          "/admin remove <users> : Remove one or more admin users \n\n" +
+          "%{adminHelp}\n" +
           "*Other Commands*\n" +
           "/help : Show help information",
   "usage": "Usage: /broadcast <Message>\nPlease type the message you would like to send after the /broadcast",
