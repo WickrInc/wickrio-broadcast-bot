@@ -796,7 +796,13 @@ function getStatus(messageID, type, async){
     }
   }
   var messageStatus = JSON.parse(statusData);
-  var statusString = strings["messageStatus"].replace("%{num2send}", messageStatus.num2send).replace("%{sent}", messageStatus.sent).replace("%{acked}", messageStatus.acked).replace("%{pending}", messageStatus.pending).replace("%{failed}", messageStatus.failed);
+  var statusString;
+
+  statusString = strings["messageStatus"].replace("%{num2send}", messageStatus.num2send).replace("%{sent}", messageStatus.sent).replace("%{acked}", messageStatus.acked).replace("%{pending}", messageStatus.pending).replace("%{failed}", messageStatus.failed).replace("%{ignored}", messageStatus.ignored);
+  if (messageStatus.ignored !== undefined) {
+      statusString = statusString + strings["messageStatusIgnored"].replace("%{ignored}", messageStatus.ignored);
+  }
+
   logger.debug("here is the message status" + statusString);
   if(async) {
     var complete = messageStatus.pending === 0;
@@ -856,7 +862,6 @@ function getCSVReport(messageId) {
   while(true) {
     var statusData = WickrIOAPI.cmdGetMessageStatus(messageId, "full", "" + inc, "1000");
     var messageStatus = JSON.parse(statusData);
-    logger.debug("This is messageStatus" + messageStatus);
     for (let entry of messageStatus) {
       var failureString = "";
       var statusString = "";
@@ -873,6 +878,10 @@ function getCSVReport(messageId) {
           break;
         case 3:
           statusString = "acked";
+          break;
+        case 4:
+          statusString = "ignored";
+          failureString = entry.status_message;
           break;
       }
       csvArray.push({user: entry.user, status: statusString, failureMessage: failureString});

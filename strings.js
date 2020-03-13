@@ -55,6 +55,7 @@ module.exports = {
                    "Users Acknowledged: %{acked}\n" +
                    "Message pending to Users: %{pending}\n" +
                    "Message failed to send: %{failed}",
+  "messageStatusIgnored": "\nMessage ignored: %{ignored}",
   "repeatMessageSent": "Broadcast message #%{count} in process of being sent",
   "voiceMemoSentSG": "Broadcast voice memo message in process of being sent to security group",
   "fileSentSG": "Broadcast file message in process of being sent to security group",
