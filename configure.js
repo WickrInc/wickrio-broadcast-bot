@@ -10,6 +10,8 @@ const processes = require('./processes.json');
 const dataStringify = JSON.stringify(processes);
 const dataParsed = JSON.parse(dataStringify);
 const {exec, execSync, execFileSync} = require('child_process');
+
+
 //Add any tokens(as strings separated by commas) you want to prompt for in the configuration process here
 const tokens = ['WICKRIO_BOT_NAME', 'DATABASE_ENCRYPTION_KEY', 'ADMINISTRATORS', 'VERIFY_USERS'];
 
@@ -158,43 +160,22 @@ async function inputTokens() {
       newObjectResult[objectKeyArray[j]] = objectValueArray[j];
     }
     for (var key in newObjectResult) {
-      //If added another config value name to the tokens array in line 52,
-      //you would need to add another if statement block below with the respectful config value name
-      if (key === 'WICKRIO_BOT_NAME' && process.env.WICKRIO_BOT_NAME !== undefined) {
+      // If the environment variable is set then use it
+      if (process.env[key] !== undefined) {
         var obj = {
-          "value": process.env.WICKRIO_BOT_NAME,
+          "value": process.env[key],
           "encrypted": false
         };
-        newObjectResult.WICKRIO_BOT_NAME = obj;
-        continue;
-      } else if (key === 'DATABASE_ENCRYPTION_KEY' && process.env.DATABASE_ENCRYPTION_KEY !== undefined) {
-        var obj = {
-          "value": process.env.DATABASE_ENCRYPTION_KEY,
-          "encrypted": false
-        };
-        newObjectResult.DATABASE_ENCRYPTION_KEY = obj;
-        continue;
-      } else if (key === 'ADMINISTRATORS' && process.env.ADMINISTRATORS !== undefined) {
-        var obj = {
-          "value": process.env.ADMINISTRATORS,
-          "encrypted": false
-        };
-        newObjectResult.ADMINISTRATORS = obj;
-        continue;
-      } else if (key === 'VERIFY_USERS' && process.env.VERIFY_USERS !== undefined) {
-        var obj = {
-          "value": process.env.VERIFY_USERS,
-          "encrypted": false
-        };
-        newObjectResult.VERIFY_USERS = obj;
-        continue;
+        newObjectResult[key] = obj;
       }
-
-      var obj = {
-        "value": newObjectResult[key],
-        "encrypted": false
-      };
-      newObjectResult[key] = obj;
+      // Else use the value just entered by the user
+      else {
+        var obj = {
+          "value": newObjectResult[key],
+          "encrypted": false
+        };
+        newObjectResult[key] = obj;
+      }
     }
     for (var key in dataParsed.apps[0].env.tokens) {
       delete dataParsed.apps[0].env.tokens[key];
