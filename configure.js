@@ -1,37 +1,10 @@
-const fs = require('fs');
-const util = require('util')
 const WickrIOBotAPI = require('wickrio-bot-api');
 
 require("dotenv").config({
   path: `.env.configure`
 })
 
-const prompt = require('prompt');
-const processes = require('./processes.json');
-const dataStringify = JSON.stringify(processes);
-const dataParsed = JSON.parse(dataStringify);
-const {exec, execSync, execFileSync} = require('child_process');
-
 var wickrIOConfigure;
-
-//
-// Add any tokens(as strings separated by commas) you want to prompt
-// for in the configuration process here. Using the WickrIOBotAPI to
-// add Wickr supported Tokens as well.
-//
-const broadcastTokenConfig = [
-    {
-        token: 'DATABASE_ENCRYPTION_KEY',
-        pattern: '',
-        type: 'string',
-        description: 'Enter the database encryption key',
-        message: 'Cannot leave empty! Please enter a value',
-        required: true,
-        default: 'N/A',
-    }
-];
-
-prompt.colors = false;
 
 process.stdin.resume(); //so the program will not close instantly
 
@@ -69,7 +42,7 @@ main();
 async function main()
 {
     var fullName = process.cwd() + "/processes.json";
-    wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure(broadcastTokenConfig, fullName, true, true);
+    wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure([], fullName, true, true);
 
     await wickrIOConfigure.configureYourBot();
     process.exit();
