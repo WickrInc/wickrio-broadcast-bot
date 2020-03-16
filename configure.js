@@ -1,5 +1,6 @@
 const fs = require('fs');
 const util = require('util')
+const WickrIOBotAPI = require('wickrio-bot-api');
 
 require("dotenv").config({
   path: `.env.configure`
@@ -12,10 +13,15 @@ const dataParsed = JSON.parse(dataStringify);
 const {exec, execSync, execFileSync} = require('child_process');
 
 
-//Add any tokens(as strings separated by commas) you want to prompt for in the configuration process here
-//const tokenlist = ['WICKRIO_BOT_NAME', 'DATABASE_ENCRYPTION_KEY', 'ADMINISTRATORS', 'VERIFY_USERS'];
+var tokenConfig = [];
+var wickrIOConfigure;
 
-const tokenConfig = [
+//
+// Add any tokens(as strings separated by commas) you want to prompt
+// for in the configuration process here. Using the WickrIOBotAPI to
+// add Wickr supported Tokens as well.
+//
+const broadcastTokenConfig = [
     {
         token: 'WICKRIO_BOT_NAME',
         pattern: '',
@@ -33,27 +39,8 @@ const tokenConfig = [
         message: 'Cannot leave empty! Please enter a value',
         required: true,
         default: 'N/A',
-    },
-    {
-        token: 'ADMINISTRATORS',
-        pattern: '',
-        type: 'string',
-        description: 'Enter the list of administrators',
-        message: 'Cannot leave empty! Please enter a value',
-        required: true,
-        default: 'N/A',
-    },
-    {
-        token: 'VERIFY_USERS',
-        pattern: 'manual|automatic',
-        type: 'string',
-        description: 'Enter the mode to verify users',
-        message: 'Please enter either manual or automatic',
-        required: false,
-        default: 'automatic',
     }
 ];
-
 
 prompt.colors = false;
 
@@ -92,7 +79,13 @@ main();
 
 async function main()
 {
-  if (processConfigured()) {
+  var fullName = process.cwd() + "/processes.json";
+  wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure(broadcastTokenConfig, fullName, true, true);
+  tokenConfig = wickrIOConfigure.getTokenList();
+//  wickrIOConfigure.displayValues();
+
+
+  if (wickrIOConfigure.processConfigured()) {
     try {
       var cp = execSync('cp processes.json processes_backup.json');
       if (dataParsed.apps[0].env.tokens.WICKRIO_BOT_NAME.value !== undefined) {
@@ -110,7 +103,8 @@ async function main()
     process.exit();
   } else {
     try {
-      var it = await inputTokens();
+      await wickrIOConfigure.inputTokens();
+      console.log("Finished Configuring!");
       process.exit();
     } catch (err) {
       console.log(err);
@@ -118,183 +112,3 @@ async function main()
   }
 }
 
-async function inputTokens() {
-  var config = [];
-  var i = 0;
-
-  newObjectResult = getCurrentValues();
-
-  return new Promise((resolve, reject) => {
-    var recursivePrompt = function() {
-      if (i === tokenConfig.length) {
-        return resolve("Configuration complete!");
-      }
-      var tokenEntry = tokenConfig[i];
-
-      // For this token if it is defined in the environment
-      // Then set the input value for the token
-      if (process.env[tokenEntry.token] !== undefined) {
-        var input = tokenEntry.token + '=' + process.env[tokenEntry.token];
-        config.push(input);
-        i++;
-        return recursivePrompt();
-      }
-
-      var dflt = newObjectResult[tokenEntry.token];
-      var descriptionValue;
-      var requiredValue = tokenEntry.required;
-
-      if (dflt === undefined || dflt === "undefined") {
-        descriptionValue = tokenEntry.description + ' (Default: ' + tokenEntry.default + ')';
-      } else {
-        descriptionValue = tokenEntry.description + ' (Default: ' + dflt + ')';
-        requiredValue = false;
-      }
-
-      var schema = {
-        properties: {
-          [tokenEntry.token]: {
-            pattern: tokenEntry.pattern,
-            type: tokenEntry.type,
-            description: descriptionValue,
-            message: tokenEntry.message,
-            required: requiredValue
-          }
-        }
-      };
-
-      prompt.get(schema, function(err, answer) {
-        if (answer[tokenEntry.token] === "")
-          answer[tokenEntry.token] = newObjectResult[tokenEntry.token];
-        var input = tokenEntry.token + '=' + answer[tokenEntry.token];
-        config.push(input);
-        i++;
-        recursivePrompt();
-      });
-    }
-    recursivePrompt();
-  }).then(function(answer) {
-    let objectKeyArray = [];
-    let objectValueArray = [];
-    for (var i = 0; i < config.length; i++) {
-      let locationEqual = config[i].indexOf("=");
-      let objectKey = config[i].slice(0, locationEqual);
-      let objectValue = config[i].slice(locationEqual + 1, config[i].length); //Input value
-      objectKeyArray.push(objectKey);
-      objectValueArray.push(objectValue);
-    }
-    var newObjectResult = {};
-    for (var j = 0; j < config.length; j++) {
-      newObjectResult[objectKeyArray[j]] = objectValueArray[j];
-    }
-    for (var key in newObjectResult) {
-      // If the environment variable is set then use it
-      if (process.env[key] !== undefined) {
-        var obj = {
-          "value": process.env[key],
-          "encrypted": false
-        };
-        newObjectResult[key] = obj;
-      }
-      // Else use the value just entered by the user
-      else {
-        var obj = {
-          "value": newObjectResult[key],
-          "encrypted": false
-        };
-        newObjectResult[key] = obj;
-      }
-    }
-    for (var key in dataParsed.apps[0].env.tokens) {
-      delete dataParsed.apps[0].env.tokens[key];
-    }
-    try {
-      var cp = execSync('cp processes.json processes_backup.json');
-      if (process.env.WICKRIO_BOT_NAME !== undefined) {
-        var newName = "WickrIO-Broadcast-Bot_" + process.env.WICKRIO_BOT_NAME;
-      } else if (newObjectResult.WICKRIO_BOT_NAME !== undefined) {
-        var newName = "WickrIO-Broadcast-Bot_" + newObjectResult.WICKRIO_BOT_NAME.value;
-      } else {
-        var newName = "WickrIO-Broadcast-Bot";
-      }
-
-      //var assign = Object.assign(dataParsed.apps[0].name, newName);
-      dataParsed.apps[0].name = newName;
-
-      var assign = Object.assign(dataParsed.apps[0].env.tokens, newObjectResult);
-      var ps = fs.writeFileSync('./processes.json', JSON.stringify(dataParsed, null, 2));
-    } catch (err) {
-      console.log(err);
-    }
-    console.log(answer);
-    return;
-  }).catch(err => {
-    console.log(err);
-  });
-}
-
-function getCurrentValues()
-{
-    var newObjectResult = {};
-    var processes;
-    try {
-        processes = fs.readFileSync('./processes.json', 'utf-8');
-        if (!processes) {
-          console.log("Error reading processes.json!")
-          return newObjectResult;
-        }
-    }
-    catch (err) {
-        console.log(err);
-        return newObjectResult;
-    }
-
-    var pjson = JSON.parse(processes);
-    if (pjson.apps[0].env.tokens === undefined) {
-        return newObjectResult;
-    }
-
-    // Create a mapping of the list of tokens and their values
-    for(var attributename in pjson.apps[0].env.tokens){
-        newObjectResult[attributename] = pjson.apps[0].env.tokens[attributename].value;
-    }
-
-    return newObjectResult;
-}
-
-/*
- * This function will check if any of the tokens have NOT been configured.
- * If all tokens have values assigned then a true value is returned.
- * If any tokens do not have values assigned then a false value is returned.
- */
-function processConfigured()
-{
-    var processes;
-    try {
-        processes = fs.readFileSync('./processes.json', 'utf-8');
-        if (!processes) {
-          console.log("Error reading processes.json!")
-          return false;
-        }
-    }
-    catch (err) {
-        console.log(err);
-        return false;
-    }
-
-    var pjson = JSON.parse(processes);
-    if (pjson.apps[0].env.tokens === undefined) {
-        return false;
-    }
-
-    // Check if the value for any of the tokens is not set
-    // If it is not set then return false
-    for (var i = 0; i < tokenConfig.length; i++) {
-        if (pjson.apps[0].env.tokens[tokenConfig[i].token] === undefined) {
-            return false;
-        }
-    }
-
-    // All of the tokens have values set
-    return true;
-}
