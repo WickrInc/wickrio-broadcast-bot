@@ -23,15 +23,6 @@ var wickrIOConfigure;
 //
 const broadcastTokenConfig = [
     {
-        token: 'WICKRIO_BOT_NAME',
-        pattern: '',
-        type: 'string',
-        description: 'Enter the WickrIO bot name',
-        message: 'Cannot leave empty! Please enter a value',
-        required: true,
-        default: 'N/A',
-    },
-    {
         token: 'DATABASE_ENCRYPTION_KEY',
         pattern: '',
         type: 'string',
