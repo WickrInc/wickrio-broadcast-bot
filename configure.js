@@ -12,8 +12,6 @@ const dataStringify = JSON.stringify(processes);
 const dataParsed = JSON.parse(dataStringify);
 const {exec, execSync, execFileSync} = require('child_process');
 
-
-var tokenConfig = [];
 var wickrIOConfigure;
 
 //
@@ -70,36 +68,10 @@ main();
 
 async function main()
 {
-  var fullName = process.cwd() + "/processes.json";
-  wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure(broadcastTokenConfig, fullName, true, true);
-  tokenConfig = wickrIOConfigure.getTokenList();
-//  wickrIOConfigure.displayValues();
+    var fullName = process.cwd() + "/processes.json";
+    wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure(broadcastTokenConfig, fullName, true, true);
 
-
-  if (wickrIOConfigure.processConfigured()) {
-    try {
-      var cp = execSync('cp processes.json processes_backup.json');
-      if (dataParsed.apps[0].env.tokens.WICKRIO_BOT_NAME.value !== undefined) {
-        var newName = "WickrIO-Broadcast-Bot_" + dataParsed.apps[0].env.tokens.WICKRIO_BOT_NAME.value;
-      } else {
-        var newName = "WickrIO-Broadcast-Bot";
-      }
-      //var assign = Object.assign(dataParsed.apps[0].name, newName);
-      dataParsed.apps[0].name = newName;
-      var ps = fs.writeFileSync('./processes.json', JSON.stringify(dataParsed, null, 2));
-    } catch (err) {
-      console.log(err);
-    }
-    console.log("Already configured");
+    await wickrIOConfigure.configureYourBot();
     process.exit();
-  } else {
-    try {
-      await wickrIOConfigure.inputTokens();
-      console.log("Finished Configuring!");
-      process.exit();
-    } catch (err) {
-      console.log(err);
-    }
-  }
 }
 
