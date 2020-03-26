@@ -13,7 +13,8 @@ var logger = log4js.getLogger();
 var strings = require('./strings');
 logger.level = 'debug';
 var createCsvWriter = require('csv-writer').createObjectCsvWriter;
-var whitelisted_users, job;
+var job;
+var verifyUsersMode;
 
 process.stdin.resume(); //so the program will not close instantly
 if(!fs.existsSync(process.cwd() + "/attachments")) {
@@ -67,17 +68,16 @@ async function main() {
       });
     }
 
-    if (tokens.WHITELISTED_USERS.encrypted) {
-      whitelisted_users = WickrIOAPI.cmdDecryptString(tokens.WHITELISTED_USERS.value);
-    } else {
-      whitelisted_users = tokens.WHITELISTED_USERS.value;
-    }
-    whitelisted_users = whitelisted_users.split(',');
+    bot.setAdminOnly(false);
 
-    // Make sure there are no white spaces on the whitelisted users
-    for(var i = 0; i < whitelisted_users.length; i++){
-      whitelisted_users[i] = whitelisted_users[i].trim();
+    // set the verification mode to true
+    if (tokens.VERIFY_USERS.encrypted) {
+      verifyUsersMode = WickrIOAPI.cmdDecryptString(tokens.VERIFY_USERS.value);
+    } else {
+      verifyUsersMode = tokens.VERIFY_USERS.value;
     }
+    bot.setVerificationMode(verifyUsersMode);
+
 
     await bot.startListening(listen); //Passes a callback function that will receive incoming messages into the bot client
   } catch (err) {
@@ -87,10 +87,15 @@ async function main() {
 
 function listen(message) {
   try {
-    var parsedMessage = bot.parseMessage(message); //Parses an incoming message and returns and object with command, argument, vGroupID and Sender fields
+    /*
+     * Parses an incoming message and returns and object with command,
+     * argument, vGroupID and Sender fields
+     */
+    var parsedMessage = bot.parseMessage(message);
     if (!parsedMessage) {
       return;
     }
+
     logger.debug('New incoming Message:', parsedMessage);
     var wickrUser;
     var fullMessage = parsedMessage.message;
@@ -102,6 +107,7 @@ function listen(message) {
     var userEmail = parsedMessage.userEmail;
     var vGroupID = parsedMessage.vgroupid;
     var convoType = parsedMessage.convotype;
+    var isAdmin = parsedMessage.isAdmin;
     var personal_vGroupID = "";
 
     //Go back to dev toolkit and fix
@@ -124,7 +130,7 @@ function listen(message) {
       return;
     }
  
-    if (!verifyUser(userEmail)) {
+    if (!isAdmin) {
       var reply = strings["not-authorized"];
       var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       logger.debug(sMessage);
@@ -156,7 +162,7 @@ function listen(message) {
     logger.debug('user:', user)
     
     if (command === '/help') {
-      var reply = strings["help"];
+      var reply = bot.getAdminHelp(strings["help"]);
       var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       user.confirm = '';
       logger.debug(sMessage);
@@ -255,104 +261,6 @@ function listen(message) {
       askForAckFlag = false;
       return;
     }
-    // else if(command === '/directory'){
-    //   logger.debug(directory)
-    //   var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, directory);
-    //   logger.debug(sMessage);
-    // }
-
-    // TODO check if user.confrim for flow!!
-    if (command === '/admin') {
-      user.confirm = '';
-      var action = argument.toLowerCase().trim();
-      logger.debug(action);
-      if (action === 'list') {
-        var userList = whitelisted_users.join('\n');
-        var reply = strings["currentAdmins"].replace("%{userList}", userList);
-        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-      } else if (action.startsWith("add")) {
-        // Process the list of users to be added from the white list
-        var values = action.split(' ');
-        values.shift();
-        var addFails = [];
-        if (values.length >= 1) {
-          for(var i = 0; i < values.length; i++){
-            if (whitelisted_users.includes(values[i])) {
-              addFails.push(values.splice(i,1));
-              i--;
-            }
-          }
-          if (addFails.length >= 1) {
-            var reply = strings["alreadyContains"].replace("%{user}", addFails.join("\n"));
-            var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-          } 
-          if (values.length >= 1) {
-            // Send the initial response
-            var userList = values.join('\n');
-            var reply = strings["adminsToAdd"].replace("%{userList}", userList);
-            var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-
-            // add the user(s) from the white list and update the config file
-            logger.debug("Here is values" + values.toString());
-            for (var i = 0; i < values.length; i++) {
-              whitelisted_users.push( values[i] );
-            }
-            logger.debug(whitelisted_users);
-            updateWhiteList();
-
-            // Send a message to all the current white listed users
-            var donereply = strings["adminsAdded"].replace("%{userEmail}", userEmail).replace("%{userList}", userList);
-            var uMessage = WickrIOAPI.cmdSend1to1Message(whitelisted_users, donereply);
-          }
-        } else {
-          var reply = strings["noNewAdmins"];
-          var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-        }
-      } else if (action.startsWith("remove")) {
-        // Process the list of users to be removed from the white list
-        // TODO potentially add buttons here?
-        var values = action.split(' ');
-        values.shift();
-        var removeFails = [];
-        if (values.length >= 1) {
-          for(var i = 0; i < values.length; i++){
-            if (! whitelisted_users.includes(values[i])) {
-              removeFails.push(values.splice(i, 1));
-              i--;
-            }
-          }
-          if (removeFails.length >= 1) {
-            var reply = strings["removeFail"].replace("%{user}", removeFails.join("\n"));
-            var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-          }
-
-          // Send the initial response
-          var userList = values.join('\n');
-          if (values.length >= 1) {
-            var reply = strings["adminsToDelete"].replace("%{userList}", userList);
-            var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-
-            // Remove the user(s) from the white list and update the config file
-            for (var i = 0; i < values.length; i++) {
-              whitelisted_users.splice( whitelisted_users.indexOf(values[i]), 1);
-            }
-            logger.debug(whitelisted_users);
-            updateWhiteList();
-
-            // Send a message to all the current white listed users
-            var donereply = strings["adminsDeleted"].replace("%{userEmail}", userEmail).replace("%{userList}", userList);
-            var uMessage = WickrIOAPI.cmdSend1to1Message(whitelisted_users, donereply);
-          }
-        } else {
-          var reply = strings["noRemoveAdmins"];
-          var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-        }
-      } else {
-            var reply = strings["invalidAdminCommand"];
-            var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-        }
-    }
-
 
     //TODO check if user.confrim for flow!!
     if (parsedMessage.file){
@@ -634,42 +542,6 @@ function readFileInput() {
   }
 }
 
-function updateWhiteList()
-{
-    var processes;
-    try {
-        processes = fs.readFileSync('./processes.json', 'utf-8');
-        if (!processes) {
-          console.log("Error reading processes.json!")
-          return;
-        }
-    }
-    catch (err) {
-        console.log(err);
-        return;
-    }
-
-    var pjson = JSON.parse(processes);
-    console.log(pjson);
-
-    var wlUsers = whitelisted_users.join(',');
-    if (pjson.apps[0].env.tokens.WHITELISTED_USERS.encrypted) {
-        var wlUsersEncrypted = WickrIOAPI.cmdEncryptString(wlUsers);
-        pjson.apps[0].env.tokens.WHITELISTED_USERS.value = wlUsersEncrypted;
-    } else {
-        pjson.apps[0].env.tokens.WHITELISTED_USERS.value = wlUsers;
-    }
-
-    console.log(pjson);
-
-    try {
-        var cp = execSync('cp processes.json processes_backup.json');
-        var ps = fs.writeFileSync('./processes.json', JSON.stringify(pjson, null, 2));
-    } catch (err) {
-        console.log(err);
-    }
-}
-
 function cronJob(job, cronInterval, user, broadcast, sgFlag, ackFlag, securityGroupsToSend, userEmail, target){
 job = new CronJob(cronInterval, function() {
   var currentDate = new Date();
@@ -761,15 +633,6 @@ function replyWithButtons(message, buttonList) {
   }
   //return  WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID, [], buttons);
   return  WickrIOAPI.cmdSendNetworkMessage(message, "", "", "1", [], buttons);
-}
-
-function verifyUser(user) {
-  var found = whitelisted_users.indexOf(user);
-  if (found === -1) {
-    return false;
-  } else {
-    return true;
-  }
 }
 
 function isInt(value) {
@@ -933,7 +796,13 @@ function getStatus(messageID, type, async){
     }
   }
   var messageStatus = JSON.parse(statusData);
-  var statusString = strings["messageStatus"].replace("%{num2send}", messageStatus.num2send).replace("%{sent}", messageStatus.sent).replace("%{acked}", messageStatus.acked).replace("%{pending}", messageStatus.pending).replace("%{failed}", messageStatus.failed);
+  var statusString;
+
+  statusString = strings["messageStatus"].replace("%{num2send}", messageStatus.num2send).replace("%{sent}", messageStatus.sent).replace("%{acked}", messageStatus.acked).replace("%{pending}", messageStatus.pending).replace("%{failed}", messageStatus.failed).replace("%{ignored}", messageStatus.ignored);
+  if (messageStatus.ignored !== undefined) {
+      statusString = statusString + strings["messageStatusIgnored"].replace("%{ignored}", messageStatus.ignored);
+  }
+
   logger.debug("here is the message status" + statusString);
   if(async) {
     var complete = messageStatus.pending === 0;
@@ -993,7 +862,6 @@ function getCSVReport(messageId) {
   while(true) {
     var statusData = WickrIOAPI.cmdGetMessageStatus(messageId, "full", "" + inc, "1000");
     var messageStatus = JSON.parse(statusData);
-    logger.debug("This is messageStatus" + messageStatus);
     for (let entry of messageStatus) {
       var failureString = "";
       var statusString = "";
@@ -1010,6 +878,10 @@ function getCSVReport(messageId) {
           break;
         case 3:
           statusString = "acked";
+          break;
+        case 4:
+          statusString = "ignored";
+          failureString = entry.status_message;
           break;
       }
       csvArray.push({user: entry.user, status: statusString, failureMessage: failureString});

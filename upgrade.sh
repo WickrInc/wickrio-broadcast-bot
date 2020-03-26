@@ -36,7 +36,10 @@ cd $OLD_BOT_LOCATION
 # Copy the json data files to the new software location
 #
 set +e
-cp -f users.txt processes.json last_id.json $NEW_BOT_LOCATION
+# need to convert the WHITELISTED_USERS to ADMINISTRATORS
+sed -e "s/WHITELISTED_USERS/ADMINISTRATORS/g" <processes.json > $NEW_BOT_LOCATION/processes.json
+
+cp -f users.txt last_id.json $NEW_BOT_LOCATION
 set -e
 
 #

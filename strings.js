@@ -16,9 +16,7 @@ module.exports = {
           "/report : To get a CSV file with the status of each user of a broadcast message \n" +
           "/cancel : To cancel the last operation and enter a new command \n\n" + 
           "*Admin Commands*\n" +
-          "/admin list : Get list of admin users \n" +
-          "/admin add <users> : Add one or more admin users \n" +
-          "/admin remove <users> : Remove one or more admin users \n\n" +
+          "%{adminHelp}\n" +
           "*Other Commands*\n" +
           "/help : Show help information",
   "usage": "Usage: /broadcast <Message>\nPlease type the message you would like to send after the /broadcast",
@@ -32,16 +30,6 @@ module.exports = {
                   "%{messageList}" +
                   "Which message would you like to receive a report of?",
   "canceled": "Previous command canceled, send a new command or enter /help for a list of commands.",
-  "currentAdmins": "Current amins:\n%{userList}",
-  "alreadyContains": "Failed, current list of admins already contains:\n%{user}",
-  "adminsToAdd": "Going to add admins:\n%{userList}",
-  "adminsAdded": "%{userEmail} has added the following admins:\n%{userList}",
-  "noNewAdmins": "Command contains no user names to add!",
-  "removeFail": "Failed, current list of admins does not contain:\n%{user}",
-  "adminsToDelete": "Going to delete admins:\n%{userList}",
-  "adminsDeleted": "%{userEmail} has removed the following admins:\n%{userList}",
-  "noRemoveAdmins": "Command contains no user names to remove!",
-  "invalidAdminCommand": "Invalid /admin command, usage:\n/admin list|add <user(s)>|remove <user(s)>",
   "voiceMemoBroadcast": "Would you like to send this voice memo as a broadcast message?",
   "fileBroadcast": "Would you like to send file named: '%{filename}' as a broadcast message?",
   "fileNotSent": "Would you like to ask the recipients for an acknowledgement?",
@@ -67,6 +55,7 @@ module.exports = {
                    "Users Acknowledged: %{acked}\n" +
                    "Message pending to Users: %{pending}\n" +
                    "Message failed to send: %{failed}",
+  "messageStatusIgnored": "\nMessage ignored: %{ignored}",
   "repeatMessageSent": "Broadcast message #%{count} in process of being sent",
   "voiceMemoSentSG": "Broadcast voice memo message in process of being sent to security group",
   "fileSentSG": "Broadcast file message in process of being sent to security group",
