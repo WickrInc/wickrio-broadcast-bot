@@ -44,7 +44,7 @@ async function main()
     var fullName = process.cwd() + "/processes.json";
     wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure([], fullName, true, true);
 
-    await wickrIOConfigure.configureYourBot();
+    await wickrIOConfigure.configureYourBot("WickrIO-Broadcast-Bot");
     process.exit();
 }
 
