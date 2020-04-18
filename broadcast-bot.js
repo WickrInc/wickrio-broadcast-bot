@@ -148,7 +148,13 @@ async function main() {
             } else {
                 var wickrUser = req.params.wickrUser;
                 if (typeof wickrUser !== 'string')
-                    return res.send("WickrUser must be a string.");
+                    return res.status(400).send('Bad request: WickrUser must be a string.');
+
+                // Check if this user is an administrator
+                var adminUser = bot.myAdmins.getAdmin(wickrUser);
+                if (adminUser === undefined) {
+                    return res.status(401).send('Access denied: ' + wickrUser + ' is not authorized to broadcast!');
+                }
 
                 var ttl = "", bor = "";
                 var users = [];
