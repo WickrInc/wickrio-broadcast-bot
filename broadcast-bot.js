@@ -1,6 +1,13 @@
 'use strict';
 
 const fs = require('fs');
+const express = require('express');
+const https = require('https');
+const bodyParser = require('body-parser');
+const helmet = require('helmet')
+const app = express();
+app.use(helmet()); //security http headers
+
 const {exec, execSync, execFileSync} = require('child_process');
 const WickrIOAPI = require('wickrio_addon');
 const WickrIOBotAPI = require('wickrio-bot-api');
@@ -15,6 +22,12 @@ logger.level = 'debug';
 var createCsvWriter = require('csv-writer').createObjectCsvWriter;
 var job;
 var verifyUsersMode;
+
+//
+// Web interface definitions
+//
+var bot_port, bot_api_key, bot_api_auth_token;
+var client_auth_codes = {};
 
 process.stdin.resume(); //so the program will not close instantly
 if(!fs.existsSync(process.cwd() + "/attachments")) {
@@ -78,8 +91,222 @@ async function main() {
     }
     bot.setVerificationMode(verifyUsersMode);
 
+    //Passes a callback function that will receive incoming messages into the bot client
+    bot.startListening(listen);
 
-    await bot.startListening(listen); //Passes a callback function that will receive incoming messages into the bot client
+
+    // start up the web interface if one exists
+    if (tokens.BOT_PORT !== undefined &&
+        tokens.BOT_API_KEY != undefined &&
+        tokens.BOT_API_AUTH_TOKEN != undefined) {
+        bot_port = tokens.BOT_PORT.value;
+        bot_api_key = tokens.BOT_API_KEY.value;
+        bot_api_auth_token = tokens.BOT_API_AUTH_TOKEN.value;
+
+        app.listen(bot_port, () => {
+            console.log('We are live on ' + bot_port);
+        });
+
+        // parse application/x-www-form-urlencoded
+        app.use(bodyParser.urlencoded({extended: false}));
+        // parse application/json
+        app.use(bodyParser.json());
+
+        app.use(function(error, req, res, next) {
+            if (error instanceof SyntaxError) {
+                console.log('bodyParser:', error);
+                res.statusCode = 400;
+                res.type('txt').send(error.toString());
+            } else {
+                next();
+            }
+        });
+
+        app.all('*', function(req, res, next) {
+            next();
+        });
+
+        var endpoint = "/WickrIO/V1/Apps/" + bot_api_key;
+
+        app.post(endpoint + "/Authenticate/:wickrUser", function(req, res) {
+            res.set('Content-Type', 'text/plain');
+            res.set('Authorization', 'Basic base64_auth_token');
+            var authHeader = req.get('Authorization');
+            var authToken;
+            if (authHeader) {
+                if (authHeader.indexOf(' ') == -1) {
+                    authToken = authHeader;
+                } else {
+                    authHeader = authHeader.split(' ');
+                    authToken = authHeader[1];
+                }
+            } else {
+                return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic base64_auth_token"');
+            }
+            if (!checkCreds(authToken)) {
+                return res.status(401).send('Access denied: invalid basic-auth token.');
+            } else {
+                var wickrUser = req.params.wickrUser;
+                if (typeof wickrUser !== 'string')
+                    return res.send("WickrUser must be a string.");
+
+                var ttl = "", bor = "";
+                var users = [];
+                users.push(wickrUser);
+
+                var random = generateRandomString(24);
+                var message = "Authentication code: " + random;
+
+                // Save the auth key for the wickrUser
+                client_auth_codes[wickrUser] = random;
+
+                try {
+                    var csm = WickrIOAPI.cmdSend1to1Message(users, message, ttl, bor);
+                    console.log(csm);
+                    res.send(csm);
+                } catch (err) {
+                    console.log(err);
+                    res.statusCode = 400;
+                    res.send(err.toString());
+                }
+            }
+        });
+
+        app.post(endpoint + "/Broadcast/:wickrUser/:authCode", function(req, res) {
+            res.set('Content-Type', 'text/plain');
+            res.set('Authorization', 'Basic base64_auth_token');
+            var authHeader = req.get('Authorization');
+            var authToken;
+            if (authHeader) {
+                if (authHeader.indexOf(' ') == -1) {
+                    authToken = authHeader;
+                } else {
+                    authHeader = authHeader.split(' ');
+                    authToken = authHeader[1];
+                }
+            } else {
+                return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic base64_auth_token"');
+            }
+
+            if (!checkCreds(authToken)) {
+                return res.status(401).send('Access denied: invalid basic-auth token.');
+            }
+
+            var wickrUser = req.params.wickrUser;
+            if (typeof wickrUser !== 'string')
+                return res.send("WickrUser must be a string.");
+            var authCode = req.params.authCode;
+            if (typeof authCode !== 'string')
+                return res.send("Authentication Code must be a string.");
+
+            // Check if the authCode is valid for the input user
+            var dictAuthCode = client_auth_codes[wickrUser];
+            if (dictAuthCode === undefined || authCode != dictAuthCode) {
+                return res.status(401).send('Access denied: invalid user authentication code.');
+            }
+
+//        message.insert("action", "broadcast");
+//    message.insert("message", broadcastTextEdit->toPlainText() );
+//    message.insert("target", 0);
+//    message.insert("acknowledge", broadcastDialogOptionsWidget->isChecked() ? true : false);
+//    message.insert("repeat", 0);
+//    message.insert("pause", 0);
+
+            if (!req.body.message) {
+                return res.send("Broadcast message missing from request.");
+            }
+
+            try {
+                var messageID = updateLastID();
+                var broadcastMsgToSend = req.body.message
+                if (req.body.acknowledge != undefined && req.body.acknowledge === true) {
+                  broadcastMsgToSend = broadcastMsgToSend + "\nPlease acknowledge this message by replying with /ack";
+                }
+                broadcastMsgToSend = broadcastMsgToSend + "\n\nBroadcast message sent by: " + wickrUser;
+
+                var bMessage;
+                if (req.body.security_group != undefined) {
+                    if (req.body.security_group.length === 0) {
+                        return res.send("Security Group length invalid.");
+                    }
+                    var securityGroups = [];
+                    securityGroups.push(req.body.security_group);
+                    bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(broadcastMsgToSend, securityGroups, "", "", messageID);
+                    console.log('sending to security group ' + req.body.security_group);
+                } else {
+                    bMessage = WickrIOAPI.cmdSendNetworkMessage(broadcastMsgToSend, "", "", messageID);
+                    console.log('sending to entire network!');
+                }
+
+                console.log(bMessage);
+                res.send(bMessage);
+            } catch (err) {
+                console.log(err);
+                res.statusCode = 400;
+                res.send(err.toString());
+            }
+        });
+
+        app.get(endpoint + "/SecGroups/:wickrUser/:authCode", function(req, res) {
+            res.set('Content-Type', 'text/plain');
+            res.set('Authorization', 'Basic base64_auth_token');
+            var authHeader = req.get('Authorization');
+            var authToken;
+            if (authHeader) {
+                if (authHeader.indexOf(' ') == -1) {
+                    authToken = authHeader;
+                } else {
+                    authHeader = authHeader.split(' ');
+                    authToken = authHeader[1];
+                }
+            } else {
+                return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic base64_auth_token"');
+            }
+
+            if (!checkCreds(authToken)) {
+                return res.status(401).send('Access denied: invalid basic-auth token.');
+            }
+
+            var wickrUser = req.params.wickrUser;
+            if (typeof wickrUser !== 'string')
+                return res.send("WickrUser must be a string.");
+            var authCode = req.params.authCode;
+            if (typeof authCode !== 'string')
+                return res.send("Authentication Code must be a string.");
+
+            // Check if the authCode is valid for the input user
+            var dictAuthCode = client_auth_codes[wickrUser];
+            if (dictAuthCode === undefined || authCode != dictAuthCode) {
+                return res.status(401).send('Access denied: invalid user authentication code.');
+            }
+
+            try {
+              var getGroups = WickrIOAPI.cmdGetSecurityGroups();
+              var response = isJson(getGroups);
+              if (response !== false) {
+                getGroups = response;
+              } else {
+                getGroups = '{}';
+              }
+              res.set('Content-Type', 'application/json');
+              res.send(getGroups);
+              console.log(getGroups);
+            } catch (err) {
+              console.log(err);
+              res.statusCode = 400;
+              res.type('txt').send(err.toString());
+            }
+        });
+
+        // What to do for ALL requests for ALL Paths
+        // that are not handled above
+        app.all('*', function(req, res) {
+            console.log('*** 404 ***');
+            console.log('404 for url: ' + req.url);
+            console.log('***********');
+            return res.type('txt').status(404).send('Endpoint ' + req.url + ' not found');
+        });
+    }
   } catch (err) {
     console.log(err);
   }
@@ -912,6 +1139,38 @@ function writeCSVReport(path, csvArray) {
     .then(() => {
       logger.debug('...Done');
     });
+}
+
+//Basic function to validate credentials for example
+function checkCreds(authToken) {
+    try {
+        var valid = true;
+        const authStr = new Buffer(authToken, 'base64').toString();
+        //implement authToken verification in here
+        if (authStr !== bot_api_auth_token)
+            valid = false;
+        return valid;
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+function generateRandomString(length) {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for (var i = 0; i < length; i++)
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    return text;
+}
+
+function isJson(str) {
+    try {
+      str = JSON.parse(str);
+    } catch (e) {
+      return false;
+    }
+    return str;
 }
 
 main();
