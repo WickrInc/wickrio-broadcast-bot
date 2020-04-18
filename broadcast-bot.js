@@ -200,10 +200,10 @@ async function main() {
 
             var wickrUser = req.params.wickrUser;
             if (typeof wickrUser !== 'string')
-                return res.send("WickrUser must be a string.");
+                return res.status(401).send("WickrUser must be a string.");
             var authCode = req.params.authCode;
             if (typeof authCode !== 'string')
-                return res.send("Authentication Code must be a string.");
+                return res.status(401).send("Authentication Code must be a string.");
 
             // Check if the authCode is valid for the input user
             var dictAuthCode = client_auth_codes[wickrUser];
@@ -223,6 +223,8 @@ async function main() {
             }
 
             try {
+                var currentDate = new Date();
+                var jsonDateTime = currentDate.toJSON();
                 var messageID = updateLastID();
                 var broadcastMsgToSend = req.body.message
                 if (req.body.acknowledge != undefined && req.body.acknowledge === true) {
@@ -237,9 +239,11 @@ async function main() {
                     }
                     var securityGroups = [];
                     securityGroups.push(req.body.security_group);
+                    writeToMessageIdDB(messageID, wickrUser, req.body.security_group, jsonDateTime, req.body.message);
                     bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(broadcastMsgToSend, securityGroups, "", "", messageID);
                     console.log('sending to security group ' + req.body.security_group);
                 } else {
+                    writeToMessageIdDB(messageID, wickrUser, "network", jsonDateTime, req.body.message);
                     bMessage = WickrIOAPI.cmdSendNetworkMessage(broadcastMsgToSend, "", "", messageID);
                     console.log('sending to entire network!');
                 }
@@ -275,10 +279,10 @@ async function main() {
 
             var wickrUser = req.params.wickrUser;
             if (typeof wickrUser !== 'string')
-                return res.send("WickrUser must be a string.");
+                return res.status(401).send("WickrUser must be a string.");
             var authCode = req.params.authCode;
             if (typeof authCode !== 'string')
-                return res.send("Authentication Code must be a string.");
+                return res.status(401).send("Authentication Code must be a string.");
 
             // Check if the authCode is valid for the input user
             var dictAuthCode = client_auth_codes[wickrUser];
@@ -302,6 +306,64 @@ async function main() {
               res.statusCode = 400;
               res.type('txt').send(err.toString());
             }
+        });
+
+        app.get(endpoint + "/Status/:wickrUser/:authCode", function(req, res) {
+            res.set('Content-Type', 'text/plain');
+            res.set('Authorization', 'Basic base64_auth_token');
+            var authHeader = req.get('Authorization');
+            var authToken;
+            if (authHeader) {
+                if (authHeader.indexOf(' ') == -1) {
+                    authToken = authHeader;
+                } else {
+                    authHeader = authHeader.split(' ');
+                    authToken = authHeader[1];
+                }
+            } else {
+                return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic base64_auth_token"');
+            }
+
+            if (!checkCreds(authToken)) {
+                return res.status(401).send('Access denied: invalid basic-auth token.');
+            }
+
+            var wickrUser = req.params.wickrUser;
+            if (typeof wickrUser !== 'string')
+                return res.status(401).send("WickrUser must be a string.");
+            var authCode = req.params.authCode;
+            if (typeof authCode !== 'string')
+                return res.status(401).send("Authentication Code must be a string.");
+
+            // Check if the authCode is valid for the input user
+            var dictAuthCode = client_auth_codes[wickrUser];
+            if (dictAuthCode === undefined || authCode != dictAuthCode) {
+                return res.status(401).send('Access denied: invalid user authentication code.');
+            }
+
+
+            var messageIdEntries = getMessageEntries(wickrUser);
+            var reply = "";
+            if (messageIdEntries.length < 1){
+                reply = strings["noPrevious"];
+            } else {
+                var length = Math.min(messageIdEntries.length, 5);
+                var contentData;
+                var index = 1;
+                var messageList = [];
+                var messageString = "";
+                for (var i = 0; i < messageIdEntries.length; i++){
+                    contentData = WickrIOAPI.cmdGetMessageIDEntry(messageIdEntries[i].message_id);
+                    var contentParsed = JSON.parse(contentData);
+                    messageIdEntries[i]['message'] = contentParsed.message;
+//                    messageList.push(contentParsed.message);
+//                    messageString += '(' + index++ + ') ' + contentParsed.message + "\n";
+                }
+//                reply = strings["whichMessage"].replace("%{length}", length).replace("%{messageList}", messageString);
+                reply = JSON.stringify(messageIdEntries);
+            }
+            res.set('Content-Type', 'application/json');
+            return res.send(reply);
         });
 
         // What to do for ALL requests for ALL Paths
