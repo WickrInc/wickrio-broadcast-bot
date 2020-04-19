@@ -342,7 +342,7 @@ async function main() {
             }
 
 
-            var messageIdEntries = getMessageEntries(wickrUser);
+            var messageIdEntries = getMessageEntries(wickrUser, 20);
             var reply = "";
             if (messageIdEntries.length < 1){
                 reply = strings["noPrevious"];
@@ -362,6 +362,46 @@ async function main() {
 //                reply = strings["whichMessage"].replace("%{length}", length).replace("%{messageList}", messageString);
                 reply = JSON.stringify(messageIdEntries);
             }
+            res.set('Content-Type', 'application/json');
+            return res.send(reply);
+        });
+
+        app.get(endpoint + "/Status/:wickrUser/:authCode/:messageID", function(req, res) {
+            res.set('Content-Type', 'text/plain');
+            res.set('Authorization', 'Basic base64_auth_token');
+            var authHeader = req.get('Authorization');
+            var authToken;
+            if (authHeader) {
+                if (authHeader.indexOf(' ') == -1) {
+                    authToken = authHeader;
+                } else {
+                    authHeader = authHeader.split(' ');
+                    authToken = authHeader[1];
+                }
+            } else {
+                return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic base64_auth_token"');
+            }
+
+            if (!checkCreds(authToken)) {
+                return res.status(401).send('Access denied: invalid basic-auth token.');
+            }
+
+            var wickrUser = req.params.wickrUser;
+            if (typeof wickrUser !== 'string')
+                return res.status(401).send("WickrUser must be a string.");
+            var authCode = req.params.authCode;
+            if (typeof authCode !== 'string')
+                return res.status(401).send("Authentication Code must be a string.");
+
+            // Check if the authCode is valid for the input user
+            var dictAuthCode = client_auth_codes[wickrUser];
+            if (dictAuthCode === undefined || authCode != dictAuthCode) {
+                return res.status(401).send('Access denied: invalid user authentication code.');
+            }
+
+
+            var statusData = WickrIOAPI.cmdGetMessageStatus(req.params.messageID, "summary", "0", "1000");
+            var reply = statusData;
             res.set('Content-Type', 'application/json');
             return res.send(reply);
         });
@@ -484,7 +524,7 @@ function listen(message) {
       //check argument here!
       //args = argument.split(' ');
       if (argument === ''){
-        var messageIdEntries = getMessageEntries(userEmail);
+        var messageIdEntries = getMessageEntries(userEmail, 5);
         var reply = "";
         if(messageIdEntries.length < 1){
           reply = strings["noPrevious"];
@@ -517,7 +557,7 @@ function listen(message) {
     }
 
     if (command === '/report') {
-      var messageIdEntries = getMessageEntries(userEmail);
+      var messageIdEntries = getMessageEntries(userEmail, 5);
       var reply = "";
       if(messageIdEntries.length < 1){
         reply = strings["noPrevious"];
@@ -787,7 +827,7 @@ function listen(message) {
     } else if (user.confirm === 'askMessageId' && fullMessage != "/status") {
       //Subtract one to account for 0 based indexes
       var index = parseInt(fullMessage) - 1;
-      var messageIdEntries = getMessageEntries(userEmail);
+      var messageIdEntries = getMessageEntries(userEmail, 5);
       var length = Math.min(messageIdEntries.length, 5);
       var reply = "";
       if(isNaN(index) || index < 0 || index >= length){
@@ -804,7 +844,7 @@ function listen(message) {
       var index = parseInt(fullMessage) - 1;
       var reply = "";
       //TODO make this a global~?
-      var messageIdEntries = getMessageEntries(userEmail);
+      var messageIdEntries = getMessageEntries(userEmail, 5);
       var length = Math.min(messageIdEntries.length, 5);
       if(isNaN(index) || index < 0 || index >= length){
         user.confirm = 'idForReport';
@@ -1054,7 +1094,7 @@ function repeatMessage(broadcast, user, vGroupID, messageID, userEmail, target) 
   cronJob(job, cronInterval, user, broadcast, securityGroupFlag, askForAckFlag, securityGroupsToSend, userEmail, target);
 }
 
-function getMessageEntries(userEmail){
+function getMessageEntries(userEmail, max){
   var messageIdEntries = []
   var tableDataRaw = WickrIOAPI.cmdGetMessageIDTable("0","1000");
   var tableData = JSON.parse(tableDataRaw);
@@ -1065,7 +1105,7 @@ function getMessageEntries(userEmail){
     if (entry.sender === userEmail) {
       messageIdEntries.push(entry);
     }
-    if (messageIdEntries.length > 4) {
+    if (messageIdEntries.length >= max) {
       break;
     }
   }
