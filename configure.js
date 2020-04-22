@@ -93,19 +93,19 @@ async function main()
                         {
                             token: 'SSL_KEY_LOCATION',
                             pattern: '',
-                            type: 'string',
+                            type: 'file',
                             description: 'Please enter the name and location of your SSL .key file',
-                            message: 'Cannot leave empty! Please enter a value',
-                            required: false,
+                            message: 'Cannot find file!',
+                            required: true,
                             default: 'N/A',
                         },
                         {
                             token: 'SSL_CRT_LOCATION',
                             pattern: '',
-                            type: 'string',
+                            type: 'file',
                             description: 'Please enter the name and location of your SSL .crt file',
-                            message: 'Cannot leave empty! Please enter a value',
-                            required: false,
+                            message: 'Cannot find file!',
+                            required: true,
                             default: 'N/A',
                         }
                     ]
