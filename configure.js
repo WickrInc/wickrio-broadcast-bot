@@ -51,7 +51,7 @@ async function main()
             type: 'string',
             description: 'Do you want to setup the web interface',
             message: 'Please enter either yes or no',
-            required: false,
+            required: true,
             default: 'no',
             list: [
                 {
@@ -87,7 +87,7 @@ async function main()
                     type: 'string',
                     description: 'Do you want to set up an HTTPS connection with the Web API Interface, highly recommended',
                     message: 'Please enter either yes or no',
-                    required: false,
+                    required: true,
                     default: 'no',
                     list: [
                         {
@@ -95,7 +95,7 @@ async function main()
                             pattern: '',
                             type: 'file',
                             description: 'Please enter the name and location of your SSL .key file',
-                            message: 'Cannot find file!',
+                            message: 'Cannot fine file!',
                             required: true,
                             default: 'N/A',
                         },
@@ -104,7 +104,7 @@ async function main()
                             pattern: '',
                             type: 'file',
                             description: 'Please enter the name and location of your SSL .crt file',
-                            message: 'Cannot find file!',
+                            message: 'Cannot fine file!',
                             required: true,
                             default: 'N/A',
                         }
