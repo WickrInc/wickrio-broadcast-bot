@@ -1253,7 +1253,7 @@ function writeCSVReport(path, csvArray) {
 function checkCreds(authToken) {
     try {
         var valid = true;
-        const authStr = new Buffer(authToken, 'base64').toString();
+        const authStr = Buffer.from(authToken, 'base64').toString();
         //implement authToken verification in here
         if (authStr !== bot_api_auth_token)
             valid = false;
