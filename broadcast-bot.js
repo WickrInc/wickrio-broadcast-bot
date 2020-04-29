@@ -443,6 +443,7 @@ function listen(message) {
     var vGroupID = parsedMessage.vgroupid;
     var convoType = parsedMessage.convotype;
     var isAdmin = parsedMessage.isAdmin;
+    var msgtype = parsedMessage.msgtype;
     var personal_vGroupID = "";
 
     //Go back to dev toolkit and fix
@@ -452,10 +453,27 @@ function listen(message) {
     if (command === '/ack') {
       //sets ack (3) of all messages sent to user
       var userEmailString = "" + userEmail;
-      setMessageStatus("", userEmail, "3");//, "");
+      setMessageStatus("", userEmail, "3", "");
       return;
     }
 
+    //Send the location as an acknowledgement
+    if(msgtype === 'location') {
+      //acknowledges all messages sent to user
+      var userEmailString = "" + userEmail;
+      var statusMessage;
+      var obj = {};
+      obj['location'] = {
+          latitude: parsedMessage.latitude,
+          longitude: parsedMessage.longitude
+      };
+      statusMessage = JSON.stringify(obj);
+      logger.debug("location statusMessage=" + statusMessage);
+      setMessageStatus("", userEmail, "3", statusMessage);
+      return;
+    }
+
+    
     logger.debug("convoType=" + convoType);
 
     // Do not support interaction with Rooms or Groups 
@@ -1180,8 +1198,8 @@ function writeToMessageIdDB(messageId, sender, target, dateSent, messageContent)
   WickrIOAPI.cmdAddMessageID(messageId, sender, target, dateSent, messageContent);
 }
 
-function setMessageStatus(messageId, userId, messageStatus){
-  var reply = WickrIOAPI.cmdSetMessageStatus(messageId, userId, messageStatus);
+function setMessageStatus(messageId, userId, status, statusMessage){
+  var reply = WickrIOAPI.cmdSetMessageStatus(messageId, userId, status, statusMessage);
   var userArray = [ userId ];
   var uMessage = WickrIOAPI.cmdSend1to1Message(userArray, reply);
 }
@@ -1198,7 +1216,7 @@ function getCSVReport(messageId) {
     var statusData = WickrIOAPI.cmdGetMessageStatus(messageId, "full", "" + inc, "1000");
     var messageStatus = JSON.parse(statusData);
     for (let entry of messageStatus) {
-      var failureString = "";
+      var statusMessageString = "";
       var statusString = "";
       switch(entry.status) {
         case 0:
@@ -1209,17 +1227,27 @@ function getCSVReport(messageId) {
           break;
         case 2:
           statusString = "failed";
-          failureString = entry.status_message;
+          statusMessageString = entry.status_message;
           break;
         case 3:
           statusString = "acked";
+          if (entry.status_message !== undefined) {
+            var obj = JSON.parse(entry.status_message);
+            if (obj['location'] !== undefined) {
+              var latitude = obj['location'].latitude;
+              var longitude = obj['location'].longitude;
+              statusMessageString = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
+            } else {
+              statusMessageString = entry.status_message;
+            }
+          }
           break;
         case 4:
           statusString = "ignored";
-          failureString = entry.status_message;
+          statusMessageString = entry.status_message;
           break;
       }
-      csvArray.push({user: entry.user, status: statusString, failureMessage: failureString});
+      csvArray.push({user: entry.user, status: statusString, statusMessage: statusMessageString});
     } 
     if (messageStatus.length < 1000) {
       break;
@@ -1240,7 +1268,7 @@ function writeCSVReport(path, csvArray) {
     header: [
       {id: 'user', title: 'USER'},
       {id: 'status', title: 'STATUS'},
-      {id: 'failureMessage', title: 'FAILURE MESSAGE'}
+      {id: 'statusMessage', title: 'MESSAGE'}
     ]
   });
   csvWriter.writeRecords(csvArray)
