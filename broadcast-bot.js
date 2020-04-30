@@ -406,6 +406,82 @@ async function main() {
             return res.send(reply);
         });
 
+        app.get(endpoint + "/Report/:wickrUser/:authCode/:messageID/:page/:size", function(req, res) {
+            res.set('Content-Type', 'text/plain');
+            res.set('Authorization', 'Basic base64_auth_token');
+            var authHeader = req.get('Authorization');
+            var authToken;
+            if (authHeader) {
+                if (authHeader.indexOf(' ') == -1) {
+                    authToken = authHeader;
+                } else {
+                    authHeader = authHeader.split(' ');
+                    authToken = authHeader[1];
+                }
+            } else {
+                return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic base64_auth_token"');
+            }
+
+            if (!checkCreds(authToken)) {
+                return res.status(401).send('Access denied: invalid basic-auth token.');
+            }
+
+            var wickrUser = req.params.wickrUser;
+            if (typeof wickrUser !== 'string')
+                return res.status(401).send("WickrUser must be a string.");
+            var authCode = req.params.authCode;
+            if (typeof authCode !== 'string')
+                return res.status(401).send("Authentication Code must be a string.");
+
+            // Check if the authCode is valid for the input user
+            var dictAuthCode = client_auth_codes[wickrUser];
+            if (dictAuthCode === undefined || authCode != dictAuthCode) {
+                return res.status(401).send('Access denied: invalid user authentication code.');
+            }
+
+            var reportEntries = [];
+
+            var statusData = WickrIOAPI.cmdGetMessageStatus(req.params.messageID, "full", req.params.page, req.params.size);
+            var messageStatus = JSON.parse(statusData);
+            for (let entry of messageStatus) {
+              var statusMessageString = "";
+              var statusString = "";
+              switch(entry.status) {
+                case 0:
+                  statusString = "pending";
+                  break;
+                case 1:
+                  statusString = "sent";
+                  break;
+                case 2:
+                  statusString = "failed";
+                  statusMessageString = entry.status_message;
+                  break;
+                case 3:
+                  statusString = "acked";
+                  if (entry.status_message !== undefined) {
+                    var obj = JSON.parse(entry.status_message);
+                    if (obj['location'] !== undefined) {
+                      var latitude = obj['location'].latitude;
+                      var longitude = obj['location'].longitude;
+                      statusMessageString = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
+                    } else {
+                      statusMessageString = entry.status_message;
+                    }
+                  }
+                  break;
+                case 4:
+                  statusString = "ignored";
+                  statusMessageString = entry.status_message;
+                  break;
+              }
+              reportEntries.push({user: entry.user, status: statusString, statusMessage: statusMessageString});
+            }
+            var reply = JSON.stringify(reportEntries);
+            res.set('Content-Type', 'application/json');
+            return res.send(reply);
+        });
+
         // What to do for ALL requests for ALL Paths
         // that are not handled above
         app.all('*', function(req, res) {
