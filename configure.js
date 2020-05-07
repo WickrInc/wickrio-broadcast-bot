@@ -55,7 +55,7 @@ async function main()
             default: 'no',
             list: [
                 {
-                    token: 'LISTEN_PORT',
+                    token: 'BOT_PORT',
                     pattern: '^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$',
                     type: 'number',
                     description: "Please enter your client bot's port",
@@ -64,7 +64,7 @@ async function main()
                     default: 'N/A',
                 },
                 {
-                    token: 'API_KEY',
+                    token: 'BOT_API_KEY',
                     pattern: '',
                     type: 'string',
                     description: "Please enter your client bot's API-Key",
@@ -73,7 +73,7 @@ async function main()
                     default: 'N/A',
                 },
                 {
-                    token: 'API_AUTH_TOKEN',
+                    token: 'BOT_API_AUTH_TOKEN',
                     pattern: '',
                     type: 'string',
                     description: 'Please create an Web API Basic Authorization Token, we recommend an alphanumeric string with at least 24 characters',
@@ -95,7 +95,7 @@ async function main()
                             pattern: '',
                             type: 'file',
                             description: 'Please enter the name and location of your SSL .key file',
-                            message: 'Cannot fine file!',
+                            message: 'Cannot find file!',
                             required: true,
                             default: 'N/A',
                         },
@@ -104,7 +104,7 @@ async function main()
                             pattern: '',
                             type: 'file',
                             description: 'Please enter the name and location of your SSL .crt file',
-                            message: 'Cannot fine file!',
+                            message: 'Cannot find file!',
                             required: true,
                             default: 'N/A',
                         }
