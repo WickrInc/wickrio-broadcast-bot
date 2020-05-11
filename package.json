@@ -17,7 +17,7 @@
     "prompt": "^1.0.0",
     "dotenv": "^8.2.0",
     "wickrio-bot-api": "5.54.x",
-    "wickrio_addon": "5.51.x"
+    "wickrio_addon": "5.55.x"
   },
   "scripts": {
     "start": "pm2 start processes.json --update-env",
