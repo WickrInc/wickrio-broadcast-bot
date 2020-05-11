@@ -6,6 +6,7 @@ const https = require('https');
 const bodyParser = require('body-parser');
 const helmet = require('helmet')
 const app = express();
+const multer = require('multer')
 app.use(helmet()); //security http headers
 
 const { exec, execSync, execFileSync } = require('child_process');
@@ -23,6 +24,15 @@ var createCsvWriter = require('csv-writer').createObjectCsvWriter;
 var job;
 var verifyUsersMode;
 
+// need to be able to debug and lint for syntax errors
+
+
+
+// set upload destination for attachments sent to broadcast with multer 
+var upload = multer({ dest: 'uploads/' })
+
+
+
 //
 // Web interface definitions
 //
@@ -30,7 +40,7 @@ var bot_port, bot_api_key, bot_api_auth_token;
 var client_auth_codes = {};
 
 process.stdin.resume(); //so the program will not close instantly
-if (!fs.existsSync(process.cwd() + "/attachments")) {
+if (!fs.existsSync(process.cwd() + "/uploads")) {
   fs.mkdirSync(process.cwd() + "/attachments");
 }
 async function exitHandler(options, err) {
@@ -198,8 +208,7 @@ async function main() {
       });
 
       // broadcast endpoint needs to accept and send files
-      app.post(endpoint + "/Broadcast/:wickrUser/:authCode", function (req, res) {
-
+      app.post(endpoint + "/Broadcast/:wickrUser/:authCode", upload.single('attachment'), function (req, res) {
         // check auth
         res.set('Content-Type', 'text/plain');
         res.set('Authorization', 'Basic base64_auth_token');
@@ -246,16 +255,18 @@ async function main() {
         if (!req.body.message) {
           return res.send("Broadcast message missing from request.");
         }
+        let file = req.file
 
         try {
+
           var currentDate = new Date();
           var jsonDateTime = currentDate.toJSON();
           var messageID = updateLastID();
           var broadcastMsgToSend = req.body.message
 
           // set broadcast message depending on acknowledgement request
-          if (req.body.acknowledge != undefined && req.body.acknowledge === true) {
-            broadcastMsgToSend = broadcastMsgToSend + "\nPlease acknowledge this message by replying with /ack";
+          if (req.body.acknowledge === true) {
+            broadcastMsgToSend = broadcastMsgToSend + "\nPlease acknowledge this message by replying with /ack \n\n Broadcast message sent by: " + wickrUser";
           }
           broadcastMsgToSend = broadcastMsgToSend + "\n\nBroadcast message sent by: " + wickrUser;
 
@@ -273,32 +284,34 @@ async function main() {
             securityGroups.push(req.body.security_group);
 
             // if file sent in request 
-            if (req.body.file) {
+            if (file) {
               // send file
-              logger.debug("This is the sentby" + userEmail);
-              // file name, and displayname
-              var send = WickrIOAPI.cmdSendNetworkAttachment(user.filename, displayName, "", "", messageID, sentby);
-              logger.debug("this is send" + send)
+              logger.debug("This is sentby" + wickrUser);
+              // console.log({ file })
+              var send = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, broadcastMsgToSend);
+              logger.debug("this is sent" + send)
               reply = strings["fileSent"];
+            } else {
+              writeToMessageIdDB(messageID, wickrUser, req.body.security_group, jsonDateTime, req.body.message);
+              bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(broadcastMsgToSend, securityGroups, "", "", messageID);
+              console.log('sending to security group ' + req.body.security_group);
             }
 
-            writeToMessageIdDB(messageID, wickrUser, req.body.security_group, jsonDateTime, req.body.message);
-            bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(broadcastMsgToSend, securityGroups, "", "", messageID);
-            console.log('sending to security group ' + req.body.security_group);
             // else if no security groups
           } else {
             // if file sent in request 
-            if (req.body.file) {
+            if (file) {
               // send file
-              logger.debug("This is the sentby" + sentby);
+              logger.debug("This is sentby" + wickrUser);
               // file name, and displayname
-              var sentFile = WickrIOAPI.cmdSendNetworkAttachment(user.filename, displayName, "", "", messageID, sentby);
-              logger.debug("this is send" + sentFile)
-              reply = strings["fileSent"];
+              var send = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, broadcastMsgToSend);
+              logger.debug("this is sent" + send)
+              // reply = strings["fileSent"];
+            } else {
+              writeToMessageIdDB(messageID, wickrUser, "network", jsonDateTime, req.body.message);
+              bMessage = WickrIOAPI.cmdSendNetworkMessage(broadcastMsgToSend, "", "", messageID);
+              console.log('sending to entire network!');
             }
-            writeToMessageIdDB(messageID, wickrUser, "network", jsonDateTime, req.body.message);
-            bMessage = WickrIOAPI.cmdSendNetworkMessage(broadcastMsgToSend, "", "", messageID);
-            console.log('sending to entire network!');
           }
 
           console.log(bMessage);
