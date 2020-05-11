@@ -474,6 +474,14 @@ async function main() {
                   statusString = "ignored";
                   statusMessageString = entry.status_message;
                   break;
+                case 5:
+                  statusString = "aborted";
+                  statusMessageString = entry.status_message;
+                  break;
+                case 6:
+                  statusString = "received";
+                  statusMessageString = entry.status_message;
+                  break;
               }
               reportEntries.push({user: entry.user, status: statusString, statusMessage: statusMessageString});
             }
@@ -630,7 +638,6 @@ function listen(message) {
         var index = 1;
         var messageList = [];
         var messageString = "";
-        //for (let entry of messageIdEntries) {
         for (var i = 0; i < messageIdEntries.length; i++){
           contentData = WickrIOAPI.cmdGetMessageIDEntry(messageIdEntries[i].message_id);
           var contentParsed = JSON.parse(contentData);
@@ -676,6 +683,41 @@ function listen(message) {
       var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       user.confirm = 'idForReport';
     }
+
+    if (command === '/abort') {
+      logger.debug(":" + argument + ":");
+      //check argument here!
+      //args = argument.split(' ');
+      if (argument === ''){
+        var messageIdEntries = getMessageEntries(userEmail, 5);
+        var reply = "";
+        if(messageIdEntries.length < 1){
+          reply = strings["noPrevious"];
+          var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+          return;
+        }
+        var length = Math.min(messageIdEntries.length, 5);
+        var contentData;
+        var index = 1;
+        var messageList = [];
+        var messageString = "";
+        for (var i = 0; i < messageIdEntries.length; i++){
+          contentData = WickrIOAPI.cmdGetMessageIDEntry(messageIdEntries[i].message_id);
+          var contentParsed = JSON.parse(contentData);
+          messageList.push(contentParsed.message);
+          messageString += '(' + index++ + ') ' + contentParsed.message + "\n";
+        }
+        reply = strings["whichMessage"].replace("%{length}", length).replace("%{messageList}", messageString);
+        //var uMessage = replyWithButtons(vGroupID, reply, messageList);
+        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+        user.confirm = 'idForAbort';
+        //TODO keep working on this!!
+      } else if (isNaN(argument)) {
+        var reply = strings["enterID"];
+        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+      }
+    }
+
     if (command === '/cancel') {
       user.confrim = '';
       var reply = strings["canceled"];
@@ -949,6 +991,21 @@ function listen(message) {
         var path = getCSVReport(messageIdEntries[index].message_id);
         var uMessage = WickrIOAPI.cmdSendRoomAttachment(vGroupID, path, path);
         logger.debug(uMessage);
+      }
+    } else if (user.confirm === 'idForAbort' && fullMessage != "/abort") {
+      //Subtract one to account for 0 based indexes
+      var index = parseInt(fullMessage) - 1;
+      var messageIdEntries = getMessageEntries(userEmail, 5);
+      var length = Math.min(messageIdEntries.length, 5);
+      var reply = "";
+      if(isNaN(index) || index < 0 || index >= length){
+        user.confirm = 'idForAbort';
+        reply = strings["wrongId"].replace("%{index}", (index + 1)).replace("%{length}", length);
+        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+      } else {
+        user.confirm = '';
+        reply += WickrIOAPI.cmdCancelMessageID(messageIdEntries[index].message_id);
+        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       }
     }
   } catch (err) {
@@ -1227,7 +1284,7 @@ function getStatus(messageID, type, async){
   var messageStatus = JSON.parse(statusData);
   var statusString;
 
-  statusString = strings["messageStatus"].replace("%{num2send}", messageStatus.num2send).replace("%{sent}", messageStatus.sent).replace("%{acked}", messageStatus.acked).replace("%{pending}", messageStatus.pending).replace("%{failed}", messageStatus.failed).replace("%{ignored}", messageStatus.ignored);
+  statusString = strings["messageStatus"].replace("%{num2send}", messageStatus.num2send).replace("%{sent}", messageStatus.sent).replace("%{acked}", messageStatus.acked).replace("%{pending}", messageStatus.pending).replace("%{failed}", messageStatus.failed).replace("%{received}", messageStatus.received).replace("%{aborted}", messageStatus.aborted).replace("%{ignored}", messageStatus.ignored);
   if (messageStatus.ignored !== undefined) {
       statusString = statusString + strings["messageStatusIgnored"].replace("%{ignored}", messageStatus.ignored);
   }
@@ -1320,6 +1377,14 @@ function getCSVReport(messageId) {
           break;
         case 4:
           statusString = "ignored";
+          statusMessageString = entry.status_message;
+          break;
+        case 5:
+          statusString = "aborted";
+          statusMessageString = entry.status_message;
+          break;
+        case 6:
+          statusString = "received";
           statusMessageString = entry.status_message;
           break;
       }
