@@ -9,12 +9,7 @@ const app = express();
 const multer = require('multer')
 app.use(helmet()); //security http headers
 
-// <<<<<<< HEAD
-// const { exec, execSync, execFileSync } = require('child_process');
-// const WickrIOAPI = require('wickrio_addon');
-// =======
 const { exec, execSync, execFileSync } = require('child_process');
-// >>>>>>> master
 const WickrIOBotAPI = require('wickrio-bot-api');
 const WickrUser = WickrIOBotAPI.WickrUser;
 const bot = new WickrIOBotAPI.WickrIOBot();
@@ -315,6 +310,7 @@ async function main() {
               // send file
               logger.debug("This is sentby" + wickrUser);
               // file name, and displayname
+              // why is network attachment also sending message
               var bMessage = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, broadcastMsgToSend);
               logger.debug("this is sent" + bMessage)
               reply = strings["fileSent"];              // reply = strings["fileSent"];
