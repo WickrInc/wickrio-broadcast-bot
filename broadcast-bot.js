@@ -127,11 +127,21 @@ async function main() {
       // parse application/json
       app.use(bodyParser.json());
 
+      // set cors for precheck
       app.options("/*", function (req, res, next) {
         res.header('Access-Control-Allow-Origin', '*');
         res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
         res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
         res.send(200);
+      });
+
+      // set cors headers for development
+      app.all('*', function (req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+
+        next();
       });
 
       app.use(function (error, req, res, next) {
@@ -145,13 +155,6 @@ async function main() {
         }
       });
 
-      app.all('*', function (req, res, next) {
-        res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
-        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-
-        next();
-      });
 
       var endpoint = "/WickrIO/V1/Apps/" + bot_api_key;
 
@@ -212,6 +215,8 @@ async function main() {
         // check auth
         res.set('Content-Type', 'text/plain');
         res.set('Authorization', 'Basic base64_auth_token');
+
+        // console.log(req.body)
         var authHeader = req.get('Authorization');
         var authToken;
         if (authHeader) {
@@ -244,7 +249,7 @@ async function main() {
           return res.status(401).send('Access denied: invalid user authentication code.');
         }
 
-        //        message.insert("action", "broadcast");
+        //    message.insert("action", "broadcast");
         //    message.insert("message", broadcastTextEdit->toPlainText() );
         //    message.insert("target", 0);
         //    message.insert("acknowledge", broadcastDialogOptionsWidget->isChecked() ? true : false);
@@ -266,7 +271,7 @@ async function main() {
 
           // set broadcast message depending on acknowledgement request
           if (req.body.acknowledge === true) {
-            broadcastMsgToSend = broadcastMsgToSend + "\nPlease acknowledge this message by replying with /ack \n\n Broadcast message sent by: " + wickrUser";
+            broadcastMsgToSend = broadcastMsgToSend + "\nPlease acknowledge this message by replying with /ack"
           }
           broadcastMsgToSend = broadcastMsgToSend + "\n\nBroadcast message sent by: " + wickrUser;
 
@@ -288,8 +293,9 @@ async function main() {
               // send file
               logger.debug("This is sentby" + wickrUser);
               // console.log({ file })
-              var send = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, broadcastMsgToSend);
-              logger.debug("this is sent" + send)
+              var bMessage = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, broadcastMsgToSend);
+              logger.debug("this is sent" + bMessage)
+              // change reply to genereated message data 
               reply = strings["fileSent"];
             } else {
               writeToMessageIdDB(messageID, wickrUser, req.body.security_group, jsonDateTime, req.body.message);
@@ -304,12 +310,13 @@ async function main() {
               // send file
               logger.debug("This is sentby" + wickrUser);
               // file name, and displayname
-              var send = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, broadcastMsgToSend);
-              logger.debug("this is sent" + send)
-              // reply = strings["fileSent"];
+              var bMessage = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, broadcastMsgToSend);
+              logger.debug("this is sent" + bMessage)
+              reply = strings["fileSent"];              // reply = strings["fileSent"];
             } else {
               writeToMessageIdDB(messageID, wickrUser, "network", jsonDateTime, req.body.message);
               bMessage = WickrIOAPI.cmdSendNetworkMessage(broadcastMsgToSend, "", "", messageID);
+
               console.log('sending to entire network!');
             }
           }
@@ -705,13 +712,11 @@ function listen(message) {
       let authStr = 'hardcodedauthtoken'
       // get base64 encoding of basic auth token set up in the bot
       let authEncoded = Buffer.from(authStr).toString('base64')
-
       var reply = `localhost:8000/?auth=${random}&username=${user.userEmail}&authn=${authEncoded}`
       var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       user.confirm = '';
       logger.debug(sMessage);
     }
-
 
 
     //TODO Should these be else if statements?? alexL: switch case 
