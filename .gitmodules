@@ -1,0 +1,3 @@
+[submodule "wickrio-bot-web"]
+	path = wickrio-bot-web
+	url = https://github.com/WickrInc/wickrio-bot-web
