@@ -9,10 +9,10 @@ const app = express();
 app.use(helmet()); //security http headers
 
 const {exec, execSync, execFileSync} = require('child_process');
-const WickrIOAPI = require('wickrio_addon');
 const WickrIOBotAPI = require('wickrio-bot-api');
 const WickrUser = WickrIOBotAPI.WickrUser;
 const bot = new WickrIOBotAPI.WickrIOBot();
+const WickrIOAPI = bot.getWickrIOAddon();
 const pkgjson = require('./package.json');
 var CronJob = require('cron').CronJob;
 var log4js = require('log4js');

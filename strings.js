@@ -8,13 +8,14 @@ module.exports = {
     "WickrIO Addon: %{addonVersion}\n" + 
     "WickrIO API: %{apiVersion}\n",
   "help": "*Messaging Commands*\n" +
+          "/abort  : To stop sending any remaining pending broadcast messages\n" + 
+          "/ack    : To acknowledge a broadcast message \n" +
           "/broadcast <Message> : to send a broadcast message\n" +
           "To send a file as a broadcast message - Click the + sign and share the file with the bot\n" +
           "To send a voice memo as a broadcast message - Click the microphone button and send a voice memo to the bot\n" +
-          "/ack  : To acknowledge a broadcast message \n" +
+          "/cancel : To cancel the last operation and enter a new command \n" + 
           "/status : To get status of a broadcast message \n" +
-          "/report : To get a CSV file with the status of each user of a broadcast message \n" +
-          "/cancel : To cancel the last operation and enter a new command \n\n" + 
+          "/report : To get a CSV file with the status of each user of a broadcast message \n\n" +
           "*Admin Commands*\n" +
           "%{adminHelp}\n" +
           "*Other Commands*\n" +
