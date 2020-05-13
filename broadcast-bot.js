@@ -104,13 +104,7 @@ async function main() {
 
     //Passes a callback function that will receive incoming messages into the bot client
     bot.startListening(listen);
-    console.log({
-      "botport": tokens.BOT_PORT,
-      "BOT_API_KEY": tokens.BOT_API_KEY,
-      "BOT_API_AUTH_TOKEN": tokens.BOT_API_AUTH_TOKEN,
-    })
 
-    // start up the web interface if one exists
     if (tokens.BOT_PORT !== undefined &&
       tokens.BOT_API_KEY != undefined &&
       tokens.BOT_API_AUTH_TOKEN != undefined) {
@@ -126,23 +120,8 @@ async function main() {
       app.use(bodyParser.urlencoded({ extended: false }));
       // parse application/json
       app.use(bodyParser.json());
+      app.use(express.static('wickrio-bot-web/public'))
 
-      // set cors for precheck
-      app.options("/*", function (req, res, next) {
-        res.header('Access-Control-Allow-Origin', '*');
-        res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-        res.send(200);
-      });
-
-      // set cors headers for development
-      app.all('*', function (req, res, next) {
-        res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
-        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-
-        next();
-      });
 
       app.use(function (error, req, res, next) {
 
@@ -157,7 +136,6 @@ async function main() {
 
 
       var endpoint = "/WickrIO/V1/Apps/" + bot_api_key;
-
 
       app.post(endpoint + "/Authenticate/:wickrUser", function (req, res) {
         res.set('Content-Type', 'text/plain');
@@ -332,10 +310,6 @@ async function main() {
       });
 
       app.get(endpoint + "/SecGroups/:wickrUser/:authCode", function (req, res) {
-        // set cors for development 
-        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8000');
-        res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-
         res.set('Content-Type', 'text/plain');
         res.set('Authorization', 'Basic base64_auth_token');
         var authHeader = req.get('Authorization');
@@ -698,8 +672,12 @@ function listen(message) {
 
 
     if (command === '/panel') {
+      if (argument === undefined) {
+        return res.statusCode(401).send('Access denied: ' + user.userEmail + ' is not authorized to broadcast!');
+      }
       // Check if this user is an administrator
       var adminUser = bot.myAdmins.getAdmin(user.userEmail);
+      cocnsole.log({ adminUser })
       if (adminUser === undefined) {
         return res.statusCode(401).send('Access denied: ' + user.userEmail + ' is not authorized to broadcast!');
       }
@@ -722,10 +700,10 @@ function listen(message) {
       // should hide base 64 encoded token instead of sharing it via url
 
       // auth string given by command argument /panel hardcodedauthtoken would allow for plaintext display of authstring in the client
-      let authStr = 'hardcodedauthtoken'
+      let authStr = argument
       // get base64 encoding of basic auth token set up in the bot
       let authEncoded = Buffer.from(authStr).toString('base64')
-      var reply = `localhost:8000/?auth=${random}&username=${user.userEmail}&authn=${authEncoded}`
+      var reply = `localhost:4545/?auth=${random}&username=${user.userEmail}&authn=${authEncoded}`
       var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       user.confirm = '';
       logger.debug(sMessage);
@@ -766,12 +744,7 @@ function listen(message) {
         var index = 1;
         var messageList = [];
         var messageString = "";
-<<<<<<< HEAD
-        //for (let entry of messageIdEntries) {
         for (var i = 0; i < messageIdEntries.length; i++) {
-=======
-        for (var i = 0; i < messageIdEntries.length; i++){
->>>>>>> master
           contentData = WickrIOAPI.cmdGetMessageIDEntry(messageIdEntries[i].message_id);
           var contentParsed = JSON.parse(contentData);
           messageList.push(contentParsed.message);
