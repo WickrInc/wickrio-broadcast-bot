@@ -672,9 +672,17 @@ function listen(message) {
 
 
     if (command === '/panel') {
-      if (argument === undefined) {
-        return res.statusCode(401).send('Access denied: ' + user.userEmail + ' is not authorized to broadcast!');
+      if (argument === undefined || argument == '') {
+        var reply = "need encoded authstring that was used to create the bot as /panel authstring."
+        var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+        return sMessage
       }
+
+      if (!checkCreds(argument)) {
+        var reply = "authstring was not a valid encoding. Must use base64 encoding of authstring used create the bot as '''/panel authstring'''"
+        var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+      }
+
       // Check if this user is an administrator
       var adminUser = bot.myAdmins.getAdmin(user.userEmail);
       cocnsole.log({ adminUser })
@@ -702,8 +710,8 @@ function listen(message) {
       // auth string given by command argument /panel hardcodedauthtoken would allow for plaintext display of authstring in the client
       let authStr = argument
       // get base64 encoding of basic auth token set up in the bot
-      let authEncoded = Buffer.from(authStr).toString('base64')
-      var reply = `localhost:4545/?auth=${random}&username=${user.userEmail}&authn=${authEncoded}`
+      // let authEncoded = Buffer.from(authStr).toString('base64')
+      var reply = `localhost:4545/?auth=${random}&username=${user.userEmail}&authn=${authStr}`
       var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       user.confirm = '';
       logger.debug(sMessage);
