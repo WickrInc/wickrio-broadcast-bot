@@ -27,7 +27,6 @@ var verifyUsersMode;
 // need to be able to debug and lint for syntax errors
 
 
-
 // set upload destination for attachments sent to broadcast with multer 
 var upload = multer({ dest: 'uploads/' })
 
@@ -681,7 +680,7 @@ function listen(message) {
 
       // Check if this user is an administrator
       var adminUser = bot.myAdmins.getAdmin(user.userEmail);
-      cocnsole.log({ adminUser })
+      console.log({ adminUser })
       if (adminUser === undefined) {
         return res.statusCode(401).send('Access denied: ' + user.userEmail + ' is not authorized to broadcast!');
       }
@@ -1140,6 +1139,7 @@ function readFileInput() {
   }
 }
 
+// cronjob for
 function cronJob(job, cronInterval, user, broadcast, sgFlag, ackFlag, securityGroupsToSend, userEmail, target) {
   job = new CronJob(cronInterval, function () {
     var currentDate = new Date();
