@@ -527,23 +527,19 @@ async function main() {
                   statusMessageString = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
                 } else {
                   statusMessageString = entry.status_message;
-<<<<<<< HEAD
                 }
-=======
-                  break;
-                case 5:
-                  statusString = "aborted";
-                  statusMessageString = entry.status_message;
-                  break;
-                case 6:
-                  statusString = "received";
-                  statusMessageString = entry.status_message;
-                  break;
->>>>>>> master
               }
               break;
             case 4:
               statusString = "ignored";
+              statusMessageString = entry.status_message;
+              break;
+            case 5:
+              statusString = "aborted";
+              statusMessageString = entry.status_message;
+              break;
+            case 6:
+              statusString = "received";
               statusMessageString = entry.status_message;
               break;
           }
