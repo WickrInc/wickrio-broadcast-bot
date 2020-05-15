@@ -3,3 +3,4 @@ uploads/*
 package-lock.json
 *.key
 *.cert
+*.output
