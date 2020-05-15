@@ -1,5 +1,13 @@
 "use strict";
 
+var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard");
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
+
+var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
 var _fs = _interopRequireDefault(require("fs"));
 
 var _express = _interopRequireDefault(require("express"));
@@ -10,29 +18,23 @@ var _helmet = _interopRequireDefault(require("helmet"));
 
 var _multer = _interopRequireDefault(require("multer"));
 
+var WickrIOBotAPI = _interopRequireWildcard(require("wickrio-bot-api"));
+
 var _child_process = require("child_process");
 
 var _cron = require("cron");
 
 var _log4js = require("log4js");
 
-var _strings = _interopRequireDefault(require("../strings"));
+var _strings = _interopRequireDefault(require("./strings"));
 
 var _csvWriter = require("csv-writer");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _createForOfIteratorHelper(o) { if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (o = _unsupportedIterableToArray(o))) { var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var it, normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
-
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
-
-var WickrIOBotAPI = require('wickrio-bot-api');
 
 var WickrUser = WickrIOBotAPI.WickrUser;
 var bot = new WickrIOBotAPI.WickrIOBot();
@@ -68,9 +70,9 @@ function exitHandler(_x, _x2) {
 
 
 function _exitHandler() {
-  _exitHandler = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(options, err) {
+  _exitHandler = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee(options, err) {
     var closed;
-    return regeneratorRuntime.wrap(function _callee$(_context) {
+    return _regenerator["default"].wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
@@ -139,9 +141,9 @@ function main() {
 }
 
 function _main() {
-  _main = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+  _main = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2() {
     var tokens, status, BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT, endpoint;
-    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+    return _regenerator["default"].wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
@@ -189,7 +191,7 @@ function _main() {
                 extended: false
               })); // parse application/json
 
-              app.use(json());
+              app.use(_bodyParser["default"].json());
               app.use(_express["default"]["static"]('wickrio-bot-web/public'));
               app.use(function (error, req, res, next) {
                 if (error instanceof SyntaxError) {
