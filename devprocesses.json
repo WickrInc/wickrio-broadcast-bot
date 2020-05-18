@@ -1,0 +1,71 @@
+{
+  "apps": [
+    {
+      "name": "WickrIO-Broadcast-Bot",
+      "args": [],
+      "script": "babel-node src/broadcast-bot.js",
+      "exec_interpreter": "none",
+      "autorestart": false,
+      "watch": [
+        "package.json"
+      ],
+      "ignore_watch": [
+        ".git"
+      ],
+      "env": {
+        "tokens": {
+          "WICKRIO_BOT_NAME": {
+            "value": "broadcast_marketing_bot",
+            "encrypted": false
+          },
+          "DATABASE_ENCRYPTION_CHOICE": {
+            "value": "no",
+            "encrypted": false
+          },
+          "DATABASE_ENCRYPTION_KEY": {
+            "value": "",
+            "encrypted": false
+          },
+          "WEB_INTERFACE": {
+            "value": "yes",
+            "encrypted": false
+          },
+          "BOT_PORT": {
+            "value": "4545",
+            "encrypted": false
+          },
+          "BOT_KEY": {
+            "value": "12345",
+            "encrypted": false
+          },
+          "BOT_AUTH_TOKEN": {
+            "value": "hardcodedauthtoken",
+            "encrypted": false
+          },
+          "HTTPS_CHOICE": {
+            "value": "yes",
+            "encrypted": false
+          },
+          "SSL_KEY_LOCATION": {
+            "value": "./my.key",
+            "encrypted": false
+          },
+          "SSL_CRT_LOCATION": {
+            "value": "./my.cert",
+            "encrypted": false
+          },
+          "ADMINISTRATORS": {
+            "value": "alane+largeroom@wickr.com",
+            "encrypted": false
+          },
+          "VERIFY_USERS": {
+            "value": "automatic",
+            "encrypted": false
+          }
+        }
+      },
+      "out_file": "log.output",
+      "error_file": "err.output"
+    }
+  ]
+}
