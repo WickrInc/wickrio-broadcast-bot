@@ -7,6 +7,7 @@ require("dotenv").config({
 })
 
 var wickrIOConfigure;
+var wickrIOIni;
 
 process.stdin.resume(); //so the program will not close instantly
 
@@ -119,6 +120,11 @@ async function main()
     wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure(tokenConfig, fullName, true, true);
 
     await wickrIOConfigure.configureYourBot("WickrIO-Broadcast-Bot");
+
+    botName = wickrIOConfigure.getBotName();
+console.log("botName=" + botName);
+    wickrIOIni = new WickrIOBotAPI.WickrIOIni(botName, __dirname );
+
     process.exit();
 }
 
