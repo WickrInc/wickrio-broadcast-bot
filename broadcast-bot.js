@@ -446,6 +446,12 @@ async function main() {
             for (let entry of messageStatus) {
               var statusMessageString = "";
               var statusString = "";
+              var sentDateString = "";
+              var readDateString = "";
+              if (entry.sent_datetime !== undefined)
+                  sentDateString = entry.sent_datetime;
+              if (entry.read_datetime !== undefined)
+                  readDateString = entry.read_datetime;
               switch(entry.status) {
                 case 0:
                   statusString = "pending";
@@ -483,7 +489,14 @@ async function main() {
                   statusMessageString = entry.status_message;
                   break;
               }
-              reportEntries.push({user: entry.user, status: statusString, statusMessage: statusMessageString});
+              reportEntries.push(
+                  {
+                      user: entry.user,
+                      status: statusString,
+                      statusMessage: statusMessageString,
+                      sentDate: sentDateString,
+                      readDate: readDateString
+                  });
             }
             var reply = JSON.stringify(reportEntries);
             res.set('Content-Type', 'application/json');
@@ -1351,6 +1364,12 @@ function getCSVReport(messageId) {
     for (let entry of messageStatus) {
       var statusMessageString = "";
       var statusString = "";
+      var sentDateString = "";
+      var readDateString = "";
+      if (entry.sent_datetime !== undefined)
+          sentDateString = entry.sent_datetime;
+      if (entry.read_datetime !== undefined)
+          readDateString = entry.read_datetime;
       switch(entry.status) {
         case 0:
           statusString = "pending";
@@ -1388,7 +1407,14 @@ function getCSVReport(messageId) {
           statusMessageString = entry.status_message;
           break;
       }
-      csvArray.push({user: entry.user, status: statusString, statusMessage: statusMessageString});
+      csvArray.push(
+          {
+              user: entry.user,
+              status: statusString,
+              statusMessage: statusMessageString,
+              sentDate: sentDateString,
+              readDate: readDateString
+          });
     } 
     if (messageStatus.length < 1000) {
       break;
@@ -1409,7 +1435,9 @@ function writeCSVReport(path, csvArray) {
     header: [
       {id: 'user', title: 'USER'},
       {id: 'status', title: 'STATUS'},
-      {id: 'statusMessage', title: 'MESSAGE'}
+      {id: 'statusMessage', title: 'MESSAGE'},
+      {id: 'sentDate', title: 'SENT'},
+      {id: 'readDate', title: 'READ'}
     ]
   });
   csvWriter.writeRecords(csvArray)
