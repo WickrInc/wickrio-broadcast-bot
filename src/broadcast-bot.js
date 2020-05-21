@@ -242,7 +242,6 @@ async function main() {
       function sendBroadcast(broadcast, wickrUser) {
 
         try {
-          // send broadcast
           var jsonDateTime = new Date().toJSON();
           var bMessage;
           var uMessage;
@@ -271,14 +270,8 @@ async function main() {
               bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
               logger.debug(bMessage);
 
-
-              // writeToMessageIdDB(messageId, wickrUser, security_group, jsonDateTime, message);
-              // asyncStatus(messageId, user.vGroupID);
               reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
               console.log(reply)
-
-              // uMessage = WickrIOAPI.cmdSendRoomMessage(security_group, reply);
-
 
               // Will this stay the same or could user be reset?? I believe only can send one repeat message
               broadcast.count += 1;
@@ -297,17 +290,11 @@ async function main() {
               logger.debug("CronJob", repeat);
               WickrIOAPI.cmdAddMessageID(messageId, wickrUser, security_group.toString(), jsonDateTime, message);
 
-
               bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
               logger.debug(bMessage);
 
-              // writeToMessageIdDB(messageId, wickrUser, security_group, jsonDateTime, message);
-              // asyncStatus(messageId, user.vGroupID);
               reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
               console.log(reply)
-
-              // uMessage = WickrIOAPI.cmdSendRoomMessage(security_group, reply);
-
 
               // Will this stay the same or could user be reset?? I believe only can send one repeat message
               broadcast.count += 1;
@@ -320,19 +307,14 @@ async function main() {
           } else if (security_group != false && !file && !repeat) {
             if (security_group.length === 0) return "Security Group length invalid."
             broadcast.count = 0
-            // console.log(repeat)
-            // validate cronjob interval
+
             WickrIOAPI.cmdAddMessageID(messageId, wickrUser, security_group.toString(), jsonDateTime, message);
 
             bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
             logger.debug(bMessage);
 
-            // writeToMessageIdDB(messageId, wickrUser, security_group, jsonDateTime, message);
-            // asyncStatus(messageId, user.vGroupID);
             reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
             console.log(reply)
-
-            // uMessage = WickrIOAPI.cmdSendRoomMessage(security_group, reply);
 
           } else if (security_group != false && file && !repeat) {
             if (security_group.length === 0) return "Security Group length invalid."
@@ -345,33 +327,18 @@ async function main() {
 
             bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
             logger.debug(bMessage);
-
-            // writeToMessageIdDB(messageId, wickrUser, security_group, jsonDateTime, message);
-            // asyncStatus(messageId, user.vGroupID);
             reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
             console.log(reply)
-
-            // uMessage = WickrIOAPI.cmdSendRoomMessage(security_group, reply);
           } else if (security_group === false && file && repeat) {
             job = new CronJob(repeat, function () {
-              console.log("broadcast", broadcast)
-              logger.debug("CronJob", repeat);
-
-              // what is the target for all or zero security groups, or whole network
-              // WickrIOAPI.cmdAddMessageID(messageId, wickrUser, farget, new Date(), message);
-              // messageId = "" + messageId;
+              logger.debug("CronJob", repeat)
               bMessage = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, message);
               logger.debug(bMessage)
+
               bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
-
-              // logger.debug("messageId: " + messageId + "userEmail" + wickrUser + "target" + security_group + "dt" + jsonDateTime + "bcast" + message);
-              // logger.debug("messageID: " + messageId + "userEmail" + wickrUser + "target" + security_group + "dt" + jsonDateTime + "bcast" + message);
-              // writeToMessageIdDB(messageId, wickrUser, target, jsonDateTime, message);
-              // asyncStatus(messageId, security_group);
-
               logger.debug(bMessage);
+
               reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
-              // uMessage = WickrIOAPI.cmdSendRoomMessage (security_group, reply);
 
               //Will this stay the same or could user be reset?? I believe only can send one repeat message
               broadcast.count += 1;
@@ -384,22 +351,10 @@ async function main() {
           } else if (security_group === false && !file & repeat) {
             job = new CronJob(repeat, function () {
               logger.debug("CronJob", repeat);
-
-              // messageId = "" + messageId;
-              // bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageId);
-              // logger.debug("messageId: " + messageId + "userEmail" + wickrUser + "target" + target + "dt" + jsonDateTime + "bcast" + message);
-              // writeToMessageIdDB(messageId, wickrUser, target, jsonDateTime, message);
-              // asyncStatus(messageId, security_group);
-
               bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
-              // logger.debug("messageId: " + messageId + "userEmail" + wickrUser + "target" + target + "dt" + jsonDateTime + "bcast" + message);
-              // writeToMessageIdDB(messageId, wickrUser, target, jsonDateTime, message);
-              // asyncStatus(messageID, security_group);
-
-
               logger.debug(bMessage);
               reply = strings["repeatMessageSent"].replace("%{count}", (user.count + 1));
-              // uMessage = WickrIOAPI.cmdSendRoomMessage(security_group, reply);
+
               //Will this stay the same or could user be reset?? I believe only can send one repeat message
               user.count += 1;
               if (user.count > user.repeat) {
@@ -409,7 +364,6 @@ async function main() {
             });
             job.start();
           } else if (security_group === false && !file & !repeat) {
-            // writeToMessageIdDB(messageId, wickrUser, "network", jsonDateTime, message);
             bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
 
             console.log('sending to entire network!');
@@ -434,8 +388,9 @@ async function main() {
       // broadcast endpoint needs to accept and send files
       app.post(endpoint + "/Broadcast/:wickrUser/:authCode", upload.single('attachment'), function (req, res) {
         const wickrUser = req.params.wickrUser;
-        // check auth
+        // check auth 
         checkAuth(req, res)
+
         let { message, acknowledge, security_group, repeat_num, freq_num } = req.body
         // validate arguments, append message.
         if (!message) return res.send("Broadcast message missing from request.");
