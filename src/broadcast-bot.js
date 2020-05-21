@@ -239,8 +239,7 @@ async function main() {
 
       }
 
-      function sendBroadcast(broadcast, wickrUser, res) {
-
+      function sendBroadcast(broadcast, wickrUser) {
 
         try {
           // send broadcast
@@ -251,182 +250,184 @@ async function main() {
           var messageID = updateLastID();
           var messageId = "" + messageID
           let { file, repeat, message, security_group } = broadcast
-          console.log({ 'broadcast': broadcast })
-          console.log({ 'security_group': security_group })
+
+          // // make sure users are registered in group
+          // var securityGroups = [];
+          // securityGroups.push(security_group);
+
+          // send to securtiy groups, with and without files, and repeats
+          if (security_group != false && file && repeat) {
+            if (security_group.length === 0) return "Security Group length invalid."
+            broadcast.count = 0
+            // console.log(repeat)
+            // validate cronjob interval
+            job = new CronJob(repeat, function () {
+              logger.debug("CronJob", repeat);
+
+              WickrIOAPI.cmdAddMessageID(messageId, wickrUser, security_group.toString(), jsonDateTime, message);
+              bMessage = WickrIOAPI.cmdSendSecurityGroupAttachment(security_group, "../integration/wickrio-broadcast-bot/".concat(file.path), file.originalname, "", "", messageID, 'sentby ' + wickrUser);
+              logger.debug(bMessage);
+
+              bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
+              logger.debug(bMessage);
 
 
-          if (security_group != false) {
+              // writeToMessageIdDB(messageId, wickrUser, security_group, jsonDateTime, message);
+              // asyncStatus(messageId, user.vGroupID);
+              reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
+              console.log(reply)
 
-            // make sure users are registered in group
-            if (security_group.length === 0) return res.send("Security Group length invalid.");
+              // uMessage = WickrIOAPI.cmdSendRoomMessage(security_group, reply);
 
-            // store security groups from request body
-            // use this to cache security groups and avoid a call?
-            var securityGroups = [];
-            securityGroups.push(security_group);
 
-            if (file) {
-              // send message with or without a repeat
-              if (repeat) {
-                broadcast.count = 0
-                // console.log(repeat)
-                // validate cronjob interval
-                job = new CronJob(repeat, function () {
-                  logger.debug("CronJob", repeat);
-
-                  // bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageId);
-                  // this sends attachment to whole network, need a group attachment function
-                  console.log("this sends attachment to whole network, need a group attachment function")
-
-                  // var bMessage = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, message);
-                  // logger.debug(bMessage);
-                  bMessage = WickrIOAPI.cmdSendSecurityGroupAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, message);
-                  logger.debug(bMessage);
-
-                  bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
-                  logger.debug(bMessage);
-
-                  // writeToMessageIdDB(messageId, wickrUser, security_group, jsonDateTime, message);
-                  // asyncStatus(messageId, user.vGroupID);
-
-                  reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
-                  // what does use send room message doo
-                  uMessage = WickrIOAPI.cmdSendRoomMessage(security_group, reply);
-                  // Will this stay the same or could user be reset?? I believe only can send one repeat message
-                  broadcast.count += 1;
-                  if (broadcast.count > repeat) {
-                    broadcast.cronJobActive = false;
-                    return job.stop();
-                  }
-                });
-                job.start();
-              } else {
-                logger.debug("This is sentby" + wickrUser);
-                // this sends attachment to whole network, need a group attachment function
-                console.log("this sends attachment to whole network, need a group attachment function")
-
-                bMessage = WickrIOAPI.cmdSendSecurityGroupAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, message);
-                logger.debug(bMessage);
-
-                bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
-                logger.debug(bMessage);
-
-                reply = strings["fileSent"];
+              // Will this stay the same or could user be reset?? I believe only can send one repeat message
+              broadcast.count += 1;
+              if (broadcast.count > repeat) {
+                broadcast.cronJobActive = false;
+                return job.stop();
               }
-            } else {
-              // send message to group with or without a repeat
-              if (repeat) {
-                job = new CronJob(repeat, function () {
-                  logger.debug("CronJob", repeat);
+            });
+            job.start();
+          } else if (security_group != false && !file && repeat) {
+            if (security_group.length === 0) return "Security Group length invalid."
+            broadcast.count = 0
+            // console.log(repeat)
+            // validate cronjob interval
+            job = new CronJob(repeat, function () {
+              logger.debug("CronJob", repeat);
+              WickrIOAPI.cmdAddMessageID(messageId, wickrUser, security_group.toString(), jsonDateTime, message);
 
-                  bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
-                  // messageId = "" + messageId;
-                  // writeToMessageIdDB(messageId, wickrUser, security_group, jsonDateTime, message);
-                  // asyncStatus(messageId, security_group);
 
-                  // writeToMessageIdDB(messageId, wickrUser, security_group, jsonDateTime, message);
-                  // asyncStatus(messageId, security_group);
+              bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
+              logger.debug(bMessage);
 
-                  logger.debug(bMessage);
-                  reply = strings["repeatMessageSent"].replace("%{count}", (user.count + 1));
-                  uMessage = WickrIOAPI.cmdSendRoomMessage(security_group, reply);
-                  //Will this stay the same or could user be reset?? I believe only can send one repeat message
-                  user.count += 1;
-                  if (user.count > repeat) {
-                    user.cronJobActive = false;
-                    return job.stop();
-                  }
-                });
-                job.start();
-              } else {
-                // writeToMessageIdDB(messageId, wickrUser, security_group, jsonDateTime, message);
-                bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
-                // uMessage = WickrIOAPI.cmdSendRoomMessage(security_group, reply);
+              // writeToMessageIdDB(messageId, wickrUser, security_group, jsonDateTime, message);
+              // asyncStatus(messageId, user.vGroupID);
+              reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
+              console.log(reply)
+
+              // uMessage = WickrIOAPI.cmdSendRoomMessage(security_group, reply);
+
+
+              // Will this stay the same or could user be reset?? I believe only can send one repeat message
+              broadcast.count += 1;
+              if (broadcast.count > repeat) {
+                broadcast.cronJobActive = false;
+                return job.stop();
               }
-              console.log('sending to security group ' + security_group);
+            });
+            job.start();
+          } else if (security_group != false && !file && !repeat) {
+            if (security_group.length === 0) return "Security Group length invalid."
+            broadcast.count = 0
+            // console.log(repeat)
+            // validate cronjob interval
+            WickrIOAPI.cmdAddMessageID(messageId, wickrUser, security_group.toString(), jsonDateTime, message);
 
-            }
-            // else if no security groups
-            // broadcast to whole network
-          } else if (security_group === false) {
-            if (file) {
-              // send file with or without a repeat
-              if (repeat) {
-                job = new CronJob(repeat, function () {
-                  console.log("broadcast", broadcast)
-                  logger.debug("CronJob", repeat);
+            bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
+            logger.debug(bMessage);
 
-                  // messageId = "" + messageId;
-                  bMessage = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, message);
-                  logger.debug(bMessage)
+            // writeToMessageIdDB(messageId, wickrUser, security_group, jsonDateTime, message);
+            // asyncStatus(messageId, user.vGroupID);
+            reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
+            console.log(reply)
 
-                  // logger.debug("messageId: " + messageId + "userEmail" + wickrUser + "target" + security_group + "dt" + jsonDateTime + "bcast" + message);
-                  // logger.debug("messageID: " + messageId + "userEmail" + wickrUser + "target" + security_group + "dt" + jsonDateTime + "bcast" + message);
-                  // writeToMessageIdDB(messageId, wickrUser, target, jsonDateTime, message);
-                  // asyncStatus(messageId, security_group);
+            // uMessage = WickrIOAPI.cmdSendRoomMessage(security_group, reply);
 
-                  logger.debug(bMessage);
-                  reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
-                  uMessage = WickrIOAPI.cmdSendRoomMessage(security_group, reply);
-                  //Will this stay the same or could user be reset?? I believe only can send one repeat message
-                  broadcast.count += 1;
-                  if (broadcast.count > repeat) {
-                    broadcast.cronJobActive = false;
-                    return job.stop();
-                  }
-                });
-                job.start();
-              } else {
-                logger.debug("This is sentby" + wickrUser);
-                var bMessage = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, message);
-                logger.debug("this is sent" + bMessage)
-                reply = strings["fileSent"];
+          } else if (security_group != false && file && !repeat) {
+            if (security_group.length === 0) return "Security Group length invalid."
+            broadcast.count = 0
+
+            WickrIOAPI.cmdAddMessageID(messageId, wickrUser, security_group.toString(), jsonDateTime, message);
+
+            bMessage = WickrIOAPI.cmdSendSecurityGroupAttachment(security_group, "../integration/wickrio-broadcast-bot/".concat(file.path), file.originalname, "", "", messageID, 'sentby ' + wickrUser);
+            logger.debug(bMessage);
+
+            bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
+            logger.debug(bMessage);
+
+            // writeToMessageIdDB(messageId, wickrUser, security_group, jsonDateTime, message);
+            // asyncStatus(messageId, user.vGroupID);
+            reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
+            console.log(reply)
+
+            // uMessage = WickrIOAPI.cmdSendRoomMessage(security_group, reply);
+          } else if (security_group === false && file && repeat) {
+            job = new CronJob(repeat, function () {
+              console.log("broadcast", broadcast)
+              logger.debug("CronJob", repeat);
+
+              // what is the target for all or zero security groups, or whole network
+              // WickrIOAPI.cmdAddMessageID(messageId, wickrUser, farget, new Date(), message);
+              // messageId = "" + messageId;
+              bMessage = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, message);
+              logger.debug(bMessage)
+              bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
+
+              // logger.debug("messageId: " + messageId + "userEmail" + wickrUser + "target" + security_group + "dt" + jsonDateTime + "bcast" + message);
+              // logger.debug("messageID: " + messageId + "userEmail" + wickrUser + "target" + security_group + "dt" + jsonDateTime + "bcast" + message);
+              // writeToMessageIdDB(messageId, wickrUser, target, jsonDateTime, message);
+              // asyncStatus(messageId, security_group);
+
+              logger.debug(bMessage);
+              reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
+              // uMessage = WickrIOAPI.cmdSendRoomMessage (security_group, reply);
+
+              //Will this stay the same or could user be reset?? I believe only can send one repeat message
+              broadcast.count += 1;
+              if (broadcast.count > repeat) {
+                broadcast.cronJobActive = false;
+                return job.stop();
               }
-            } else {
-              if (repeat) {
-                // send message with or without a repeat
-                job = new CronJob(repeat, function () {
-                  logger.debug("CronJob", repeat);
+            });
+            job.start();
+          } else if (security_group === false && !file & repeat) {
+            job = new CronJob(repeat, function () {
+              logger.debug("CronJob", repeat);
 
-                  // messageId = "" + messageId;
-                  // bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageId);
-                  // logger.debug("messageId: " + messageId + "userEmail" + wickrUser + "target" + target + "dt" + jsonDateTime + "bcast" + message);
-                  // writeToMessageIdDB(messageId, wickrUser, target, jsonDateTime, message);
-                  // asyncStatus(messageId, security_group);
+              // messageId = "" + messageId;
+              // bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageId);
+              // logger.debug("messageId: " + messageId + "userEmail" + wickrUser + "target" + target + "dt" + jsonDateTime + "bcast" + message);
+              // writeToMessageIdDB(messageId, wickrUser, target, jsonDateTime, message);
+              // asyncStatus(messageId, security_group);
 
-                  bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
-                  // logger.debug("messageId: " + messageId + "userEmail" + wickrUser + "target" + target + "dt" + jsonDateTime + "bcast" + message);
-                  // writeToMessageIdDB(messageId, wickrUser, target, jsonDateTime, message);
-                  // asyncStatus(messageID, security_group);
+              bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
+              // logger.debug("messageId: " + messageId + "userEmail" + wickrUser + "target" + target + "dt" + jsonDateTime + "bcast" + message);
+              // writeToMessageIdDB(messageId, wickrUser, target, jsonDateTime, message);
+              // asyncStatus(messageID, security_group);
 
 
-                  logger.debug(bMessage);
-                  reply = strings["repeatMessageSent"].replace("%{count}", (user.count + 1));
-                  uMessage = WickrIOAPI.cmdSendRoomMessage(security_group, reply);
-                  //Will this stay the same or could user be reset?? I believe only can send one repeat message
-                  user.count += 1;
-                  if (user.count > user.repeat) {
-                    user.cronJobActive = false;
-                    return job.stop();
-                  }
-                });
-                job.start();
-              } else {
-                // writeToMessageIdDB(messageId, wickrUser, "network", jsonDateTime, message);
-                bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
-
-                console.log('sending to entire network!');
-                console.log({ bMessage });
+              logger.debug(bMessage);
+              reply = strings["repeatMessageSent"].replace("%{count}", (user.count + 1));
+              // uMessage = WickrIOAPI.cmdSendRoomMessage(security_group, reply);
+              //Will this stay the same or could user be reset?? I believe only can send one repeat message
+              user.count += 1;
+              if (user.count > user.repeat) {
+                user.cronJobActive = false;
+                return job.stop();
               }
-            }
+            });
+            job.start();
+          } else if (security_group === false && !file & !repeat) {
+            // writeToMessageIdDB(messageId, wickrUser, "network", jsonDateTime, message);
+            bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
+
+            console.log('sending to entire network!');
+            console.log({ bMessage });
+          } else if (security_group === false && file & !repeat) {
+            logger.debug("This is sentby" + wickrUser);
+            var bMessage = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, message);
+            logger.debug("this is sent" + bMessage)
+            bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
+            logger.debug("this is sent" + bMessage)
+            reply = strings["fileSent"];
           }
-
+          // return sent broadcast
           console.log(bMessage);
-          res.send(bMessage);
+          return bMessage
         } catch (err) {
           console.log(err);
-          res.statusCode = 400;
-          res.send(err.toString());
+          return (err.toString())
         }
       }
 
@@ -436,10 +437,11 @@ async function main() {
         // check auth
         checkAuth(req, res)
         let { message, acknowledge, security_group, repeat_num, freq_num } = req.body
+        // validate arguments, append message.
         if (!message) return res.send("Broadcast message missing from request.");
 
-        let broadcast = {}
 
+        let broadcast = {}
         broadcast.file = req.file || false
         broadcast.repeat_num = repeat_num || false
         broadcast.freq_num = freq_num || false
@@ -456,51 +458,14 @@ async function main() {
 
         else if (typeof security_group === "string") broadcast.security_group = [security_group]
 
-        // console.log({ 'broadcast.security_group': broadcast.security_group })
+        let response = sendBroadcast(broadcast, wickrUser)
 
-        // validate a message was sent in the request body
-        sendBroadcast(broadcast, wickrUser, res)
+        // todo: send status on error
+        res.send(response)
       });
 
       app.get(endpoint + "/SecGroups/:wickrUser/:authCode", function (req, res) {
-        res.set('Content-Type', 'text/plain');
-        res.set('Authorization', 'Basic base64_auth_token');
-        var authHeader = req.get('Authorization');
-        // console.log('hit secgroups')
-        var authToken;
-        if (authHeader) {
-          if (authHeader.indexOf(' ') == -1) {
-            authToken = authHeader;
-          } else {
-            authHeader = authHeader.split(' ');
-            authToken = authHeader[1];
-          }
-        } else {
-          console.log('access denied, need auth')
-          return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic base64_auth_token"');
-        }
-
-        if (!checkCreds(authToken)) {
-          return res.status(401).send('Access denied: invalid basic-auth token.');
-        }
-
-        var wickrUser = req.params.wickrUser;
-        if (typeof wickrUser !== 'string')
-          return res.status(401).send("WickrUser must be a string.");
-        var authCode = req.params.authCode;
-        if (typeof authCode !== 'string')
-          return res.status(401).send("Authentication Code must be a string.");
-
-        // Check if the authCode is valid for the input user
-        var dictAuthCode = client_auth_codes[wickrUser];
-
-        if (dictAuthCode === undefined) {
-
-          return res.status(401).send('Access denied: no user authentication code.');
-        }
-        if (authCode != dictAuthCode) {
-          return res.status(401).send('Access denied: invalid user authentication code.');
-        }
+        checkAuth(req, res)
 
         try {
           var getGroups = WickrIOAPI.cmdGetSecurityGroups();
@@ -520,40 +485,9 @@ async function main() {
       });
 
       app.get(endpoint + "/Status/:wickrUser/:authCode", function (req, res) {
-        res.set('Content-Type', 'text/plain');
-        res.set('Authorization', 'Basic base64_auth_token');
-        var authHeader = req.get('Authorization');
-        var authToken;
-        if (authHeader) {
-          if (authHeader.indexOf(' ') == -1) {
-            authToken = authHeader;
-          } else {
-            authHeader = authHeader.split(' ');
-            authToken = authHeader[1];
-          }
-        } else {
-          return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic base64_auth_token"');
-        }
+        checkAuth(req, res)
 
-        if (!checkCreds(authToken)) {
-          return res.status(401).send('Access denied: invalid basic-auth token.');
-        }
-
-        var wickrUser = req.params.wickrUser;
-        if (typeof wickrUser !== 'string')
-          return res.status(401).send("WickrUser must be a string.");
-        var authCode = req.params.authCode;
-        if (typeof authCode !== 'string')
-          return res.status(401).send("Authentication Code must be a string.");
-
-        // Check if the authCode is valid for the input user
-        var dictAuthCode = client_auth_codes[wickrUser];
-        if (dictAuthCode === undefined || authCode != dictAuthCode) {
-          return res.status(401).send('Access denied: invalid user authentication code.');
-        }
-
-
-        var messageIdEntries = getMessageEntries(wickrUser, 20);
+        var messageIdEntries = getMessageEntries(req.params.wickrUser, 20);
 
         var reply = "";
         if (messageIdEntries.length < 1) {
@@ -579,38 +513,8 @@ async function main() {
       });
 
       app.get(endpoint + "/Status/:wickrUser/:authCode/:messageID", function (req, res) {
-        res.set('Content-Type', 'text/plain');
-        res.set('Authorization', 'Basic base64_auth_token');
-        var authHeader = req.get('Authorization');
-        var authToken;
-        if (authHeader) {
-          if (authHeader.indexOf(' ') == -1) {
-            authToken = authHeader;
-          } else {
-            authHeader = authHeader.split(' ');
-            authToken = authHeader[1];
-          }
-        } else {
-          return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic base64_auth_token"');
-        }
-
-        if (!checkCreds(authToken)) {
-          return res.status(401).send('Access denied: invalid basic-auth token.');
-        }
-
-        var wickrUser = req.params.wickrUser;
-        if (typeof wickrUser !== 'string')
-          return res.status(401).send("WickrUser must be a string.");
-        var authCode = req.params.authCode;
-        if (typeof authCode !== 'string')
-          return res.status(401).send("Authentication Code must be a string.");
-
-        // Check if the authCode is valid for the input user
-        var dictAuthCode = client_auth_codes[wickrUser];
-        if (dictAuthCode === undefined || authCode != dictAuthCode) {
-          return res.status(401).send('Access denied: invalid user authentication code.');
-        }
-
+        checkAuth(req, res)
+        // validate message id
 
         var statusData = WickrIOAPI.cmdGetMessageStatus(req.params.messageID, "summary", "0", "1000");
         var reply = statusData;
@@ -619,37 +523,8 @@ async function main() {
       });
 
       app.get(endpoint + "/Report/:wickrUser/:authCode/:messageID/:page/:size", function (req, res) {
-        res.set('Content-Type', 'text/plain');
-        res.set('Authorization', 'Basic base64_auth_token');
-        var authHeader = req.get('Authorization');
-        var authToken;
-        if (authHeader) {
-          if (authHeader.indexOf(' ') == -1) {
-            authToken = authHeader;
-          } else {
-            authHeader = authHeader.split(' ');
-            authToken = authHeader[1];
-          }
-        } else {
-          return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic base64_auth_token"');
-        }
-
-        if (!checkCreds(authToken)) {
-          return res.status(401).send('Access denied: invalid basic-auth token.');
-        }
-
-        var wickrUser = req.params.wickrUser;
-        if (typeof wickrUser !== 'string')
-          return res.status(401).send("WickrUser must be a string.");
-        var authCode = req.params.authCode;
-        if (typeof authCode !== 'string')
-          return res.status(401).send("Authentication Code must be a string.");
-
-        // Check if the authCode is valid for the input user
-        var dictAuthCode = client_auth_codes[wickrUser];
-        if (dictAuthCode === undefined || authCode != dictAuthCode) {
-          return res.status(401).send('Access denied: invalid user authentication code.');
-        }
+        checkAuth(req, res)
+        // validate id, page and size
 
         var reportEntries = [];
 
