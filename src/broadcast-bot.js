@@ -341,7 +341,6 @@ async function main() {
           return (err.toString())
         }
       }
-
       // app.post(endpoint + "/Broadcast/:wickrUser/:authCode", [checkAuth, upload.single('attachment')], (req, res) => {
       app.post(endpoint + "/Broadcast", [checkAuth, upload.single('attachment')], (req, res) => {
         // typecheck and validate parameters
@@ -433,11 +432,18 @@ async function main() {
       app.get(endpoint + "/Report/:messageID/:page/:size", checkAuth, (req, res) => {
         // validate params
         var reportEntries = [];
+
         var statusData = WickrIOAPI.cmdGetMessageStatus(req.params.messageID, "full", req.params.page, req.params.size);
         var messageStatus = JSON.parse(statusData);
-        for (var entry of messageStatus) {
+        for (let entry of messageStatus) {
           var statusMessageString = "";
           var statusString = "";
+          var sentDateString = "";
+          var readDateString = "";
+          if (entry.sent_datetime !== undefined)
+            sentDateString = entry.sent_datetime;
+          if (entry.read_datetime !== undefined)
+            readDateString = entry.read_datetime;
           switch (entry.status) {
             case 0:
               statusString = "pending";
@@ -459,29 +465,33 @@ async function main() {
                   statusMessageString = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
                 } else {
                   statusMessageString = entry.status_message;
-                  // <<<<<<< HEAD
                 }
-                // =======
-                //                   break;
-                //                 case 5:
-                //                   statusString = "aborted";
-                //                   statusMessageString = entry.status_message;
-                //                   break;
-                //                 case 6:
-                //                   statusString = "received";
-                //                   statusMessageString = entry.status_message;
-                //                   break;
-                // >>>>>>> master
               }
               break;
             case 4:
               statusString = "ignored";
               statusMessageString = entry.status_message;
               break;
+            case 5:
+              statusString = "aborted";
+              statusMessageString = entry.status_message;
+              break;
+            case 6:
+              statusString = "received";
+              statusMessageString = entry.status_message;
+              break;
           }
-          reportEntries.push({ user: entry.user, status: statusString, statusMessage: statusMessageString });
+          reportEntries.push(
+            {
+              user: entry.user,
+              status: statusString,
+              statusMessage: statusMessageString,
+              sentDate: sentDateString,
+              readDate: readDateString
+            });
         }
         var reply = JSON.stringify(reportEntries);
+        res.set('Content-Type', 'application/json');
         return res.send(reply);
       });
 
@@ -1382,7 +1392,17 @@ function getCSVReport(messageId) {
     for (var entry of messageStatus) {
       var statusMessageString = "";
       var statusString = "";
+<<<<<<< HEAD:src/broadcast-bot.js
       switch (entry.status) {
+=======
+      var sentDateString = "";
+      var readDateString = "";
+      if (entry.sent_datetime !== undefined)
+          sentDateString = entry.sent_datetime;
+      if (entry.read_datetime !== undefined)
+          readDateString = entry.read_datetime;
+      switch(entry.status) {
+>>>>>>> origin/paul-readsend-datetime:broadcast-bot.js
         case 0:
           statusString = "pending";
           break;
@@ -1419,8 +1439,20 @@ function getCSVReport(messageId) {
           statusMessageString = entry.status_message;
           break;
       }
+<<<<<<< HEAD:src/broadcast-bot.js
       csvArray.push({ user: entry.user, status: statusString, statusMessage: statusMessageString });
     }
+=======
+      csvArray.push(
+          {
+              user: entry.user,
+              status: statusString,
+              statusMessage: statusMessageString,
+              sentDate: sentDateString,
+              readDate: readDateString
+          });
+    }
+>>>>>>> origin/paul-readsend-datetime:broadcast-bot.js
     if (messageStatus.length < 1000) {
       break;
     }
@@ -1438,9 +1470,17 @@ function writeCSVReport(path, csvArray) {
   var csvWriter = createCsvWriter({
     path: path,
     header: [
+<<<<<<< HEAD:src/broadcast-bot.js
       { id: 'user', title: 'USER' },
       { id: 'status', title: 'STATUS' },
       { id: 'statusMessage', title: 'MESSAGE' }
+=======
+      {id: 'user', title: 'USER'},
+      {id: 'status', title: 'STATUS'},
+      {id: 'statusMessage', title: 'MESSAGE'},
+      {id: 'sentDate', title: 'SENT'},
+      {id: 'readDate', title: 'READ'}
+>>>>>>> origin/paul-readsend-datetime:broadcast-bot.js
     ]
   });
   csvWriter.writeRecords(csvArray)
