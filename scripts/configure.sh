@@ -12,14 +12,14 @@ rm -f .env.configure
 if [ -n "$1" ]; then
   if [ -f "$1" ]; then
     . "$1"
-    cp "$1" .env.configure
+    cp "$1" ../.env.configure
   fi
 fi
 
 if [ -z "$CLIENT_NAME" ];
 then
-  node configure.js
+  node ../configure.js
 else
-  WICKRIO_BOT_NAME=$CLIENT_NAME node configure.js
+  WICKRIO_BOT_NAME=$CLIENT_NAME node ../configure.js
 fi
 
