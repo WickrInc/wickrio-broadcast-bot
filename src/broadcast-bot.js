@@ -1392,17 +1392,14 @@ function getCSVReport(messageId) {
     for (var entry of messageStatus) {
       var statusMessageString = "";
       var statusString = "";
-<<<<<<< HEAD:src/broadcast-bot.js
-      switch (entry.status) {
-=======
+
       var sentDateString = "";
       var readDateString = "";
       if (entry.sent_datetime !== undefined)
-          sentDateString = entry.sent_datetime;
+        sentDateString = entry.sent_datetime;
       if (entry.read_datetime !== undefined)
-          readDateString = entry.read_datetime;
-      switch(entry.status) {
->>>>>>> origin/paul-readsend-datetime:broadcast-bot.js
+        readDateString = entry.read_datetime;
+      switch (entry.status) {
         case 0:
           statusString = "pending";
           break;
@@ -1439,20 +1436,16 @@ function getCSVReport(messageId) {
           statusMessageString = entry.status_message;
           break;
       }
-<<<<<<< HEAD:src/broadcast-bot.js
-      csvArray.push({ user: entry.user, status: statusString, statusMessage: statusMessageString });
-    }
-=======
+
       csvArray.push(
-          {
-              user: entry.user,
-              status: statusString,
-              statusMessage: statusMessageString,
-              sentDate: sentDateString,
-              readDate: readDateString
-          });
+        {
+          user: entry.user,
+          status: statusString,
+          statusMessage: statusMessageString,
+          sentDate: sentDateString,
+          readDate: readDateString
+        });
     }
->>>>>>> origin/paul-readsend-datetime:broadcast-bot.js
     if (messageStatus.length < 1000) {
       break;
     }
@@ -1470,17 +1463,11 @@ function writeCSVReport(path, csvArray) {
   var csvWriter = createCsvWriter({
     path: path,
     header: [
-<<<<<<< HEAD:src/broadcast-bot.js
       { id: 'user', title: 'USER' },
       { id: 'status', title: 'STATUS' },
-      { id: 'statusMessage', title: 'MESSAGE' }
-=======
-      {id: 'user', title: 'USER'},
-      {id: 'status', title: 'STATUS'},
-      {id: 'statusMessage', title: 'MESSAGE'},
-      {id: 'sentDate', title: 'SENT'},
-      {id: 'readDate', title: 'READ'}
->>>>>>> origin/paul-readsend-datetime:broadcast-bot.js
+      { id: 'statusMessage', title: 'MESSAGE' },
+      { id: 'sentDate', title: 'SENT' },
+      { id: 'readDate', title: 'READ' }
     ]
   });
   csvWriter.writeRecords(csvArray)
