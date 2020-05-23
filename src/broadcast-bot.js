@@ -8,7 +8,7 @@ import { CronJob } from 'cron';
 import { getLogger } from 'log4js';
 import * as WickrIOBotAPI from 'wickrio-bot-api'
 import strings from './strings';
-
+import jwt from "jsonwebtoken"
 const WickrUser = WickrIOBotAPI.WickrUser;
 const bot = new WickrIOBotAPI.WickrIOBot();
 const WickrIOAPI = bot.getWickrIOAddon();
@@ -26,7 +26,7 @@ var verifyUsersMode;
 
 
 // set upload destination for attachments sent to broadcast with multer 
-var upload = multer({ dest: 'uploads/' })
+var upload = multer({ dest: 'attachments/' })
 
 //
 // Web interface definitions
@@ -35,7 +35,7 @@ var bot_port, bot_api_key, bot_api_auth_token;
 var client_auth_codes = {};
 
 process.stdin.resume(); //so the program will not close instantly
-if (!fs.existsSync(process.cwd() + "/uploads")) {
+if (!fs.existsSync(process.cwd() + "/attachments")) {
   mkdirSync(process.cwd() + "/attachments");
 }
 async function exitHandler(options, err) {
@@ -119,7 +119,7 @@ async function main() {
       app.use(express.static('wickrio-bot-web/public'))
 
 
-      app.use(function (error, req, res, next) {
+      app.use((error, req, res, next) => {
 
         if (error instanceof SyntaxError) {
           console.log('bodyParser:', error);
@@ -132,7 +132,7 @@ async function main() {
 
       // add cors for development
       // TODO: set conditional for NODE_ENV to match and set the right origin host header - 8000 for dev, 4545 for prod
-      app.options("/*", function (req, res, next) {
+      app.options("/*", (req, res, next) => {
         res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization, Content-Length, X-Requested-With');
         res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
         res.header('Access-Control-Allow-Origin', 'http://localhost:8000');
@@ -140,7 +140,7 @@ async function main() {
         res.sendStatus(200)
       });
 
-      app.all("/*", function (req, res, next) {
+      app.all("/*", (req, res, next) => {
         res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization, Content-Length, X-Requested-With');
         res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
         res.header('Access-Control-Allow-Origin', 'http://localhost:8000');
@@ -149,102 +149,59 @@ async function main() {
 
       var endpoint = "/WickrIO/V1/Apps/" + bot_api_key;
 
-      app.post(endpoint + "/Authenticate/:wickrUser", function (req, res) {
-        res.set('Content-Type', 'text/plain');
+      const checkAuth = (req, res, next) => {
         res.set('Authorization', 'Basic base64_auth_token');
+        res.set('Content-Type', 'application/json');
 
-        var authHeader = req.get('Authorization');
-        var authToken;
-        if (authHeader) {
-          if (authHeader.indexOf(' ') == -1) {
-            authToken = authHeader;
-          } else {
-            authHeader = authHeader.split(' ');
-            authToken = authHeader[1];
+        // Gather the jwt access token from the request header
+        // const authHeader = req.get('Authorization');
+        const authHeader = req.headers['authorization']
+
+        const token = authHeader && authHeader.split(' ')[1]
+        console.log({ authHeader, token })
+
+        if (token == null) return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic jwt"'); // if there isn't any token
+        // if (token == null) return res.sendStatus(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic jwt"'); // if there isn't any token
+
+        jwt.verify(token, bot_api_auth_token, (err, user) => {
+          if (err) {
+            console.log(err)
+            console.log("err: " + err.message)
+            return res.status(403).send(err.message)
           }
-        } else {
-          return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic base64_auth_token"');
-        }
-        if (!checkCreds(authToken)) {
-          return res.status(401).send('Access denied: invalid basic-auth token.');
-        } else {
-          var wickrUser = req.params.wickrUser;
-          if (typeof wickrUser !== 'string')
-            return res.status(400).send('Bad request: WickrUser must be a string.');
+          console.log({ user })
 
-          // Check if this user is an administrator
-          var adminUser = bot.myAdmins.getAdmin(wickrUser);
+          var adminUser = bot.myAdmins.getAdmin(user.email);
           if (adminUser === undefined) {
-            return res.status(401).send('Access denied: ' + wickrUser + ' is not authorized to broadcast!');
+            return res.status(401).send('Access denied: ' + user.email + ' is not authorized to broadcast!');
           }
 
-          var ttl = "", bor = "";
-          var users = [];
-          users.push(wickrUser);
-
-          var random = generateRandomString(24);
-          var message = "Authentication code: " + random;
-
-          // Save the auth key for the wickrUser
-          client_auth_codes[wickrUser] = random;
-
-          try {
-            var csm = WickrIOAPI.cmdSend1to1Message(users, message, ttl, bor);
-            console.log(csm);
-            res.send(csm);
-          } catch (err) {
-            console.log(err);
-            res.statusCode = 400;
-            res.send(err.toString());
+          // Check if the authCode is valid for the input user
+          var dictAuthCode = client_auth_codes[user.email];
+          if (dictAuthCode === undefined || user.session != dictAuthCode) {
+            return res.status(401).send('Access denied: invalid user authentication code.');
           }
+
+          req.user = user
+          next()
+        })
+      }
+
+      app.get(endpoint + "/Authenticate", checkAuth, (req, res) => {
+        try {
+          console.log(req.user);
+          res.json(req.user)
+        } catch (err) {
+          console.log(err);
+          res.statusCode = 400;
+          res.send(err.toString());
         }
       });
 
-      function checkAuth(req, res) {
-        var authHeader = req.get('Authorization');
-
-        res.set('Content-Type', 'text/plain');
-        res.set('Authorization', 'Basic base64_auth_token');
-
-        var authToken;
-        if (authHeader) {
-          if (authHeader.indexOf(' ') == -1) {
-            authToken = authHeader;
-          } else {
-            authHeader = authHeader.split(' ');
-            authToken = authHeader[1];
-          }
-        } else {
-          return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic base64_auth_token"');
-        }
-
-        // check credentials, decode base 64 token, and checks it against bot api token from setup
-        if (!checkCreds(authToken)) {
-          return res.status(401).send('Access denied: invalid basic-auth token.');
-        }
-
-        // typecheck and validate parameters
-        var wickrUser = req.params.wickrUser;
-        if (typeof wickrUser !== 'string')
-          return res.status(401).send("WickrUser must be a string.");
-        var authCode = req.params.authCode;
-        if (typeof authCode !== 'string')
-          return res.status(401).send("Authentication Code must be a string.");
-
-        // Check if the authCode is valid for the input user
-        var dictAuthCode = client_auth_codes[wickrUser];
-        if (dictAuthCode === undefined || authCode != dictAuthCode) {
-          return res.status(401).send('Access denied: invalid user authentication code.');
-        }
-
-      }
-
-      function sendBroadcast(broadcast, wickrUser) {
-
+      const sendBroadcast = (broadcast, wickrUser) => {
         try {
           var jsonDateTime = new Date().toJSON();
           var bMessage;
-          var uMessage;
           var reply
           var messageID = updateLastID();
           var messageId = "" + messageID
@@ -385,44 +342,41 @@ async function main() {
         }
       }
 
-      // broadcast endpoint needs to accept and send files
-      app.post(endpoint + "/Broadcast/:wickrUser/:authCode", upload.single('attachment'), function (req, res) {
-        const wickrUser = req.params.wickrUser;
-        // check auth 
-        checkAuth(req, res)
-
+      // app.post(endpoint + "/Broadcast/:wickrUser/:authCode", [checkAuth, upload.single('attachment')], (req, res) => {
+      app.post(endpoint + "/Broadcast", [checkAuth, upload.single('attachment')], (req, res) => {
+        // typecheck and validate parameters
         let { message, acknowledge, security_group, repeat_num, freq_num } = req.body
+
         // validate arguments, append message.
         if (!message) return res.send("Broadcast message missing from request.");
-
 
         let broadcast = {}
         broadcast.file = req.file || false
         broadcast.repeat_num = repeat_num || false
         broadcast.freq_num = freq_num || false
         acknowledge === true || acknowledge == 'true' ?
-          broadcast.message = message + `\n Broadcast sent by: ${wickrUser} \n Please acknowledge you received this message by repling with /ack` :
-          broadcast.message = message + `\n Broadcast sent by: ${wickrUser}`
-
+          broadcast.message = message + `\n Broadcast sent by: ${req.user.email} \n Please acknowledge you received this message by repling with /ack` :
+          broadcast.message = message + `\n Broadcast sent by: ${req.user.email}`
 
         if (security_group.includes(',')) {
           security_group = security_group.split(',')
-          broadcast.security_group = security_group
         }
-        if (security_group == 'false') broadcast.security_group = false
+        broadcast.security_group = security_group
 
+        if (security_group == 'false') broadcast.security_group = false
         else if (typeof security_group === "string") broadcast.security_group = [security_group]
 
-        let response = sendBroadcast(broadcast, wickrUser)
+        let response = sendBroadcast(broadcast, req.user.email)
 
         // todo: send status on error
         res.send(response)
       });
 
-      app.get(endpoint + "/SecGroups/:wickrUser/:authCode", function (req, res) {
-        checkAuth(req, res)
-
+      // app.get(endpoint + "/SecGroups/:wickrUser", checkAuth, (req, res) => {
+      app.get(endpoint + "/SecGroups", checkAuth, (req, res) => {
         try {
+          // how does cmdGetSecurityGroups know what user to get security groups for?
+          // could we get securityg groups for a targeted user?
           var getGroups = WickrIOAPI.cmdGetSecurityGroups();
           var response = isJson(getGroups);
           if (response !== false) {
@@ -430,7 +384,6 @@ async function main() {
           } else {
             getGroups = '{}';
           }
-          res.set('Content-Type', 'application/json');
           res.send(getGroups);
         } catch (err) {
           console.log(err);
@@ -439,14 +392,16 @@ async function main() {
         }
       });
 
-      app.get(endpoint + "/Status/:wickrUser/:authCode", function (req, res) {
-        checkAuth(req, res)
+      // app.get(endpoint + "/Status/:wickrUser/:authCode", checkAuth, (req, res) => {
+      app.get(endpoint + "/Status", checkAuth, (req, res) => {
 
-        var messageIdEntries = getMessageEntries(req.params.wickrUser, 20);
+        var messageIdEntries = getMessageEntries(req.user.email, 20);
 
-        var reply = "";
+        var reply = {};
         if (messageIdEntries.length < 1) {
-          reply = strings["noPrevious"];
+          reply.data = []
+          reply.message = "no broadcasts yet"
+          // reply = strings["noPrevious"];
         } else {
           var length = Math.min(messageIdEntries.length, 5);
           var contentData;
@@ -461,28 +416,23 @@ async function main() {
             //                    messageString += '(' + index++ + ') ' + contentParsed.message + "\n";
           }
           //                reply = strings["whichMessage"].replace("%{length}", length).replace("%{messageList}", messageString);
-          reply = JSON.stringify(messageIdEntries);
+          reply.data = messageIdEntries
         }
-        res.set('Content-Type', 'application/json');
-        return res.send(reply);
+        return res.json(reply);
       });
 
-      app.get(endpoint + "/Status/:wickrUser/:authCode/:messageID", function (req, res) {
-        checkAuth(req, res)
+      // app.get(endpoint + "/Status/:wickrUser/:authCode/:messageID", checkAuth, (req, res) => {
+      app.get(endpoint + "/Status/:messageID", checkAuth, (req, res) => {
         // validate message id
-
         var statusData = WickrIOAPI.cmdGetMessageStatus(req.params.messageID, "summary", "0", "1000");
         var reply = statusData;
-        res.set('Content-Type', 'application/json');
         return res.send(reply);
       });
 
-      app.get(endpoint + "/Report/:wickrUser/:authCode/:messageID/:page/:size", function (req, res) {
-        checkAuth(req, res)
-        // validate id, page and size
-
+      // app.get(endpoint + "/Report/:wickrUser/:authCode/:messageID/:page/:size", checkAuth, (req, res) => {
+      app.get(endpoint + "/Report/:messageID/:page/:size", checkAuth, (req, res) => {
+        // validate params
         var reportEntries = [];
-
         var statusData = WickrIOAPI.cmdGetMessageStatus(req.params.messageID, "full", req.params.page, req.params.size);
         var messageStatus = JSON.parse(statusData);
         for (var entry of messageStatus) {
@@ -532,20 +482,19 @@ async function main() {
           reportEntries.push({ user: entry.user, status: statusString, statusMessage: statusMessageString });
         }
         var reply = JSON.stringify(reportEntries);
-        res.set('Content-Type', 'application/json');
         return res.send(reply);
       });
 
       // What to do for ALL requests for ALL Paths
       // that are not handled above
-      app.all('*', function (req, res) {
+      app.all('*', (req, res) => {
         console.log('*** 404 ***');
         console.log('404 for url: ' + req.url);
         console.log('***********');
         return res.type('txt').status(404).send('Endpoint ' + req.url + ' not found');
       });
     } else {
-      console.log('env variables not set properly. Check BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT')
+      console.log('If you wanted a web interface, the env variables not set properly. Check BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT')
     }
   } catch (err) {
     console.log(err);
@@ -653,7 +602,6 @@ function listen(message) {
       logger.debug(sMessage);
     }
 
-
     if (command === '/panel') {
       // Check if this user is an administrator
       var adminUser = bot.myAdmins.getAdmin(user.userEmail);
@@ -661,24 +609,19 @@ function listen(message) {
       if (adminUser === undefined) {
         return res.statusCode(401).send('Access denied: ' + user.userEmail + ' is not authorized to broadcast!');
       }
-      // check if theres already a client auth code for the user
-      // if not, create one
-
 
       // generate a random auth code for the session
       var random = generateRandomString(24);
-      var message = "Authentication code: " + random;
-
-      // Save the auth key for the wickrUser
       client_auth_codes[user.userEmail] = random;
-
       // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
-      // stealing / sharing base 64 token or the given url could allow attackers to mock requests from the allowed resources 
-      // should hide base 64 encoded token, or request it in broadcast web instead of sharing it here via url
+      // send token in url, used for calls to receive data, send messages
+      const token = jwt.sign({
+        'email': user.userEmail,
+        'session': random,
+      }, bot_api_auth_token, { expiresIn: '1800s' });
 
-      // get base64 encoding of basic auth token set up in the bot
-      var authEncoded = Buffer.from(bot_api_auth_token).toString('base64')
-      var reply = encodeURI(`localhost:4545/?auth=${random}&username=${user.userEmail}&authn=${authEncoded}`)
+      // what will the deploy env be
+      var reply = encodeURI(`localhost:4545/?token=${token}`)
       var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       user.confirm = '';
       logger.debug(sMessage);
@@ -1507,20 +1450,20 @@ function writeCSVReport(path, csvArray) {
 }
 
 //Basic function to validate credentials for example
-function checkCreds(authToken) {
-  try {
-    var valid = true;
-    const authStr = Buffer.from(authToken, 'base64').toString();
-    //implement authToken verification in here
-    if (authStr !== bot_api_auth_token) {
-      valid = false;
-      console.log('Access denied: invalid basic-auth token.')
-    }
-    return valid;
-  } catch (err) {
-    console.log(err);
-  }
-}
+// function checkCreds(authToken) {
+//   try {
+//     var valid = true;
+//     const authStr = Buffer.from(authToken, 'base64').toString();
+//     //implement authToken verification in here
+//     if (authStr !== bot_api_auth_token) {
+//       valid = false;
+//       console.log('Access denied: invalid basic-auth token.')
+//     }
+//     return valid;
+//   } catch (err) {
+//     console.log(err);
+//   }
+// }
 
 function generateRandomString(length) {
   var text = "";
