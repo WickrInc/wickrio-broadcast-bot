@@ -1,39 +1,28 @@
 import fs from 'fs';
-import express from 'express';
-import bodyParser from 'body-parser';
-import helmet from 'helmet';
-import multer from 'multer'
 import { createObjectCsvWriter as createCsvWriter } from 'csv-writer';
 import { CronJob } from 'cron';
-import { getLogger } from 'log4js';
-import * as WickrIOBotAPI from 'wickrio-bot-api'
 import strings from './strings';
 import jwt from "jsonwebtoken"
-const WickrUser = WickrIOBotAPI.WickrUser;
-const bot = new WickrIOBotAPI.WickrIOBot();
-const WickrIOAPI = bot.getWickrIOAddon();
+import app from './server';
+import {
+  bot,
+  WickrIOAPI,
+  client_auth_codes,
+  logger,
+  BOT_AUTH_TOKEN,
+  BOT_KEY,
+  BOT_PORT,
+  WICKRIO_BOT_NAME,
+  VERIFY_USERS
+} from './constants';
 
-const app = express();
-app.use(helmet()); //security http headers
-
-var logger = getLogger();
-logger.level = 'debug';
-
-var job;
-var verifyUsersMode;
+let job;
+let verifyUsersMode
 
 // need to be able to debug and lint for syntax errors
-
-
-// set upload destination for attachments sent to broadcast with multer 
-var upload = multer({ dest: 'attachments/' })
-
 //
 // Web interface definitions
 // 
-var bot_port, bot_api_key, bot_api_auth_token;
-var client_auth_codes = {};
-
 process.stdin.resume(); //so the program will not close instantly
 if (!fs.existsSync(process.cwd() + "/attachments")) {
   mkdirSync(process.cwd() + "/attachments");
@@ -73,13 +62,12 @@ var fileFlag = false;
 var cronInterval;
 var displayName;
 var askForAckFlag = false;
-var messagesForReport = [];
+var messagesForReport = []; // unused
 
-// using cronjobs to handle repeats
 async function main() {
   try {
-    var tokens = JSON.parse(process.env.tokens);
-    var status = await bot.start(tokens.WICKRIO_BOT_NAME.value)
+    var status = await bot.start(WICKRIO_BOT_NAME.value)
+
     if (!status) {
       exitHandler(null, {
         exit: true,
@@ -90,10 +78,10 @@ async function main() {
     bot.setAdminOnly(false);
 
     // set the verification mode to true
-    if (tokens.VERIFY_USERS.encrypted) {
-      verifyUsersMode = WickrIOAPI.cmdDecryptString(tokens.VERIFY_USERS.value);
+    if (VERIFY_USERS.encrypted) {
+      verifyUsersMode = WickrIOAPI.cmdDecryptString(VERIFY_USERS.value);
     } else {
-      verifyUsersMode = tokens.VERIFY_USERS.value;
+      verifyUsersMode = VERIFY_USERS.value;
     }
 
     bot.setVerificationMode(verifyUsersMode);
@@ -101,407 +89,11 @@ async function main() {
     //Passes a callback function that will receive incoming messages into the bot client
     bot.startListening(listen);
 
-    var { BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT } = tokens
 
-    if (BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT) {
-      bot_port = tokens.BOT_PORT.value;
-      bot_api_key = tokens.BOT_KEY.value;
-      bot_api_auth_token = tokens.BOT_AUTH_TOKEN.value;
-
-      app.listen(bot_port, () => {
-        console.log('We are live on ' + bot_port);
-      });
-
-      // parse application/x-www-form-urlencoded
-      app.use(bodyParser.urlencoded({ extended: false }));
-      // parse application/json
-      app.use(bodyParser.json());
-      app.use(express.static('wickrio-bot-web/public'))
-
-
-      app.use((error, req, res, next) => {
-
-        if (error instanceof SyntaxError) {
-          console.log('bodyParser:', error);
-          res.statusCode = 400;
-          res.type('txt').send(error.toString());
-        } else {
-          next();
-        }
-      });
-
-      // add cors for development
-      // TODO: set conditional for NODE_ENV to match and set the right origin host header - 8000 for dev, 4545 for prod
-      app.options("/*", (req, res, next) => {
-        res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization, Content-Length, X-Requested-With');
-        res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-        res.header('Access-Control-Allow-Origin', 'http://localhost:8000');
-
-        res.sendStatus(200)
-      });
-
-      app.all("/*", (req, res, next) => {
-        res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization, Content-Length, X-Requested-With');
-        res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-        res.header('Access-Control-Allow-Origin', 'http://localhost:8000');
-        next()
-      });
-
-      var endpoint = "/WickrIO/V1/Apps/" + bot_api_key;
-
-      const checkAuth = (req, res, next) => {
-        res.set('Authorization', 'Basic base64_auth_token');
-        res.set('Content-Type', 'application/json');
-
-        // Gather the jwt access token from the request header
-        // const authHeader = req.get('Authorization');
-        const authHeader = req.headers['authorization']
-
-        const token = authHeader && authHeader.split(' ')[1]
-        console.log({ authHeader, token })
-
-        if (token == null) return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic jwt"'); // if there isn't any token
-        // if (token == null) return res.sendStatus(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic jwt"'); // if there isn't any token
-
-        jwt.verify(token, bot_api_auth_token, (err, user) => {
-          if (err) {
-            console.log(err)
-            console.log("err: " + err.message)
-            return res.status(403).send(err.message)
-          }
-          console.log({ user })
-
-          var adminUser = bot.myAdmins.getAdmin(user.email);
-          if (adminUser === undefined) {
-            return res.status(401).send('Access denied: ' + user.email + ' is not authorized to broadcast!');
-          }
-
-          // Check if the authCode is valid for the input user
-          var dictAuthCode = client_auth_codes[user.email];
-          if (dictAuthCode === undefined || user.session != dictAuthCode) {
-            return res.status(401).send('Access denied: invalid user authentication code.');
-          }
-
-          req.user = user
-          next()
-        })
-      }
-
-      app.get(endpoint + "/Authenticate", checkAuth, (req, res) => {
-        try {
-          console.log(req.user);
-          res.json(req.user)
-        } catch (err) {
-          console.log(err);
-          res.statusCode = 400;
-          res.send(err.toString());
-        }
-      });
-
-      const sendBroadcast = (broadcast, wickrUser) => {
-        try {
-          var jsonDateTime = new Date().toJSON();
-          var bMessage;
-          var reply
-          var messageID = updateLastID();
-          var messageId = "" + messageID
-          let { file, repeat, message, security_group } = broadcast
-
-          // // make sure users are registered in group
-          // var securityGroups = [];
-          // securityGroups.push(security_group);
-
-          // send to securtiy groups, with and without files, and repeats
-          if (security_group != false && file && repeat) {
-            if (security_group.length === 0) return "Security Group length invalid."
-            broadcast.count = 0
-            // console.log(repeat)
-            // validate cronjob interval
-            job = new CronJob(repeat, function () {
-              logger.debug("CronJob", repeat);
-
-              WickrIOAPI.cmdAddMessageID(messageId, wickrUser, security_group.toString(), jsonDateTime, message);
-              bMessage = WickrIOAPI.cmdSendSecurityGroupAttachment(security_group, "../integration/wickrio-broadcast-bot/".concat(file.path), file.originalname, "", "", messageID, 'sentby ' + wickrUser);
-              logger.debug(bMessage);
-
-              bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
-              logger.debug(bMessage);
-
-              reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
-              console.log(reply)
-
-              // Will this stay the same or could user be reset?? I believe only can send one repeat message
-              broadcast.count += 1;
-              if (broadcast.count > repeat) {
-                broadcast.cronJobActive = false;
-                return job.stop();
-              }
-            });
-            job.start();
-          } else if (security_group != false && !file && repeat) {
-            if (security_group.length === 0) return "Security Group length invalid."
-            broadcast.count = 0
-            // console.log(repeat)
-            // validate cronjob interval
-            job = new CronJob(repeat, function () {
-              logger.debug("CronJob", repeat);
-              WickrIOAPI.cmdAddMessageID(messageId, wickrUser, security_group.toString(), jsonDateTime, message);
-
-              bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
-              logger.debug(bMessage);
-
-              reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
-              console.log(reply)
-
-              // Will this stay the same or could user be reset?? I believe only can send one repeat message
-              broadcast.count += 1;
-              if (broadcast.count > repeat) {
-                broadcast.cronJobActive = false;
-                return job.stop();
-              }
-            });
-            job.start();
-          } else if (security_group != false && !file && !repeat) {
-            if (security_group.length === 0) return "Security Group length invalid."
-            broadcast.count = 0
-
-            WickrIOAPI.cmdAddMessageID(messageId, wickrUser, security_group.toString(), jsonDateTime, message);
-
-            bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
-            logger.debug(bMessage);
-
-            reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
-            console.log(reply)
-
-          } else if (security_group != false && file && !repeat) {
-            if (security_group.length === 0) return "Security Group length invalid."
-            broadcast.count = 0
-
-            WickrIOAPI.cmdAddMessageID(messageId, wickrUser, security_group.toString(), jsonDateTime, message);
-
-            bMessage = WickrIOAPI.cmdSendSecurityGroupAttachment(security_group, "../integration/wickrio-broadcast-bot/".concat(file.path), file.originalname, "", "", messageID, 'sentby ' + wickrUser);
-            logger.debug(bMessage);
-
-            bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
-            logger.debug(bMessage);
-            reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
-            console.log(reply)
-          } else if (security_group === false && file && repeat) {
-            job = new CronJob(repeat, function () {
-              logger.debug("CronJob", repeat)
-              bMessage = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, message);
-              logger.debug(bMessage)
-
-              bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
-              logger.debug(bMessage);
-
-              reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
-
-              //Will this stay the same or could user be reset?? I believe only can send one repeat message
-              broadcast.count += 1;
-              if (broadcast.count > repeat) {
-                broadcast.cronJobActive = false;
-                return job.stop();
-              }
-            });
-            job.start();
-          } else if (security_group === false && !file & repeat) {
-            job = new CronJob(repeat, function () {
-              logger.debug("CronJob", repeat);
-              bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
-              logger.debug(bMessage);
-              reply = strings["repeatMessageSent"].replace("%{count}", (user.count + 1));
-
-              //Will this stay the same or could user be reset?? I believe only can send one repeat message
-              user.count += 1;
-              if (user.count > user.repeat) {
-                user.cronJobActive = false;
-                return job.stop();
-              }
-            });
-            job.start();
-          } else if (security_group === false && !file & !repeat) {
-            bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
-
-            console.log('sending to entire network!');
-            console.log({ bMessage });
-          } else if (security_group === false && file & !repeat) {
-            logger.debug("This is sentby" + wickrUser);
-            var bMessage = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, message);
-            logger.debug("this is sent" + bMessage)
-            bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
-            logger.debug("this is sent" + bMessage)
-            reply = strings["fileSent"];
-          }
-          // return sent broadcast
-          console.log(bMessage);
-          return bMessage
-        } catch (err) {
-          console.log(err);
-          return (err.toString())
-        }
-      }
-      // app.post(endpoint + "/Broadcast/:wickrUser/:authCode", [checkAuth, upload.single('attachment')], (req, res) => {
-      app.post(endpoint + "/Broadcast", [checkAuth, upload.single('attachment')], (req, res) => {
-        // typecheck and validate parameters
-        let { message, acknowledge, security_group, repeat_num, freq_num } = req.body
-
-        // validate arguments, append message.
-        if (!message) return res.send("Broadcast message missing from request.");
-
-        let broadcast = {}
-        broadcast.file = req.file || false
-        broadcast.repeat_num = repeat_num || false
-        broadcast.freq_num = freq_num || false
-        acknowledge === true || acknowledge == 'true' ?
-          broadcast.message = message + `\n Broadcast sent by: ${req.user.email} \n Please acknowledge you received this message by repling with /ack` :
-          broadcast.message = message + `\n Broadcast sent by: ${req.user.email}`
-
-        if (security_group.includes(',')) {
-          security_group = security_group.split(',')
-        }
-        broadcast.security_group = security_group
-
-        if (security_group == 'false') broadcast.security_group = false
-        else if (typeof security_group === "string") broadcast.security_group = [security_group]
-
-        let response = sendBroadcast(broadcast, req.user.email)
-
-        // todo: send status on error
-        res.send(response)
-      });
-
-      // app.get(endpoint + "/SecGroups/:wickrUser", checkAuth, (req, res) => {
-      app.get(endpoint + "/SecGroups", checkAuth, (req, res) => {
-        try {
-          // how does cmdGetSecurityGroups know what user to get security groups for?
-          // could we get securityg groups for a targeted user?
-          var getGroups = WickrIOAPI.cmdGetSecurityGroups();
-          var response = isJson(getGroups);
-          if (response !== false) {
-            getGroups = response;
-          } else {
-            getGroups = '{}';
-          }
-          res.send(getGroups);
-        } catch (err) {
-          console.log(err);
-          res.statusCode = 400;
-          res.type('txt').send(err.toString());
-        }
-      });
-
-      // app.get(endpoint + "/Status/:wickrUser/:authCode", checkAuth, (req, res) => {
-      app.get(endpoint + "/Status", checkAuth, (req, res) => {
-
-        var messageIdEntries = getMessageEntries(req.user.email, 20);
-
-        var reply = {};
-        if (messageIdEntries.length < 1) {
-          reply.data = []
-          reply.message = "no broadcasts yet"
-          // reply = strings["noPrevious"];
-        } else {
-          var length = Math.min(messageIdEntries.length, 5);
-          var contentData;
-          var index = 1;
-          var messageList = [];
-          var messageString = "";
-          for (var i = 0; i < messageIdEntries.length; i++) {
-            contentData = WickrIOAPI.cmdGetMessageIDEntry(messageIdEntries[i].message_id);
-            var contentParsed = JSON.parse(contentData);
-            messageIdEntries[i]['message'] = contentParsed.message;
-            //                    messageList.push(contentParsed.message);
-            //                    messageString += '(' + index++ + ') ' + contentParsed.message + "\n";
-          }
-          //                reply = strings["whichMessage"].replace("%{length}", length).replace("%{messageList}", messageString);
-          reply.data = messageIdEntries
-        }
-        return res.json(reply);
-      });
-
-      // app.get(endpoint + "/Status/:wickrUser/:authCode/:messageID", checkAuth, (req, res) => {
-      app.get(endpoint + "/Status/:messageID", checkAuth, (req, res) => {
-        // validate message id
-        var statusData = WickrIOAPI.cmdGetMessageStatus(req.params.messageID, "summary", "0", "1000");
-        var reply = statusData;
-        return res.send(reply);
-      });
-
-      // app.get(endpoint + "/Report/:wickrUser/:authCode/:messageID/:page/:size", checkAuth, (req, res) => {
-      app.get(endpoint + "/Report/:messageID/:page/:size", checkAuth, (req, res) => {
-        // validate params
-        var reportEntries = [];
-
-        var statusData = WickrIOAPI.cmdGetMessageStatus(req.params.messageID, "full", req.params.page, req.params.size);
-        var messageStatus = JSON.parse(statusData);
-        for (let entry of messageStatus) {
-          var statusMessageString = "";
-          var statusString = "";
-          var sentDateString = "";
-          var readDateString = "";
-          if (entry.sent_datetime !== undefined)
-            sentDateString = entry.sent_datetime;
-          if (entry.read_datetime !== undefined)
-            readDateString = entry.read_datetime;
-          switch (entry.status) {
-            case 0:
-              statusString = "pending";
-              break;
-            case 1:
-              statusString = "sent";
-              break;
-            case 2:
-              statusString = "failed";
-              statusMessageString = entry.status_message;
-              break;
-            case 3:
-              statusString = "acked";
-              if (entry.status_message !== undefined) {
-                var obj = JSON.parse(entry.status_message);
-                if (obj['location'] !== undefined) {
-                  var latitude = obj['location'].latitude;
-                  var longitude = obj['location'].longitude;
-                  statusMessageString = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
-                } else {
-                  statusMessageString = entry.status_message;
-                }
-              }
-              break;
-            case 4:
-              statusString = "ignored";
-              statusMessageString = entry.status_message;
-              break;
-            case 5:
-              statusString = "aborted";
-              statusMessageString = entry.status_message;
-              break;
-            case 6:
-              statusString = "received";
-              statusMessageString = entry.status_message;
-              break;
-          }
-          reportEntries.push(
-            {
-              user: entry.user,
-              status: statusString,
-              statusMessage: statusMessageString,
-              sentDate: sentDateString,
-              readDate: readDateString
-            });
-        }
-        var reply = JSON.stringify(reportEntries);
-        res.set('Content-Type', 'application/json');
-        return res.send(reply);
-      });
-
-      // What to do for ALL requests for ALL Paths
-      // that are not handled above
-      app.all('*', (req, res) => {
-        console.log('*** 404 ***');
-        console.log('404 for url: ' + req.url);
-        console.log('***********');
-        return res.type('txt').status(404).send('Endpoint ' + req.url + ' not found');
+    if (BOT_AUTH_TOKEN.value, BOT_KEY.value, BOT_PORT.value) {
+      // run server
+      app.listen(BOT_PORT.value, () => {
+        console.log('We are live on ' + BOT_PORT.value);
       });
     } else {
       console.log('If you wanted a web interface, the env variables not set properly. Check BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT')
@@ -621,6 +213,9 @@ function listen(message) {
       }
 
       // generate a random auth code for the session
+      // store it in a globally accessable store
+
+
       var random = generateRandomString(24);
       client_auth_codes[user.userEmail] = random;
       // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
@@ -628,7 +223,7 @@ function listen(message) {
       const token = jwt.sign({
         'email': user.userEmail,
         'session': random,
-      }, bot_api_auth_token, { expiresIn: '1800s' });
+      }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
 
       // what will the deploy env be
       var reply = encodeURI(`localhost:4545/?token=${token}`)
