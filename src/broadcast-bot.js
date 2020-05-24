@@ -1,9 +1,9 @@
 import fs from 'fs';
 import { createObjectCsvWriter as createCsvWriter } from 'csv-writer';
 import { CronJob } from 'cron';
-import strings from './strings';
 import jwt from "jsonwebtoken"
 import app from './server';
+import strings from './strings';
 import {
   bot,
   WickrIOAPI,
@@ -13,7 +13,9 @@ import {
   BOT_KEY,
   BOT_PORT,
   WICKRIO_BOT_NAME,
-  VERIFY_USERS
+  VERIFY_USERS,
+  cronJob,
+  updateLastID
 } from './constants';
 
 let job;
@@ -643,59 +645,6 @@ function listen(message) {
   }
 }
 
-function readFileInput() {
-  try {
-    var rfs = fs.readFileSync('./processes.json', 'utf-8');
-    if (!rfs) {
-      console.log("Error reading processes.json!")
-      return rfs;
-    } else
-      return rfs.trim().split('\n');
-  }
-  catch (err) {
-    console.log(err);
-    process.exit();
-  }
-}
-
-function cronJob(job, cronInterval, user, broadcast, sgFlag, ackFlag, securityGroupsToSend, userEmail, target) {
-  job = new CronJob(cronInterval, function () {
-    var currentDate = new Date();
-    var jsonDateTime = currentDate.toJSON();
-    var bMessage;
-    var messageId = updateLastID();
-    logger.debug("CronJob", sgFlag);
-    var broadcastMsgToSend = broadcast;
-    if (ackFlag) {
-      broadcastMsgToSend = broadcastMsgToSend + "\nPlease acknowledge this message by replying with /ack";
-    }
-    broadcastMsgToSend = broadcastMsgToSend + "\n\nBroadcast message sent by: " + userEmail;
-    if (sgFlag) {
-      bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(broadcastMsgToSend, securityGroupsToSend, "", "", messageId);
-      messageId = "" + messageId;
-      writeToMessageIdDB(messageId, userEmail, target, jsonDateTime, broadcast);
-      asyncStatus(messageId, user.vGroupID);
-    } else {
-      messageId = "" + messageId;
-      bMessage = WickrIOAPI.cmdSendNetworkMessage(broadcastMsgToSend, "", "", messageId);
-      logger.debug("messageId: " + messageId + "userEmail" + userEmail + "target" + target + "dt" + jsonDateTime + "bcast" + broadcast);
-      writeToMessageIdDB(messageId, userEmail, target, jsonDateTime, broadcast);
-      asyncStatus(messageId, user.vGroupID);
-    }
-    logger.debug(bMessage);
-    var reply = strings["repeatMessageSent"].replace("%{count}", (user.count + 1));
-    var uMessage = WickrIOAPI.cmdSendRoomMessage(user.vGroupID, reply);
-    //Will this stay the same or could user be reset?? I believe only can send one repeat message
-    user.count += 1;
-    if (user.count > user.repeat) {
-      user.cronJobActive = false;
-      return job.stop();
-    }
-  });
-  job.start();
-  user.cronJobActive = true;
-}
-
 //Sends every 30 seconds
 //TODO add a counter here?
 function asyncStatus(messageId, groupId) {
@@ -737,19 +686,19 @@ function replyWithYesNoButtons(vGroupID, reply) {
   //return WickrIOAPI.cmdSendNetworkMessage(vGroupId, "", "", messageID, flags, buttons);
 }
 
-function replyWithButtons(message, buttonList) {
-  var buttons = [];
-  for (var button of buttonList) {
-    var buttonObj = {
-      type: "message",
-      text: button,
-      message: button
-    }
-    buttons.push(buttonObj);
-  }
-  //return  WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID, [], buttons);
-  return WickrIOAPI.cmdSendNetworkMessage(message, "", "", "1", [], buttons);
-}
+// function replyWithButtons(message, buttonList) {
+//   var buttons = [];
+//   for (var button of buttonList) {
+//     var buttonObj = {
+//       type: "message",
+//       text: button,
+//       message: button
+//     }
+//     buttons.push(buttonObj);
+//   }
+//   //return  WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID, [], buttons);
+//   return WickrIOAPI.cmdSendNetworkMessage(message, "", "", "1", [], buttons);
+// }
 
 function isInt(value) {
   return !isNaN(value) && (function (x) { return (x | 0) === x; })(parseFloat(value))
@@ -937,30 +886,6 @@ function getStatus(messageID, type, async) {
   }
 }
 
-function updateLastID() {
-  try {
-    var id;
-    if (fs.existsSync('last_id.json')) {
-      var data = fs.readFileSync('last_id.json');
-      logger.debug("is the data okay: " + data);
-      var lastID = JSON.parse(data);
-      id = Number(lastID) + 1;
-    } else {
-      id = '1';
-    }
-    logger.debug("This is the id: " + id);
-    var idToWrite = JSON.stringify(id, null, 2);
-    fs.writeFile('last_id.json', idToWrite, (err) => {
-      //Fix this 
-      if (err) throw err;
-      logger.trace("Current Message ID saved in file");
-    });
-    return id.toString();
-  } catch (err) {
-    logger.error(err);
-  }
-}
-
 function writeToMessageIdDB(messageId, sender, target, dateSent, messageContent) {
   logger.debug("inside~writeToMessageIdDB");
   // what does this do? assuming it sends a broadcast without a securty group 
@@ -973,10 +898,10 @@ function setMessageStatus(messageId, userId, status, statusMessage) {
   var uMessage = WickrIOAPI.cmdSend1to1Message(userArray, reply);
 }
 
-function get_LastID() {
-  var data = fs.readFileSync('last_id.json');
-  return JSON.parse(data);
-}
+// function get_LastID() {
+//   var data = fs.readFileSync('last_id.json');
+//   return JSON.parse(data);
+// }
 
 function getCSVReport(messageId) {
   var inc = 0;
@@ -1094,15 +1019,6 @@ function generateRandomString(length) {
   for (var i = 0; i < length; i++)
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   return text;
-}
-
-function isJson(str) {
-  try {
-    str = JSON.parse(str);
-  } catch (e) {
-    return false;
-  }
-  return str;
 }
 
 main();

@@ -10,7 +10,11 @@ import {
   logger,
   BOT_AUTH_TOKEN,
   BOT_KEY,
+  updateLastID,
+  // cronJob
 } from './constants';
+import strings from './strings'
+
 
 const app = express();
 app.use(helmet()); //security http headers
@@ -68,10 +72,8 @@ const checkAuth = (req, res, next) => {
   const authHeader = req.headers['authorization']
 
   const token = authHeader && authHeader.split(' ')[1]
-  console.log({ authHeader, token })
 
   if (token == null) return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic jwt"'); // if there isn't any token
-  // if (token == null) return res.sendStatus(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic jwt"'); // if there isn't any token
 
   jwt.verify(token, BOT_AUTH_TOKEN.value, (err, user) => {
     if (err) {
@@ -250,7 +252,7 @@ const sendBroadcast = (broadcast, wickrUser) => {
     return (err.toString())
   }
 }
-// app.post(endpoint + "/Broadcast/:wickrUser/:authCode", [checkAuth, upload.single('attachment')], (req, res) => {
+
 app.post(endpoint + "/Broadcast", [checkAuth, upload.single('attachment')], (req, res) => {
   // typecheck and validate parameters
   let { message, acknowledge, security_group, repeat_num, freq_num } = req.body
@@ -280,19 +282,12 @@ app.post(endpoint + "/Broadcast", [checkAuth, upload.single('attachment')], (req
   res.send(response)
 });
 
-// app.get(endpoint + "/SecGroups/:wickrUser", checkAuth, (req, res) => {
 app.get(endpoint + "/SecGroups", checkAuth, (req, res) => {
   try {
     // how does cmdGetSecurityGroups know what user to get security groups for?
     // could we get securityg groups for a targeted user?
-    var getGroups = WickrIOAPI.cmdGetSecurityGroups();
-    var response = isJson(getGroups);
-    if (response !== false) {
-      getGroups = response;
-    } else {
-      getGroups = '{}';
-    }
-    res.send(getGroups);
+    var response = JSON.parse(WickrIOAPI.cmdGetSecurityGroups())
+    res.json(response);
   } catch (err) {
     console.log(err);
     res.statusCode = 400;
@@ -300,36 +295,36 @@ app.get(endpoint + "/SecGroups", checkAuth, (req, res) => {
   }
 });
 
-// app.get(endpoint + "/Status/:wickrUser/:authCode", checkAuth, (req, res) => {
 app.get(endpoint + "/Status", checkAuth, (req, res) => {
 
-  var messageIdEntries = getMessageEntries(req.user.email, 20);
+  // need to dynamically get last x records, what if there are over 1000 messages, why give back 1000 records if we dont need to
+  // if user hasn't sent a message in the last 1000 messages, it will show zero messages unless we search a larger index
+  // too many calls, wickrio api should support a single status call for x records including sender and message content
+  var tableDataRaw = WickrIOAPI.cmdGetMessageIDTable("0", "1000");
+
+  var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
+    return entry.sender == req.user.email
+  });
+  messageIdEntries.map(entry => {
+    let contentData = WickrIOAPI.cmdGetMessageIDEntry(entry.message_id);
+    entry.message = JSON.parse(contentData).message;
+  })
+  // 
 
   var reply = {};
   if (messageIdEntries.length < 1) {
     reply.data = []
-    reply.message = "no broadcasts yet"
+    reply.error = "no broadcasts yet"
     // reply = strings["noPrevious"];
   } else {
-    var length = Math.min(messageIdEntries.length, 5);
-    var contentData;
-    var index = 1;
-    var messageList = [];
-    var messageString = "";
-    for (var i = 0; i < messageIdEntries.length; i++) {
-      contentData = WickrIOAPI.cmdGetMessageIDEntry(messageIdEntries[i].message_id);
-      var contentParsed = JSON.parse(contentData);
-      messageIdEntries[i]['message'] = contentParsed.message;
-      //                    messageList.push(contentParsed.message);
-      //                    messageString += '(' + index++ + ') ' + contentParsed.message + "\n";
-    }
-    //                reply = strings["whichMessage"].replace("%{length}", length).replace("%{messageList}", messageString);
     reply.data = messageIdEntries
   }
+  // 
+
+
   return res.json(reply);
 });
 
-// app.get(endpoint + "/Status/:wickrUser/:authCode/:messageID", checkAuth, (req, res) => {
 app.get(endpoint + "/Status/:messageID", checkAuth, (req, res) => {
   // validate message id
   var statusData = WickrIOAPI.cmdGetMessageStatus(req.params.messageID, "summary", "0", "1000");
@@ -337,7 +332,6 @@ app.get(endpoint + "/Status/:messageID", checkAuth, (req, res) => {
   return res.send(reply);
 });
 
-// app.get(endpoint + "/Report/:wickrUser/:authCode/:messageID/:page/:size", checkAuth, (req, res) => {
 app.get(endpoint + "/Report/:messageID/:page/:size", checkAuth, (req, res) => {
   // validate params
   var reportEntries = [];
