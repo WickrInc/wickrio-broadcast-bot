@@ -9,6 +9,7 @@ import {
   client_auth_codes,
   logger,
   BOT_AUTH_TOKEN,
+  BOT_PORT,
   BOT_KEY,
   updateLastID,
   // cronJob
@@ -23,8 +24,8 @@ const startServer = () => {
   const app = express();
   app.use(helmet()); //security http headers
 
-  app.listen(bot_port, () => {
-    console.log('We are live on ' + bot_port);
+  app.listen(BOT_PORT.value, () => {
+    console.log('We are live on ' + BOT_PORT.value);
   });
 
   // parse application/x-www-form-urlencoded
@@ -117,6 +118,8 @@ const startServer = () => {
       var reply
       var messageID = updateLastID();
       var messageId = "" + messageID
+
+      console.log({ messageId })
       let { file, repeat, message, security_group } = broadcast
 
       // send to securtiy groups, with and without files, and repeats
@@ -173,8 +176,8 @@ const startServer = () => {
         if (security_group.length === 0) return "Security Group length invalid."
         broadcast.count = 0
 
-        WickrIOAPI.cmdAddMessageID(messageId, wickrUser, security_group.toString(), jsonDateTime, message);
-
+        const msg = WickrIOAPI.cmdAddMessageID(messageId, wickrUser, security_group.toString(), jsonDateTime, message);
+        console.log({ msg })
         bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
         logger.debug(bMessage);
 
