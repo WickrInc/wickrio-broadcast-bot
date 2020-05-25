@@ -13,6 +13,7 @@ const {
   BOT_AUTH_TOKEN,
   BOT_KEY,
   BOT_PORT,
+  BOT_GOOGLE_MAPS,
   WICKRIO_BOT_NAME,
   VERIFY_USERS
 } = JSON.parse(process.env.tokens);
@@ -20,6 +21,8 @@ const {
 const updateLastID = () => {
   try {
     var id;
+    console.log({ 'fs.existsSync(last_id.json)': fs.existsSync('last_id.json') })
+
     if (fs.existsSync('last_id.json')) {
       var data = fs.readFileSync('last_id.json');
       logger.debug("is the data okay: " + data);
@@ -88,6 +91,7 @@ export {
   BOT_AUTH_TOKEN,
   BOT_KEY,
   BOT_PORT,
+  BOT_GOOGLE_MAPS,
   WICKRIO_BOT_NAME,
   VERIFY_USERS,
   updateLastID,

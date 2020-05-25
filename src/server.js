@@ -118,10 +118,6 @@ const sendBroadcast = (broadcast, wickrUser) => {
     var messageId = "" + messageID
     let { file, repeat, message, security_group } = broadcast
 
-    // // make sure users are registered in group
-    // var securityGroups = [];
-    // securityGroups.push(security_group);
-
     // send to securtiy groups, with and without files, and repeats
     if (security_group != false && file && repeat) {
       if (security_group.length === 0) return "Security Group length invalid."

@@ -7,11 +7,13 @@ import strings from './strings';
 import {
   bot,
   WickrIOAPI,
+  WickrUser,
   client_auth_codes,
   logger,
   BOT_AUTH_TOKEN,
   BOT_KEY,
   BOT_PORT,
+  BOT_GOOGLE_MAPS,
   WICKRIO_BOT_NAME,
   VERIFY_USERS,
   cronJob,
@@ -111,12 +113,16 @@ function listen(message) {
      * Parses an incoming message and returns and object with command,
      * argument, vGroupID and Sender fields
      */
+    // const last_id = JSON.parse(fs.readFileSync('last_id.json'))
+
+
     var parsedMessage = bot.parseMessage(message);
     if (!parsedMessage) {
       return;
     }
 
     logger.debug('New incoming Message:', parsedMessage);
+    console.log({ parsedMessage })
     var wickrUser;
     var fullMessage = parsedMessage.message;
     var command = parsedMessage.command;
@@ -141,7 +147,6 @@ function listen(message) {
       setMessageStatus("", userEmail, "3", "");
       return;
     }
-
     //Send the location as an acknowledgement
     if (msgtype === 'location') {
       //acknowledges all messages sent to user
@@ -152,10 +157,51 @@ function listen(message) {
         latitude: parsedMessage.latitude,
         longitude: parsedMessage.longitude
       };
+
       statusMessage = JSON.stringify(obj);
       logger.debug("location statusMessage=" + statusMessage);
       setMessageStatus("", userEmail, "3", statusMessage);
       return;
+    }
+    if (command === '/map') {
+      let last_id = get_LastID()
+      // request last broadcast requested with location
+      // or 
+
+      // request last broadcast status with X number of user responses
+      if (!argument) {
+        reply = 'need /map <number to retrieve>'
+        uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+        return;
+      }
+      // get message status with locations
+      const messageStatus = JSON.parse(WickrIOAPI.cmdGetMessageStatus(last_id.toString(), 'full', String(0), String(argument)))
+      console.log({ messageStatus })
+
+      // create a simple object to store data
+      let locations = []
+      locations[messageStatus.messageID] = {}
+      let link = `https://maps.googleapis.com/maps/api/staticmap?key=${BOT_GOOGLE_MAPS.value}&size=700x400&markers=color:blue`
+      if (messageStatus.length > 0) {
+        // only get status' with location acked
+        // display map of all users who have acknowledged with location
+        messageStatus.map(user => {
+          console.log({ user })
+          let { latitude, longitude } = JSON.parse(user.status_message).location
+          console.log({ latitude, longitude })
+          locations[messageStatus.messageID][user.user] = {}
+          locations[messageStatus.messageID][user.user].location = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
+          locations[messageStatus.messageID][user.user].latitude = latitude
+          locations[messageStatus.messageID][user.user].longitude = longitude
+          link += `|label:${user.user}|${latitude},${longitude}`
+        })
+        locations[messageStatus.messageID] = link
+        console.log({ link })
+        var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, link);
+
+      } else {
+        return messageStatus
+      }
     }
 
 
@@ -716,6 +762,7 @@ function sendMessage(user, vGroupID, userEmail) {
     sentby = sentby + "\nPlease acknowledge this message by replying with /ack";
   }
   var messageID = updateLastID();
+  console.log({ messageID })
   var target;
   //TODO the nice ternary operator maybe??
   if (securityGroupsToSend.length < 1 || securityGroupsToSend == undefined) {
@@ -849,7 +896,6 @@ function getMessageEntries(userEmail, max) {
 
 //TODO add these strings to file
 function getStatus(messageID, type, async) {
-  //TODO Here we need which Message??
   messageID = "" + messageID;
   var statusData;
   try {
@@ -888,20 +934,38 @@ function getStatus(messageID, type, async) {
 
 function writeToMessageIdDB(messageId, sender, target, dateSent, messageContent) {
   logger.debug("inside~writeToMessageIdDB");
-  // what does this do? assuming it sends a broadcast without a securty group 
   WickrIOAPI.cmdAddMessageID(messageId, sender, target, dateSent, messageContent);
 }
 
 function setMessageStatus(messageId, userId, status, statusMessage) {
   var reply = WickrIOAPI.cmdSetMessageStatus(messageId, userId, status, statusMessage);
-  var userArray = [userId];
-  var uMessage = WickrIOAPI.cmdSend1to1Message(userArray, reply);
+  // var userArray = [userId];
+  // var uMessage = WickrIOAPI.cmdSend1to1Message(userArray, reply);
 }
 
-// function get_LastID() {
-//   var data = fs.readFileSync('last_id.json');
-//   return JSON.parse(data);
-// }
+function get_LastID() {
+  try {
+    let lastID
+    // console.log({ 'fs.existsSync(last_id.json)': fs.existsSync('last_id.json') })
+
+    if (fs.existsSync('last_id.json')) {
+      var data = fs.readFileSync('last_id.json');
+      logger.debug("is the data okay: " + data);
+      lastID = JSON.parse(data);
+    } else {
+      lastID = '1'
+      fs.writeFile('last_id.json', lastID, (err) => {
+        //Fix this 
+        if (err) throw err;
+        logger.trace("Current Message ID saved in file");
+      });
+    }
+    logger.debug("This is the id: " + lastID);
+    return lastID;
+  } catch (err) {
+    logger.error(err);
+  }
+}
 
 function getCSVReport(messageId) {
   var inc = 0;
