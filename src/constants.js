@@ -21,7 +21,6 @@ const {
 const updateLastID = () => {
   try {
     var id;
-    console.log({ 'fs.existsSync(last_id.json)': fs.existsSync('last_id.json') })
 
     if (fs.existsSync('last_id.json')) {
       var data = fs.readFileSync('last_id.json');

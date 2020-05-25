@@ -2,7 +2,7 @@ import fs from 'fs';
 import { createObjectCsvWriter as createCsvWriter } from 'csv-writer';
 import { CronJob } from 'cron';
 import jwt from "jsonwebtoken"
-import app from './server';
+import startServer from './server';
 import strings from './strings';
 import {
   bot,
@@ -96,9 +96,8 @@ async function main() {
 
     if (BOT_AUTH_TOKEN.value, BOT_KEY.value, BOT_PORT.value) {
       // run server
-      app.listen(BOT_PORT.value, () => {
-        console.log('We are live on ' + BOT_PORT.value);
-      });
+      startServer()
+
     } else {
       console.log('If you wanted a web interface, the env variables not set properly. Check BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT')
     }
@@ -122,7 +121,6 @@ function listen(message) {
     }
 
     logger.debug('New incoming Message:', parsedMessage);
-    console.log({ parsedMessage })
     var wickrUser;
     var fullMessage = parsedMessage.message;
     var command = parsedMessage.command;
@@ -176,8 +174,6 @@ function listen(message) {
       }
       // get message status with locations
       const messageStatus = JSON.parse(WickrIOAPI.cmdGetMessageStatus(last_id.toString(), 'full', String(0), String(argument)))
-      console.log({ messageStatus })
-
       // create a simple object to store data
       let locations = []
       locations[messageStatus.messageID] = {}
@@ -186,9 +182,7 @@ function listen(message) {
         // only get status' with location acked
         // display map of all users who have acknowledged with location
         messageStatus.map(user => {
-          console.log({ user })
           let { latitude, longitude } = JSON.parse(user.status_message).location
-          console.log({ latitude, longitude })
           locations[messageStatus.messageID][user.user] = {}
           locations[messageStatus.messageID][user.user].location = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
           locations[messageStatus.messageID][user.user].latitude = latitude
@@ -762,7 +756,6 @@ function sendMessage(user, vGroupID, userEmail) {
     sentby = sentby + "\nPlease acknowledge this message by replying with /ack";
   }
   var messageID = updateLastID();
-  console.log({ messageID })
   var target;
   //TODO the nice ternary operator maybe??
   if (securityGroupsToSend.length < 1 || securityGroupsToSend == undefined) {
@@ -946,8 +939,6 @@ function setMessageStatus(messageId, userId, status, statusMessage) {
 function get_LastID() {
   try {
     let lastID
-    // console.log({ 'fs.existsSync(last_id.json)': fs.existsSync('last_id.json') })
-
     if (fs.existsSync('last_id.json')) {
       var data = fs.readFileSync('last_id.json');
       logger.debug("is the data okay: " + data);
