@@ -13,7 +13,7 @@ import {
   BOT_KEY,
   updateLastID,
   // cronJob
-} from './constants';
+} from './helpers/constants';
 import strings from './strings'
 
 
