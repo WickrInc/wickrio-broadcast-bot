@@ -297,9 +297,10 @@ const startServer = () => {
 
   app.get(endpoint + "/Status", checkAuth, (req, res) => {
 
-    // need to dynamically get last x records, what if there are over 1000 messages, why give back 1000 records if we dont need to
+    // need to dynamically get last x records user sent, what if there are over 1000 messages, why give back 1000 records if we dont need to
     // if user hasn't sent a message in the last 1000 messages, it will show zero messages unless we search a larger index
     // too many calls, wickrio api should support a single status call for x records including sender and message content
+
     var tableDataRaw = WickrIOAPI.cmdGetMessageIDTable("0", "1000");
 
     var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
@@ -327,13 +328,45 @@ const startServer = () => {
 
   app.get(endpoint + "/Status/:messageID", checkAuth, (req, res) => {
     // validate message id
-    var statusData = WickrIOAPI.cmdGetMessageStatus(req.params.messageID, "summary", "0", "1000");
+    // need to dynamically get last x users
+    var statusData = WickrIOAPI.cmdGetMessageStatus(req.params.messageID, "full", "0", "1000");
     var reply = statusData;
     return res.send(reply);
   });
 
-  app.get(endpoint + "/Report/:messageID/:page/:size", checkAuth, (req, res) => {
-    // validate params
+  app.get(endpoint + "/Report/:wickrUser/:authCode/:messageID/:page/:size", function (req, res) {
+    res.set('Content-Type', 'text/plain');
+    res.set('Authorization', 'Basic base64_auth_token');
+    var authHeader = req.get('Authorization');
+    var authToken;
+    if (authHeader) {
+      if (authHeader.indexOf(' ') == -1) {
+        authToken = authHeader;
+      } else {
+        authHeader = authHeader.split(' ');
+        authToken = authHeader[1];
+      }
+    } else {
+      return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic base64_auth_token"');
+    }
+
+    if (!checkCreds(authToken)) {
+      return res.status(401).send('Access denied: invalid basic-auth token.');
+    }
+
+    var wickrUser = req.params.wickrUser;
+    if (typeof wickrUser !== 'string')
+      return res.status(401).send("WickrUser must be a string.");
+    var authCode = req.params.authCode;
+    if (typeof authCode !== 'string')
+      return res.status(401).send("Authentication Code must be a string.");
+
+    // Check if the authCode is valid for the input user
+    var dictAuthCode = client_auth_codes[wickrUser];
+    if (dictAuthCode === undefined || authCode != dictAuthCode) {
+      return res.status(401).send('Access denied: invalid user authentication code.');
+    }
+
     var reportEntries = [];
 
     var statusData = WickrIOAPI.cmdGetMessageStatus(req.params.messageID, "full", req.params.page, req.params.size);
@@ -380,7 +413,11 @@ const startServer = () => {
           statusMessageString = entry.status_message;
           break;
         case 6:
-          statusString = "received";
+          statusString = "read";
+          statusMessageString = entry.status_message;
+          break;
+        case 7: // NOT SUPPORTED YET
+          statusString = "delivered";
           statusMessageString = entry.status_message;
           break;
       }

@@ -100,6 +100,7 @@ async function main() {
 
     } else {
       console.log('If you wanted a web interface, the env variables not set properly. Check BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT')
+
     }
   } catch (err) {
     console.log(err);
@@ -907,7 +908,7 @@ function getStatus(messageID, type, async) {
   var messageStatus = JSON.parse(statusData);
   var statusString;
 
-  statusString = strings["messageStatus"].replace("%{num2send}", messageStatus.num2send).replace("%{sent}", messageStatus.sent).replace("%{acked}", messageStatus.acked).replace("%{pending}", messageStatus.pending).replace("%{failed}", messageStatus.failed).replace("%{received}", messageStatus.received).replace("%{aborted}", messageStatus.aborted).replace("%{ignored}", messageStatus.ignored);
+  statusString = strings["messageStatus"].replace("%{num2send}", messageStatus.num2send).replace("%{sent}", messageStatus.sent).replace("%{acked}", messageStatus.acked).replace("%{pending}", messageStatus.pending).replace("%{failed}", messageStatus.failed).replace("%{read}", messageStatus.read).replace("%{aborted}", messageStatus.aborted).replace("%{ignored}", messageStatus.ignored);
   if (messageStatus.ignored !== undefined) {
     statusString = statusString + strings["messageStatusIgnored"].replace("%{ignored}", messageStatus.ignored);
   }
@@ -1007,7 +1008,7 @@ function getCSVReport(messageId) {
           statusMessageString = entry.status_message;
           break;
         case 6:
-          statusString = "received";
+          statusString = "read";
           statusMessageString = entry.status_message;
           break;
       }
