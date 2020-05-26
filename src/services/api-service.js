@@ -85,6 +85,10 @@ class APIService {
   static send1to1Message(userArray, reply) {
     return WickrIOAPI.cmdSend1to1Message(userArray, reply);
   }
+
+  static cancelMessageID(messageID) {
+    return WickrIOAPI.cmdCancelMessageID(messageID);
+  }
 }
 
 module.exports = APIService;
