@@ -1,0 +1,17 @@
+# Logs
+*.output
+
+# Dependency directories
+node_modules
+
+last_id.json
+
+processes.json
+processes_backup.json
+package-lock.json
+attachments
+users.txt
+files
+.eslintrc.js
+exclude-list.txt
+sync.sh

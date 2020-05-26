@@ -1,6 +1,6 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "5.55.1",
+  "version": "5.55.2",
   "description": "WickrIO Broadcast Bot",
   "main": "broadcast-bot.js",
   "author": "Paul Cushman (pcushman@wickr.com)",
@@ -13,6 +13,8 @@
     "cron": "^1.7.1",
     "csv-writer": "^1.5.0",
     "log4js": "^5.2.1",
+    "node-cron": "^2.0.3",
+    "pino": "^5.15.0",
     "pm2": "^3.5.1",
     "prompt": "^1.0.0",
     "dotenv": "^8.2.0",
@@ -37,6 +39,14 @@
     "api"
   ],
   "database": true,
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "pino-pretty": "^3.5.0",
+    "prettier": "^1.19.1"
+  },
   "com_wickr": {
     "supports": [
       "cloud",
