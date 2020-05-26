@@ -45,6 +45,8 @@ const factory = new Factory(
 let file;
 let filename;
 
+let verifyUsersMode;
+
 process.stdin.resume(); // so the program will not close instantly
 if (!fs.existsSync(`${process.cwd()}/attachments`)) {
   fs.mkdirSync(`${process.cwd()}/attachments`);
@@ -92,6 +94,14 @@ async function main() {
 
     // TODO set to true and send from a non admin and see what happens
     bot.setAdminOnly(false);
+
+    // set the verification mode to true
+    if (tokens.VERIFY_USERS.encrypted) {
+      verifyUsersMode = WickrIOAPI.cmdDecryptString(tokens.VERIFY_USERS.value);
+    } else {
+      verifyUsersMode = tokens.VERIFY_USERS.value;
+    }
+    bot.setVerificationMode(verifyUsersMode);
 
     WickrIOAPI.cmdSetControl('cleardb', 'true');
     WickrIOAPI.cmdSetControl('contactbackup', 'false');
