@@ -446,6 +446,12 @@ async function main() {
             for (let entry of messageStatus) {
               var statusMessageString = "";
               var statusString = "";
+              var sentDateString = "";
+              var readDateString = "";
+              if (entry.sent_datetime !== undefined)
+                  sentDateString = entry.sent_datetime;
+              if (entry.read_datetime !== undefined)
+                  readDateString = entry.read_datetime;
               switch(entry.status) {
                 case 0:
                   statusString = "pending";
@@ -479,11 +485,22 @@ async function main() {
                   statusMessageString = entry.status_message;
                   break;
                 case 6:
-                  statusString = "received";
+                  statusString = "read";
+                  statusMessageString = entry.status_message;
+                  break;
+                case 7: // NOT SUPPORTED YET
+                  statusString = "delivered";
                   statusMessageString = entry.status_message;
                   break;
               }
-              reportEntries.push({user: entry.user, status: statusString, statusMessage: statusMessageString});
+              reportEntries.push(
+                  {
+                      user: entry.user,
+                      status: statusString,
+                      statusMessage: statusMessageString,
+                      sentDate: sentDateString,
+                      readDate: readDateString
+                  });
             }
             var reply = JSON.stringify(reportEntries);
             res.set('Content-Type', 'application/json');
@@ -1284,7 +1301,7 @@ function getStatus(messageID, type, async){
   var messageStatus = JSON.parse(statusData);
   var statusString;
 
-  statusString = strings["messageStatus"].replace("%{num2send}", messageStatus.num2send).replace("%{sent}", messageStatus.sent).replace("%{acked}", messageStatus.acked).replace("%{pending}", messageStatus.pending).replace("%{failed}", messageStatus.failed).replace("%{received}", messageStatus.received).replace("%{aborted}", messageStatus.aborted).replace("%{ignored}", messageStatus.ignored);
+  statusString = strings["messageStatus"].replace("%{num2send}", messageStatus.num2send).replace("%{sent}", messageStatus.sent).replace("%{acked}", messageStatus.acked).replace("%{pending}", messageStatus.pending).replace("%{failed}", messageStatus.failed).replace("%{read}", messageStatus.read).replace("%{aborted}", messageStatus.aborted).replace("%{ignored}", messageStatus.ignored);
   if (messageStatus.ignored !== undefined) {
       statusString = statusString + strings["messageStatusIgnored"].replace("%{ignored}", messageStatus.ignored);
   }
@@ -1351,6 +1368,12 @@ function getCSVReport(messageId) {
     for (let entry of messageStatus) {
       var statusMessageString = "";
       var statusString = "";
+      var sentDateString = "";
+      var readDateString = "";
+      if (entry.sent_datetime !== undefined)
+          sentDateString = entry.sent_datetime;
+      if (entry.read_datetime !== undefined)
+          readDateString = entry.read_datetime;
       switch(entry.status) {
         case 0:
           statusString = "pending";
@@ -1384,11 +1407,18 @@ function getCSVReport(messageId) {
           statusMessageString = entry.status_message;
           break;
         case 6:
-          statusString = "received";
+          statusString = "read";
           statusMessageString = entry.status_message;
           break;
       }
-      csvArray.push({user: entry.user, status: statusString, statusMessage: statusMessageString});
+      csvArray.push(
+          {
+              user: entry.user,
+              status: statusString,
+              statusMessage: statusMessageString,
+              sentDate: sentDateString,
+              readDate: readDateString
+          });
     } 
     if (messageStatus.length < 1000) {
       break;
@@ -1409,7 +1439,9 @@ function writeCSVReport(path, csvArray) {
     header: [
       {id: 'user', title: 'USER'},
       {id: 'status', title: 'STATUS'},
-      {id: 'statusMessage', title: 'MESSAGE'}
+      {id: 'statusMessage', title: 'MESSAGE'},
+      {id: 'sentDate', title: 'SENT'},
+      {id: 'readDate', title: 'READ'}
     ]
   });
   csvWriter.writeRecords(csvArray)
