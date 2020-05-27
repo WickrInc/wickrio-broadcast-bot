@@ -1,19 +1,23 @@
 const logger = require('../logger');
 const State = require('../state');
-const GenericService = require('../services/generic-service');
-const ReportService = require('../services/report-service');
 
 class WhichReport {
-  static shouldExecute(messageService) {
-    if (messageService.getCurrentState() === State.WHICH_REPORT) {
+  constructor(genericService, reportService) {
+    this.genericService = genericService;
+    this.reportService = reportService;
+    this.state = State.WHICH_REPORT;
+  }
+
+  shouldExecute(messageService) {
+    if (messageService.getCurrentState() === this.state) {
       return true;
     }
     return false;
   }
 
-  static execute(messageService) {
+  execute(messageService) {
     let reply;
-    const currentEntries = GenericService.getMessageEntries(messageService.getUserEmail());
+    const currentEntries = this.genericService.getMessageEntries(messageService.getUserEmail());
     let obj;
     const index = messageService.getMessage();
     const length = Math.min(currentEntries.length, 5);
@@ -26,7 +30,7 @@ class WhichReport {
     } else {
       const messageID = `${currentEntries[parseInt(index, 10) - 1].message_id}`;
       // reply = .getReport(messageID, 'summary', false);
-      ReportService.getReport(messageID, messageService.getVGroupID());
+      this.reportService.getReport(messageID, messageService.getVGroupID());
       obj = {
         reply,
         state: State.NONE,
