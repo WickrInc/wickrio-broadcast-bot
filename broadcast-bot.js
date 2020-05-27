@@ -29,17 +29,16 @@ let currentState;
 const fileHandler = new FileHandler();
 // const whitelist = new WhitelistRepository(fs);
 const broadcastService = new BroadcastService();
-const statusService = new StatusService();
 const repeatService = new RepeatService(broadcastService);
 const sendService = new SendService();
-const reportService = new ReportService();
 
 const factory = new Factory(
   broadcastService,
   sendService,
-  statusService,
+  StatusService,
   repeatService,
-  reportService,
+  ReportService,
+  GenericService,
 );
 
 let file;

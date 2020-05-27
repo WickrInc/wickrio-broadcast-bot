@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const util = require('util');
 const logger = require('../logger');
@@ -8,8 +7,7 @@ const readdirAsync = util.promisify(fs.readdir);
 // const readdir = util.promisify(fs.readdir);
 
 class FileHandler {
-
-  listFiles (path) {
+  listFiles(path) {
     return fs.readdirSync(path);
     // return readdir(path);
   }
@@ -66,10 +64,3 @@ class FileHandler {
 }
 
 module.exports = FileHandler;
-
-function main() {
-  FileHandler.listFiles('./attachments');
-  FileHandler.checkFile('./attachments', 'messages.txt');
-}
-
-// main();

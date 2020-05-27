@@ -101,6 +101,8 @@ class ReportService {
         { id: 'user', title: 'USER' },
         { id: 'status', title: 'STATUS' },
         { id: 'statusMessage', title: 'MESSAGE' },
+        { id: 'sentDate', title: 'SENT' },
+        { id: 'readDate', title: 'READ' },
       ],
     });
     csvWriter.writeRecords(csvArray)

@@ -63,6 +63,8 @@ class SendService {
   }
 
   sendToFile(fileName) {
+    const sentBy = `\n\nBroadcast message sent by: ${this.userEmail}`;
+    const messageToSend = this.message + sentBy;
     logger.debug('Broadcasting to a file');
     const currentDate = new Date();
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
@@ -77,19 +79,26 @@ class SendService {
       } else if (fileName.endsWith('user')) {
         uMessage = APIService.sendAttachmentUserNameFile(filePath, this.file, this.displayName, '', '', messageID);
       }
-      writeMessageIdDb.writeMessageIDDB(messageID, this.userEmail, filePath, jsonDateTime, this.displayName);
-    } else if (this.message.length !== 0) {
-      if (fileName.endsWith('hash')) {
-        uMessage = APIService.sendMessageUserHashFile(filePath, this.message, '', '', messageID);
-      } else if (fileName.endsWith('user')) {
-        uMessage = APIService.sendMessageUserNameFile(filePath, this.message, '', '', messageID);
-      }
-      writeMessageIdDb.writeMessageIDDB(messageID, this.userEmail, filePath, jsonDateTime, this.message);
+      writeMessageIdDb.writeMessageIDDB(
+        messageID,
+        this.userEmail,
+        filePath,
+        jsonDateTime,
+        this.displayName,
+      );
     } else {
-      // TODO fix this is it necessary?
-      logger.debug(`message: ${this.message}`);
-      logger.debug(`messageLength: ${this.message.length}`);
-      logger.error('Unexpected error occured');
+      if (fileName.endsWith('hash')) {
+        uMessage = APIService.sendMessageUserHashFile(filePath, messageToSend, '', '', messageID);
+      } else if (fileName.endsWith('user')) {
+        uMessage = APIService.sendMessageUserNameFile(filePath, messageToSend, '', '', messageID);
+      }
+      writeMessageIdDb.writeMessageIDDB(
+        messageID,
+        this.userEmail,
+        filePath,
+        jsonDateTime,
+        this.message,
+      );
     }
     logger.debug(`Broadcast uMessage${uMessage}`);
   }
