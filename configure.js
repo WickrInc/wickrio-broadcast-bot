@@ -1,9 +1,9 @@
-const WickrIOBotAPI = require('wickrio-bot-api');
-const util = require('util')
+import { WickrIOConfigure, WickrIOIni } from 'wickrio-bot-api'
+import util from 'util'
+import dotenv from "dotenv"
 
-
-require("dotenv").config({
-  path: `.env.configure`
+dotenv.config({
+  path: `../.env.configure`
 })
 
 var wickrIOConfigure;
@@ -125,13 +125,13 @@ async function main() {
 
 
   var fullName = process.cwd() + "/processes.json";
-  wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure(tokenConfig, fullName, true, true);
+  wickrIOConfigure = new WickrIOConfigure(tokenConfig, fullName, true, true);
 
   await wickrIOConfigure.configureYourBot("WickrIO-Broadcast-Bot");
 
   botName = wickrIOConfigure.getBotName();
   console.log("botName=" + botName);
-  wickrIOIni = new WickrIOBotAPI.WickrIOIni(botName, __dirname);
+  wickrIOIni = new WickrIOIni(botName, __dirname);
 
   process.exit();
 }
