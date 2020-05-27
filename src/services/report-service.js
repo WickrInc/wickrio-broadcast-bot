@@ -28,7 +28,7 @@ class ReportService {
       if (messageStatus.length < 1000) {
         break;
       }
-      inc += inc;
+      inc += 1;
     }
     const now = new Date();
     const dateString = `${now.getDate()}-${now.getMonth() + 1}-${now.getFullYear()}_${now.getHours()}_${now.getMinutes()}_${now.getSeconds()}`;

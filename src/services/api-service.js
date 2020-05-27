@@ -41,9 +41,8 @@ class APIService {
     return WickrIOAPI.cmdAddMessageID(messageId, sender, target, dateSent, messageContent);
   }
 
-  // TODO is hard coding 0 here okay?
-  static getMessageStatus(messageID, type) {
-    return WickrIOAPI.cmdGetMessageStatus(messageID, type, '0', '1000');
+  static getMessageStatus(messageID, type, page, pageSize) {
+    return WickrIOAPI.cmdGetMessageStatus(messageID, type, page, pageSize);
   }
 
   static getMessageIDEntry(messageID) {
