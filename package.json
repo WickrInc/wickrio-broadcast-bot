@@ -1,6 +1,6 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "5.55.4",
+  "version": "5.56.1",
   "description": "WickrIO Broadcast Bot",
   "main": "broadcast-bot.js",
   "author": "Paul Cushman (pcushman@wickr.com)",
@@ -18,7 +18,7 @@
     "pm2": "^3.5.1",
     "prompt": "^1.0.0",
     "dotenv": "^8.2.0",
-    "wickrio-bot-api": "5.55.x"
+    "wickrio-bot-api": "5.56.x"
   },
   "scripts": {
     "start": "pm2 start processes.json --update-env",
