@@ -1,5 +1,5 @@
 const state = require('../state');
-const pkgjson = require('../package.json');
+const pkgjson = require('../../package.json');
 
 class Version {
   static shouldExecute(messageService) {
