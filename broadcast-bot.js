@@ -105,6 +105,8 @@ async function main() {
     WickrIOAPI.cmdSetControl('cleardb', 'true');
     WickrIOAPI.cmdSetControl('contactbackup', 'false');
     WickrIOAPI.cmdSetControl('convobackup', 'false');
+    WickrIOAPI.cmdSetControl('readreceipt', 'true');
+
     // Passes a callback function that will receive incoming messages into the bot client
     bot.startListening(listen);
     // await bot.startListening(listen); //Passes a callback function that will receive incoming messages into the bot client
