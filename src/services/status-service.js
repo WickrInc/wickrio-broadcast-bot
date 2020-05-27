@@ -25,7 +25,8 @@ class StatusService {
                    + `Messages pending to Users: ${messageStatus.pending}\n`
                    + `Messages failed to send: ${messageStatus.failed}\n`
                    + `Messages aborted: ${messageStatus.aborted}\n`
-                   + `Messages received: ${messageStatus.received}\n`;
+                   + `Messages acknowledged: ${messageStatus.acked}\n`
+                   + `Messages read: ${messageStatus.read}\n`;
     if (messageStatus.ignored !== undefined) {
       statusString = `${statusString}Messages Ignored: ${messageStatus.ignored}`;
     }
