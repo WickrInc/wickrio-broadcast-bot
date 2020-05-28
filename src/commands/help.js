@@ -1,4 +1,4 @@
-import { NONE } from '../state';
+import State from '../state';
 import { logger } from '../helpers/constants';
 
 class Help {
@@ -30,7 +30,7 @@ class Help {
       + '/files : To get a list of saved files available for the /send command';
     return {
       reply,
-      state: NONE,
+      state: State.NONE,
     };
   }
 }

@@ -64,6 +64,76 @@ const startServer = () => {
 
   var endpoint = "/WickrIO/V1/Apps/" + BOT_KEY.value;
 
+
+  function checkCreds(authToken) {
+    try {
+      var valid = true;
+      const authStr = Buffer.from(authToken, 'base64').toString();
+      //implement authToken verification in here
+      if (authStr !== bot_api_auth_token)
+        valid = false;
+      return valid;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  app.get(endpoint + "/Authenticate/:wickrUser/:authcode", (req, res) => {
+    try {
+
+      res.set('Content-Type', 'text/plain');
+      res.set('Authorization', 'Basic base64_auth_token');
+      var authHeader = req.get('Authorization');
+      var authToken;
+      if (authHeader) {
+        if (authHeader.indexOf(' ') == -1) {
+          authToken = authHeader;
+        } else {
+          authHeader = authHeader.split(' ');
+          authToken = authHeader[1];
+        }
+      } else {
+        // expecting
+        // Basic: BOT_AUTH_TOKEN base64
+        return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic base64_auth_token"');
+      }
+      if (!checkCreds(authToken)) {
+        return res.status(401).send('Access denied: invalid basic-auth token.');
+      } else {
+        let wickruser = req.params.wickrUser
+
+        if (typeof wickrUser !== 'string')
+          return res.status(400).send('Bad request: WickrUser must be a string.');
+
+        // Check if this user is an administrator
+        var adminUser = bot.myAdmins.getAdmin(wickrUser);
+        if (adminUser === undefined) {
+          return res.status(401).send('Access denied: ' + wickrUser + ' is not authorized to broadcast!');
+        }
+
+
+        var random = generateRandomString(24);
+        client_auth_codes[adminUser.userEmail] = random;
+        // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
+        // send token in url, used for calls to receive data, send messages
+        const token = jwt.sign({
+          'email': user.userEmail,
+          'session': random,
+        }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
+
+        var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, 'authenticated with the REST APO using your account');
+
+        logger.debug(sMessage);
+        res.json(token)
+
+      }
+    } catch (err) {
+      console.log(err);
+      res.statusCode = 400;
+      res.send(err.toString());
+    }
+  });
+
   const checkAuth = (req, res, next) => {
     res.set('Authorization', 'Basic base64_auth_token');
     res.set('Content-Type', 'application/json');
@@ -145,6 +215,7 @@ const startServer = () => {
     res.send(response)
   });
 
+
   app.get(endpoint + "/SecGroups", checkAuth, (req, res) => {
     try {
       // how does cmdGetSecurityGroups know what user to get security groups for?
@@ -197,7 +268,7 @@ const startServer = () => {
     return res.send(reply);
   });
 
-  app.get(endpoint + "/Report/:wickrUser/:authCode/:messageID/:page/:size", function (req, res) {
+  app.get(endpoint + "/Report/:messageID/:page/:size", function (req, res) {
     res.set('Content-Type', 'text/plain');
     res.set('Authorization', 'Basic base64_auth_token');
     var authHeader = req.get('Authorization');

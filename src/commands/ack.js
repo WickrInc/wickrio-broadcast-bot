@@ -1,4 +1,4 @@
-import { NONE } from '../state';
+import State from '../state';
 import GenericService from '../services/generic-service';
 
 
@@ -15,7 +15,7 @@ class Ack {
     const reply = '';
     const obj = {
       reply,
-      state: NONE,
+      state: State.NONE,
     };
     return obj;
   }

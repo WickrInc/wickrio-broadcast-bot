@@ -1,11 +1,11 @@
 import logger from '../logger';
-import { WHICH_ABORT, NONE } from '../state';
+import State from '../state';
 import GenericService from '../services/generic-service';
 
 class WhichAbort {
   constructor(genericService) {
     this.genericService = genericService;
-    this.state = WHICH_ABORT;
+    this.state = State.WHICH_ABORT;
   }
 
   shouldExecute(messageService) {
@@ -26,14 +26,14 @@ class WhichAbort {
       reply = `Index: ${index} is out of range. Please enter a number between 1 and ${length}`;
       obj = {
         reply,
-        state: WHICH_ABORT,
+        state: State.WHICH_ABORT,
       };
     } else {
       const messageID = `${currentEntries[parseInt(index, 10) - 1].message_id}`;
       reply = this.genericService.cancelMessageID(messageID);
       obj = {
         reply,
-        state: NONE,
+        state: State.NONE,
       };
     }
     return obj;

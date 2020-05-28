@@ -1,5 +1,5 @@
-const state = require('../state');
-const pkgjson = require('../../package.json');
+import State from '../state';
+import pkgjson from '../../package.json';
 
 class Version {
   static shouldExecute(messageService) {
@@ -19,9 +19,9 @@ class Version {
       + `WickrIO API: ${apiVersion}`;
     return {
       reply,
-      state: state.NONE,
+      state: State.NONE,
     };
   }
 }
 
-module.exports = Version;
+export default Version;

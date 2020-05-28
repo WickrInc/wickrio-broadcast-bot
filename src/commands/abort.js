@@ -1,4 +1,4 @@
-import { NONE, WHICH_ABORT } from '../state';
+import State from '../state';
 import GenericService from '../services/generic-service';
 import { logger } from '../helpers/constants';
 
@@ -27,7 +27,7 @@ class Abort {
       reply = 'There are no previous messages to display';
       return {
         reply,
-        state: state.NONE,
+        state: State.NONE,
       };
     }
     const length = Math.min(messageIdEntries.length, 5);
@@ -47,7 +47,7 @@ class Abort {
       + 'Which message would you like to abort?';
     return {
       reply,
-      state: state.WHICH_ABORT,
+      state: State.WHICH_ABORT,
     }
   }
 }

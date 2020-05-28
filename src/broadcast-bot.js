@@ -16,6 +16,7 @@ import {
   WICKRIO_BOT_NAME,
   VERIFY_USERS,
   WickrIOAPI,
+  getLastID,
   cronJob,
 } from './helpers/constants';
 
@@ -26,7 +27,7 @@ import writer from './helpers/message-writer.js'
 import Version from './commands/version'
 import FileHandler from './helpers/file-handler'
 import Factory from './factory'
-import { FILE_TYPE, NONE } from './state'
+import State from './state'
 import APIService from './services/api-service'
 import BroadcastService from './services/broadcast-service'
 import MessageService from './services/message-service'
@@ -52,18 +53,21 @@ process.stdin.resume(); //so the program will not close instantly
 
 const fileHandler = new FileHandler();
 // const whitelist = new WhitelistRepository(fs);
-const broadcastService = new BroadcastService();
-const statusService = new StatusService();
-const repeatService = new RepeatService(broadcastService);
-const sendService = new SendService();
-const reportService = new ReportService();
+// const broadcastService = new BroadcastService();
+// const repeatService = new RepeatService(broadcastService);
+// const sendService = new SendService();
+// const reportService = new ReportService();
+// const genericService = new GenericService()
+// const statusService = new StatusService(genericService);
+
 
 const factory = new Factory(
-  broadcastService,
-  sendService,
-  statusService,
-  repeatService,
-  reportService,
+  BroadcastService,
+  SendService,
+  StatusService,
+  RepeatService,
+  ReportService,
+  GenericService
 );
 
 let file;
@@ -294,19 +298,20 @@ async function listen(message) {
 
 
     if (command === '/map') {
-      let last_id = get_LastID()
+      let last_id = getLastID()
+      let locatedusers = false
       // request last broadcast requested with location
       // or 
 
       // request last broadcast status with X number of user responses
       if (!argument) {
         reply = 'need /map <number to retrieve>'
-        uMessage = APIService.sendRoomMessage(vGroupID, reply);
-        return;
+        return APIService.sendRoomMessage(vGroupID, reply);
       }
       // get message status with locations
       const messageStatus = JSON.parse(APIService.getMessageStatus(last_id.toString(), 'full', String(0), String(argument)))
       // create a simple object to store data
+      console.log({ messageStatus })
       let locations = []
       locations[messageStatus.messageID] = {}
       let link = `https://maps.googleapis.com/maps/api/staticmap?key=${BOT_GOOGLE_MAPS.value}&size=700x400&markers=color:blue`
@@ -314,19 +319,39 @@ async function listen(message) {
         // only get status' with location acked
         // display map of all users who have acknowledged with location
         messageStatus.map(user => {
-          let { latitude, longitude } = JSON.parse(user.status_message).location
+          if (user?.statusMessage?.location) {
+            console.log("located a user")
+            locatedusers = true
+            let { latitude, longitude } = user?.status_message?.location
+            locations[messageStatus.messageID][user.user] = {}
+            locations[messageStatus.messageID][user.user].location = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
+            locations[messageStatus.messageID][user.user].latitude = latitude
+            locations[messageStatus.messageID][user.user].longitude = longitude
+            link += `|label:${user.user}|${latitude},${longitude}`
+          }
+        })
+        locations[messageStatus.messageID] = link
+        // console.log({ link })
+        if (locatedusers) {
+          var sMessage = APIService.sendRoomMessage(vGroupID, link);
+        } else {
+          var sMessage = APIService.sendRoomMessage(vGroupID, "no location for the replied users");
+
+        }
+
+      } else {
+        if (statusMessage.location) {
+          locatedusers = true
+          let { latitude, longitude } = user?.status_message?.location
           locations[messageStatus.messageID][user.user] = {}
           locations[messageStatus.messageID][user.user].location = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
           locations[messageStatus.messageID][user.user].latitude = latitude
           locations[messageStatus.messageID][user.user].longitude = longitude
           link += `|label:${user.user}|${latitude},${longitude}`
-        })
-        locations[messageStatus.messageID] = link
-        console.log({ link })
-        var sMessage = APIService.sendRoomMessage(vGroupID, link);
-
-      } else {
-        return messageStatus
+          return messageStatus
+        } else {
+          return "no location for the replied user"
+        }
       }
       return
     }
@@ -365,9 +390,10 @@ async function listen(message) {
 
     // TODO is this JSON.stringify necessary??
     // How to deal with duplicate files??
-    if (currentState === FILE_TYPE) {
-      console.log({ currentState, FILE_TYPE })
-      currentState = NONE;
+    console.log({ currentState, 'filetype': State.FILE_TYPE })
+
+    if (currentState === State.FILE_TYPE) {
+      currentState = State.NONE;
       const type = parsedMessage.message.toLowerCase();
       let fileAppend = '';
       logger.debug(`Here is the filetype message${type}`);
@@ -388,7 +414,7 @@ async function listen(message) {
       } else {
         const reply = 'Input not recognized please reply with (u)ser, (h)ash, or (s)end.';
         const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-        currentState = FILE_TYPE;
+        currentState = State.FILE_TYPE;
       }
       if (fileAppend) {
         logger.debug(`Here is file info${file}`);
@@ -404,6 +430,7 @@ async function listen(message) {
       }
     } else {
       // TODO parse argument better??
+      console.log({ parsedMessage })
       let obj;
       if (parsedMessage.file) {
         obj = factory.file(parsedMessage.file, parsedMessage.filename);
@@ -424,216 +451,6 @@ async function listen(message) {
     logger.error('Got an error');
   }
 }
-
-//TODO get target inside function
-// function repeatMessage(broadcast, user, vGroupID, messageID, userEmail, target) {
-//   //Send first repeated message before starting the cronJob
-//   logger.debug('cronInterval:', cronInterval)
-//   var bMessage;
-//   var currentDate = new Date();
-//   var jsonDateTime = currentDate.toJSON();
-//   var broadcastMsgToSend = broadcast + "\n\nBroadcast message sent by: " + userEmail;
-//   logger.debug("Security group flag is: " + securityGroupFlag);
-//   if (securityGroupFlag) {
-//     messageID = "" + messageID;
-//     bMessage = APIService.cmdSendSecurityGroupMessage(broadcastMsgToSend, securityGroupsToSend, "", "", messageID);
-//   } else {
-//     messageID = "" + messageID;
-//     bMessage = APIService.cmdSendNetworkMessage(broadcastMsgToSend, "", "", messageID);
-//   }
-//   logger.debug(bMessage)
-
-
-//   // send message
-//   var reply = strings["repeatMessageSent"].replace("%{count}", (user.count + 1));
-//   var uMessage = APIService.cmdSendRoomMessage(vGroupID, reply);
-//   user.count += 1;
-//   cronJob(job, cronInterval, user, broadcast, securityGroupFlag, askForAckFlag, securityGroupsToSend, userEmail, target);
-// }
-
-function getMessageEntries(userEmail, max) {
-  var messageIdEntries = []
-  // need to dynamically get last x records, what if there are over 1000 messages
-
-  var tableDataRaw = APIService.getMessageIDTable("0", "1000");
-  var tableData = JSON.parse(tableDataRaw);
-  for (var i = tableData.length - 1; i >= 0; i--) {
-    var entry = tableData[i];
-    logger.debug("entry: " + entry);
-    //logger.debug("entry keys: " + Object.keys(entry));
-    if (entry.sender === userEmail) {
-      messageIdEntries.push(entry);
-    }
-    if (messageIdEntries.length >= max) {
-      break;
-    }
-  }
-  return messageIdEntries;
-}
-
-//TODO add these strings to file
-// function getStatus(messageID, type, async) {
-//   messageID = "" + messageID;
-//   var statusData;
-//   try {
-//     statusData = APIService.cmdGetMessageStatus(messageID, type, "0", "1000");
-//   } catch (err) {
-//     if (async) {
-//       var returnObj = {
-//         statusString: "No data found for that message",
-//         complete: true
-//       };
-//       return returnObj;
-//     } else {
-//       return "No data found for that message";
-//     }
-//   }
-//   var messageStatus = JSON.parse(statusData);
-//   var statusString;
-
-//   statusString = strings["messageStatus"].replace("%{num2send}", messageStatus.num2send).replace("%{sent}", messageStatus.sent).replace("%{acked}", messageStatus.acked).replace("%{pending}", messageStatus.pending).replace("%{failed}", messageStatus.failed).replace("%{read}", messageStatus.read).replace("%{aborted}", messageStatus.aborted).replace("%{ignored}", messageStatus.ignored);
-//   if (messageStatus.ignored !== undefined) {
-//     statusString = statusString + strings["messageStatusIgnored"].replace("%{ignored}", messageStatus.ignored);
-//   }
-
-//   logger.debug("here is the message status" + statusString);
-//   if (async) {
-//     var complete = messageStatus.pending === 0;
-//     var returnObj = {
-//       statusString: statusString,
-//       complete: complete
-//     };
-//     return returnObj;
-//   } else {
-//     return statusString;
-//   }
-// }
-
-// function writeToMessageIdDB(messageId, sender, target, dateSent, messageContent) {
-//   logger.debug("inside~writeToMessageIdDB");
-//   APIService.cmdAddMessageID(messageId, sender, target, dateSent, messageContent);
-// }
-
-// function setMessageStatus(messageId, userId, status, statusMessage) {
-//   var reply = APIService.cmdSetMessageStatus(messageId, userId, status, statusMessage);
-//   // var userArray = [userId];
-//   // var uMessage = APIService.cmdSend1to1Message(userArray, reply);
-// }
-
-function get_LastID() {
-  try {
-    let lastID
-    if (fs.existsSync('last_id.json')) {
-      var data = fs.readFileSync('last_id.json');
-      logger.debug("is the data okay: " + data);
-      lastID = JSON.parse(data);
-    } else {
-      lastID = '1'
-      fs.writeFile('last_id.json', lastID, (err) => {
-        //Fix this 
-        if (err) throw err;
-        logger.trace("Current Message ID saved in file");
-      });
-    }
-    logger.debug("This is the id: " + lastID);
-    return lastID;
-  } catch (err) {
-    logger.error(err);
-  }
-}
-
-// function getCSVReport(messageId) {
-//   var inc = 0;
-//   var csvArray = [];
-//   while (true) {
-//     var statusData = APIService.cmdGetMessageStatus(messageId, "full", "" + inc, "1000");
-//     var messageStatus = JSON.parse(statusData);
-//     for (var entry of messageStatus) {
-//       var statusMessageString = "";
-//       var statusString = "";
-
-//       var sentDateString = "";
-//       var readDateString = "";
-//       if (entry.sent_datetime !== undefined)
-//         sentDateString = entry.sent_datetime;
-//       if (entry.read_datetime !== undefined)
-//         readDateString = entry.read_datetime;
-//       switch (entry.status) {
-//         case 0:
-//           statusString = "pending";
-//           break;
-//         case 1:
-//           statusString = "sent";
-//           break;
-//         case 2:
-//           statusString = "failed";
-//           statusMessageString = entry.status_message;
-//           break;
-//         case 3:
-//           statusString = "acked";
-//           if (entry.status_message !== undefined) {
-//             var obj = JSON.parse(entry.status_message);
-//             if (obj['location'] !== undefined) {
-//               var latitude = obj['location'].latitude;
-//               var longitude = obj['location'].longitude;
-//               statusMessageString = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
-//             } else {
-//               statusMessageString = entry.status_message;
-//             }
-//           }
-//           break;
-//         case 4:
-//           statusString = "ignored";
-//           statusMessageString = entry.status_message;
-//           break;
-//         case 5:
-//           statusString = "aborted";
-//           statusMessageString = entry.status_message;
-//           break;
-//         case 6:
-//           statusString = "read";
-//           statusMessageString = entry.status_message;
-//           break;
-//       }
-
-//       csvArray.push(
-//         {
-//           user: entry.user,
-//           status: statusString,
-//           statusMessage: statusMessageString,
-//           sentDate: sentDateString,
-//           readDate: readDateString
-//         });
-//     }
-//     if (messageStatus.length < 1000) {
-//       break;
-//     }
-//     inc++;
-//   }
-//   var now = new Date();
-//   var dateString = now.getDate() + "-" + (now.getMonth() + 1) + "-" + now.getFullYear() + "_" + now.getHours() + "_" + now.getMinutes() + "_" + now.getSeconds();
-
-//   var path = process.cwd() + "/attachments/report-" + dateString + ".csv";
-//   writeCSVReport(path, csvArray);
-//   return path;
-// }
-
-// function writeCSVReport(path, csvArray) {
-//   var csvWriter = createCsvWriter({
-//     path: path,
-//     header: [
-//       { id: 'user', title: 'USER' },
-//       { id: 'status', title: 'STATUS' },
-//       { id: 'statusMessage', title: 'MESSAGE' },
-//       { id: 'sentDate', title: 'SENT' },
-//       { id: 'readDate', title: 'READ' }
-//     ]
-//   });
-//   csvWriter.writeRecords(csvArray)
-//     .then(() => {
-//       logger.debug('...Done');
-//     });
-// }
 
 function generateRandomString(length) {
   var text = "";

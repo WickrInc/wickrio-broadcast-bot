@@ -1,11 +1,14 @@
-const logger = require('../logger');
-const state = require('../state');
+import State from '../state';
+
 import {
   WickrIOAPI
 } from './helpers/constants';
 
 // TODO use this instead of putting it in main!
 class Messages {
+  constructor() {
+
+  }
   static shouldExecute(messageService) {
     if (messageService.getCommand() === '/messages') {
       return true;
@@ -19,7 +22,7 @@ class Messages {
     const uMessage = WickrIOAPI.cmdSendRoomAttachment(vGroupID, path, path);
     const obj = {
       reply,
-      state: state.NONE,
+      state: State.NONE,
     };
     return obj;
   }

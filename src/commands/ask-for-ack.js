@@ -1,5 +1,5 @@
-const logger = require('../logger');
-const State = require('../state');
+import logger from '../logger';
+import State from '../state';
 
 class AskForAck {
   constructor(broadcastService) {
@@ -41,9 +41,9 @@ class AskForAck {
       }
     }
     reply = `${'Who would you like to receive this message?\n\n'
-    + 'Here is a list of the security groups:\n'}${
+      + 'Here is a list of the security groups:\n'}${
       groupsString
-    }Please enter the number(s) of the security group(s) you would like to send your message to.\n\nOr reply *all* to send the message to everyone in the network`;
+      }Please enter the number(s) of the security group(s) you would like to send your message to.\n\nOr reply *all* to send the message to everyone in the network`;
     return {
       reply,
       state: State.WHICH_GROUPS,
@@ -51,4 +51,4 @@ class AskForAck {
   }
 }
 
-module.exports = AskForAck;
+export default AskForAck;

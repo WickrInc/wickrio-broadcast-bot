@@ -1,5 +1,5 @@
 import logger from '../logger';
-import { WHICH_REPORT, NONE } from '../state';
+import State from '../state';
 import { getMessageEntries } from '../services/generic-service';
 import ReportService from '../services/report-service';
 
@@ -7,7 +7,7 @@ class WhichReport {
   constructor(genericService, reportService) {
     this.genericService = genericService;
     this.reportService = reportService;
-    this.state = WHICH_REPORT;
+    this.state = State.WHICH_REPORT;
   }
 
   shouldExecute(messageService) {
@@ -27,7 +27,7 @@ class WhichReport {
       reply = `Index: ${index} is out of range. Please enter a number between 1 and ${length}`;
       obj = {
         reply,
-        state: WHICH_REPORT,
+        state: State.WHICH_REPORT,
       };
     } else {
       const messageID = `${currentEntries[parseInt(index, 10) - 1].message_id}`;
@@ -35,7 +35,7 @@ class WhichReport {
       this.reportService.getReport(messageID, messageService.getVGroupID());
       obj = {
         reply,
-        state: NONE,
+        state: State.NONE,
       };
     }
     return obj;

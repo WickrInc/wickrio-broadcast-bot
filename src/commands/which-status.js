@@ -1,5 +1,5 @@
 import logger from '../logger';
-import { WHICH_STATUS, NONE } from '../state';
+import State from '../state';
 import { getMessageEntries } from '../services/generic-service';
 import StatusService from '../services/status-service';
 
@@ -8,7 +8,7 @@ class WhichStatus {
   constructor(genericService, statusService) {
     this.genericService = genericService;
     this.statusService = statusService;
-    this.state = WHICH_STATUS;
+    this.state = State.WHICH_STATUS;
   }
 
   shouldExecute(messageService) {
@@ -29,7 +29,7 @@ class WhichStatus {
       reply = `Index: ${index} is out of range. Please enter a number between 1 and ${length}`;
       obj = {
         reply,
-        state: WHICH_STATUS,
+        state: State.WHICH_STATUS,
       };
     } else {
       // Subtract one to account for 0 based indexes
@@ -37,7 +37,7 @@ class WhichStatus {
       reply = this.statusService.getStatus(messageID, false);
       obj = {
         reply,
-        state: NONE,
+        state: State.NONE,
       };
     }
     return obj;

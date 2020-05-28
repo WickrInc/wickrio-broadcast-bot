@@ -1,10 +1,10 @@
 import logger from '../logger';
-import { CHOOSE_FILE, NONE } from '../state';
+import State from '../state';
 
 class ChooseFile {
   constructor(sendService) {
     this.sendService = sendService;
-    this.state = CHOOSE_FILE;
+    this.state = State.CHOOSE_FILE;
   }
 
   shouldExecute(messageService) {
@@ -24,7 +24,7 @@ class ChooseFile {
       reply = `Index: ${index} is out of range. Please enter a number between 1 and ${length}`;
       obj = {
         reply,
-        state: CHOOSE_FILE,
+        state: State.CHOOSE_FILE,
       };
     } else {
       // logger.debug('here is the other fileArr', fileArr, '\n');
@@ -36,7 +36,7 @@ class ChooseFile {
       this.sendService.sendToFile(fileName);
       obj = {
         reply,
-        state: NONE,
+        state: State.NONE,
       };
     }
     return obj;

@@ -43,6 +43,28 @@ const updateLastID = () => {
   }
 }
 
+function getLastID() {
+  try {
+    let lastID
+    if (fs.existsSync('last_id.json')) {
+      var data = fs.readFileSync('last_id.json');
+      logger.debug("is the data okay: " + data);
+      lastID = JSON.parse(data);
+    } else {
+      lastID = '1'
+      fs.writeFile('last_id.json', lastID, (err) => {
+        //Fix this 
+        if (err) throw err;
+        logger.trace("Current Message ID saved in file");
+      });
+    }
+    logger.debug("This is the id: " + lastID);
+    return lastID;
+  } catch (err) {
+    logger.error(err);
+  }
+}
+
 const cronJob = (job, cronInterval, user, broadcast, sgFlag, ackFlag, securityGroupsToSend, userEmail, target) => {
   let cronjob = new CronJob(cronInterval, () => {
     var currentDate = new Date();
@@ -94,6 +116,7 @@ export {
   WICKRIO_BOT_NAME,
   VERIFY_USERS,
   updateLastID,
+  getLastID,
   cronJob
 }
 

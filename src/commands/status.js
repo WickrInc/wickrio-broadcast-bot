@@ -1,6 +1,5 @@
 import logger from '../logger';
-import { NONE, WHICH_STATUS } from '../state';
-import GenericService from '../services/generic-service';
+import State from '../state';
 
 class Status {
   constructor(genericService) {
@@ -22,7 +21,7 @@ class Status {
       reply = 'There are no previous messages to display';
       return {
         reply,
-        state: NONE,
+        state: State.NONE,
       };
     }
     const length = Math.min(currentEntries.length, 5);
@@ -43,7 +42,7 @@ class Status {
 
     return {
       reply,
-      state: WHICH_STATUS,
+      state: State.WHICH_STATUS,
     };
   }
 }

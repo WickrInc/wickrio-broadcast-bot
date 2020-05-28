@@ -39,6 +39,15 @@ class Factory {
     this.repeatService = repeatService;
     this.reportService = reportService;
     this.genericService = genericService;
+
+    console.log({
+      broadcastService,
+      sendService,
+      statusService,
+      repeatService,
+      reportService,
+      genericService,
+    })
     this.statusCommand = new Status(this.genericService);
     this.whichStatus = new WhichStatus(this.genericService, this.statusService);
     this.abort = new Abort(this.genericService);

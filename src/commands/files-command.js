@@ -1,4 +1,4 @@
-import { NONE } from '../state';
+import State from '../state';
 import { logger } from '../helpers/constants';
 
 // TODO add a delete file command??
@@ -27,7 +27,7 @@ class FileCommand {
     }
     const obj = {
       reply,
-      state: NONE,
+      state: State.NONE,
     };
     return obj;
   }

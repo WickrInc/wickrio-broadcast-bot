@@ -1,4 +1,3 @@
-import logger from '../logger';
 import State from '../state';
 
 // TODO add a delete file command??
@@ -15,7 +14,7 @@ class FileReceived {
     const reply = 'Would you like to send this file or is it a file of usernames or hashes? (Please respond with s(end), u(ser), or h(ash)';
     const obj = {
       reply,
-      state: state.FILE_TYPE,
+      state: State.FILE_TYPE,
     };
     return obj;
   }

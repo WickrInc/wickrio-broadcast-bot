@@ -1,11 +1,11 @@
 import logger from '../logger';
-import { NONE, WHICH_REPORT } from '../state';
+import State from '../state';
 import GenericService from '../services/generic-service';
 
 
 class Report {
-  constructor(genericService) {
-    this.genericService = genericService;
+  constructor() {
+    this.genericService = GenericService;
     this.commandString = '/report';
   }
 
@@ -23,7 +23,7 @@ class Report {
       reply = 'There are no previous messages to display';
       return {
         reply,
-        state: NONE,
+        state: State.NONE,
       };
     }
     const length = Math.min(currentEntries.length, 5);
@@ -44,7 +44,7 @@ class Report {
 
     return {
       reply,
-      state: WHICH_REPORT,
+      state: State.WHICH_REPORT,
     };
   }
 }
