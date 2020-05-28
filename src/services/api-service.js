@@ -11,29 +11,29 @@ class APIService {
     return temp;
   }
 
-  static sendSecurityGroupVoiceMemo(securityGroups, voiceMemo, duration, messageID, sentBy) {
+  static sendSecurityGroupVoiceMemo(securityGroups, voiceMemo, duration, ttl, bor, messageID, sentBy) {
     // TODO add time sent to VoiceMemo String?
-    return WickrIOAPI.cmdSendSecurityGroupVoiceMemo(securityGroups, voiceMemo, 'VoiceMemo', duration, '', '', messageID, sentBy);
+    return WickrIOAPI.cmdSendSecurityGroupVoiceMemo(securityGroups, voiceMemo, 'VoiceMemo', duration, ttl, bor, messageID, sentBy);
   }
 
-  static sendSecurityGroupAttachment(securityGroups, filename, displayName, messageID, sentBy) {
-    return WickrIOAPI.cmdSendSecurityGroupAttachment(securityGroups, filename, displayName, '', '', messageID, sentBy);
+  static sendSecurityGroupAttachment(securityGroups, filename, displayName, ttl, bor, messageID, sentBy) {
+    return WickrIOAPI.cmdSendSecurityGroupAttachment(securityGroups, filename, displayName, ttl, bor, messageID, sentBy);
   }
 
-  static sendSecurityGroupMessage(securityGroups, message, messageID) {
-    return WickrIOAPI.cmdSendSecurityGroupMessage(message, securityGroups, '', '', messageID);
+  static sendSecurityGroupMessage(securityGroups, message, ttl, bor, messageID) {
+    return WickrIOAPI.cmdSendSecurityGroupMessage(message, securityGroups, ttl, bor, messageID);
   }
 
-  static sendNetworkVoiceMemo(voiceMemo, duration, messageID, sentBy) {
-    return WickrIOAPI.cmdSendNetworkVoiceMemo(voiceMemo, 'VoiceMemo', duration, '', '', messageID, sentBy);
+  static sendNetworkVoiceMemo(voiceMemo, duration, ttl, bor, messageID, sentBy) {
+    return WickrIOAPI.cmdSendNetworkVoiceMemo(voiceMemo, 'VoiceMemo', duration, ttl, bor, messageID, sentBy);
   }
 
-  static sendNetworkAttachment(filename, displayName, messageID, sentBy) {
-    return WickrIOAPI.cmdSendNetworkAttachment(filename, displayName, '', '', messageID, sentBy);
+  static sendNetworkAttachment(filename, displayName, ttl, bor, messageID, sentBy) {
+    return WickrIOAPI.cmdSendNetworkAttachment(filename, displayName, ttl, bor, messageID, sentBy);
   }
 
-  static sendNetworkMessage(message, messageID) {
-    return WickrIOAPI.cmdSendNetworkMessage(message, '', '', messageID);
+  static sendNetworkMessage(message, ttl, bor, messageID) {
+    return WickrIOAPI.cmdSendNetworkMessage(message, ttl, bor, messageID);
   }
 
   static writeMessageIDDB(messageId, sender, target, dateSent, messageContent) {

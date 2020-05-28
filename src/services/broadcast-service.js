@@ -86,15 +86,17 @@ class BroadcastService {
         uMessage = APIService.sendNetworkVoiceMemo(
           this.voiceMemo,
           this.duration,
+          '',
+          '',
           messageID,
           sentBy,
         );
         reply = 'Voice Memo broadcast in process of being sent';
       } else if (this.file !== '') {
-        uMessage = APIService.sendNetworkAttachment(this.file, this.display, messageID, sentBy);
+        uMessage = APIService.sendNetworkAttachment(this.file, this.display, '', '', messageID, sentBy);
         reply = 'File broadcast in process of being sent';
       } else {
-        uMessage = APIService.sendNetworkMessage(messageToSend, messageID);
+        uMessage = APIService.sendNetworkMessage(messageToSend, '', '', messageID);
         reply = 'Broadcast message in process of being sent';
       }
     } else if (this.voiceMemo !== '') {
@@ -102,6 +104,8 @@ class BroadcastService {
         this.securityGroups,
         this.voiceMemo,
         this.duration,
+        '',
+        '',
         messageID,
         sentBy,
       );
@@ -111,12 +115,14 @@ class BroadcastService {
         this.securityGroups,
         this.file,
         this.display,
+        '',
+        '',
         messageID,
         sentBy,
       );
       reply = 'File broadcast in process of being sent to security group';
     } else {
-      uMessage = APIService.sendSecurityGroupMessage(this.securityGroups, messageToSend, messageID);
+      uMessage = APIService.sendSecurityGroupMessage(this.securityGroups, messageToSend, '', '', messageID);
       reply = 'Broadcast message in process of being sent to security group';
     }
     if (this.file !== '') {
