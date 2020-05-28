@@ -143,7 +143,11 @@ async function main() {
     bot.startListening(listen);
 
 
-    if (BOT_AUTH_TOKEN.value, BOT_KEY.value, BOT_PORT.value) {
+    if (
+      BOT_AUTH_TOKEN.value,
+      BOT_KEY.value,
+      BOT_PORT.value
+    ) {
       // run server
       startServer()
 

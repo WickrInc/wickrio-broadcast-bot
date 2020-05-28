@@ -1,13 +1,12 @@
-import { WickrIOConfigure, WickrIOIni } from 'wickrio-bot-api'
-import util from 'util'
-import dotenv from "dotenv"
+const WickrIOBotAPI = require('wickrio-bot-api');
+const util = require('util')
 
-dotenv.config({
-  path: `../.env.configure`
+
+require("dotenv").config({
+  path: `.env.configure`
 })
 
 var wickrIOConfigure;
-var wickrIOIni;
 
 process.stdin.resume(); //so the program will not close instantly
 
@@ -64,7 +63,7 @@ async function main() {
           default: 'N/A',
         },
         {
-          token: 'BOT_API_KEY',
+          token: 'BOT_KEY',
           pattern: '',
           type: 'string',
           description: "Please enter your client bot's API-Key",
@@ -73,19 +72,10 @@ async function main() {
           default: 'N/A',
         },
         {
-          token: 'BOT_API_AUTH_TOKEN',
+          token: 'BOT_AUTH_TOKEN',
           pattern: '',
           type: 'string',
           description: 'Please create an Web API Basic Authorization Token, we recommend an alphanumeric string with at least 24 characters',
-          message: 'Cannot leave empty! Please enter a value',
-          required: true,
-          default: 'N/A',
-        },
-        {
-          token: 'BOT_GOOGLE_MAPS',
-          pattern: '',
-          type: 'string',
-          description: 'Please create a google map API key',
           message: 'Cannot leave empty! Please enter a value',
           required: true,
           default: 'N/A',
@@ -120,18 +110,22 @@ async function main() {
           ]
         }
       ]
+    },
+    {
+      token: 'BOT_GOOGLE_MAPS',
+      pattern: '',
+      type: 'string',
+      description: 'Please create a google map API key',
+      message: 'Cannot leave empty! Please enter a value',
+      required: true,
+      default: 'N/A',
     }
   ];
 
 
   var fullName = process.cwd() + "/processes.json";
-  wickrIOConfigure = new WickrIOConfigure(tokenConfig, fullName, true, true);
+  wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure(tokenConfig, fullName, true, true);
 
   await wickrIOConfigure.configureYourBot("WickrIO-Broadcast-Bot");
-
-  botName = wickrIOConfigure.getBotName();
-  console.log("botName=" + botName);
-  wickrIOIni = new WickrIOIni(botName, __dirname);
-
   process.exit();
 }
