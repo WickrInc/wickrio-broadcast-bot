@@ -1,8 +1,8 @@
-import { debug } from '../logger';
 import APIService from './api-service';
 import StatusService from './status-service';
 // TODO proper form??
 import updateLastID from '../helpers/message-id-helper';
+import { logger } from '../helpers/constants';
 
 class BroadcastService {
   constructor() {
@@ -72,7 +72,7 @@ class BroadcastService {
       sentBy = `${sentBy}\nPlease acknowledge this message by replying with /ack`;
     }
     const target = (this.securityGroups.length < 1 || this.securityGroups === undefined) ? 'NETWORK' : this.securityGroups.join();
-    debug(`target${target}`);
+    logger.debug(`target${target}`);
     const currentDate = new Date();
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
     const jsonDateTime = currentDate.toJSON();
@@ -127,7 +127,7 @@ class BroadcastService {
       APIService.writeMessageIDDB(messageID, this.userEmail, target, jsonDateTime, this.message);
     }
     StatusService.asyncStatus(messageID, this.vGroupID);
-    debug(`Broadcast uMessage${uMessage}`);
+    logger.debug(`Broadcast uMessage${uMessage}`);
     return reply;
   }
 

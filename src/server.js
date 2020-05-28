@@ -5,7 +5,6 @@ import multer from 'multer'
 import jwt from "jsonwebtoken"
 import {
   bot,
-  WickrIOAPI,
   client_auth_codes,
   logger,
   BOT_AUTH_TOKEN,
@@ -14,9 +13,9 @@ import {
   updateLastID,
   // cronJob
 } from './helpers/constants';
+import APIService from './services/api-service'
+import BroadcastService from './services/broadcast-service';
 import strings from './strings'
-
-
 
 // set upload destination for attachments sent to broadcast with multer 
 const startServer = () => {
@@ -111,172 +110,36 @@ const startServer = () => {
     }
   });
 
-  const sendBroadcast = (broadcast, wickrUser) => {
-    try {
-      var jsonDateTime = new Date().toJSON();
-      var bMessage;
-      var reply
-      var messageID = updateLastID();
-      var messageId = "" + messageID
-
-      console.log({ messageId })
-      let { file, repeat, message, security_group } = broadcast
-
-      // send to securtiy groups, with and without files, and repeats
-      if (security_group != false && file && repeat) {
-        if (security_group.length === 0) return "Security Group length invalid."
-        broadcast.count = 0
-        // console.log(repeat)
-        // validate cronjob interval
-        job = new CronJob(repeat, function () {
-          logger.debug("CronJob", repeat);
-
-          WickrIOAPI.cmdAddMessageID(messageId, wickrUser, security_group.toString(), jsonDateTime, message);
-          bMessage = WickrIOAPI.cmdSendSecurityGroupAttachment(security_group, "../integration/wickrio-broadcast-bot/".concat(file.path), file.originalname, "", "", messageID, 'sentby ' + wickrUser);
-          logger.debug(bMessage);
-
-          bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
-          logger.debug(bMessage);
-
-          reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
-          console.log(reply)
-
-          // Will this stay the same or could user be reset?? I believe only can send one repeat message
-          broadcast.count += 1;
-          if (broadcast.count > repeat) {
-            broadcast.cronJobActive = false;
-            return job.stop();
-          }
-        });
-        job.start();
-      } else if (security_group != false && !file && repeat) {
-        if (security_group.length === 0) return "Security Group length invalid."
-        broadcast.count = 0
-        // console.log(repeat)
-        // validate cronjob interval
-        job = new CronJob(repeat, function () {
-          logger.debug("CronJob", repeat);
-          WickrIOAPI.cmdAddMessageID(messageId, wickrUser, security_group.toString(), jsonDateTime, message);
-
-          bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
-          logger.debug(bMessage);
-
-          reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
-          console.log(reply)
-
-          // Will this stay the same or could user be reset?? I believe only can send one repeat message
-          broadcast.count += 1;
-          if (broadcast.count > repeat) {
-            broadcast.cronJobActive = false;
-            return job.stop();
-          }
-        });
-        job.start();
-      } else if (security_group != false && !file && !repeat) {
-        if (security_group.length === 0) return "Security Group length invalid."
-        broadcast.count = 0
-
-        const msg = WickrIOAPI.cmdAddMessageID(messageId, wickrUser, security_group.toString(), jsonDateTime, message);
-        console.log({ msg })
-        bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
-        logger.debug(bMessage);
-
-        reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
-        console.log(reply)
-
-      } else if (security_group != false && file && !repeat) {
-        if (security_group.length === 0) return "Security Group length invalid."
-        broadcast.count = 0
-
-        WickrIOAPI.cmdAddMessageID(messageId, wickrUser, security_group.toString(), jsonDateTime, message);
-
-        bMessage = WickrIOAPI.cmdSendSecurityGroupAttachment(security_group, "../integration/wickrio-broadcast-bot/".concat(file.path), file.originalname, "", "", messageID, 'sentby ' + wickrUser);
-        logger.debug(bMessage);
-
-        bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(message, security_group, "", "", messageID);
-        logger.debug(bMessage);
-        reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
-        console.log(reply)
-      } else if (security_group === false && file && repeat) {
-        job = new CronJob(repeat, function () {
-          logger.debug("CronJob", repeat)
-          bMessage = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, message);
-          logger.debug(bMessage)
-
-          bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
-          logger.debug(bMessage);
-
-          reply = strings["repeatMessageSent"].replace("%{count}", (broadcast.count + 1));
-
-          //Will this stay the same or could user be reset?? I believe only can send one repeat message
-          broadcast.count += 1;
-          if (broadcast.count > repeat) {
-            broadcast.cronJobActive = false;
-            return job.stop();
-          }
-        });
-        job.start();
-      } else if (security_group === false && !file & repeat) {
-        job = new CronJob(repeat, function () {
-          logger.debug("CronJob", repeat);
-          bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
-          logger.debug(bMessage);
-          reply = strings["repeatMessageSent"].replace("%{count}", (user.count + 1));
-
-          //Will this stay the same or could user be reset?? I believe only can send one repeat message
-          user.count += 1;
-          if (user.count > user.repeat) {
-            user.cronJobActive = false;
-            return job.stop();
-          }
-        });
-        job.start();
-      } else if (security_group === false && !file & !repeat) {
-        bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
-
-        console.log('sending to entire network!');
-        console.log({ bMessage });
-      } else if (security_group === false && file & !repeat) {
-        logger.debug("This is sentby" + wickrUser);
-        var bMessage = WickrIOAPI.cmdSendNetworkAttachment(`../integration/wickrio-broadcast-bot/${file.path}`, file.originalname, "", "", messageID, message);
-        logger.debug("this is sent" + bMessage)
-        bMessage = WickrIOAPI.cmdSendNetworkMessage(message, "", "", messageID);
-        logger.debug("this is sent" + bMessage)
-        reply = strings["fileSent"];
-      }
-      // return sent broadcast
-      console.log(bMessage);
-      return bMessage
-    } catch (err) {
-      console.log(err);
-      return (err.toString())
-    }
-  }
-
   app.post(endpoint + "/Broadcast", [checkAuth, upload.single('attachment')], (req, res) => {
     // typecheck and validate parameters
     let { message, acknowledge, security_group, repeat_num, freq_num } = req.body
 
+    const newBroadcast = new BroadcastService()
+
     // validate arguments, append message.
     if (!message) return res.send("Broadcast message missing from request.");
 
-    let broadcast = {}
-    broadcast.file = req.file || false
-    broadcast.repeat_num = repeat_num || false
-    broadcast.freq_num = freq_num || false
+    // let broadcast = {}
+    // set user email without plus
+    newBroadcast.setUserEmail(req.user.email)
+    newBroadcast.setFile(req.file)
+    // set repeats and durations
+
+
     acknowledge === true || acknowledge == 'true' ?
-      broadcast.message = message + `\n Broadcast sent by: ${req.user.email} \n Please acknowledge you received this message by repling with /ack` :
-      broadcast.message = message + `\n Broadcast sent by: ${req.user.email}`
+      newBroadcast.setMessage(message + `\n Broadcast sent by: ${req.user.email} \n Please acknowledge you received this message by repling with /ack`) :
+      newBroadcast.setMessage(message + `\n Broadcast sent by: ${req.user.email}`)
 
     if (security_group.includes(',')) {
       security_group = security_group.split(',')
+      console.log({ security_group })
+      newBroadcast.setSecurityGroups(security_group)
     }
-    broadcast.security_group = security_group
 
-    if (security_group == 'false') broadcast.security_group = false
-    else if (typeof security_group === "string") broadcast.security_group = [security_group]
+    // if (security_group == 'false') broadcast.security_group = false
+    // else if (typeof security_group === "string") broadcast.security_group = [security_group]
 
-    let response = sendBroadcast(broadcast, req.user.email)
+    let response = newBroadcast.broadcastMessage()
 
     // todo: send status on error
     res.send(response)
@@ -286,7 +149,7 @@ const startServer = () => {
     try {
       // how does cmdGetSecurityGroups know what user to get security groups for?
       // could we get securityg groups for a targeted user?
-      var response = JSON.parse(WickrIOAPI.cmdGetSecurityGroups())
+      var response = JSON.parse(APIService.cmdGetSecurityGroups())
       res.json(response);
     } catch (err) {
       console.log(err);
@@ -301,13 +164,13 @@ const startServer = () => {
     // if user hasn't sent a message in the last 1000 messages, it will show zero messages unless we search a larger index
     // too many calls, wickrio api should support a single status call for x records including sender and message content
 
-    var tableDataRaw = WickrIOAPI.cmdGetMessageIDTable("0", "1000");
+    var tableDataRaw = APIService.cmdGetMessageIDTable("0", "1000");
 
     var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
       return entry.sender == req.user.email
     });
     messageIdEntries.map(entry => {
-      let contentData = WickrIOAPI.cmdGetMessageIDEntry(entry.message_id);
+      let contentData = APIService.cmdGetMessageIDEntry(entry.message_id);
       entry.message = JSON.parse(contentData).message;
     })
     // 
@@ -329,7 +192,7 @@ const startServer = () => {
   app.get(endpoint + "/Status/:messageID", checkAuth, (req, res) => {
     // validate message id
     // need to dynamically get last x users
-    var statusData = WickrIOAPI.cmdGetMessageStatus(req.params.messageID, "full", "0", "1000");
+    var statusData = APIService.cmdGetMessageStatus(req.params.messageID, "full", "0", "1000");
     var reply = statusData;
     return res.send(reply);
   });
@@ -369,7 +232,7 @@ const startServer = () => {
 
     var reportEntries = [];
 
-    var statusData = WickrIOAPI.cmdGetMessageStatus(req.params.messageID, "full", req.params.page, req.params.size);
+    var statusData = APIService.cmdGetMessageStatus(req.params.messageID, "full", req.params.page, req.params.size);
     var messageStatus = JSON.parse(statusData);
     for (let entry of messageStatus) {
       var statusMessageString = "";

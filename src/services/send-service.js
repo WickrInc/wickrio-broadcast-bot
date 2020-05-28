@@ -1,11 +1,10 @@
-import WickrIOAPI from 'wickrio_addon';
 import { existsSync, mkdirSync } from 'fs';
-import { error, debug } from '../logger';
 import FileHandler from '../helpers/file-handler';
 import WriteMessageIDDB from '../helpers/write-message-id-db';
 import APIService from './api-service';
 // TODO proper form??
 import updateLastID from '../helpers/message-id-helper';
+import { logger } from '../helpers/constants';
 
 const fileHandler = new FileHandler();
 const writeMessageIdDb = new WriteMessageIDDB();
@@ -33,13 +32,13 @@ class SendService {
       return this.fileArr;
     } catch (err) {
       // TODO fix this!!! gracefully >:)
-      error(err);
+      logger.error(err);
       return null;
     }
   }
 
   getFileArr() {
-    return this.fileArr;
+    return this.getFiles();
   }
 
   setFile(file) {
@@ -63,7 +62,7 @@ class SendService {
   }
 
   sendToFile(fileName) {
-    debug('Broadcasting to a file');
+    logger.debug('Broadcasting to a file');
     const currentDate = new Date();
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
     const jsonDateTime = currentDate.toJSON();
@@ -87,11 +86,11 @@ class SendService {
       writeMessageIdDb.writeMessageIDDB(messageID, this.userEmail, filePath, jsonDateTime, this.message);
     } else {
       // TODO fix this is it necessary?
-      debug(`message: ${this.message}`);
-      debug(`messageLength: ${this.message.length}`);
+      logger.debug(`message: ${this.message}`);
+      logger.debug(`messageLength: ${this.message.length}`);
       error('Unexpected error occured');
     }
-    debug(`Broadcast uMessage${uMessage}`);
+    logger.debug(`Broadcast uMessage${uMessage}`);
   }
 }
 

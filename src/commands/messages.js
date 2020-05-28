@@ -1,5 +1,8 @@
 const logger = require('../logger');
 const state = require('../state');
+import {
+  WickrIOAPI
+} from './helpers/constants';
 
 // TODO use this instead of putting it in main!
 class Messages {

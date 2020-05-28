@@ -1,6 +1,6 @@
 import { createObjectCsvWriter as createCsvWriter } from 'csv-writer';
-import { debug } from '../logger';
 import APIService from './api-service';
+import { logger } from '../helpers/constants';
 
 class ReportService {
   static getReport(messageID, vGroupID) {
@@ -107,7 +107,7 @@ class ReportService {
     });
     csvWriter.writeRecords(csvArray)
       .then(() => {
-        debug('...Done');
+        logger.debug('...Done');
       });
   }
 }

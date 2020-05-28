@@ -1,5 +1,5 @@
-const state = require('../state');
-const logger = require('../logger');
+import { NONE } from '../state';
+import { logger } from '../helpers/constants';
 
 class Help {
   static shouldExecute(messageService) {
@@ -30,10 +30,10 @@ class Help {
       + '/files : To get a list of saved files available for the /send command';
     return {
       reply,
-      state: state.NONE,
+      state: NONE,
     };
   }
 }
 
 
-module.exports = Help;
+export default Help;

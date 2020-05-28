@@ -1,6 +1,5 @@
 import { schedule } from 'node-cron';
 
-import { debug } from '../logger';
 import APIService from './api-service';
 
 class StatusService {
@@ -40,10 +39,10 @@ class StatusService {
   }
 
   static asyncStatus(messageID, vGroupID) {
-    debug('Enter asyncStatus ');
+    logger.debug('Enter asyncStatus ');
     const timeString = '*/30 * * * * *';
     const cronJob = schedule(timeString, () => {
-      debug('Running cronjob');
+      logger.debug('Running cronjob');
       const statusObj = StatusService.getStatus(messageID, true);
       APIService.sendRoomMessage(vGroupID, statusObj.statusString);
       if (statusObj.complete) {

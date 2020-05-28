@@ -1,8 +1,7 @@
 // TODO what's the correct format here?
-import { WickrIOBot } from 'wickrio-bot-api';
-
-const bot = new WickrIOBot();
-const WickrIOAPI = bot.getWickrIOAddon();
+import {
+  WickrIOAPI,
+} from '../helpers/constants';
 
 class APIService {
   static getSecurityGroups() {

@@ -1,6 +1,6 @@
 import { schedule } from 'node-cron';
-import { debug } from '../logger';
-import APIService from './api-service';
+import APIService from './api-service'; logger
+import { logger } from '../helpers/constants';
 
 class RepeatService {
   constructor(broadcastService) {
@@ -33,22 +33,22 @@ class RepeatService {
   }
 
   repeatMessage() {
-    debug('Enter repeatMessage');
+    logger.debug('Enter repeatMessage');
     this.broadcastService.broadcastMessage();
     this.count = 1;
     const timeString = `*/${this.frequency} * * * *`;
     const cronJob = schedule(timeString, () => {
-      debug('Running repeat cronjob');
+      logger.debug('Running repeat cronjob');
       const reply = `Broadcast message #${this.count + 1} in process of being sent...`;
-      debug(`reply:${reply}`);
-      debug(`vgroupid:${this.vGroupID}`);
-      debug(`count:${this.count}`);
-      debug(`repeats:${this.repeats}`);
+      logger.debug(`reply:${reply}`);
+      logger.debug(`vgroupid:${this.vGroupID}`);
+      logger.debug(`count:${this.count}`);
+      logger.debug(`repeats:${this.repeats}`);
       APIService.sendRoomMessage(this.vGroupID, reply);
       this.broadcastService.broadcastMessage();
       if (this.count === this.repeats) {
         this.activeRepeat = false;
-        debug('rock the cron job');
+        logger.debug('rock the cron job');
         return cronJob.stop();
       }
       this.count += 1;

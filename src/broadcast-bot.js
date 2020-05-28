@@ -6,7 +6,6 @@ import startServer from './server';
 import strings from './strings';
 import {
   bot,
-  WickrIOAPI,
   WickrUser,
   client_auth_codes,
   logger,
@@ -16,9 +15,10 @@ import {
   BOT_GOOGLE_MAPS,
   WICKRIO_BOT_NAME,
   VERIFY_USERS,
+  WickrIOAPI,
   cronJob,
 } from './helpers/constants';
-let currentState;
+
 // const pkgjson = require('./package.json');
 import writer from './helpers/message-writer.js'
 // import logger from './src/logger'
@@ -35,6 +35,8 @@ import StatusService from './services/status-service'
 import RepeatService from './services/repeat-service'
 import ReportService from './services/report-service'
 import GenericService from './services/generic-service'
+
+let currentState;
 let job;
 let verifyUsersMode
 
@@ -163,25 +165,16 @@ async function main() {
 
 async function listen(message) {
   try {
-    /*
-     * Parses an incoming message and returns and object with command,
-     * argument, vGroupID and Sender fields
-     */
-    // const last_id = JSON.parse(fs.readFileSync('last_id.json'))
     // TODO fix the parseMessage function so it can include control messages
     // TODO add a parseMessage that can get the important parts and leave out recipients
     // Parses an incoming message and returns an object with command, argument, vGroupID and Sender fields
-
-
-    var parsedMessage = bot.parseMessage(message);
-
+    const parsedMessage = bot.parseMessage(message);
     if (!parsedMessage) {
       await writer.writeFile(message);
       return;
     }
-    logger.debug('New incoming Message:', parsedMessage);
 
-    let wickrUser;
+    logger.debug('New incoming Message:', parsedMessage);
     const fullMessage = parsedMessage.message;
     let { command } = parsedMessage;
     if (command !== undefined) {
@@ -198,50 +191,52 @@ async function listen(message) {
     const convoType = parsedMessage.convotype;
     const messageType = parsedMessage.msgtype;
     const personalVGroupID = '';
-    logger.debug(`convoType=${convoType}`);
+    logger.debug(`convoType=${convoType}`)
+
+    let user = bot.getUser(userEmail); // Look up user by their wickr email
+    let wickrUser;
+
+    console.log({ userEmail, user })
+
+    if (user === undefined) { // Check if a user exists in the database
+      wickrUser = new WickrUser(userEmail, {
+        index: 0,
+        vGroupID,
+        personalVGroupID,
+        command: '',
+        argument: '',
+        confirm: '',
+        type: '',
+      });
+      user = bot.addUser(wickrUser); // Add a new user to the database
+    }
+    logger.debug('user:', user);
     // Go back to dev toolkit and fix
-
     // Send the location as an acknowledgement
-
     // TODO create a pre-admin factory method with all the commands that are pre-admin
 
-    // 
-
-    //       // Do not support interaction with Rooms or Groups 
-    if (convoType !== 'personal') {
-      var reply = strings["one-to-one"];
-      var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+    if (command === '/version') {
+      const obj = Version.execute();
+      const sMessage = APIService.sendRoomMessage(vGroupID, obj.reply);
+      return;
+    }
+    if (command === '/ack') {
+      const userEmailString = `${userEmail}`;
+      GenericService.setMessageStatus('', userEmailString, '3', '');
       return;
     }
 
-    // if (!isAdmin) {
-    //   var reply = strings["not-authorized"];
-    //   var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-    //   logger.debug(sMessage);
-    //   return;
-    // }
-
-
-    //       var user = bot.getUser(userEmail); //Look up user by their wickr email
-
-    //       if (user === undefined) { //Check if a user exists in the database
-    //         wickrUser = new WickrUser(userEmail, {
-    //           index: 0,
-    //           vGroupID: vGroupID,
-    //           personal_vGroupID: personal_vGroupID,
-    //           command: "",
-    //           argument: "",
-    //           confirm: "",
-    //           type: ""
-    //         });
-    //         user = bot.addUser(wickrUser); //Add a new user to the database
-    //       }
-    //       logger.debug('user:', user)
-
-    // =======
-    if (command === '/version') {
-      const obj = Version.execute();
-      const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
+    if (messageType === 'location') {
+      // acknowledges all messages sent to user
+      const userEmailString = `${userEmail}`;
+      const obj = {};
+      obj.location = {
+        latitude: parsedMessage.latitude,
+        longitude: parsedMessage.longitude,
+      };
+      const statusMessage = JSON.stringify(obj);
+      logger.debug(`location statusMessage=${statusMessage}`);
+      GenericService.setMessageStatus('', userEmailString, '3', statusMessage);
       return;
     }
     // TODO  put this in it's own command
@@ -265,32 +260,27 @@ async function listen(message) {
         + '/files : To get a list of saved files available for the /send command';
       const reply = bot.getAdminHelp(helpString);
       logger.debug(`vgroupID in help:${vGroupID}`);
-      // const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+      // const sMessage = APIService.cmdSendRoomMessage(vGroupID, reply);
       const sMessage = APIService.sendRoomMessage(vGroupID, reply);
       logger.debug(sMessage);
+      return
     }
 
+    // if (!parsedMessage.isAdmin) {
+    //   const reply = "Hey, this bot is just for announcements and can't respond to you personally. If you have a question, please get a hold of us a support@wickr.com or visit us a support.wickr.com. Thanks, Team Wickr";
+    //   const sMessage = APIService.cmdSendRoomMessage(vGroupID, reply);
+    //   logger.debug(sMessage);
+    //   writer.writeFile(message);
+    //   return;
+    // }
 
-    if (command === '/ack') {
-      const userEmailString = `${userEmail}`;
-      GenericService.setMessageStatus('', userEmailString, '3', '');
+    // TODO move this elsewhere?
+    if (command === '/messages') {
+      const path = `${process.cwd()}/attachments/messages.txt`;
+      const uMessage = APIService.sendRoomAttachment(vGroupID, path, path);
       return;
     }
 
-    if (messageType === 'location') {
-      // acknowledges all messages sent to user
-      const userEmailString = `${userEmail}`;
-      const obj = {};
-      obj.location = {
-        latitude: parsedMessage.latitude,
-        longitude: parsedMessage.longitude,
-      };
-      const statusMessage = JSON.stringify(obj);
-      logger.debug(`location statusMessage=${statusMessage}`);
-      GenericService.setMessageStatus('', userEmailString, '3', statusMessage);
-      // >>>>>>> master:broadcast-bot.js
-      return;
-    }
     if (command === '/map') {
       let last_id = get_LastID()
       // request last broadcast requested with location
@@ -299,11 +289,11 @@ async function listen(message) {
       // request last broadcast status with X number of user responses
       if (!argument) {
         reply = 'need /map <number to retrieve>'
-        uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+        uMessage = APIService.sendRoomMessage(vGroupID, reply);
         return;
       }
       // get message status with locations
-      const messageStatus = JSON.parse(WickrIOAPI.cmdGetMessageStatus(last_id.toString(), 'full', String(0), String(argument)))
+      const messageStatus = JSON.parse(APIService.getMessageStatus(last_id.toString(), 'full', String(0), String(argument)))
       // create a simple object to store data
       let locations = []
       locations[messageStatus.messageID] = {}
@@ -321,21 +311,31 @@ async function listen(message) {
         })
         locations[messageStatus.messageID] = link
         console.log({ link })
-        var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, link);
+        var sMessage = APIService.sendRoomMessage(vGroupID, link);
 
       } else {
         return messageStatus
       }
+      return
     }
 
     if (command === '/panel') {
       // Check if this user is an administrator
       var adminUser = bot.myAdmins.getAdmin(user.userEmail);
       // scope this conditional down further
-      if (adminUser === undefined) {
-        return res.statusCode(401).send('Access denied: ' + user.userEmail + ' is not authorized to broadcast!');
-      }
+      console.log({
+        user,
+        userEmail,
+        'user.userEmail': user.userEmail,
+        adminUser,
+        bot
+      })
 
+      if (adminUser === undefined) {
+        let reply = 'Access denied: ' + user.userEmail + ' is not authorized to broadcast!'
+        var sMessage = APIService.sendRoomMessage(vGroupID, reply);
+        return
+      }
       // generate a random auth code for the session
       // store it in a globally accessable store
 
@@ -351,9 +351,10 @@ async function listen(message) {
 
       // what will the deploy env be
       var reply = encodeURI(`localhost:4545/?token=${token}`)
-      var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+      var sMessage = APIService.sendRoomMessage(vGroupID, reply);
       user.confirm = '';
       logger.debug(sMessage);
+      return
     }
 
     if (command === '/status') {
@@ -365,7 +366,7 @@ async function listen(message) {
         var reply = "";
         if (messageIdEntries.length < 1) {
           reply = strings["noPrevious"];
-          var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+          var uMessage = APIService.sendRoomMessage(vGroupID, reply);
           return;
         }
         var length = Math.min(messageIdEntries.length, 5);
@@ -374,20 +375,21 @@ async function listen(message) {
         var messageList = [];
         var messageString = "";
         for (var i = 0; i < messageIdEntries.length; i++) {
-          contentData = WickrIOAPI.cmdGetMessageIDEntry(messageIdEntries[i].message_id);
+          contentData = APIService.getMessageIDEntry(messageIdEntries[i].message_id);
           var contentParsed = JSON.parse(contentData);
           messageList.push(contentParsed.message);
           messageString += '(' + index++ + ') ' + contentParsed.message + "\n";
         }
         reply = strings["whichMessage"].replace("%{length}", length).replace("%{messageList}", messageString);
         //var uMessage = replyWithButtons(vGroupID, reply, messageList);
-        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+        var uMessage = APIService.sendRoomMessage(vGroupID, reply);
         user.confirm = 'askMessageId';
         //TODO keep working on this!!
       } else if (isNaN(argument)) {
         var reply = strings["enterID"];
-        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+        var uMessage = APIService.sendRoomMessage(vGroupID, reply);
       }
+      return
       //fix later~
       //getStatus(argument, "summary");
     }
@@ -397,7 +399,7 @@ async function listen(message) {
       var reply = "";
       if (messageIdEntries.length < 1) {
         reply = strings["noPrevious"];
-        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+        var uMessage = APIService.sendRoomMessage(vGroupID, reply);
         return;
       }
       var length = Math.min(messageIdEntries.length, 5);
@@ -408,15 +410,16 @@ async function listen(message) {
       //for (var entry of messageIdEntries) {
       //TODO put this into the strings file
       for (var i = 0; i < messageIdEntries.length; i++) {
-        contentData = WickrIOAPI.cmdGetMessageIDEntry(messageIdEntries[i].message_id);
+        contentData = APIService.getMessageIDEntry(messageIdEntries[i].message_id);
         var contentParsed = JSON.parse(contentData);
         messageString += '(' + index++ + ')' + contentParsed.message + '\n';
         messageList.push(contentParsed.message);
       }
       reply = strings["whichReport"].replace("%{length}", length).replace("%{messageList}", messageString);
       //var uMessage = replyWithButtons(vGroupID, reply, messageList);
-      var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+      var uMessage = APIService.sendRoomMessage(vGroupID, reply);
       user.confirm = 'idForReport';
+      return
     }
 
     if (command === '/abort') {
@@ -428,7 +431,7 @@ async function listen(message) {
         var reply = "";
         if (messageIdEntries.length < 1) {
           reply = strings["noPrevious"];
-          var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+          var uMessage = APIService.sendRoomMessage(vGroupID, reply);
           return;
         }
         var length = Math.min(messageIdEntries.length, 5);
@@ -437,53 +440,22 @@ async function listen(message) {
         var messageList = [];
         var messageString = "";
         for (var i = 0; i < messageIdEntries.length; i++) {
-          contentData = WickrIOAPI.cmdGetMessageIDEntry(messageIdEntries[i].message_id);
+          contentData = APIService.getMessageIDEntry(messageIdEntries[i].message_id);
           var contentParsed = JSON.parse(contentData);
           messageList.push(contentParsed.message);
           messageString += '(' + index++ + ') ' + contentParsed.message + "\n";
         }
         reply = strings["whichMessage"].replace("%{length}", length).replace("%{messageList}", messageString);
         //var uMessage = replyWithButtons(vGroupID, reply, messageList);
-        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+        var uMessage = APIService.sendRoomMessage(vGroupID, reply);
         user.confirm = 'idForAbort';
         //TODO keep working on this!!
       } else if (isNaN(argument)) {
         var reply = strings["enterID"];
-        var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+        var uMessage = APIService.sendRoomMessage(vGroupID, reply);
       }
       return;
     }
-
-    if (!parsedMessage.isAdmin) {
-      const reply = "Hey, this bot is just for announcements and can't respond to you personally. If you have a question, please get a hold of us a support@wickr.com or visit us a support.wickr.com. Thanks, Team Wickr";
-      const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-      logger.debug(sMessage);
-      writer.writeFile(message);
-      return;
-    }
-
-    // TODO move this elsewhere?
-    if (command === '/messages') {
-      const path = `${process.cwd()}/attachments/messages.txt`;
-      const uMessage = WickrIOAPI.cmdSendRoomAttachment(vGroupID, path, path);
-      return;
-    }
-
-    let user = bot.getUser(userEmail); // Look up user by their wickr email
-
-    if (user === undefined) { // Check if a user exists in the database
-      wickrUser = new WickrUser(userEmail, {
-        index: 0,
-        vGroupID,
-        personalVGroupID,
-        command: '',
-        argument: '',
-        confirm: '',
-        type: '',
-      });
-      user = bot.addUser(wickrUser); // Add a new user to the database
-    }
-    logger.debug('user:', user);
 
     const messageService = new MessageService(messageReceived, userEmail, argument, command, currentState, vGroupID);
 
@@ -505,12 +477,12 @@ async function listen(message) {
         const obj = factory.execute(currentState, command, argument, parsedMessage.message, userEmail);
         if (obj.reply) {
           logger.debug('Object has a reply');
-          const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
+          const sMessage = APIService.sendRoomMessage(vGroupID, obj.reply);
         }
         currentState = obj.state;
       } else {
         const reply = 'Input not recognized please reply with (u)ser, (h)ash, or (s)end.';
-        const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+        const sMessage = APIService.sendRoomMessage(vGroupID, reply);
         currentState = State.FILE_TYPE;
       }
       if (fileAppend) {
@@ -519,10 +491,10 @@ async function listen(message) {
         logger.debug(`Here is cp:${cp}`);
         if (cp) {
           const reply = `File named: ${filename} successfully saved to directory.`;
-          const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+          const sMessage = APIService.sendRoomMessage(vGroupID, reply);
         } else {
           const reply = `Error: File named: ${filename} not saved to directory.`;
-          const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+          const sMessage = APIService.sendRoomMessage(vGroupID, reply);
         }
       }
     } else {
@@ -538,7 +510,7 @@ async function listen(message) {
       }
       if (obj.reply) {
         logger.debug('Object has a reply');
-        const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
+        const sMessage = APIService.sendRoomMessage(vGroupID, obj.reply);
       }
       currentState = obj.state;
     }
@@ -559,17 +531,17 @@ async function listen(message) {
 //   logger.debug("Security group flag is: " + securityGroupFlag);
 //   if (securityGroupFlag) {
 //     messageID = "" + messageID;
-//     bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(broadcastMsgToSend, securityGroupsToSend, "", "", messageID);
+//     bMessage = APIService.cmdSendSecurityGroupMessage(broadcastMsgToSend, securityGroupsToSend, "", "", messageID);
 //   } else {
 //     messageID = "" + messageID;
-//     bMessage = WickrIOAPI.cmdSendNetworkMessage(broadcastMsgToSend, "", "", messageID);
+//     bMessage = APIService.cmdSendNetworkMessage(broadcastMsgToSend, "", "", messageID);
 //   }
 //   logger.debug(bMessage)
 
 
 //   // send message
 //   var reply = strings["repeatMessageSent"].replace("%{count}", (user.count + 1));
-//   var uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+//   var uMessage = APIService.cmdSendRoomMessage(vGroupID, reply);
 //   user.count += 1;
 //   cronJob(job, cronInterval, user, broadcast, securityGroupFlag, askForAckFlag, securityGroupsToSend, userEmail, target);
 // }
@@ -578,7 +550,7 @@ function getMessageEntries(userEmail, max) {
   var messageIdEntries = []
   // need to dynamically get last x records, what if there are over 1000 messages
 
-  var tableDataRaw = WickrIOAPI.cmdGetMessageIDTable("0", "1000");
+  var tableDataRaw = APIService.getMessageIDTable("0", "1000");
   var tableData = JSON.parse(tableDataRaw);
   for (var i = tableData.length - 1; i >= 0; i--) {
     var entry = tableData[i];
@@ -599,7 +571,7 @@ function getMessageEntries(userEmail, max) {
 //   messageID = "" + messageID;
 //   var statusData;
 //   try {
-//     statusData = WickrIOAPI.cmdGetMessageStatus(messageID, type, "0", "1000");
+//     statusData = APIService.cmdGetMessageStatus(messageID, type, "0", "1000");
 //   } catch (err) {
 //     if (async) {
 //       var returnObj = {
@@ -634,13 +606,13 @@ function getMessageEntries(userEmail, max) {
 
 // function writeToMessageIdDB(messageId, sender, target, dateSent, messageContent) {
 //   logger.debug("inside~writeToMessageIdDB");
-//   WickrIOAPI.cmdAddMessageID(messageId, sender, target, dateSent, messageContent);
+//   APIService.cmdAddMessageID(messageId, sender, target, dateSent, messageContent);
 // }
 
 // function setMessageStatus(messageId, userId, status, statusMessage) {
-//   var reply = WickrIOAPI.cmdSetMessageStatus(messageId, userId, status, statusMessage);
+//   var reply = APIService.cmdSetMessageStatus(messageId, userId, status, statusMessage);
 //   // var userArray = [userId];
-//   // var uMessage = WickrIOAPI.cmdSend1to1Message(userArray, reply);
+//   // var uMessage = APIService.cmdSend1to1Message(userArray, reply);
 // }
 
 function get_LastID() {
@@ -669,7 +641,7 @@ function get_LastID() {
 //   var inc = 0;
 //   var csvArray = [];
 //   while (true) {
-//     var statusData = WickrIOAPI.cmdGetMessageStatus(messageId, "full", "" + inc, "1000");
+//     var statusData = APIService.cmdGetMessageStatus(messageId, "full", "" + inc, "1000");
 //     var messageStatus = JSON.parse(statusData);
 //     for (var entry of messageStatus) {
 //       var statusMessageString = "";

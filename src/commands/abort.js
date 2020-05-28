@@ -1,6 +1,6 @@
-import { debug } from '../logger';
 import { NONE, WHICH_ABORT } from '../state';
 import GenericService from '../services/generic-service';
+import { logger } from '../helpers/constants';
 
 class Abort {
   static shouldExecute(messageService) {
@@ -11,7 +11,7 @@ class Abort {
   }
 
   static execute(messageService) {
-    debug(`:${messageService.getArgument()}:`);
+    logger.debug(`:${messageService.getArgument()}:`);
     // check argument here!
     // args = argument.split(' ');
     let obj;
