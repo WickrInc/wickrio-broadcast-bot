@@ -53,19 +53,19 @@ process.stdin.resume(); //so the program will not close instantly
 
 const fileHandler = new FileHandler();
 // const whitelist = new WhitelistRepository(fs);
-// const broadcastService = new BroadcastService();
-// const repeatService = new RepeatService(broadcastService);
-// const sendService = new SendService();
-// const reportService = new ReportService();
-// const genericService = new GenericService()
-// const statusService = new StatusService(genericService);
+const broadcastService = new BroadcastService();
+const repeatService = new RepeatService(broadcastService);
+const sendService = new SendService();
+const reportService = new ReportService();
+const genericService = new GenericService()
+const statusService = new StatusService(genericService);
 
 
 const factory = new Factory(
-  BroadcastService,
-  SendService,
+  broadcastService,
+  sendService,
   StatusService,
-  RepeatService,
+  repeatService,
   ReportService,
   GenericService
 );
@@ -147,6 +147,8 @@ async function main() {
     WickrIOAPI.cmdSetControl('cleardb', 'true');
     WickrIOAPI.cmdSetControl('contactbackup', 'false');
     WickrIOAPI.cmdSetControl('convobackup', 'false');
+    WickrIOAPI.cmdSetControl('readreceipt', 'true');
+
     // Passes a callback function that will receive incoming messages into the bot client
     bot.startListening(listen);
 
