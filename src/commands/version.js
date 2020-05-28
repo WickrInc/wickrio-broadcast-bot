@@ -10,9 +10,13 @@ class Version {
   }
 
   static execute() {
-    const reply = `*Versions*\nIntegration: ${pkgjson.version
-      }\nWickrIO Addon: ${pkgjson.dependencies.wickrio_addon
-      }\nWickrIO API: ${pkgjson.dependencies['wickrio-bot-api']}`;
+    let json = require('../../node_modules/wickrio_addon/package.json');
+    const addonVersion = json.version;
+    json = require('../../node_modules/wickrio-bot-api/package.json');
+    const apiVersion = json.version;
+    const reply = `*Versions*\nIntegration: ${process.env.npm_package_version}\n`
+      + `WickrIO Addon: ${addonVersion}\n`
+      + `WickrIO API: ${apiVersion}`;
     return {
       reply,
       state: state.NONE,

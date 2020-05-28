@@ -14,6 +14,7 @@ class ReportService {
         const entry = messageStatus[i];
         const sentDateString = (entry.sent_datetime !== undefined) ? entry.sent_datetime : '';
         const readDateString = (entry.read_datetime !== undefined) ? entry.read_datetime : '';
+        const ackDateString = (entry.ack_datetime !== undefined) ? entry.ack_datetime : '';
         const reportEntry = ReportService.getReportEntry(entry);
         csvArray.push(
           {
@@ -22,6 +23,7 @@ class ReportService {
             statusMessage: reportEntry.statusMessageString,
             sentDate: sentDateString,
             readDate: readDateString,
+            ackDate: ackDateString,
           },
         );
       }
@@ -102,7 +104,8 @@ class ReportService {
         { id: 'status', title: 'STATUS' },
         { id: 'statusMessage', title: 'MESSAGE' },
         { id: 'sentDate', title: 'SENT' },
-        { id: 'readDate', title: 'READ' }
+        { id: 'readDate', title: 'READ' },
+        { id: 'ackDate', title: 'ACKed' },
       ],
     });
     csvWriter.writeRecords(csvArray)

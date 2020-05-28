@@ -60,20 +60,20 @@ class APIService {
     return WickrIOAPI.cmdSendRoomAttachment(vGroupID, attachment, display);
   }
 
-  static sendMessageUserHashFile(filePath, message, messageID) {
-    return WickrIOAPI.cmdSendMessageUserHashFile(filePath, message, '', '', messageID);
+  static sendMessageUserHashFile(filePath, message, ttl, bor, messageID) {
+    return WickrIOAPI.cmdSendMessageUserHashFile(filePath, message, ttl, bor, messageID);
   }
 
-  static sendMessageUserNameFile(filePath, message, messageID) {
-    return WickrIOAPI.cmdSendMessageUserNameFile(filePath, message, '', '', messageID);
+  static sendMessageUserNameFile(filePath, message, ttl, bor, messageID) {
+    return WickrIOAPI.cmdSendMessageUserNameFile(filePath, message, ttl, bor, messageID);
   }
 
-  static sendAttachmentUserHashFile(filePath, attachment, display, messageID) {
-    return WickrIOAPI.cmdSendAttachmentUserHashFile(filePath, attachment, display, '', '', messageID);
+  static sendAttachmentUserHashFile(filePath, attachment, display, ttl, bor, messageID) {
+    return WickrIOAPI.cmdSendAttachmentUserHashFile(filePath, attachment, display, ttl, bor, messageID);
   }
 
-  static sendAttachmentUserNameFile(filePath, attachment, display, messageID) {
-    return WickrIOAPI.cmdSendAttachmentUserNameFile(filePath, attachment, display, '', '', messageID);
+  static sendAttachmentUserNameFile(filePath, attachment, display, ttl, bor, messageID) {
+    return WickrIOAPI.cmdSendAttachmentUserNameFile(filePath, attachment, display, ttl, bor, messageID);
   }
 
   static setMessageStatus(messageID, userID, statusNumber, statusMessage) {

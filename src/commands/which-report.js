@@ -4,16 +4,22 @@ import { getMessageEntries } from '../services/generic-service';
 import ReportService from '../services/report-service';
 
 class WhichReport {
-  static shouldExecute(messageService) {
-    if (messageService.getCurrentState() === WHICH_REPORT) {
+  constructor(genericService, reportService) {
+    this.genericService = genericService;
+    this.reportService = reportService;
+    this.state = WHICH_REPORT;
+  }
+
+  shouldExecute(messageService) {
+    if (messageService.getCurrentState() === this.state) {
       return true;
     }
     return false;
   }
 
-  static execute(messageService) {
+  execute(messageService) {
     let reply;
-    const currentEntries = getMessageEntries(messageService.getUserEmail());
+    const currentEntries = this.genericService.getMessageEntries(messageService.getUserEmail());
     let obj;
     const index = messageService.getMessage();
     const length = Math.min(currentEntries.length, 5);
@@ -26,7 +32,7 @@ class WhichReport {
     } else {
       const messageID = `${currentEntries[parseInt(index, 10) - 1].message_id}`;
       // reply = .getReport(messageID, 'summary', false);
-      ReportService.getReport(messageID, messageService.getVGroupID());
+      this.reportService.getReport(messageID, messageService.getVGroupID());
       obj = {
         reply,
         state: NONE,

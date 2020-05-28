@@ -25,12 +25,26 @@ import RepeatFrequency from './commands/repeat-frequency';
 // TODO how can we use a new Broadcast service each time???
 class Factory {
   // TODO add send service
-  constructor(broadcastService, sendService, statusService, repeatService, reportService) {
+  constructor(
+    broadcastService,
+    sendService,
+    statusService,
+    repeatService,
+    reportService,
+    genericService,
+  ) {
     this.broadcastService = broadcastService;
     this.sendService = sendService;
     this.statusService = statusService;
     this.repeatService = repeatService;
     this.reportService = reportService;
+    this.genericService = genericService;
+    this.statusCommand = new Status(this.genericService);
+    this.whichStatus = new WhichStatus(this.genericService, this.statusService);
+    this.abort = new Abort(this.genericService);
+    this.whichAbort = new WhichAbort(this.genericService);
+    this.report = new Report(this.genericService);
+    this.whichReport = new WhichReport(this.genericService, this.reportService);
     this.initializeBroadcast = new InitializeBroadcast(this.broadcastService);
     this.chooseFile = new ChooseFile(this.sendService);
     this.fileReceived = new FileReceived(this.sendService);
@@ -44,16 +58,17 @@ class Factory {
     this.repeatFrequency = new RepeatFrequency(this.repeatService);
     this.initializeSend = new InitializeSend(this.sendService);
     this.chooseFile = new ChooseFile(this.sendService);
+
     this.commandList = [
       Help,
       Cancel,
       this.filesCommand,
       this.initializeSend,
       this.chooseFile,
-      Status,
-      WhichStatus,
-      Report,
-      WhichReport,
+      this.statusCommand,
+      this.whichStatus,
+      this.report,
+      this.whichReport,
       this.initializeBroadcast,
       this.askForAck,
       this.chooseSecurityGroups,
@@ -62,8 +77,8 @@ class Factory {
       this.timesRepeat,
       this.activeRepeat,
       this.repeatFrequency,
-      Abort,
-      WhichAbort,
+      this.abort,
+      this.whichAbort,
       Ack,
     ];
   }

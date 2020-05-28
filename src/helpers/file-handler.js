@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const util = require('util');
 const logger = require('../logger');
@@ -67,10 +66,3 @@ class FileHandler {
 }
 
 module.exports = FileHandler;
-
-function main() {
-  FileHandler.listFiles('./attachments');
-  FileHandler.checkFile('./attachments', 'messages.txt');
-}
-
-// main();

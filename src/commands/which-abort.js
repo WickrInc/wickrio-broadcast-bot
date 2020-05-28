@@ -3,16 +3,21 @@ import { WHICH_ABORT, NONE } from '../state';
 import GenericService from '../services/generic-service';
 
 class WhichAbort {
-  static shouldExecute(messageService) {
-    if (messageService.getCurrentState() === WHICH_ABORT) {
+  constructor(genericService) {
+    this.genericService = genericService;
+    this.state = WHICH_ABORT;
+  }
+
+  shouldExecute(messageService) {
+    if (messageService.getCurrentState() === this.state) {
       return true;
     }
     return false;
   }
 
-  static execute(messageService) {
+  execute(messageService) {
     let reply;
-    const currentEntries = GenericService.getMessageEntries(messageService.getUserEmail());
+    const currentEntries = this.genericService.getMessageEntries(messageService.getUserEmail());
     // TODO do we need an object here or can we just return inside the if/else?
     let obj;
     const index = messageService.getMessage();
@@ -25,7 +30,7 @@ class WhichAbort {
       };
     } else {
       const messageID = `${currentEntries[parseInt(index, 10) - 1].message_id}`;
-      reply = GenericService.cancelMessageID(messageID);
+      reply = this.genericService.cancelMessageID(messageID);
       obj = {
         reply,
         state: NONE,
