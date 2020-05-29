@@ -8,7 +8,7 @@ fi
 
 mkdir -p temp
 
-cp -r configure.js configure.sh install.sh package.json processes.json README.md restart.sh start.sh stop.sh upgrade.sh wickrio-bot-web temp
+cp -r configure.js configure.sh install.sh package.json processes.json README.md restart.sh start.sh stop.sh upgrade.sh wickrio-bot-web temp src
 
 cd temp
 tar czf $1/software.tar.gz *
