@@ -117,7 +117,7 @@ async function main() {
       type: 'string',
       description: 'Please create a google map API key',
       message: 'Cannot leave empty! Please enter a value',
-      required: true,
+      required: false,
       default: 'N/A',
     }
   ];
