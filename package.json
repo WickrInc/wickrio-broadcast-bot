@@ -1,27 +1,46 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "5.56.1",
+  "version": "5.56.2",
   "description": "WickrIO Broadcast Bot",
-  "main": "broadcast-bot.js",
+  "main": "build/broadcast-bot.js",
   "author": "Paul Cushman (pcushman@wickr.com)",
   "license": "ISC",
   "dependencies": {
-    "fs": "0.0.2",
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
     "body-parser": "^1.19.0",
-    "express": "^4.17.1",
-    "helmet": "^3.20.0",
     "cron": "^1.7.1",
     "csv-writer": "^1.5.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "fs": "0.0.2",
+    "helmet": "^3.20.0",
+    "jsonwebtoken": "^8.5.1",
     "log4js": "^5.2.1",
+    "multer": "^1.4.2",
+    "pm2": "^4.4.0",
     "node-cron": "^2.0.3",
     "pino": "^5.15.0",
-    "pm2": "^3.5.1",
     "prompt": "^1.0.0",
-    "dotenv": "^8.2.0",
     "wickrio-bot-api": "5.56.x"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/node": "^7.8.7",
+    "@babel/plugin-transform-runtime": "^7.9.6",
+    "@babel/runtime": "^7.9.6",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "pino-pretty": "^3.5.0",
+    "prettier": "^1.19.1"
   },
   "scripts": {
     "start": "pm2 start processes.json --update-env",
+    "dev": "pm2 start devprocesses.json --update-env",
+    "transpile": "babel ./src --out-dir ./build",
     "stop": "pm2 delete processes.json"
   },
   "repository": {
@@ -39,14 +58,6 @@
     "api"
   ],
   "database": true,
-  "devDependencies": {
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb-base": "^14.1.0",
-    "eslint-plugin-import": "^2.19.1",
-    "eslint-plugin-prettier": "^3.1.2",
-    "pino-pretty": "^3.5.0",
-    "prettier": "^1.19.1"
-  },
   "com_wickr": {
     "supports": [
       "cloud",

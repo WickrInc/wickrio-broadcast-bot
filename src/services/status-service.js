@@ -1,11 +1,10 @@
-const cron = require('node-cron');
-
-const logger = require('../logger');
-const APIService = require('./api-service');
+import { schedule } from 'node-cron';
+import APIService from './api-service';
+import { logger } from '../helpers/constants';
 
 class StatusService {
   static getStatus(messageID, asyncStatus) {
-  // TODO Here we need which Message??
+    // TODO Here we need which Message??
     let statusData;
     try {
       statusData = APIService.getMessageStatus(messageID, 'summary', '0', '1000');
@@ -20,13 +19,13 @@ class StatusService {
     }
     const messageStatus = JSON.parse(statusData);
     let statusString = '*Message Status:*\n'
-                   + `Total Users: ${messageStatus.num2send}\n`
-                   + `Messages Sent: ${messageStatus.sent}\n`
-                   + `Messages pending to Users: ${messageStatus.pending}\n`
-                   + `Messages failed to send: ${messageStatus.failed}\n`
-                   + `Messages aborted: ${messageStatus.aborted}\n`
-                   + `Messages acknowledged: ${messageStatus.acked}\n`
-                   + `Messages read: ${messageStatus.read}\n`;
+      + `Total Users: ${messageStatus.num2send}\n`
+      + `Messages Sent: ${messageStatus.sent}\n`
+      + `Messages pending to Users: ${messageStatus.pending}\n`
+      + `Messages failed to send: ${messageStatus.failed}\n`
+      + `Messages aborted: ${messageStatus.aborted}\n`
+      + `Messages acknowledged: ${messageStatus.acked}\n`
+      + `Messages read: ${messageStatus.read}\n`;
     if (messageStatus.ignored !== undefined) {
       statusString = `${statusString}Messages Ignored: ${messageStatus.ignored}`;
     }
@@ -43,7 +42,7 @@ class StatusService {
   static asyncStatus(messageID, vGroupID) {
     logger.debug('Enter asyncStatus ');
     const timeString = '*/30 * * * * *';
-    const cronJob = cron.schedule(timeString, () => {
+    const cronJob = schedule(timeString, () => {
       logger.debug('Running cronjob');
       const statusObj = StatusService.getStatus(messageID, true);
       APIService.sendRoomMessage(vGroupID, statusObj.statusString);
@@ -56,4 +55,4 @@ class StatusService {
   }
 }
 
-module.exports = StatusService;
+export default StatusService;

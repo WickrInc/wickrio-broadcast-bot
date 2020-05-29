@@ -1,5 +1,5 @@
-const logger = require('../logger');
-const state = require('../state');
+import State from '../state';
+import { logger } from '../helpers/constants';
 
 // TODO add a delete file command??
 // TODO add the ability to preview the contents of the file/ length of file??
@@ -27,10 +27,10 @@ class FileCommand {
     }
     const obj = {
       reply,
-      state: state.NONE,
+      state: State.NONE,
     };
     return obj;
   }
 }
 
-module.exports = FileCommand;
+export default FileCommand;

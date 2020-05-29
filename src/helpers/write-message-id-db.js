@@ -1,13 +1,15 @@
-
-const WickrIOAPI = require('wickrio_addon');
-const logger = require('../logger');
+import {
+  // WickrIOAPI,
+  logger
+} from './constants';
+import APIService from '../services/api-service';
 
 class WriteMessageIDDB {
 
   writeMessageIDDB(messageId, sender, target, dateSent, messageContent) {
     logger.debug("inside writeToMessageIdDB");
     // TODO should this return something?
-    WickrIOAPI.cmdAddMessageID(messageId, sender, target, dateSent, messageContent);
+    APIService.cmdAddMessageID(messageId, sender, target, dateSent, messageContent);
   }
 
 }

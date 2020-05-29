@@ -1,5 +1,7 @@
-const logger = require('../logger');
-const State = require('../state');
+import logger from '../logger';
+import State from '../state';
+import { getMessageEntries } from '../services/generic-service';
+import ReportService from '../services/report-service';
 
 class WhichReport {
   constructor(genericService, reportService) {
@@ -40,4 +42,4 @@ class WhichReport {
   }
 }
 
-module.exports = WhichReport;
+export default WhichReport;

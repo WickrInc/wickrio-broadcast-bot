@@ -1,5 +1,6 @@
-const logger = require('../logger');
-const State = require('../state');
+import logger from '../logger';
+import State from '../state';
+import GenericService from '../services/generic-service';
 
 class WhichAbort {
   constructor(genericService) {
@@ -39,4 +40,4 @@ class WhichAbort {
   }
 }
 
-module.exports = WhichAbort;
+export default WhichAbort;

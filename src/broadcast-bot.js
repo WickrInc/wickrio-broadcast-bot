@@ -1,36 +1,65 @@
-const fs = require('fs');
-// const {exec, execSync, execFileSync} = require('child_process');
-const WickrIOAPI = require('wickrio_addon');
-const WickrIOBotAPI = require('wickrio-bot-api');
 
-const { WickrUser } = WickrIOBotAPI;
-const bot = new WickrIOBotAPI.WickrIOBot();
+import fs from 'fs';
+import { createObjectCsvWriter as createCsvWriter } from 'csv-writer';
+import jwt from "jsonwebtoken"
+import startServer from './server';
+import strings from './strings';
+import {
+  bot,
+  WickrUser,
+  client_auth_codes,
+  logger,
+  BOT_AUTH_TOKEN,
+  BOT_KEY,
+  BOT_PORT,
+  BOT_GOOGLE_MAPS,
+  WICKRIO_BOT_NAME,
+  VERIFY_USERS,
+  WickrIOAPI,
+  getLastID,
+  cronJob,
+} from './helpers/constants';
+
 // const pkgjson = require('./package.json');
-const writer = require('./src/helpers/message-writer.js');
-const logger = require('./src/logger');
+import writer from './helpers/message-writer.js'
+// import logger from './src/logger'
 // const WhitelistRepository = require('./src/helpers/whitelist');
-const Version = require('./src/commands/version');
-
-const FileHandler = require('./src/helpers/file-handler');
-const Factory = require('./src/factory');
-const State = require('./src/state');
-
-const APIService = require('./src/services/api-service');
-const BroadcastService = require('./src/services/broadcast-service');
-const MessageService = require('./src/services/message-service');
-const SendService = require('./src/services/send-service');
-const StatusService = require('./src/services/status-service');
-const RepeatService = require('./src/services/repeat-service');
-const ReportService = require('./src/services/report-service');
-const GenericService = require('./src/services/generic-service');
+import Version from './commands/version'
+import FileHandler from './helpers/file-handler'
+import Factory from './factory'
+import State from './state'
+import APIService from './services/api-service'
+import BroadcastService from './services/broadcast-service'
+import MessageService from './services/message-service'
+import SendService from './services/send-service'
+import StatusService from './services/status-service'
+import RepeatService from './services/repeat-service'
+import ReportService from './services/report-service'
+import GenericService from './services/generic-service'
 
 let currentState;
+let job;
+let verifyUsersMode
+
+// need to be able to debug and lint for syntax errors
+//
+// Web interface definitions
+// 
+process.stdin.resume(); //so the program will not close instantly
+
+// const {exec, execSync, execFileSync} = require('child_process');
+
+
 
 const fileHandler = new FileHandler();
 // const whitelist = new WhitelistRepository(fs);
 const broadcastService = new BroadcastService();
 const repeatService = new RepeatService(broadcastService);
 const sendService = new SendService();
+const reportService = new ReportService();
+const genericService = new GenericService()
+const statusService = new StatusService(genericService);
+
 
 const factory = new Factory(
   broadcastService,
@@ -38,13 +67,11 @@ const factory = new Factory(
   StatusService,
   repeatService,
   ReportService,
-  GenericService,
+  GenericService
 );
 
 let file;
 let filename;
-
-let verifyUsersMode;
 
 process.stdin.resume(); // so the program will not close instantly
 if (!fs.existsSync(`${process.cwd()}/attachments`)) {
@@ -68,22 +95,36 @@ async function exitHandler(options, err) {
   }
 }
 
-// catches ctrl+c and stop.sh events
+//catches ctrl+c and stop.sh events
 process.on('SIGINT', exitHandler.bind(null, { exit: true }));
 
 // catches "kill pid" (for example: nodemon restart)
 process.on('SIGUSR1', exitHandler.bind(null, { pid: true }));
 process.on('SIGUSR2', exitHandler.bind(null, { pid: true }));
 
+//TODO clear these values!
+//TODO make these user variables??
+var securityGroupFlag = false;
+var securityGroupsToSend = [];
+var securityGroups = [];
+var repeatFlag = false;
+var voiceMemoFlag = false;;
+var fileFlag = false;
+var cronInterval;
+var displayName;
+var askForAckFlag = false;
+var messagesForReport = []; // unused
 // catches uncaught exceptions
 // TODO make this more robust of a catch
 process.on('uncaughtException', exitHandler.bind(null, { exit: true }));
 
+
+
 async function main() {
   console.log('Entering main!');
   try {
-    const tokens = JSON.parse(process.env.tokens);
-    const status = await bot.start(tokens.WICKRIO_BOT_NAME.value);
+    var status = await bot.start(WICKRIO_BOT_NAME.value)
+
     if (!status) {
       exitHandler(null, {
         exit: true,
@@ -95,11 +136,12 @@ async function main() {
     bot.setAdminOnly(false);
 
     // set the verification mode to true
-    if (tokens.VERIFY_USERS.encrypted) {
-      verifyUsersMode = WickrIOAPI.cmdDecryptString(tokens.VERIFY_USERS.value);
+    if (VERIFY_USERS.encrypted) {
+      verifyUsersMode = WickrIOAPI.cmdDecryptString(VERIFY_USERS.value);
     } else {
-      verifyUsersMode = tokens.VERIFY_USERS.value;
+      verifyUsersMode = VERIFY_USERS.value;
     }
+
     bot.setVerificationMode(verifyUsersMode);
 
     WickrIOAPI.cmdSetControl('cleardb', 'true');
@@ -109,6 +151,20 @@ async function main() {
 
     // Passes a callback function that will receive incoming messages into the bot client
     bot.startListening(listen);
+
+
+    if (
+      BOT_AUTH_TOKEN.value,
+      BOT_KEY.value,
+      BOT_PORT.value
+    ) {
+      // run server
+      startServer()
+
+    } else {
+      console.log('If you wanted a web interface, the env variables not set properly. Check BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT')
+
+    }
     // await bot.startListening(listen); //Passes a callback function that will receive incoming messages into the bot client
   } catch (err) {
     console.log(err);
@@ -125,6 +181,7 @@ async function listen(message) {
       await writer.writeFile(message);
       return;
     }
+
     logger.debug('New incoming Message:', parsedMessage);
     let wickrUser;
     const fullMessage = parsedMessage.message;
@@ -238,12 +295,105 @@ async function listen(message) {
       });
       user = bot.addUser(wickrUser); // Add a new user to the database
     }
+
     logger.debug('user:', user);
+
+
+    if (command === '/map') {
+      let last_id = getLastID()
+      let locatedusers = false
+      // request last broadcast requested with location
+      // or 
+
+      // request last broadcast status with X number of user responses
+      if (!argument) {
+        reply = 'need /map <number to retrieve>'
+        return APIService.sendRoomMessage(vGroupID, reply);
+      }
+      // get message status with locations
+      const messageStatus = JSON.parse(APIService.getMessageStatus(last_id.toString(), 'full', String(0), String(argument)))
+      // create a simple object to store data
+      console.log({ messageStatus })
+      let locations = []
+      locations[messageStatus.messageID] = {}
+      let link = `https://maps.googleapis.com/maps/api/staticmap?key=${BOT_GOOGLE_MAPS.value}&size=700x400&markers=color:blue`
+      if (messageStatus.length > 0) {
+        // only get status' with location acked
+        // display map of all users who have acknowledged with location
+        messageStatus.map(user => {
+          if (user?.statusMessage?.location) {
+            console.log("located a user")
+            locatedusers = true
+            let { latitude, longitude } = user?.status_message?.location
+            locations[messageStatus.messageID][user.user] = {}
+            locations[messageStatus.messageID][user.user].location = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
+            locations[messageStatus.messageID][user.user].latitude = latitude
+            locations[messageStatus.messageID][user.user].longitude = longitude
+            link += `|label:${user.user}|${latitude},${longitude}`
+          }
+        })
+        locations[messageStatus.messageID] = link
+        // console.log({ link })
+        if (locatedusers) {
+          var sMessage = APIService.sendRoomMessage(vGroupID, link);
+        } else {
+          var sMessage = APIService.sendRoomMessage(vGroupID, "no location for the replied users");
+
+        }
+
+      } else {
+        if (statusMessage.location) {
+          locatedusers = true
+          let { latitude, longitude } = user?.status_message?.location
+          locations[messageStatus.messageID][user.user] = {}
+          locations[messageStatus.messageID][user.user].location = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
+          locations[messageStatus.messageID][user.user].latitude = latitude
+          locations[messageStatus.messageID][user.user].longitude = longitude
+          link += `|label:${user.user}|${latitude},${longitude}`
+          return messageStatus
+        } else {
+          return "no location for the replied user"
+        }
+      }
+      return
+    }
+
+    if (command === '/panel') {
+      // Check if this user is an administrator
+      var adminUser = bot.myAdmins.getAdmin(userEmail);
+      // scope this conditional down further
+
+      if (adminUser === undefined) {
+        let reply = 'Access denied: ' + userEmail + ' is not authorized to broadcast!'
+        var sMessage = APIService.sendRoomMessage(vGroupID, reply);
+        return
+      }
+      // generate a random auth code for the session
+      // store it in a globally accessable store
+
+      var random = generateRandomString(24);
+      client_auth_codes[userEmail] = random;
+      // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
+      // send token in url, used for calls to receive data, send messages
+      const token = jwt.sign({
+        'email': userEmail,
+        'session': random,
+      }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
+
+      // what will the deploy env be
+      var reply = encodeURI(`localhost:4545/?token=${token}`)
+      var sMessage = APIService.sendRoomMessage(vGroupID, reply);
+      logger.debug(sMessage);
+      return
+    }
+    ({ currentState })
 
     const messageService = new MessageService(messageReceived, userEmail, argument, command, currentState, vGroupID);
 
     // TODO is this JSON.stringify necessary??
     // How to deal with duplicate files??
+    console.log({ currentState, 'filetype': State.FILE_TYPE })
+
     if (currentState === State.FILE_TYPE) {
       currentState = State.NONE;
       const type = parsedMessage.message.toLowerCase();
@@ -282,6 +432,7 @@ async function listen(message) {
       }
     } else {
       // TODO parse argument better??
+      console.log({ parsedMessage })
       let obj;
       if (parsedMessage.file) {
         obj = factory.file(parsedMessage.file, parsedMessage.filename);
@@ -303,5 +454,15 @@ async function listen(message) {
   }
 }
 
+function generateRandomString(length) {
+  var text = "";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-main();
+  for (var i = 0; i < length; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  return text;
+}
+
+
+
+main()

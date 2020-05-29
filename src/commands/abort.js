@@ -1,5 +1,6 @@
-const logger = require('../logger');
-const state = require('../state');
+import State from '../state';
+import GenericService from '../services/generic-service';
+import { logger } from '../helpers/constants';
 
 class Abort {
   constructor(genericService) {
@@ -26,7 +27,7 @@ class Abort {
       reply = 'There are no previous messages to display';
       return {
         reply,
-        state: state.NONE,
+        state: State.NONE,
       };
     }
     const length = Math.min(messageIdEntries.length, 5);
@@ -42,20 +43,13 @@ class Abort {
       index += 1;
     }
     reply = `Here are the past ${length} broadcast message(s):\n`
-        + `${messageString}`
-        + 'Which message would you like to abort?';
+      + `${messageString}`
+      + 'Which message would you like to abort?';
     return {
       reply,
-      state: state.WHICH_ABORT,
-    };
-    // TODO keep working on this!!
-    // }
-    // if (isNaN(
-    // else if (isNaN(argument)) {
-    //   const reply = strings.enterID;
-    //   const uMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-    // }
+      state: State.WHICH_ABORT,
+    }
   }
 }
 
-module.exports = Abort;
+export default Abort;

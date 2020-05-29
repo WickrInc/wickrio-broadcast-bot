@@ -7,7 +7,9 @@ const readdirAsync = util.promisify(fs.readdir);
 // const readdir = util.promisify(fs.readdir);
 
 class FileHandler {
+
   listFiles(path) {
+    console.log({ 'list files': fs.readdirSync(path) })
     return fs.readdirSync(path);
     // return readdir(path);
   }

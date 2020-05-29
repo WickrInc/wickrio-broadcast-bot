@@ -1,5 +1,4 @@
-const logger = require('../logger');
-const State = require('../state');
+import State from '../state';
 
 class ActiveRepeat {
   constructor(repeatService) {
@@ -36,4 +35,4 @@ class ActiveRepeat {
   }
 }
 
-module.exports = ActiveRepeat;
+export default ActiveRepeat;

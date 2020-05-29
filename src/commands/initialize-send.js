@@ -1,5 +1,6 @@
-const logger = require('../logger');
-const State = require('../state');
+import State from '../state';
+import { logger } from '../helpers/constants';
+
 
 class InitializeSend {
   constructor(sendService) {
@@ -42,4 +43,4 @@ class InitializeSend {
   }
 }
 
-module.exports = InitializeSend;
+export default InitializeSend;

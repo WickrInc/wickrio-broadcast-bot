@@ -1,18 +1,17 @@
-const WickrIOAPI = require('wickrio_addon');
-const fs = require('fs');
-const logger = require('../logger');
-const FileHandler = require('../helpers/file-handler');
-const WriteMessageIDDB = require('../helpers/write-message-id-db');
-const APIService = require('./api-service');
+import { existsSync, mkdirSync } from 'fs';
+import FileHandler from '../helpers/file-handler';
+import WriteMessageIDDB from '../helpers/write-message-id-db';
+import APIService from './api-service';
 // TODO proper form??
-const updateLastID = require('../helpers/message-id-helper');
+import updateLastID from '../helpers/message-id-helper';
+import { logger } from '../helpers/constants';
 
 const fileHandler = new FileHandler();
 const writeMessageIdDb = new WriteMessageIDDB();
 
 // TODO make fs a variable that is passed into the constructor
-if (!fs.existsSync(`${process.cwd()}/files`)) {
-  fs.mkdirSync(`${process.cwd()}/files`);
+if (!existsSync(`${process.cwd()}/files`)) {
+  mkdirSync(`${process.cwd()}/files`);
 }
 
 const dir = `${process.cwd()}/files/`;
@@ -39,7 +38,7 @@ class SendService {
   }
 
   getFileArr() {
-    return this.fileArr;
+    return this.getFiles();
   }
 
   setFile(file) {
@@ -104,4 +103,4 @@ class SendService {
   }
 }
 
-module.exports = SendService;
+export default SendService;

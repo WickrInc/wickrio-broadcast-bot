@@ -1,5 +1,5 @@
-const logger = require('../logger');
-const state = require('../state');
+import logger from '../logger';
+import State from '../state';
 
 class Status {
   constructor(genericService) {
@@ -21,7 +21,7 @@ class Status {
       reply = 'There are no previous messages to display';
       return {
         reply,
-        state: state.NONE,
+        state: State.NONE,
       };
     }
     const length = Math.min(currentEntries.length, 5);
@@ -37,13 +37,14 @@ class Status {
       index += 1;
     }
     reply = `Here are the past ${length} broadcast message(s):\n`
-        + `${messageString}`
-        + 'Which message would you like to see the status of?';
+      + `${messageString}`
+      + 'Which message would you like to see the status of?';
+
     return {
       reply,
-      state: state.WHICH_STATUS,
+      state: State.WHICH_STATUS,
     };
   }
 }
 
-module.exports = Status;
+export default Status;

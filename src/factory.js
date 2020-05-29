@@ -1,26 +1,26 @@
-const logger = require('./logger');
-const Help = require('./commands/help');
-const Ack = require('./commands/ack');
-const Abort = require('./commands/abort');
-const WhichAbort = require('./commands/which-abort');
-const FilesCommand = require('./commands/files-command');
-const FileReceived = require('./commands/file-received');
-const InitializeBroadcast = require('./commands/initialize-broadcast');
-const InitializeSend = require('./commands/initialize-send');
-const State = require('./state');
-const Status = require('./commands/status');
-const WhichStatus = require('./commands/which-status');
-const Report = require('./commands/report');
-const WhichReport = require('./commands/which-report');
-const ChooseFile = require('./commands/choose-file');
-const Cancel = require('./commands/cancel');
-const AskForAck = require('./commands/ask-for-ack');
-const ChooseSecurityGroups = require('./commands/choose-security-groups');
-const ConfirmSecurityGroups = require('./commands/confirm-security-groups');
-const AskRepeat = require('./commands/ask-repeat');
-const ActiveRepeat = require('./commands/active-repeat');
-const TimesRepeat = require('./commands/times-repeat');
-const RepeatFrequency = require('./commands/repeat-frequency');
+import logger from './logger';
+import Help from './commands/help';
+import Ack from './commands/ack';
+import Abort from './commands/abort';
+import WhichAbort from './commands/which-abort';
+import FilesCommand from './commands/files-command';
+import FileReceived from './commands/file-received';
+import InitializeBroadcast from './commands/initialize-broadcast';
+import InitializeSend from './commands/initialize-send';
+import State from './state';
+import Status from './commands/status';
+import WhichStatus from './commands/which-status'
+import Report from './commands/report';
+import WhichReport from './commands/which-report';
+import ChooseFile from './commands/choose-file';
+import Cancel from './commands/cancel';
+import AskForAck from './commands/ask-for-ack';
+import ChooseSecurityGroups from './commands/choose-security-groups';
+import ConfirmSecurityGroups from './commands/confirm-security-groups';
+import AskRepeat from './commands/ask-repeat';
+import ActiveRepeat from './commands/active-repeat';
+import TimesRepeat from './commands/times-repeat';
+import RepeatFrequency from './commands/repeat-frequency';
 
 // TODO how can we use a new Broadcast service each time???
 class Factory {
@@ -39,6 +39,15 @@ class Factory {
     this.repeatService = repeatService;
     this.reportService = reportService;
     this.genericService = genericService;
+
+    console.log({
+      broadcastService,
+      sendService,
+      statusService,
+      repeatService,
+      reportService,
+      genericService,
+    })
     this.statusCommand = new Status(this.genericService);
     this.whichStatus = new WhichStatus(this.genericService, this.statusService);
     this.abort = new Abort(this.genericService);
@@ -104,4 +113,4 @@ class Factory {
   }
 }
 
-module.exports = Factory;
+export default Factory;

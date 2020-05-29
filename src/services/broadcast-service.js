@@ -1,8 +1,8 @@
-const logger = require('../logger');
-const APIService = require('./api-service');
-const StatusService = require('./status-service');
+import APIService from './api-service';
+import StatusService from './status-service';
 // TODO proper form??
-const updateLastID = require('../helpers/message-id-helper');
+import updateLastID from '../helpers/message-id-helper';
+import { logger } from '../helpers/constants';
 
 class BroadcastService {
   constructor() {
@@ -143,4 +143,4 @@ class BroadcastService {
   }
 }
 
-module.exports = BroadcastService;
+export default BroadcastService;
