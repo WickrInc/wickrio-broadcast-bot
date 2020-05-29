@@ -264,7 +264,7 @@ async function listen(message) {
     }
 
     if (!parsedMessage.isAdmin) {
-      const reply = "Hey, this bot is just for announcements and can't respond to you personally. If you have a question, please get a hold of us a support@wickr.com or visit us a support.wickr.com. Thanks, Team Wickr";
+      const reply = `Hey this bot is just for announcements and can't respond to you personally, or ${userEmail} is not authorized to use this bot. If you have a question, please get a hold of us a support@wickr.com or visit us a support.wickr.com. Thanks, Team Wickr`;
       const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       logger.debug(sMessage);
       writer.writeFile(message);
@@ -357,14 +357,14 @@ async function listen(message) {
 
     if (command === '/panel') {
       // Check if this user is an administrator
-      var adminUser = bot.myAdmins.getAdmin(userEmail);
+      // var adminUser = bot.myAdmins.getAdmin(userEmail);
       // scope this conditional down further
 
-      if (adminUser === undefined) {
-        let reply = 'Access denied: ' + userEmail + ' is not authorized to broadcast!'
-        var sMessage = APIService.sendRoomMessage(vGroupID, reply);
-        return
-      }
+      // if (adminUser === undefined) {
+      //   let reply = 'Access denied: ' + userEmail + ' is not authorized to broadcast!'
+      //   var sMessage = APIService.sendRoomMessage(vGroupID, reply);
+      //   return
+      // }
       // generate a random auth code for the session
       // store it in a globally accessable store
 
@@ -389,8 +389,6 @@ async function listen(message) {
 
     // TODO is this JSON.stringify necessary??
     // How to deal with duplicate files??
-    console.log({ currentState, 'filetype': State.FILE_TYPE })
-
     if (currentState === State.FILE_TYPE) {
       currentState = State.NONE;
       const type = parsedMessage.message.toLowerCase();
@@ -429,7 +427,6 @@ async function listen(message) {
       }
     } else {
       // TODO parse argument better??
-      console.log({ parsedMessage })
       let obj;
       if (parsedMessage.file) {
         obj = factory.file(parsedMessage.file, parsedMessage.filename);
