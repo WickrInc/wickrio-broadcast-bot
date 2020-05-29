@@ -31,7 +31,7 @@ const startServer = () => {
   app.use(bodyParser.urlencoded({ extended: false }));
   // parse application/json
   app.use(bodyParser.json());
-  app.use(express.static('wickrio-bot-web/public'))
+  app.use(express.static('public'))
 
 
   app.use((error, req, res, next) => {
