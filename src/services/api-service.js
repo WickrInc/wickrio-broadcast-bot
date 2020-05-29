@@ -40,8 +40,8 @@ class APIService {
     return WickrIOAPI.cmdAddMessageID(messageId, sender, target, dateSent, messageContent);
   }
 
-  static getMessageStatus(messageID, type, page, pageSize) {
-    return WickrIOAPI.cmdGetMessageStatus(messageID, type, page, pageSize);
+  static async getMessageStatus(messageID, type, page, pageSize) {
+    return await WickrIOAPI.cmdGetMessageStatus(messageID, type, page, pageSize);
   }
 
   static getMessageIDEntry(messageID) {

@@ -229,21 +229,42 @@ const startServer = () => {
     }
   });
 
-  app.get(endpoint + "/Status", checkAuth, (req, res) => {
+  app.get(endpoint + "/Status", checkAuth, async (req, res) => {
 
     // need to dynamically get last x records user sent, what if there are over 1000 messages, why give back 1000 records if we dont need to
     // if user hasn't sent a message in the last 1000 messages, it will show zero messages unless we search a larger index
     // too many calls, wickrio api should support a single status call for x records including sender and message content
-
-    var tableDataRaw = APIService.cmdGetMessageIDTable("0", "1000");
+    var tableDataRaw = APIService.getMessageIDTable("0", "1000");
 
     var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
       return entry.sender == req.user.email
     });
+
+    let broadcasts = []
     messageIdEntries.map(entry => {
-      let contentData = APIService.cmdGetMessageIDEntry(entry.message_id);
-      entry.message = JSON.parse(contentData).message;
+      let contentData = JSON.parse(APIService.getMessageIDEntry(entry.message_id));
+      entry = contentData
+      let statusdata = JSON.parse(APIService.getMessageStatus(entry.message_id, 'full', "0", "20"))
+      entry.summary = {}
+      entry.test = "test"
+      entry.summary.pending = 0
+      entry.summary.sent = 0
+      entry.summary.failed = 0
+      entry.summary.ack = 0
+      entry.status = statusdata
+
+      statusdata.map(user => {
+        if (user.status == 0) { entry.summary.pending += 1 }
+        else if (user.status == 1) { entry.summary.sent += 1 }
+        else if (user.status == 2) { entry.summary.failed += 1 }
+        else if (user.status == 3) { entry.summary.ack += 1 }
+      })
+      console.log(entry)
+      broadcasts.push(entry)
+
     })
+
+    console.log({ broadcasts, messageIdEntries, statusdata })
     // 
 
     var reply = {};
@@ -253,6 +274,7 @@ const startServer = () => {
       // reply = strings["noPrevious"];
     } else {
       reply.data = messageIdEntries
+      reply.broadcasts = broadcasts
     }
     // 
 
