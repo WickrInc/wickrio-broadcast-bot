@@ -1,5 +1,5 @@
-const logger = require('../logger');
-const State = require('../state');
+import logger from '../logger';
+import State from '../state';
 
 class RepeatFrequency {
   constructor(repeatService) {
@@ -34,4 +34,4 @@ class RepeatFrequency {
   }
 }
 
-module.exports = RepeatFrequency;
+export default RepeatFrequency;

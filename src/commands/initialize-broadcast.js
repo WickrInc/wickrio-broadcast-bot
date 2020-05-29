@@ -1,5 +1,4 @@
-const logger = require('../logger');
-const State = require('../state');
+import State from '../state';
 
 class InitializeBroadcast {
   constructor(broadcastService) {
@@ -32,4 +31,4 @@ class InitializeBroadcast {
   }
 }
 
-module.exports = InitializeBroadcast;
+export default InitializeBroadcast;

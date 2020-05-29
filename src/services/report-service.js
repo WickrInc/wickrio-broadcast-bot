@@ -1,6 +1,6 @@
-const createCsvWriter = require('csv-writer').createObjectCsvWriter;
-const logger = require('../logger');
-const APIService = require('./api-service');
+import { createObjectCsvWriter as createCsvWriter } from 'csv-writer';
+import APIService from './api-service';
+import { logger } from '../helpers/constants';
 
 class ReportService {
   static getReport(messageID, vGroupID) {
@@ -115,4 +115,4 @@ class ReportService {
   }
 }
 
-module.exports = ReportService;
+export default ReportService;

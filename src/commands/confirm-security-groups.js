@@ -1,5 +1,5 @@
-const logger = require('../logger');
-const State = require('../state');
+import logger from '../logger';
+import State from '../state';
 
 class ConfirmSecurityGroups {
   constructor(broadcastService) {
@@ -36,4 +36,4 @@ class ConfirmSecurityGroups {
   }
 }
 
-module.exports = ConfirmSecurityGroups;
+export default ConfirmSecurityGroups;

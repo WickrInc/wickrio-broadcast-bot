@@ -1,5 +1,5 @@
-const logger = require('../logger');
-const State = require('../state');
+import logger from '../logger';
+import State from '../state';
 
 class TimesRepeat {
   constructor(repeatService) {
@@ -33,4 +33,4 @@ class TimesRepeat {
   }
 }
 
-module.exports = TimesRepeat;
+export default TimesRepeat;

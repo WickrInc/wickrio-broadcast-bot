@@ -1,5 +1,5 @@
-const state = require('../state');
-const GenericService = require('../services/generic-service');
+import State from '../state';
+import GenericService from '../services/generic-service';
 
 
 class Ack {
@@ -15,10 +15,10 @@ class Ack {
     const reply = '';
     const obj = {
       reply,
-      state: state.NONE,
+      state: State.NONE,
     };
     return obj;
   }
 }
 
-module.exports = Ack;
+export default Ack;

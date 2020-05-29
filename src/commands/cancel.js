@@ -1,4 +1,4 @@
-const state = require('../state');
+import State from '../state';
 
 
 class Cancel {
@@ -13,10 +13,10 @@ class Cancel {
     const reply = 'Previous command canceled, send a new command or enter /help for a list of commands.';
     const obj = {
       reply,
-      state: state.NONE,
+      state: State.NONE,
     };
     return obj;
   }
 }
 
-module.exports = Cancel;
+export default Cancel;

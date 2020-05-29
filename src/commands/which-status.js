@@ -1,5 +1,8 @@
-const logger = require('../logger');
-const State = require('../state');
+import logger from '../logger';
+import State from '../state';
+import { getMessageEntries } from '../services/generic-service';
+import StatusService from '../services/status-service';
+
 
 class WhichStatus {
   constructor(genericService, statusService) {
@@ -14,6 +17,7 @@ class WhichStatus {
     }
     return false;
   }
+
 
   execute(messageService) {
     let reply;
@@ -40,4 +44,4 @@ class WhichStatus {
   }
 }
 
-module.exports = WhichStatus;
+export default WhichStatus;

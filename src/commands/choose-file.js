@@ -1,5 +1,5 @@
-const logger = require('../logger');
-const State = require('../state');
+import logger from '../logger';
+import State from '../state';
 
 class ChooseFile {
   constructor(sendService) {
@@ -43,4 +43,4 @@ class ChooseFile {
   }
 }
 
-module.exports = ChooseFile;
+export default ChooseFile;

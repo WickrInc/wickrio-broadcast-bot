@@ -1,6 +1,6 @@
 
-const fs = require('fs');
-const logger = require('../logger');
+import fs from 'fs';
+import { logger } from './constants';
 
 function updateLastID() {
   try {
@@ -28,4 +28,4 @@ function updateLastID() {
   }
 }
 
-module.exports = updateLastID;
+export default updateLastID;

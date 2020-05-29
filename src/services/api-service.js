@@ -1,8 +1,7 @@
 // TODO what's the correct format here?
-const WickrIOBotAPI = require('wickrio-bot-api');
-
-const bot = new WickrIOBotAPI.WickrIOBot();
-const WickrIOAPI = bot.getWickrIOAddon();
+import {
+  WickrIOAPI,
+} from '../helpers/constants';
 
 class APIService {
   static getSecurityGroups() {
@@ -90,4 +89,4 @@ class APIService {
   }
 }
 
-module.exports = APIService;
+export default APIService;

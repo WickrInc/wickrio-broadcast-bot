@@ -1,4 +1,4 @@
-const APIService = require('./api-service');
+import APIService from './api-service';
 
 class GenericService {
   static setMessageStatus(messageID, userID, statusNumber, statusMessage) {
@@ -33,4 +33,4 @@ class GenericService {
   }
 }
 
-module.exports = GenericService;
+export default GenericService;

@@ -1,4 +1,4 @@
-module.exports = Object.freeze({
+export default Object.freeze({
   NONE: 0,
   CHOOSE_FILE: 1,
   WHICH_STATUS: 2,
