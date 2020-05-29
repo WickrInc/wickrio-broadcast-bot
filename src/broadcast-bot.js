@@ -56,9 +56,6 @@ const fileHandler = new FileHandler();
 const broadcastService = new BroadcastService();
 const repeatService = new RepeatService(broadcastService);
 const sendService = new SendService();
-const reportService = new ReportService();
-const genericService = new GenericService()
-const statusService = new StatusService(genericService);
 
 
 const factory = new Factory(

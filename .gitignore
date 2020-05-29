@@ -16,3 +16,6 @@ exclude-list.txt
 sync.sh
 .env*
 ._.DS_store
+software
+.DS_Store
+software.tar.gz
