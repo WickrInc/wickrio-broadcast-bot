@@ -60,7 +60,7 @@ async function main() {
           description: "Please enter your client bot's port",
           message: 'Cannot leave empty! Please enter a value',
           required: false,
-          default: 'N/A',
+          default: false,
         },
         {
           token: 'BOT_KEY',
@@ -69,7 +69,7 @@ async function main() {
           description: "Please enter your client bot's API-Key",
           message: 'Cannot leave empty! Please enter a value',
           required: true,
-          default: 'N/A',
+          default: false,
         },
         {
           token: 'BOT_AUTH_TOKEN',
@@ -78,7 +78,7 @@ async function main() {
           description: 'Please create an Web API Basic Authorization Token, we recommend an alphanumeric string with at least 24 characters',
           message: 'Cannot leave empty! Please enter a value',
           required: true,
-          default: 'N/A',
+          default: false,
         },
         {
           token: 'HTTPS_CHOICE',
@@ -96,7 +96,7 @@ async function main() {
               description: 'Please enter the name and location of your SSL .key file',
               message: 'Cannot find file!',
               required: true,
-              default: 'N/A',
+              default: false,
             },
             {
               token: 'SSL_CRT_LOCATION',
@@ -105,20 +105,31 @@ async function main() {
               description: 'Please enter the name and location of your SSL .crt file',
               message: 'Cannot find file!',
               required: true,
-              default: 'N/A',
+              default: false,
             }
           ]
         }
       ]
     },
     {
-      token: 'BOT_GOOGLE_MAPS',
-      pattern: '',
+      token: 'BOT_MAPS',
+      pattern: 'yes|no',
       type: 'string',
-      description: 'Please create a google map API key',
-      message: 'Cannot leave empty! Please enter a value',
-      required: false,
-      default: 'N/A',
+      description: 'Do you want to map users locations when you send broadcasts?',
+      message: 'Please enter either yes or no',
+      required: true,
+      default: 'no',
+      list: [
+        {
+          token: 'BOT_GOOGLE_MAPS',
+          pattern: '',
+          type: 'string',
+          description: "Please enter your google maps api key",
+          message: 'Cannot leave empty! Please enter a value',
+          required: true,
+          default: false,
+        }
+      ]
     }
   ];
 

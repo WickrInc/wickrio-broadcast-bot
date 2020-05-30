@@ -150,9 +150,9 @@ async function main() {
 
 
     if (
-      BOT_AUTH_TOKEN.value,
-      BOT_KEY.value,
-      BOT_PORT.value
+      BOT_AUTH_TOKEN.value != 'false' *
+      BOT_KEY.value != 'false' &&
+      BOT_PORT.value != 'false'
     ) {
       // run server
       startServer()
@@ -439,6 +439,7 @@ async function listen(message) {
       }
       currentState = obj.state;
     }
+
   } catch (err) {
     logger.error(err);
     logger.error('Got an error');
