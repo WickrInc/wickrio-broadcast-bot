@@ -118,7 +118,6 @@ process.on('uncaughtException', exitHandler.bind(null, { exit: true }));
 
 
 async function main() {
-  console.log('Entering main!');
   try {
     var status = await bot.start(WICKRIO_BOT_NAME.value)
 
@@ -266,7 +265,7 @@ async function listen(message) {
     if (!parsedMessage.isAdmin) {
       const reply = `Hey this bot is just for announcements and can't respond to you personally, or ${userEmail} is not authorized to use this bot. If you have a question, please get a hold of us a support@wickr.com or visit us a support.wickr.com. Thanks, Team Wickr`;
       const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-      logger.debug(sMessage);
+      logger.debug({ sMessage });
       writer.writeFile(message);
       return;
     }
@@ -379,11 +378,9 @@ async function listen(message) {
 
       // what will the deploy env be
       var reply = encodeURI(`localhost:4545/?token=${token}`)
-      var sMessage = APIService.sendRoomMessage(vGroupID, reply);
-      logger.debug(sMessage);
+      APIService.sendRoomMessage(vGroupID, reply);
       return
     }
-    ({ currentState })
 
     const messageService = new MessageService(messageReceived, userEmail, argument, command, currentState, vGroupID);
 
