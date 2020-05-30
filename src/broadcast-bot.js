@@ -150,7 +150,7 @@ async function main() {
 
 
     if (
-      BOT_AUTH_TOKEN.value != 'false' *
+      BOT_AUTH_TOKEN.value != 'false' &&
       BOT_KEY.value != 'false' &&
       BOT_PORT.value != 'false'
     ) {
