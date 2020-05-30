@@ -236,7 +236,6 @@ const startServer = () => {
     // too many calls, wickrio api should support a single status call for x records including sender and message content
     const status = await getStatus(req.user.email)
     res.json(status)
-
   });
 
   const mapEntries = (messageIdEntries) => {
