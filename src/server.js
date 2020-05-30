@@ -234,53 +234,60 @@ const startServer = () => {
     // need to dynamically get last x records user sent, what if there are over 1000 messages, why give back 1000 records if we dont need to
     // if user hasn't sent a message in the last 1000 messages, it will show zero messages unless we search a larger index
     // too many calls, wickrio api should support a single status call for x records including sender and message content
-    var tableDataRaw = APIService.getMessageIDTable("0", "1000");
+    const status = await getStatus(req.user.email)
+    res.json(status)
 
-    var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
-      return entry.sender == req.user.email
-    });
+  });
 
-    let broadcasts = []
-    messageIdEntries.map(entry => {
+  const mapEntries = (messageIdEntries) => {
+    messageIdEntries?.map(async entry => {
       let contentData = JSON.parse(APIService.getMessageIDEntry(entry.message_id));
-      entry = contentData
-      let statusdata = JSON.parse(APIService.getMessageStatus(entry.message_id, 'full', "0", "20"))
+      entry.message = contentData.message
+      let statusdata = await APIService.getMessageStatus(entry.message_id, 'full', "0", "20")
+      const parsedstatus = JSON.parse(statusdata)
       entry.summary = {}
       entry.test = "test"
       entry.summary.pending = 0
       entry.summary.sent = 0
       entry.summary.failed = 0
       entry.summary.ack = 0
-      entry.status = statusdata
+      entry.status = parsedstatus
 
-      statusdata.map(user => {
+      parsedstatus?.map(user => {
         if (user.status == 0) { entry.summary.pending += 1 }
         else if (user.status == 1) { entry.summary.sent += 1 }
         else if (user.status == 2) { entry.summary.failed += 1 }
         else if (user.status == 3) { entry.summary.ack += 1 }
       })
-      console.log(entry)
-      broadcasts.push(entry)
 
     })
+    return messageIdEntries
+  }
 
-    console.log({ broadcasts, messageIdEntries, statusdata })
-    // 
+  const getStatus = async (email) => {
+    var tableDataRaw = APIService.getMessageIDTable("0", "1000");
 
-    var reply = {};
-    if (messageIdEntries.length < 1) {
-      reply.data = []
-      reply.error = "no broadcasts yet"
-      // reply = strings["noPrevious"];
-    } else {
-      reply.data = messageIdEntries
-      reply.broadcasts = broadcasts
+    var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
+      return entry.sender == email
+    });
+
+    try {
+      const builtStatus = await mapEntries(messageIdEntries)
+
+      var reply = {};
+      if (builtStatus.length < 1) {
+        reply.data = []
+        reply.error = "no broadcasts yet"
+        // reply = strings["noPrevious"];
+      } else {
+        reply.data = builtStatus
+      }
+      return reply
+    } catch (e) {
+      console.log(e)
+      return e
     }
-    // 
-
-
-    return res.json(reply);
-  });
+  }
 
   app.get(endpoint + "/Status/:messageID", checkAuth, (req, res) => {
     // validate message id
