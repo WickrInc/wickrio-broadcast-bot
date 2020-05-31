@@ -62,15 +62,15 @@ const startServer = () => {
     next()
   });
 
-  var endpoint = "/WickrIO/V1/Apps/" + BOT_KEY.value;
-
+  const base = "/WickrIO/V1/Apps/"
+  var endpoint = base + BOT_KEY.value;
 
   function checkCreds(authToken) {
     try {
       var valid = true;
       const authStr = Buffer.from(authToken, 'base64').toString();
       //implement authToken verification in here
-      if (authStr !== bot_api_auth_token)
+      if (authStr !== BOT_AUTH_TOKEN)
         valid = false;
       return valid;
     } catch (err) {
@@ -78,9 +78,8 @@ const startServer = () => {
     }
   }
 
-  app.get(endpoint + "/Authenticate/:wickrUser/:authcode", (req, res) => {
+  app.get(base + "Authenticate/:wickrUser/:authcode", (req, res) => {
     try {
-
       res.set('Content-Type', 'text/plain');
       res.set('Authorization', 'Basic base64_auth_token');
       var authHeader = req.get('Authorization');
@@ -119,6 +118,8 @@ const startServer = () => {
         const token = jwt.sign({
           'email': user.userEmail,
           'session': random,
+          'bot_port': BOT_PORT.value,
+
         }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
 
         var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, 'authenticated with the REST APO using your account');
@@ -215,13 +216,12 @@ const startServer = () => {
     res.send(response)
   });
 
-
   app.get(endpoint + "/SecGroups", checkAuth, (req, res) => {
     try {
       // how does cmdGetSecurityGroups know what user to get security groups for?
       // could we get securityg groups for a targeted user?
-      var response = JSON.parse(APIService.cmdGetSecurityGroups())
-      res.json(response);
+      var response = APIService.getSecurityGroups()
+      res.json(response)
     } catch (err) {
       console.log(err);
       res.statusCode = 400;
