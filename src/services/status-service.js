@@ -7,7 +7,13 @@ class StatusService {
     // TODO Here we need which Message??
     let statusData;
     try {
-      statusData = APIService.getMessageStatus(messageID, 'summary', '0', '1000');
+      // console.log({ statusData })
+      // statusData = APIService.getMessageStatus(messageID, 'summary', '0', '1000').then(response => console.log({ response }))
+      // statusData = await Promise.resolve(APIService.getMessageStatus(messageID, 'summary', '0', '1000'))
+      // statusData = await APIService.getMessageStatus(messageID, 'summary', '0', '1000')
+      statusData = status(messageID)
+
+      console.log({ statusData })
     } catch (err) {
       if (asyncStatus) {
         return {
@@ -18,6 +24,7 @@ class StatusService {
       return 'No data found for that message';
     }
     const messageStatus = JSON.parse(statusData);
+    console.log({ messageStatus })
     let statusString = '*Message Status:*\n'
       + `Total Users: ${messageStatus.num2send}\n`
       + `Messages Sent: ${messageStatus.sent}\n`
@@ -30,14 +37,22 @@ class StatusService {
       statusString = `${statusString}Messages Ignored: ${messageStatus.ignored}`;
     }
     if (asyncStatus) {
+      console.log({ asyncStatus })
+      console.log({ statusString })
+
+
       const complete = messageStatus.pending === 0;
       return {
         statusString,
         complete,
       };
     }
+    console.log({ statusString })
+
+
     return statusString;
   }
+
 
   static asyncStatus(messageID, vGroupID) {
     logger.debug('Enter asyncStatus ');
@@ -54,5 +69,14 @@ class StatusService {
     cronJob.start();
   }
 }
+
+const status = (messageID) => {
+  console.log('inside status')
+  console.log({ messageID })
+  const statuscall = APIService.getMessageStatus(messageID, 'summary', '0', '1000')
+  console.log({ statuscall })
+  return statuscall
+}
+
 
 export default StatusService;
