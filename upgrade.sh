@@ -64,6 +64,3 @@ mv $OLD_BOT_LOCATION broadcast_bot.old_Version
 #
 cd $NEW_BOT_LOCATION/..
 mv $NEW_BOT_LOCATION $OLD_BOT_LOCATION
-
-# run install to ensure node modules and build
-./install.sh
