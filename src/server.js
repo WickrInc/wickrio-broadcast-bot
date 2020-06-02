@@ -70,12 +70,23 @@ const startServer = () => {
       var valid = true;
       const authStr = Buffer.from(authToken, 'base64').toString();
       //implement authToken verification in here
-      if (authStr !== BOT_AUTH_TOKEN)
+      if (authStr !== BOT_AUTH_TOKEN.value)
         valid = false;
       return valid;
     } catch (err) {
       console.log(err);
     }
+  }
+
+  function generateRandomString(length) {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  
+    for (var i = 0; i < length; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+
+    return text;
   }
 
   app.get(base + "Authenticate/:wickrUser/:authcode", (req, res) => {
@@ -99,7 +110,7 @@ const startServer = () => {
       if (!checkCreds(authToken)) {
         return res.status(401).send('Access denied: invalid basic-auth token.');
       } else {
-        let wickruser = req.params.wickrUser
+        let wickrUser = req.params.wickrUser
 
         if (typeof wickrUser !== 'string')
           return res.status(400).send('Bad request: WickrUser must be a string.');
@@ -112,21 +123,17 @@ const startServer = () => {
 
 
         var random = generateRandomString(24);
-        client_auth_codes[adminUser.userEmail] = random;
-        // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
+        client_auth_codes[wickrUser] = random; // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
         // send token in url, used for calls to receive data, send messages
-        const token = jwt.sign({
-          'email': user.userEmail,
-          'session': random,
-          'bot_port': BOT_PORT.value,
 
+        var token = jwt.sign({
+          'email': wickrUser,
+          'session': random,
         }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
 
-        var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, 'authenticated with the REST APO using your account');
-
-        logger.debug(sMessage);
-        res.json(token)
-
+        // what will the deploy env be
+        var reply = encodeURI(`token=${token}`)
+        return res.send(reply);
       }
     } catch (err) {
       console.log(err);
@@ -193,7 +200,11 @@ const startServer = () => {
     // let broadcast = {}
     // set user email without plus
     newBroadcast.setUserEmail(req.user.email)
-    newBroadcast.setFile(req.file)
+    if (req.file === undefined)
+      newBroadcast.setFile('')
+    else
+      newBroadcast.setFile(req.file)
+
     // set repeats and durations
 
 
@@ -209,6 +220,40 @@ const startServer = () => {
 
     // if (security_group == 'false') broadcast.security_group = false
     // else if (typeof security_group === "string") broadcast.security_group = [security_group]
+
+    let response = newBroadcast.broadcastMessage()
+
+    // todo: send status on error
+    res.send(response)
+  });
+
+  app.post(endpoint + "/Messages", checkAuth, (req, res) => {
+    // typecheck and validate parameters
+    let { message, acknowledge, users, repeat_num, freq_num } = req.body
+
+
+    var userList = [];
+    for (var i in users) {
+      userList.push(users[i].name);
+    }
+
+    if (userList.length < 1) return res.send("Users missing from request.");
+
+    // validate arguments, append message.
+    if (!message) return res.send("Broadcast message missing from request.");
+
+    const newBroadcast = new BroadcastService()
+    newBroadcast.setUsers(userList);
+
+    // let broadcast = {}
+    // set user email without plus
+    newBroadcast.setUserEmail(req.user.email)
+    // set repeats and durations
+
+
+    acknowledge === true || acknowledge == 'true' ?
+      newBroadcast.setMessage(message + `\n Broadcast sent by: ${req.user.email} \n Please acknowledge you received this message by repling with /ack`) :
+      newBroadcast.setMessage(message + `\n Broadcast sent by: ${req.user.email}`)
 
     let response = newBroadcast.broadcastMessage()
 
