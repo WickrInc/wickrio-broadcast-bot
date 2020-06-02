@@ -200,7 +200,11 @@ const startServer = () => {
     // let broadcast = {}
     // set user email without plus
     newBroadcast.setUserEmail(req.user.email)
-    newBroadcast.setFile(req.file)
+    if (req.file === undefined)
+      newBroadcast.setFile('')
+    else
+      newBroadcast.setFile(req.file)
+
     // set repeats and durations
 
 
