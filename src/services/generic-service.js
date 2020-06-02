@@ -4,7 +4,7 @@ class GenericService {
   static setMessageStatus(messageID, userID, statusNumber, statusMessage) {
     const reply = APIService.setMessageStatus(messageID, userID, statusNumber, statusMessage);
     const userArray = [userID];
-    APIService.send1to1Message(userArray, reply);
+    APIService.send1to1Message(userArray, reply, '', '', '');
     return reply;
   }
 

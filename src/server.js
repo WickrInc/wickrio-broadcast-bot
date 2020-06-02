@@ -227,6 +227,40 @@ const startServer = () => {
     res.send(response)
   });
 
+  app.post(endpoint + "/Messages", checkAuth, (req, res) => {
+    // typecheck and validate parameters
+    let { message, acknowledge, users, repeat_num, freq_num } = req.body
+
+
+    var userList = [];
+    for (var i in users) {
+      userList.push(users[i].name);
+    }
+
+    if (userList.length < 1) return res.send("Users missing from request.");
+
+    // validate arguments, append message.
+    if (!message) return res.send("Broadcast message missing from request.");
+
+    const newBroadcast = new BroadcastService()
+    newBroadcast.setUsers(userList);
+
+    // let broadcast = {}
+    // set user email without plus
+    newBroadcast.setUserEmail(req.user.email)
+    // set repeats and durations
+
+
+    acknowledge === true || acknowledge == 'true' ?
+      newBroadcast.setMessage(message + `\n Broadcast sent by: ${req.user.email} \n Please acknowledge you received this message by repling with /ack`) :
+      newBroadcast.setMessage(message + `\n Broadcast sent by: ${req.user.email}`)
+
+    let response = newBroadcast.broadcastMessage()
+
+    // todo: send status on error
+    res.send(response)
+  });
+
   app.get(endpoint + "/SecGroups", checkAuth, (req, res) => {
     try {
       // how does cmdGetSecurityGroups know what user to get security groups for?

@@ -80,8 +80,8 @@ class APIService {
     return WickrIOAPI.cmdSetMessageStatus(messageID, userID, statusNumber, statusMessage);
   }
 
-  static send1to1Message(userArray, reply) {
-    return WickrIOAPI.cmdSend1to1Message(userArray, reply);
+  static send1to1Message(userArray, reply, ttl, bor, messageID) {
+    return WickrIOAPI.cmdSend1to1Message(userArray, reply, ttl, bor, messageID);
   }
 
   static cancelMessageID(messageID) {

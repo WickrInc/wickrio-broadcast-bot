@@ -17,6 +17,7 @@ class BroadcastService {
     this.repeatFlag = false;
     this.vGroupID = '';
     this.APISecurityGroups = [];
+    this.users = [];
   }
 
   setRepeatFlag(repeatFlag) {
@@ -51,6 +52,10 @@ class BroadcastService {
     this.securityGroups = securityGroups;
   }
 
+  setUsers(users) {
+    this.users = users;
+  }
+
   getAPISecurityGroups() {
     this.APISecurityGroups = APIService.getSecurityGroups();
     return this.APISecurityGroups;
@@ -71,7 +76,7 @@ class BroadcastService {
       messageToSend = `${messageToSend}\nPlease acknowledge this message by replying with /ack`;
       sentBy = `${sentBy}\nPlease acknowledge this message by replying with /ack`;
     }
-    const target = (this.securityGroups.length < 1 || this.securityGroups === undefined) ? 'NETWORK' : this.securityGroups.join();
+    const target = (this.users.length > 0) ? 'USERS' : ((this.securityGroups.length < 1 || this.securityGroups === undefined) ? 'NETWORK' : this.securityGroups.join());
     logger.debug(`target${target}`);
     const currentDate = new Date();
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
@@ -81,7 +86,12 @@ class BroadcastService {
     const messageID = `${updateLastID()}`;
     let uMessage;
     let reply;
-    if (target === 'NETWORK') {
+    if (target === 'USERS') {
+      logger.debug(`broadcasting to users=${this.users}`);
+      uMessage = APIService.send1to1Message(this.users, messageToSend, '', '', messageID);
+      logger.debug(`send1to1Messge returns=${uMessage}`);
+      reply = 'Broadcast message in process of being sent to list of users';
+    } else if (target === 'NETWORK') {
       if (this.voiceMemo !== '') {
         uMessage = APIService.sendNetworkVoiceMemo(
           this.voiceMemo,
@@ -132,8 +142,10 @@ class BroadcastService {
     } else {
       APIService.writeMessageIDDB(messageID, this.userEmail, target, jsonDateTime, this.message);
     }
-    StatusService.asyncStatus(messageID, this.vGroupID);
-    logger.debug(`Broadcast uMessage${uMessage}`);
+    if (this.vGroupID !== '' && this.vGroupID !== undefined) {
+    	StatusService.asyncStatus(messageID, this.vGroupID);
+    }
+    logger.debug(`Broadcast uMessage=${uMessage}`);
     return reply;
   }
 
