@@ -126,7 +126,7 @@ const startServer = () => {
         client_auth_codes[wickrUser] = random; // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
         // send token in url, used for calls to receive data, send messages
 
-        var token = _jsonwebtoken["default"].sign({
+        var token = jwt.sign({
           'email': wickrUser,
           'session': random,
         }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
