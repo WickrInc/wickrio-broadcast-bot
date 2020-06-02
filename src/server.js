@@ -70,12 +70,23 @@ const startServer = () => {
       var valid = true;
       const authStr = Buffer.from(authToken, 'base64').toString();
       //implement authToken verification in here
-      if (authStr !== BOT_AUTH_TOKEN)
+      if (authStr !== BOT_AUTH_TOKEN.value)
         valid = false;
       return valid;
     } catch (err) {
       console.log(err);
     }
+  }
+
+  function generateRandomString(length) {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  
+    for (var i = 0; i < length; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+
+    return text;
   }
 
   app.get(base + "Authenticate/:wickrUser/:authcode", (req, res) => {
@@ -99,7 +110,7 @@ const startServer = () => {
       if (!checkCreds(authToken)) {
         return res.status(401).send('Access denied: invalid basic-auth token.');
       } else {
-        let wickruser = req.params.wickrUser
+        let wickrUser = req.params.wickrUser
 
         if (typeof wickrUser !== 'string')
           return res.status(400).send('Bad request: WickrUser must be a string.');
@@ -112,21 +123,17 @@ const startServer = () => {
 
 
         var random = generateRandomString(24);
-        client_auth_codes[adminUser.userEmail] = random;
-        // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
+        client_auth_codes[wickrUser] = random; // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
         // send token in url, used for calls to receive data, send messages
-        const token = jwt.sign({
-          'email': user.userEmail,
-          'session': random,
-          'bot_port': BOT_PORT.value,
 
+        var token = _jsonwebtoken["default"].sign({
+          'email': wickrUser,
+          'session': random,
         }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
 
-        var sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, 'authenticated with the REST APO using your account');
-
-        logger.debug(sMessage);
-        res.json(token)
-
+        // what will the deploy env be
+        var reply = encodeURI(`token=${token}`)
+        return res.send(reply);
       }
     } catch (err) {
       console.log(err);
