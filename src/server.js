@@ -274,6 +274,21 @@ const startServer = () => {
     }
   });
 
+  // similiar to the /status command, but returns a list of the messages associated with this user
+  // Will have to use the /Summary or /Details endpoints to get the summary information for a specific messageID
+  app.get(endpoint + "/Messages/:page/:size", checkAuth, async (req, res) => {
+    const tableDataRaw = APIService.getMessageIDTable(req.params.page, req.params.size, req.user.email);
+    var messageIdEntries = JSON.parse(tableDataRaw)
+    res.json(messageIdEntries)
+  });
+
+  app.get(endpoint + "/Summary/:messageID", checkAuth, async (req, res) => {
+    let statusdata = await APIService.getMessageStatus(req.params.messageID, 'summary', '', '')
+    const parsedstatus = JSON.parse(statusdata)
+    res.json(parsedstatus)
+  });
+
+
   app.get(endpoint + "/Status", checkAuth, async (req, res) => {
 
     // need to dynamically get last x records user sent, what if there are over 1000 messages, why give back 1000 records if we dont need to
@@ -283,18 +298,11 @@ const startServer = () => {
     res.json(status)
   });
 
-  // This version of the Status endpoint allows the user to specify the page and size values to 
-  // allow paging through the list of message status entries.
-  app.get(endpoint + "/Status/:page/:size", checkAuth, async (req, res) => {
-    const status = await getStatus(req.user.email, req.params.page, req.params.size)
-    res.json(status)
-  });
-
-  const mapEntries = (messageIdEntries) => {
+  const mapEntries = (messageIdEntries, type) => {
     messageIdEntries?.map(async entry => {
       let contentData = JSON.parse(APIService.getMessageIDEntry(entry.message_id));
       entry.message = contentData.message
-      let statusdata = await APIService.getMessageStatus(entry.message_id, 'full', "0", "20")
+      let statusdata = await APIService.getMessageStatus(entry.message_id, type)
       const parsedstatus = JSON.parse(statusdata)
       entry.summary = {}
       entry.test = "test"
@@ -302,6 +310,9 @@ const startServer = () => {
       entry.summary.sent = 0
       entry.summary.failed = 0
       entry.summary.ack = 0
+      entry.summary.ignored = 0
+      entry.summary.aborted = 0
+      entry.summary.read = 0
       entry.status = parsedstatus
 
       parsedstatus?.map(user => {
@@ -323,7 +334,7 @@ const startServer = () => {
     });
 
     try {
-      const builtStatus = await mapEntries(messageIdEntries)
+      const builtStatus = await mapEntries(messageIdEntries, 'full')
 
       var reply = {};
       if (builtStatus.length < 1) {
