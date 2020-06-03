@@ -48,8 +48,8 @@ class APIService {
     return WickrIOAPI.cmdGetMessageIDEntry(messageID);
   }
 
-  static getMessageIDTable() {
-    return WickrIOAPI.cmdGetMessageIDTable('0', '1000');
+  static getMessageIDTable(page, size, sender) {
+    return WickrIOAPI.cmdGetMessageIDTable(page, size, sender);
   }
 
   static sendRoomMessage(vGroupID, message) {
