@@ -279,7 +279,14 @@ const startServer = () => {
     // need to dynamically get last x records user sent, what if there are over 1000 messages, why give back 1000 records if we dont need to
     // if user hasn't sent a message in the last 1000 messages, it will show zero messages unless we search a larger index
     // too many calls, wickrio api should support a single status call for x records including sender and message content
-    const status = await getStatus(req.user.email)
+    const status = await getStatus(req.user.email, "0", "20")
+    res.json(status)
+  });
+
+  // This version of the Status endpoint allows the user to specify the page and size values to 
+  // allow paging through the list of message status entries.
+  app.get(endpoint + "/Status/:page/:size", checkAuth, async (req, res) => {
+    const status = await getStatus(req.user.email, req.params.page, req.params.size)
     res.json(status)
   });
 
@@ -308,8 +315,8 @@ const startServer = () => {
     return messageIdEntries
   }
 
-  const getStatus = async (email) => {
-    var tableDataRaw = APIService.getMessageIDTable("0", "1000");
+  const getStatus = async (email, page, size) => {
+    var tableDataRaw = APIService.getMessageIDTable(page, size, email);
 
     var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
       return entry.sender == email
