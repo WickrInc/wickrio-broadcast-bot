@@ -6,18 +6,20 @@ import { logger } from '../helpers/constants';
 
 class BroadcastService {
   constructor() {
-    this.file = '';
-    this.message = '';
-    this.userEmail = '';
-    this.display = '';
-    this.ackFlag = false;
-    this.securityGroups = [];
-    this.duration = 0;
-    this.voiceMemo = '';
-    this.repeatFlag = false;
-    this.vGroupID = '';
-    this.APISecurityGroups = [];
-    this.users = [];
+    this.file = ''
+    this.message = ''
+    this.userEmail = ''
+    this.display = ''
+    this.ackFlag = false
+    this.securityGroups = []
+    this.duration = 0
+    this.voiceMemo = ''
+    this.repeatFlag = false
+    this.vGroupID = ''
+    this.APISecurityGroups = []
+    this.users = []
+    this.ttl = ''
+    this.bor = ''
   }
 
   setRepeatFlag(repeatFlag) {
@@ -69,6 +71,13 @@ class BroadcastService {
     this.vGroupID = vGroupID;
   }
 
+  setBOR(bor) {
+    this.bor = bor
+  }
+  setTTL(ttl) {
+    this.ttl = ttl
+  }
+
   broadcastMessage() {
     let sentBy = `\n\nBroadcast message sent by: ${this.userEmail}`;
     let messageToSend = this.message + sentBy;
@@ -88,7 +97,7 @@ class BroadcastService {
     let reply;
     if (target === 'USERS') {
       logger.debug(`broadcasting to users=${this.users}`);
-      uMessage = APIService.send1to1Message(this.users, messageToSend, '', '', messageID);
+      uMessage = APIService.send1to1Message(this.users, messageToSend, this.ttl, this.bor, messageID);
       logger.debug(`send1to1Messge returns=${uMessage}`);
       reply = 'Broadcast message in process of being sent to list of users';
     } else if (target === 'NETWORK') {
@@ -96,17 +105,17 @@ class BroadcastService {
         uMessage = APIService.sendNetworkVoiceMemo(
           this.voiceMemo,
           this.duration,
-          '',
-          '',
+          this.ttl,
+          this.bor,
           messageID,
           sentBy,
         );
         reply = 'Voice Memo broadcast in process of being sent';
       } else if (this.file !== '') {
-        uMessage = APIService.sendNetworkAttachment(this.file, this.display, '', '', messageID, sentBy);
+        uMessage = APIService.sendNetworkAttachment(this.file, this.display, this.ttl, this.bor, messageID, sentBy);
         reply = 'File broadcast in process of being sent';
       } else {
-        uMessage = APIService.sendNetworkMessage(messageToSend, '', '', messageID);
+        uMessage = APIService.sendNetworkMessage(messageToSend, this.ttl, this.bor, messageID);
         reply = 'Broadcast message in process of being sent';
       }
     } else if (this.voiceMemo !== '') {
@@ -114,8 +123,8 @@ class BroadcastService {
         this.securityGroups,
         this.voiceMemo,
         this.duration,
-        '',
-        '',
+        this.ttl,
+        this.bor,
         messageID,
         sentBy,
       );
@@ -125,14 +134,14 @@ class BroadcastService {
         this.securityGroups,
         this.file,
         this.display,
-        '',
-        '',
+        this.ttl,
+        this.bor,
         messageID,
         sentBy,
       );
       reply = 'File broadcast in process of being sent to security group';
     } else {
-      uMessage = APIService.sendSecurityGroupMessage(this.securityGroups, messageToSend, '', '', messageID);
+      uMessage = APIService.sendSecurityGroupMessage(this.securityGroups, messageToSend, this.ttl, this.bor, messageID);
       reply = 'Broadcast message in process of being sent to security group';
     }
     if (this.file !== '') {
@@ -143,7 +152,7 @@ class BroadcastService {
       APIService.writeMessageIDDB(messageID, this.userEmail, target, jsonDateTime, this.message);
     }
     if (this.vGroupID !== '' && this.vGroupID !== undefined) {
-    	StatusService.asyncStatus(messageID, this.vGroupID);
+      StatusService.asyncStatus(messageID, this.vGroupID);
     }
     logger.debug(`Broadcast uMessage=${uMessage}`);
     return reply;
