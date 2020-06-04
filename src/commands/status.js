@@ -1,5 +1,7 @@
-import logger from '../logger';
+
 import State from '../state';
+
+const maxStringLength = 50;
 
 class Status {
   constructor(genericService) {
@@ -24,7 +26,7 @@ class Status {
         state: State.NONE,
       };
     }
-    const length = Math.min(currentEntries.length, 5);
+    const length = Math.min(currentEntries.length, this.genericService.getMaxNumberEntries());
     let contentData;
     let index = 1;
     const messageList = [];
@@ -32,7 +34,8 @@ class Status {
     for (let i = 0; i < currentEntries.length; i += 1) {
       contentData = this.genericService.getMessageEntry(currentEntries[i].message_id);
       const contentParsed = JSON.parse(contentData);
-      messageList.push(contentParsed.message);
+      const messageDisplayed = this.genericService.truncate(contentParsed.message, maxStringLength);
+      messageList.push(messageDisplayed);
       messageString += `(${index}) ${contentParsed.message}\n`;
       index += 1;
     }
