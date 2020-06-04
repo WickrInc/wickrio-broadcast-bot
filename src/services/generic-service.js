@@ -4,6 +4,8 @@ import { logger } from '../helpers/constants';
 const maxStringLength = 50;
 const inc = 10;
 
+const maxNumberEntries = 10;
+
 class GenericService {
   constructor(endIndex) {
     this.startIndex = 0;
@@ -58,16 +60,16 @@ class GenericService {
     const messageEntries = [];
     const tableDataRaw = APIService.getMessageIDTable('0', '1000', userEmail);
     const messageIDData = JSON.parse(tableDataRaw);
-	
+
     const tableData = messageIDData.list;
     for (let i = tableData.length - 1; i >= 0; i -= 1) {
       const entry = tableData[i];
       if (entry.sender === userEmail) {
         messageEntries.push(entry);
       }
-      // if ( === this.endIndex) {
-      //   break;
-      // }
+      if (messageEntries.length === maxNumberEntries) {
+        break;
+      }
     }
     this.endIndex = Math.min(this.endIndex, messageEntries.length);
     return messageEntries;
