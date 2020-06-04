@@ -108,6 +108,35 @@ async function main() {
               default: false,
             }
           ]
+        },
+        {
+          token: 'WEB_APPLICATION',
+          pattern: 'yes|no',
+          type: 'string',
+          description: 'Do you want to use the web application',
+          message: 'Please enter either yes or no',
+          required: true,
+          default: 'no',
+          list: [
+            {
+              token: 'WEBAPP_HOST',
+              pattern: '',
+              type: 'string',
+              description: "Please enter the host name or ip address to reach the web application",
+              message: 'Cannot leave empty! Please enter a value',
+              required: true,
+              default: false,
+            },
+            {
+              token: 'WEBAPP_PORT',
+              pattern: '^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$',
+              type: 'number',
+              description: "Please enter the external port to reach the web application",
+              message: 'Cannot leave empty! Please enter a value',
+              required: true,
+              default: false,
+            }
+          ]
         }
       ]
     },
@@ -140,3 +169,4 @@ async function main() {
   await wickrIOConfigure.configureYourBot("WickrIO-Broadcast-Bot");
   process.exit();
 }
+
