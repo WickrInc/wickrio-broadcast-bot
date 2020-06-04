@@ -1,69 +1,21 @@
-import bodyParser from 'body-parser';
 import express from 'express';
-import helmet from 'helmet';
-import multer from 'multer'
 import jwt from "jsonwebtoken"
+import multer from 'multer'
 import {
   bot,
   client_auth_codes,
-  logger,
   BOT_AUTH_TOKEN,
-  BOT_PORT,
-  BOT_KEY,
-  updateLastID,
   // cronJob
-} from './helpers/constants';
-import APIService from './services/api-service'
-import BroadcastService from './services/broadcast-service';
-import strings from './strings'
+} from '../helpers/constants';
+import APIService from '../services/api-service'
+import BroadcastService from '../services/broadcast-service';
 
 // set upload destination for attachments sent to broadcast with multer 
-const startServer = () => {
-  var upload = multer({ dest: 'attachments/' })
-  const app = express();
-  app.use(helmet()); //security http headers
+const useWebAndRoutes = (app) => {
 
-  app.listen(BOT_PORT.value, () => {
-    console.log('We are live on ' + BOT_PORT.value);
-  });
-
-  // parse application/x-www-form-urlencoded
-  app.use(bodyParser.urlencoded({ extended: false }));
-  // parse application/json
-  app.use(bodyParser.json());
   app.use(express.static('public'))
 
-
-  app.use((error, req, res, next) => {
-
-    if (error instanceof SyntaxError) {
-      console.log('bodyParser:', error);
-      res.statusCode = 400;
-      res.type('txt').send(error.toString());
-    } else {
-      next();
-    }
-  });
-
-  // add cors for development
-  // TODO: set conditional for NODE_ENV to match and set the right origin host header - 8000 for dev, 4545 for prod
-  app.options("/*", (req, res, next) => {
-    res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization, Content-Length, X-Requested-With');
-    res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Origin', 'http://localhost:8000');
-
-    res.sendStatus(200)
-  });
-
-  app.all("/*", (req, res, next) => {
-    res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization, Content-Length, X-Requested-With');
-    res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Origin', 'http://localhost:8000');
-    next()
-  });
-
-  const base = "/WickrIO/V1/Apps/"
-  var endpoint = base + BOT_KEY.value;
+  const endpoint = "/WickrIO/V1/Apps/Web/Broadcast"
 
   function checkCreds(authToken) {
     try {
@@ -88,8 +40,43 @@ const startServer = () => {
 
     return text;
   }
+  var upload = multer({ dest: 'attachments/' })
 
-  app.get(base + "Authenticate/:wickrUser/:authcode", (req, res) => {
+  const checkAuth = (req, res, next) => {
+    res.set('Authorization', 'Basic base64_auth_token');
+    res.set('Content-Type', 'application/json');
+
+    // Gather the jwt access token from the request header
+    // const authHeader = req.get('Authorization');
+    const authHeader = req.headers['authorization']
+
+    const token = authHeader && authHeader.split(' ')[1]
+
+    if (token == null) return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic jwt"'); // if there isn't any token
+
+    jwt.verify(token, BOT_AUTH_TOKEN.value, (err, user) => {
+      if (err) {
+        console.log(err)
+        console.log("err: " + err.message)
+        return res.status(403).send(err.message)
+      }
+
+      var adminUser = bot.myAdmins.getAdmin(user.email);
+      if (adminUser === undefined) {
+        return res.status(401).send('Access denied: ' + user.email + ' is not authorized to broadcast!');
+      }
+
+      // Check if the authCode is valid for the input user
+      var dictAuthCode = client_auth_codes[user.email];
+      if (dictAuthCode === undefined || user.session != dictAuthCode) {
+        return res.status(401).send('Access denied: invalid user authentication code.');
+      }
+      logger.debug({ user })
+      req.user = user
+      next()
+    })
+  }
+  app.get(endpoint + "Authenticate/:wickrUser/:authcode", (req, res) => {
     try {
       res.set('Content-Type', 'text/plain');
       res.set('Authorization', 'Basic base64_auth_token');
@@ -143,41 +130,6 @@ const startServer = () => {
     }
   });
 
-  const checkAuth = (req, res, next) => {
-    res.set('Authorization', 'Basic base64_auth_token');
-    res.set('Content-Type', 'application/json');
-
-    // Gather the jwt access token from the request header
-    // const authHeader = req.get('Authorization');
-    const authHeader = req.headers['authorization']
-
-    const token = authHeader && authHeader.split(' ')[1]
-
-    if (token == null) return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic jwt"'); // if there isn't any token
-
-    jwt.verify(token, BOT_AUTH_TOKEN.value, (err, user) => {
-      if (err) {
-        console.log(err)
-        console.log("err: " + err.message)
-        return res.status(403).send(err.message)
-      }
-
-      var adminUser = bot.myAdmins.getAdmin(user.email);
-      if (adminUser === undefined) {
-        return res.status(401).send('Access denied: ' + user.email + ' is not authorized to broadcast!');
-      }
-
-      // Check if the authCode is valid for the input user
-      var dictAuthCode = client_auth_codes[user.email];
-      if (dictAuthCode === undefined || user.session != dictAuthCode) {
-        return res.status(401).send('Access denied: invalid user authentication code.');
-      }
-      logger.debug({ user })
-      req.user = user
-      next()
-    })
-  }
-
   app.get(endpoint + "/Authenticate", checkAuth, (req, res) => {
     try {
       console.log(req.user);
@@ -189,7 +141,7 @@ const startServer = () => {
     }
   });
 
-  app.post(endpoint + "/Broadcast", [checkAuth, upload.single('attachment')], (req, res) => {
+  app.post(endpoint + "/Message", [checkAuth, upload.single('attachment')], (req, res) => {
     // typecheck and validate parameters
     let { message, acknowledge, security_group, repeat_num, freq_num, ttl, bor } = req.body
 
@@ -278,21 +230,6 @@ const startServer = () => {
       res.type('txt').send(err.toString());
     }
   });
-
-  // similiar to the /status command, but returns a list of the messages associated with this user
-  // Will have to use the /Summary or /Details endpoints to get the summary information for a specific messageID
-  app.get(endpoint + "/Messages/:page/:size", checkAuth, async (req, res) => {
-    const tableDataRaw = APIService.getMessageIDTable(req.params.page, req.params.size, req.user.email);
-    var messageIdEntries = JSON.parse(tableDataRaw)
-    res.json(messageIdEntries)
-  });
-
-  app.get(endpoint + "/Summary/:messageID", checkAuth, async (req, res) => {
-    let statusdata = await APIService.getMessageStatus(req.params.messageID, 'summary', '', '')
-    const parsedstatus = JSON.parse(statusdata)
-    res.json(parsedstatus)
-  });
-
 
   app.get(endpoint + "/Status/:page/:size", checkAuth, async (req, res) => {
     // too many calls, wickrio api should support a single status call for x records including sender and message content
@@ -433,16 +370,7 @@ const startServer = () => {
     return res.send(reply);
   });
 
-  // What to do for ALL requests for ALL Paths
-  // that are not handled above
-  app.all('*', (req, res) => {
-    console.log('*** 404 ***');
-    console.log('404 for url: ' + req.url);
-    console.log('***********');
-    return res.type('txt').status(404).send('Endpoint ' + req.url + ' not found');
-  });
-
 }
 
 
-export default startServer
+export default useWebAndRoutes

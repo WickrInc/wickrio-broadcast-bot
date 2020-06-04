@@ -1,9 +1,7 @@
 
 import fs from 'fs';
-import { createObjectCsvWriter as createCsvWriter } from 'csv-writer';
 import jwt from "jsonwebtoken"
-import startServer from './server';
-import strings from './strings';
+import startServer from './api';
 import {
   bot,
   WickrUser,
@@ -17,7 +15,6 @@ import {
   VERIFY_USERS,
   WickrIOAPI,
   getLastID,
-  cronJob,
 } from './helpers/constants';
 
 // const pkgjson = require('./package.json');

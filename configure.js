@@ -48,7 +48,7 @@ async function main() {
       token: 'WEB_INTERFACE',
       pattern: 'yes|no',
       type: 'string',
-      description: 'Do you want to setup the web interface',
+      description: 'Do you want to setup the web interface (REST API)',
       message: 'Please enter either yes or no',
       required: true,
       default: 'no',
