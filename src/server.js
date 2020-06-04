@@ -81,7 +81,7 @@ const startServer = () => {
   function generateRandomString(length) {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  
+
     for (var i = 0; i < length; i++) {
       text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
@@ -123,14 +123,15 @@ const startServer = () => {
 
 
         var random = generateRandomString(24);
-        client_auth_codes[wickrUser] = random; // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
-        // send token in url, used for calls to receive data, send messages
+        client_auth_codes[wickrUser] = random;
+        // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
 
         var token = jwt.sign({
           'email': wickrUser,
           'session': random,
         }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
 
+        // send token in url, used for authorization to use routes
         // what will the deploy env be
         var reply = encodeURI(`token=${token}`)
         return res.send(reply);
@@ -194,10 +195,8 @@ const startServer = () => {
 
     const newBroadcast = new BroadcastService()
 
-    // validate arguments, append message.
     if (!message) return res.send("Broadcast message missing from request.");
 
-    // let broadcast = {}
     // set user email without plus
     newBroadcast.setUserEmail(req.user.email)
     if (req.file === undefined)
@@ -289,12 +288,9 @@ const startServer = () => {
   });
 
 
-  app.get(endpoint + "/Status", checkAuth, async (req, res) => {
-
-    // need to dynamically get last x records user sent, what if there are over 1000 messages, why give back 1000 records if we dont need to
-    // if user hasn't sent a message in the last 1000 messages, it will show zero messages unless we search a larger index
+  app.get(endpoint + "/Status/:page/:size", checkAuth, async (req, res) => {
     // too many calls, wickrio api should support a single status call for x records including sender and message content
-    const status = await getStatus(req.user.email, "0", "20")
+    const status = await getStatus(req.params.page, req.params.size, req.user.email)
     res.json(status)
   });
 
@@ -326,7 +322,8 @@ const startServer = () => {
     return messageIdEntries
   }
 
-  const getStatus = async (email, page, size) => {
+  const getStatus = async (page, size, email) => {
+    // if user hasn't sent a message in the last 'size' messages, will it show zero messages unless we search a larger index that captures the user's message?
     var tableDataRaw = APIService.getMessageIDTable(page, size, email);
 
     var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
@@ -340,7 +337,6 @@ const startServer = () => {
       if (builtStatus.length < 1) {
         reply.data = []
         reply.error = "no broadcasts yet"
-        // reply = strings["noPrevious"];
       } else {
         reply.data = builtStatus
       }
@@ -351,9 +347,9 @@ const startServer = () => {
     }
   }
 
+  // need page or size? 
   app.get(endpoint + "/Status/:messageID", checkAuth, (req, res) => {
     // validate message id
-    // need to dynamically get last x users
     var statusData = APIService.getMessageStatus(req.params.messageID, "full", "0", "1000");
     var reply = statusData;
     return res.send(reply);
