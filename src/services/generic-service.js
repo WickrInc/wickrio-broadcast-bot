@@ -1,5 +1,7 @@
 import APIService from './api-service';
 
+const maxNumberEntries = 10;
+
 class GenericService {
   static setMessageStatus(messageID, userID, statusNumber, statusMessage) {
     const reply = APIService.setMessageStatus(messageID, userID, statusNumber, statusMessage);
@@ -12,6 +14,10 @@ class GenericService {
     APIService.cancelMessageID(messageID);
   }
 
+  static getDefaultMessageEntries(userEmail) {
+    return GenericService.getMessageEntries(userEmail);
+  }
+
   static getMessageEntries(userEmail) {
     const messageEntries = [];
     const tableDataRaw = APIService.getMessageIDTable('0', '1000', userEmail);
@@ -21,7 +27,7 @@ class GenericService {
       if (entry.sender === userEmail) {
         messageEntries.push(entry);
       }
-      if (messageEntries.length > 4) {
+      if (messageEntries.length === maxNumberEntries) {
         break;
       }
     }
@@ -30,6 +36,10 @@ class GenericService {
 
   static getMessageEntry(messageID) {
     return APIService.getMessageIDEntry(messageID);
+  }
+
+  static truncate(str, n) {
+    return (str.length > n) ? `${str.substr(0, n - 1)}&hellip;` : str;
   }
 }
 
