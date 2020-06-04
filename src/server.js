@@ -191,11 +191,14 @@ const startServer = () => {
 
   app.post(endpoint + "/Broadcast", [checkAuth, upload.single('attachment')], (req, res) => {
     // typecheck and validate parameters
-    let { message, acknowledge, security_group, repeat_num, freq_num } = req.body
+    let { message, acknowledge, security_group, repeat_num, freq_num, ttl, bor } = req.body
 
     const newBroadcast = new BroadcastService()
 
+
     if (!message) return res.send("Broadcast message missing from request.");
+    newBroadcast.setTTL(ttl)
+    newBroadcast.setBOR(bor)
 
     // set user email without plus
     newBroadcast.setUserEmail(req.user.email)
@@ -228,7 +231,7 @@ const startServer = () => {
 
   app.post(endpoint + "/Messages", checkAuth, (req, res) => {
     // typecheck and validate parameters
-    let { message, acknowledge, users, repeat_num, freq_num } = req.body
+    let { message, acknowledge, users, repeat_num, freq_num, ttl, bor } = req.body
 
 
     var userList = [];
@@ -240,6 +243,9 @@ const startServer = () => {
 
     // validate arguments, append message.
     if (!message) return res.send("Broadcast message missing from request.");
+
+    newBroadcast.setTTL(ttl)
+    newBroadcast.setBOR(bor)
 
     const newBroadcast = new BroadcastService()
     newBroadcast.setUsers(userList);
