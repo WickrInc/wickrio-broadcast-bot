@@ -76,7 +76,7 @@ const useWebAndRoutes = (app) => {
       next()
     })
   }
-  app.get(endpoint + "Authenticate/:wickrUser/:authcode", (req, res) => {
+  app.get(endpoint + "/Authenticate/:wickrUser/:authcode", (req, res) => {
     try {
       res.set('Content-Type', 'text/plain');
       res.set('Authorization', 'Basic base64_auth_token');
