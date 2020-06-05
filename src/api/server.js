@@ -52,9 +52,9 @@ const startServer = () => {
     next()
   });
 
-  // if (WEB_APPLICATION) {
-  useWebAndRoutes(app)
-  // }
+  if (WEB_APPLICATION) {
+    useWebAndRoutes(app)
+  }
   useRESTRoutes(app)
 
 
