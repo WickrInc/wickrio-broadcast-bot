@@ -1,7 +1,5 @@
 import State from '../state';
 
-const maxStringLength = 50;
-
 class Status {
   constructor(genericService) {
     this.genericService = genericService;

@@ -51,6 +51,14 @@ class Factory {
     // These are the /commands
     this.ack = new Ack(this.genericService);
     this.abort = new Abort(this.genericService);
+<<<<<<< HEAD
+=======
+    this.whichAbort = new WhichAbort(this.genericService);
+    this.report = new Report(this.genericService);
+    this.whichReport = new WhichReport(this.genericService, this.reportService);
+    this.initializeBroadcast = new InitializeBroadcast(this.broadcastService);
+    this.chooseFile = new ChooseFile(this.sendService);
+>>>>>>> WIP: Trying to call async outside of main
     this.filesCommand = new FilesCommand(this.sendService);
     this.fileReceived = new FileReceived(this.fileService);
     this.initializeBroadcast = new InitializeBroadcast(this.broadcastService);
@@ -100,6 +108,7 @@ class Factory {
       this.whichReport,
       this.whichAbort,
       this.fileReceived,
+      Ack,
     ];
   }
 

@@ -5,6 +5,7 @@ const maxStringLength = 50;
 const inc = 10;
 
 const maxNumberEntries = 10;
+const maxStringLength = 50;
 
 class GenericService {
   constructor(endIndex) {
