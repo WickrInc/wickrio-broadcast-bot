@@ -395,53 +395,59 @@ async function listen(message) {
       return
     }
 
-    const messageService = new MessageService(messageReceived, userEmail, argument, command, currentState, vGroupID, file);
+    const messageService = new MessageService(messageReceived, userEmail, argument, command, currentState, vGroupID, file, filename);
     // TODO is this JSON.stringify necessary??
     // How to deal with duplicate files??
+
+
+
     if (currentState === State.FILE_TYPE) {
-      currentState = State.NONE;
-      const type = parsedMessage.message.toLowerCase();
-      let fileAppend = '';
-      logger.debug(`Here is the filetype message${type}`);
-      if (type === 'u' || type === 'user') {
-        fileAppend = '.user';
-      } else if (type === 'h' || type === 'hash') {
-        fileAppend = '.hash';
-      } else if (type === 's' || type === 'send') {
-        command = '/send';
-        const obj = factory.execute(messageService);
-        if (obj.reply) {
-          logger.debug('Object has a reply');
-          const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
-        }
-        currentState = obj.state;
-      } else if (type === 'b' || type === 'broadcast') {
-        // TODO fix this
-        // sendFile.execute();
-        command = '/broadcast';
-        const obj = factory.execute(messageService);
-        if (obj.reply) {
-          logger.debug('Object has a reply');
-          const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
-        }
-        currentState = obj.state;
-      } else {
-        const reply = 'Input not recognized please reply with (b)roadcast, (s)end, (u)ser, or (h)ash' ;
+      console.log({ messageService, file, filename })
+      let obj = await factory.fileActions(messageService, file, filename)
+      console.log({ objfileactions: obj })
+      // currentState = State.NONE;
+      // const type = parsedMessage.message.toLowerCase();
+      // let fileAppend = '';
+      // logger.debug(`Here is the filetype message${type}`);
+      // if (type === 'u' || type === 'user') {
+      //   fileAppend = '.user';
+      // } else if (type === 'h' || type === 'hash') {
+      //   fileAppend = '.hash';
+      // } else if (type === 's' || type === 'send') {
+      //   command = '/send';
+      //   const obj = factory.execute(messageService);
+      //   if (obj.reply) {
+      //     logger.debug('Object has a reply');
+      //     const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
+      //   }
+      //   currentState = obj.state;
+      // } else if (type === 'b' || type === 'broadcast') {
+      //   // TODO fix this
+      //   // sendFile.execute();
+      //   command = '/broadcast';
+      //   const obj = factory.execute(messageService);
+      //   if (obj.reply) {
+      //     logger.debug('Object has a reply');
+      //     const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
+      //   }
+      //   currentState = obj.state;
+      // } else {
+      //   const reply = 'Input not recognized please reply with (b)roadcast, (s)end, (u)ser, or (h)ash' ;
+      //   const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
+      //   currentState = State.FILE_TYPE;
+      // }
+      // if (fileAppend) {
+      //   logger.debug(`Here is file info${file}`);
+      //   const cp = await fileHandler.copyFile(file.toString(), `${process.cwd()}/files/${filename.toString()}${fileAppend}`);
+      //   logger.debug(`Here is cp:${cp}`);
+      if (obj) {
+        const reply = `File named: ${filename} successfully saved to directory.`;
         const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-        currentState = State.FILE_TYPE;
+      } else {
+        const reply = `Error: File named: ${filename} not saved to directory.`;
+        const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       }
-      if (fileAppend) {
-        logger.debug(`Here is file info${file}`);
-        const cp = await fileHandler.copyFile(file.toString(), `${process.cwd()}/files/${filename.toString()}${fileAppend}`);
-        logger.debug(`Here is cp:${cp}`);
-        if (cp) {
-          const reply = `File named: ${filename} successfully saved to directory.`;
-          const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-        } else {
-          const reply = `Error: File named: ${filename} not saved to directory.`;
-          const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-        }
-      }
+      // }
     } else {
       // TODO parse argument better??
       let obj;

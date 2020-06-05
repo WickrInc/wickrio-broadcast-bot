@@ -10,7 +10,10 @@ class FileActions {
     return false;
   }
 
-  static async execute(messageService, file, filename) {
+  static async execute(messageService) {
+    let file = messageService.getFile()
+    let filename = messageService.getFilename()
+
     const type = messageService.getMessage().toLowerCase();
     let fileAppend = '';
     // const file = messageService.getFile();
@@ -29,7 +32,7 @@ class FileActions {
     }
     if (fileAppend) {
       logger.debug(`Here is file info${file}`);
-      const cp = await FileHandler.copyFile(file.toString(), `${process.cwd()}/files/${filename.toString()}${fileAppend}`);
+      const cp = await FileHandler.copyFile(file, `${process.cwd()}/files/${filename.toString()}${fileAppend}`);
       logger.debug(`Here is cp:${cp}`);
       if (cp) {
         reply = `File named: ${filename} successfully saved to directory.`;

@@ -15,6 +15,7 @@ class FileHandler {
   static async copyFile(originalPath, newPath) {
     try {
       await copyFileAsync(originalPath, newPath);
+      // await fs.copyFile(originalPath, newPath)
       logger.debug(`${originalPath} copied to ${newPath}`);
       return true;
     } catch (err) {
