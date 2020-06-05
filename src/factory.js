@@ -21,7 +21,7 @@ import AskRepeat from './commands/ask-repeat';
 import ActiveRepeat from './commands/active-repeat';
 import TimesRepeat from './commands/times-repeat';
 import RepeatFrequency from './commands/repeat-frequency';
-// import FileActions from './commands/file-actions';
+import FileActions from './commands/file-actions';
 
 // TODO how can we use a new Broadcast service each time???
 class Factory {
@@ -80,15 +80,17 @@ class Factory {
       this.abort,
       this.whichAbort,
       Ack,
-      // FileActions,
+      FileActions,
     ];
   }
 
-  execute(messageService) {
+  async execute(messageService) {
     // this.commandList.forEach((command) => {
     for (const command of this.commandList) {
       if (command.shouldExecute(messageService)) {
-        return command.execute(messageService);
+        let commandResponse = await command.execute(messageService);
+        console.log({ commandResponse })
+        return commandResponse
       }
     }
     // TODO fix the admin command returning this then add it back
@@ -103,6 +105,11 @@ class Factory {
     this.broadcastService.setFile(file);
     this.broadcastService.setDisplay(display);
     return FileReceived.execute();
+  }
+
+  async fileActions(messageService, file, filename) {
+    let response = await FileActions.execute(messageService, file, filename)
+    return response
   }
 }
 
