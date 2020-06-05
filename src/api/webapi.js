@@ -5,6 +5,7 @@ import {
   bot,
   client_auth_codes,
   BOT_AUTH_TOKEN,
+  logger,
   // cronJob
 } from '../helpers/constants';
 import APIService from '../services/api-service'
@@ -76,10 +77,10 @@ const useWebAndRoutes = (app) => {
       next()
     })
   }
-  app.get(endpoint + "/Authenticate/:wickrUser/:authcode", (req, res) => {
+  app.get(endpoint + "/Authenticate/:wickrUser", (req, res) => {
     try {
       res.set('Content-Type', 'text/plain');
-      res.set('Authorization', 'Basic base64_auth_token');
+      res.set('Authorization', 'Bearer base64_auth_token');
       var authHeader = req.get('Authorization');
       var authToken;
       if (authHeader) {
@@ -91,8 +92,8 @@ const useWebAndRoutes = (app) => {
         }
       } else {
         // expecting
-        // Basic: BOT_AUTH_TOKEN base64
-        return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic base64_auth_token"');
+        // Bearer: BOT_AUTH_TOKEN base64
+        return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Bearer JWT"');
       }
       if (!checkCreds(authToken)) {
         return res.status(401).send('Access denied: invalid basic-auth token.');
@@ -120,7 +121,8 @@ const useWebAndRoutes = (app) => {
 
         // send token in url, used for authorization to use routes
         // what will the deploy env be
-        var reply = encodeURI(`token=${token}`)
+        let reply = {}
+        reply.token = token
         return res.send(reply);
       }
     } catch (err) {
@@ -132,8 +134,8 @@ const useWebAndRoutes = (app) => {
 
   app.get(endpoint + "/Authenticate", checkAuth, (req, res) => {
     try {
-      console.log(req.user);
-      res.json(req.user)
+      let reply = { data: req.user }
+      res.json(reply)
     } catch (err) {
       console.log(err);
       res.statusCode = 400;
@@ -143,15 +145,17 @@ const useWebAndRoutes = (app) => {
 
   app.post(endpoint + "/Message", [checkAuth, upload.single('attachment')], (req, res) => {
     // typecheck and validate parameters
-    let { message, acknowledge, security_group, repeat_num, freq_num, ttl, bor } = req.body
+    let { message, acknowledge = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = req.body
 
     const newBroadcast = new BroadcastService()
 
 
     if (!message) return res.send("Broadcast message missing from request.");
+
+    newBroadcast.setMessage(message)
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
-
+    console.log({ message, acknowledge, security_group, repeat_num, freq_num, ttl, bor })
     // set user email without plus
     newBroadcast.setUserEmail(req.user.email)
     if (req.file === undefined)
@@ -160,22 +164,20 @@ const useWebAndRoutes = (app) => {
       newBroadcast.setFile(req.file)
 
     // set repeats and durations
+    if (security_group) {
 
+      if (security_group?.includes(',')) {
+        security_group = security_group.split(',')
+      }
 
-    acknowledge === true || acknowledge == 'true' ?
-      newBroadcast.setMessage(message + `\n Broadcast sent by: ${req.user.email} \n Please acknowledge you received this message by repling with /ack`) :
-      newBroadcast.setMessage(message + `\n Broadcast sent by: ${req.user.email}`)
-
-    if (security_group.includes(',')) {
-      security_group = security_group.split(',')
-      console.log({ security_group })
       newBroadcast.setSecurityGroups(security_group)
     }
+    if (acknowledge) {
+      newBroadcast.setAckFlag(true)
+    }
 
-    // if (security_group == 'false') broadcast.security_group = false
-    // else if (typeof security_group === "string") broadcast.security_group = [security_group]
-
-    let response = newBroadcast.broadcastMessage()
+    let response = {}
+    response.data = newBroadcast.broadcastMessage()
 
     // todo: send status on error
     res.send(response)
@@ -183,7 +185,7 @@ const useWebAndRoutes = (app) => {
 
   app.post(endpoint + "/Messages", checkAuth, (req, res) => {
     // typecheck and validate parameters
-    let { message, acknowledge, users, repeat_num, freq_num, ttl, bor } = req.body
+    let { message, acknowledge = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = req.body
 
 
     var userList = [];
@@ -206,11 +208,6 @@ const useWebAndRoutes = (app) => {
     // set user email without plus
     newBroadcast.setUserEmail(req.user.email)
     // set repeats and durations
-
-
-    acknowledge === true || acknowledge == 'true' ?
-      newBroadcast.setMessage(message + `\n Broadcast sent by: ${req.user.email} \n Please acknowledge you received this message by repling with /ack`) :
-      newBroadcast.setMessage(message + `\n Broadcast sent by: ${req.user.email}`)
 
     let response = newBroadcast.broadcastMessage()
 
@@ -237,11 +234,13 @@ const useWebAndRoutes = (app) => {
     res.json(status)
   });
 
-  const mapEntries = (messageIdEntries, type) => {
+  const mapEntries = (messageIdEntries, type, page, size) => {
     messageIdEntries?.map(async entry => {
+      console.log({ entry })
       let contentData = JSON.parse(APIService.getMessageIDEntry(entry.message_id));
       entry.message = contentData.message
-      let statusdata = await APIService.getMessageStatus(entry.message_id, type)
+      let statusdata = await APIService.getMessageStatus(entry.message_id, type, page, size)
+      console.log({ statusdata })
       const parsedstatus = JSON.parse(statusdata)
       entry.summary = {}
       entry.test = "test"
@@ -267,14 +266,14 @@ const useWebAndRoutes = (app) => {
 
   const getStatus = async (page, size, email) => {
     // if user hasn't sent a message in the last 'size' messages, will it show zero messages unless we search a larger index that captures the user's message?
-    var tableDataRaw = APIService.getMessageIDTable(page, size, email);
+    var tableDataRaw = APIService.getMessageIDTable(String(page), String(size), String(email));
 
     var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
       return entry.sender == email
     });
 
     try {
-      const builtStatus = await mapEntries(messageIdEntries, 'full')
+      const builtStatus = await mapEntries(messageIdEntries, 'full', page, size)
 
       var reply = {};
       if (builtStatus.length < 1) {
@@ -282,6 +281,7 @@ const useWebAndRoutes = (app) => {
         reply.error = "no broadcasts yet"
       } else {
         reply.data = builtStatus
+        console.log({ builtStatus })
       }
       return reply
     } catch (e) {

@@ -1,0 +1,75 @@
+# 
+# WEB API
+# 
+
+GET http://localhost:4545/WickrIO/V1/Apps/Web/Broadcast/Authenticate/alane+largeroom@wickr.com
+Content-Type: application/json
+Authorization: Bearer aGFyZGNvZGVkYXV0aHRva2Vu
+
+###
+
+GET http://localhost:4545/WickrIO/V1/Apps/Web/Broadcast/Authenticate
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsYW5lK2xhcmdlcm9vbUB3aWNrci5jb20iLCJzZXNzaW9uIjoiUkN0S0tnMVhBQnRHbmhZMFZQaDVGdzBCIiwiaWF0IjoxNTkxMzE3MzI2LCJleHAiOjE1OTEzMTkxMjZ9.GtRfNIezNB2QaJLWLd5hGt2SwKQTxJ6gZd4p1FF_bTE
+
+###
+
+GET http://localhost:4545/WickrIO/V1/Apps/Web/Broadcast/SecGroups
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsYW5lK2xhcmdlcm9vbUB3aWNrci5jb20iLCJzZXNzaW9uIjoiUkN0S0tnMVhBQnRHbmhZMFZQaDVGdzBCIiwiaWF0IjoxNTkxMzE3MzI2LCJleHAiOjE1OTEzMTkxMjZ9.GtRfNIezNB2QaJLWLd5hGt2SwKQTxJ6gZd4p1FF_bTE
+
+###
+
+
+POST http://localhost:4545/WickrIO/V1/Apps/Web/Broadcast/Message
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsYW5lK2xhcmdlcm9vbUB3aWNrci5jb20iLCJzZXNzaW9uIjoiUkN0S0tnMVhBQnRHbmhZMFZQaDVGdzBCIiwiaWF0IjoxNTkxMzE3MzI2LCJleHAiOjE1OTEzMTkxMjZ9.GtRfNIezNB2QaJLWLd5hGt2SwKQTxJ6gZd4p1FF_bTE
+
+{
+   "message":"hello",
+   "security_group":["2tOtbNpA"],
+   "acknowledge": true
+}
+
+
+###
+
+
+GET http://localhost:4545/WickrIO/V1/Apps/Web/Broadcast/Message
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsYW5lK2xhcmdlcm9vbUB3aWNrci5jb20iLCJzZXNzaW9uIjoiUkN0S0tnMVhBQnRHbmhZMFZQaDVGdzBCIiwiaWF0IjoxNTkxMzE3MzI2LCJleHAiOjE1OTEzMTkxMjZ9.GtRfNIezNB2QaJLWLd5hGt2SwKQTxJ6gZd4p1FF_bTE
+
+{
+   "message":"hello"
+}
+###
+GET http://localhost:4545/WickrIO/V1/Apps/Web/Broadcast/Status/0/1000
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsYW5lK2xhcmdlcm9vbUB3aWNrci5jb20iLCJzZXNzaW9uIjoiUkN0S0tnMVhBQnRHbmhZMFZQaDVGdzBCIiwiaWF0IjoxNTkxMzE3MzI2LCJleHAiOjE1OTEzMTkxMjZ9.GtRfNIezNB2QaJLWLd5hGt2SwKQTxJ6gZd4p1FF_bTE
+
+###
+
+# REST CLIENT
+
+
+###
+
+POST http://localhost:4545/WickrIO/V1/Apps/Broadcast
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsYW5lK2xhcmdlcm9vbUB3aWNrci5jb20iLCJzZXNzaW9uIjoiWVlQVEVySXIwbjdGNzVOWTNyM0l1VXpBIiwiaWF0IjoxNTkxMzE3MTkwLCJleHAiOjE1OTEzMTg5OTB9.r1yF5HmwVR9hVXBlQO8oiPqzWUTQ7b3QigNyAVtR7Lc
+
+{
+   "message":"hello"
+}
+
+###
+
+POST http://localhost:4545/WickrIO/V1/Apps/12345/Messages
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsYW5lK2xhcmdlcm9vbUB3aWNrci5jb20iLCJzZXNzaW9uIjoiWVlQVEVySXIwbjdGNzVOWTNyM0l1VXpBIiwiaWF0IjoxNTkxMzE3MTkwLCJleHAiOjE1OTEzMTg5OTB9.r1yF5HmwVR9hVXBlQO8oiPqzWUTQ7b3QigNyAVtR7Lc
+
+{
+  message: "testing"
+}
+
+###
