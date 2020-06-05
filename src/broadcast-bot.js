@@ -389,8 +389,7 @@ async function listen(message) {
       return
     }
 
-    const messageService = new MessageService(messageReceived, userEmail, argument, command, currentState, vGroupID);
-
+    const messageService = new MessageService(messageReceived, userEmail, argument, command, currentState, vGroupID, file);
     // TODO is this JSON.stringify necessary??
     // How to deal with duplicate files??
     if (currentState === State.FILE_TYPE) {
@@ -403,17 +402,25 @@ async function listen(message) {
       } else if (type === 'h' || type === 'hash') {
         fileAppend = '.hash';
       } else if (type === 's' || type === 'send') {
+        command = '/send';
+        const obj = factory.execute(messageService);
+        if (obj.reply) {
+          logger.debug('Object has a reply');
+          const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
+        }
+        currentState = obj.state;
+      } else if (type === 'b' || type === 'broadcast') {
         // TODO fix this
         // sendFile.execute();
         command = '/broadcast';
-        const obj = factory.execute(currentState, command, argument, parsedMessage.message, userEmail);
+        const obj = factory.execute(messageService);
         if (obj.reply) {
           logger.debug('Object has a reply');
           const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
         }
         currentState = obj.state;
       } else {
-        const reply = 'Input not recognized please reply with (u)ser, (h)ash, or (s)end.';
+        const reply = 'Input not recognized please reply with (b)roadcast, (s)end, (u)ser, or (h)ash' ;
         const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
         currentState = State.FILE_TYPE;
       }

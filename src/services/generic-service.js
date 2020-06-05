@@ -1,6 +1,7 @@
 import APIService from './api-service';
 
 const maxNumberEntries = 10;
+const maxStringLength = 50;
 
 class GenericService {
   static setMessageStatus(messageID, userID, statusNumber, statusMessage) {
@@ -14,8 +15,22 @@ class GenericService {
     APIService.cancelMessageID(messageID);
   }
 
-  static getDefaultMessageEntries(userEmail) {
-    return GenericService.getMessageEntries(userEmail);
+  static getEntriesString(userEmail) {
+    const currentEntries = GenericService.getMessageEntries(userEmail);
+    if (currentEntries.length < 1) {
+      return 'There are no previous messages to display';
+    }
+    let contentData;
+    let index = 1;
+    let messageString = '';
+    for (let i = 0; i < currentEntries.length; i += 1) {
+      contentData = GenericService.getMessageEntry(currentEntries[i].message_id);
+      const contentParsed = JSON.parse(contentData);
+      const messageDisplayed = GenericService.truncate(contentParsed.message, maxStringLength);
+      messageString += `(${index}) ${messageDisplayed}\n`;
+      index += 1;
+    }
+    return `Here are the past ${currentEntries.length} broadcast message(s):\n${messageString}`;
   }
 
   static getMessageEntries(userEmail) {
@@ -41,7 +56,7 @@ class GenericService {
   }
 
   static truncate(str, n) {
-    return (str.length > n) ? `${str.substr(0, n - 1)}&hellip;` : str;
+    return (str.length > n) ? `${str.substr(0, n - 1)}...` : str;
   }
 }
 
