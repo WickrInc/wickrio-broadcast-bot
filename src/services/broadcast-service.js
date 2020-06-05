@@ -79,11 +79,13 @@ class BroadcastService {
   }
 
   broadcastMessage() {
+
     let sentBy = `\n\nBroadcast message sent by: ${this.userEmail}`;
     let messageToSend = this.message + sentBy;
     if (this.ackFlag) {
-      messageToSend = `${messageToSend}\nPlease acknowledge this message by replying with /ack`;
+      messageToSend = `${messageToSend}\nPlease acknowledge this message by replying with /ack`
       sentBy = `${sentBy}\nPlease acknowledge this message by replying with /ack`;
+
     }
     const target = (this.users.length > 0) ? 'USERS' : ((this.securityGroups.length < 1 || this.securityGroups === undefined) ? 'NETWORK' : this.securityGroups.join());
     logger.debug(`target${target}`);
@@ -93,6 +95,7 @@ class BroadcastService {
     // messageID must be a string
     // TODO is is necessary to do this?
     const messageID = `${updateLastID()}`;
+    console.log({ messageID })
     let uMessage;
     let reply;
     if (target === 'USERS') {
@@ -108,7 +111,7 @@ class BroadcastService {
           this.ttl,
           this.bor,
           messageID,
-          sentBy,
+          messageToSend,
         );
         reply = 'Voice Memo broadcast in process of being sent';
       } else if (this.file !== '') {
@@ -126,7 +129,7 @@ class BroadcastService {
         this.ttl,
         this.bor,
         messageID,
-        sentBy,
+        messageToSend,
       );
       reply = 'Voice Memo broadcast in process of being sent to security group';
     } else if (this.file !== '') {
@@ -137,7 +140,7 @@ class BroadcastService {
         this.ttl,
         this.bor,
         messageID,
-        sentBy,
+        messageToSend,
       );
       reply = 'File broadcast in process of being sent to security group';
     } else {

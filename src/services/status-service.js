@@ -37,9 +37,6 @@ class StatusService {
       statusString = `${statusString}Messages Ignored: ${messageStatus.ignored}`;
     }
     if (asyncStatus) {
-      console.log({ asyncStatus })
-      console.log({ statusString })
-
 
       const complete = messageStatus.pending === 0;
       return {
@@ -47,8 +44,6 @@ class StatusService {
         complete,
       };
     }
-    console.log({ statusString })
-
 
     return statusString;
   }
@@ -71,10 +66,7 @@ class StatusService {
 }
 
 const status = (messageID) => {
-  console.log('inside status')
-  console.log({ messageID })
   const statuscall = APIService.getMessageStatus(messageID, 'summary', '0', '1000')
-  console.log({ statuscall })
   return statuscall
 }
 

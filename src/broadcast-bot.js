@@ -1,9 +1,7 @@
 
 import fs from 'fs';
-import { createObjectCsvWriter as createCsvWriter } from 'csv-writer';
 import jwt from "jsonwebtoken"
-import startServer from './server';
-import strings from './strings';
+import startServer from './api';
 import {
   bot,
   WickrUser,
@@ -17,7 +15,6 @@ import {
   VERIFY_USERS,
   WickrIOAPI,
   getLastID,
-  cronJob,
 } from './helpers/constants';
 
 // const pkgjson = require('./package.json');
@@ -158,8 +155,7 @@ async function main() {
       startServer()
 
     } else {
-      console.log('If you wanted a web interface, the env variables not set properly. Check BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT')
-
+      console.log('If you wanted a web or rest interface, the env variables not set properly. Check BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT')
     }
     // await bot.startListening(listen); //Passes a callback function that will receive incoming messages into the bot client
   } catch (err) {

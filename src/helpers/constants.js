@@ -15,7 +15,8 @@ const {
   BOT_PORT,
   BOT_GOOGLE_MAPS,
   WICKRIO_BOT_NAME,
-  VERIFY_USERS
+  VERIFY_USERS,
+  WEB_APPLICATION
 } = JSON.parse(process.env.tokens);
 
 const updateLastID = () => {
@@ -110,6 +111,7 @@ export {
   client_auth_codes,
   logger,
   BOT_AUTH_TOKEN,
+  WEB_APPLICATION,
   BOT_KEY,
   BOT_PORT,
   BOT_GOOGLE_MAPS,
