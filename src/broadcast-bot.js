@@ -413,7 +413,6 @@ async function listen(message) {
       APIService.sendRoomMessage(vGroupID, reply);
       return
     }
-    
     const messageService = new MessageService(messageReceived, userEmail, argument, command, currentState, vGroupID, file, filename);
     // TODO is this JSON.stringify necessary??
     // How to deal with duplicate files??

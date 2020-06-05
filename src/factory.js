@@ -22,10 +22,14 @@ import ChooseSecurityGroups from './commands/choose-security-groups';
 import ConfirmSecurityGroups from './commands/confirm-security-groups';
 import FileActions from './commands/file-actions';
 import RepeatFrequency from './commands/repeat-frequency';
+<<<<<<< HEAD
 import TimesRepeat from './commands/times-repeat';
 import WhichAbort from './commands/which-abort';
 import WhichStatus from './commands/which-status';
 import WhichReport from './commands/which-report';
+=======
+import FileActions from './commands/file-actions';
+>>>>>>> paired on file actions to get async await to work and abstract from bbjs to their own commands
 
 // TODO how can we use a new Broadcast service each time???
 class Factory {
@@ -109,13 +113,24 @@ class Factory {
       this.whichAbort,
       this.fileReceived,
       Ack,
+<<<<<<< HEAD
     ];
   }
 
   execute(messageService) {
+=======
+      FileActions,
+    ];
+  }
+
+  async execute(messageService) {
+    // this.commandList.forEach((command) => {
+>>>>>>> paired on file actions to get async await to work and abstract from bbjs to their own commands
     for (const command of this.commandList) {
       if (command.shouldExecute(messageService)) {
-        return command.execute(messageService);
+        let commandResponse = await command.execute(messageService);
+        console.log({ commandResponse })
+        return commandResponse
       }
     }
     // TODO fix the admin command returning this then add it back
@@ -132,10 +147,17 @@ class Factory {
     return FileReceived.execute();
   }
 
+<<<<<<< HEAD
   // static fileActions(messageService) {
   //   const response = FileActions.execute(messageService);
   //   return response;
   // }
+=======
+  async fileActions(messageService, file, filename) {
+    let response = await FileActions.execute(messageService, file, filename)
+    return response
+  }
+>>>>>>> paired on file actions to get async await to work and abstract from bbjs to their own commands
 }
 
 export default Factory;
