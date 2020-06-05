@@ -9,7 +9,7 @@ import InitializeBroadcast from './commands/initialize-broadcast';
 import InitializeSend from './commands/initialize-send';
 import State from './state';
 import Status from './commands/status';
-import WhichStatus from './commands/which-status'
+import WhichStatus from './commands/which-status';
 import Report from './commands/report';
 import WhichReport from './commands/which-report';
 import ChooseFile from './commands/choose-file';
@@ -21,6 +21,7 @@ import AskRepeat from './commands/ask-repeat';
 import ActiveRepeat from './commands/active-repeat';
 import TimesRepeat from './commands/times-repeat';
 import RepeatFrequency from './commands/repeat-frequency';
+// import FileActions from './commands/file-actions';
 
 // TODO how can we use a new Broadcast service each time???
 class Factory {
@@ -47,7 +48,6 @@ class Factory {
     this.whichReport = new WhichReport(this.genericService, this.reportService);
     this.initializeBroadcast = new InitializeBroadcast(this.broadcastService);
     this.chooseFile = new ChooseFile(this.sendService);
-    this.fileReceived = new FileReceived(this.sendService);
     this.filesCommand = new FilesCommand(this.sendService);
     this.askForAck = new AskForAck(this.broadcastService);
     this.confirmSecurityGroups = new ConfirmSecurityGroups(this.broadcastService);
@@ -80,6 +80,7 @@ class Factory {
       this.abort,
       this.whichAbort,
       Ack,
+      // FileActions,
     ];
   }
 
@@ -97,10 +98,11 @@ class Factory {
     // };
   }
 
+
   file(file, display) {
     this.broadcastService.setFile(file);
     this.broadcastService.setDisplay(display);
-    return this.fileReceived.execute();
+    return FileReceived.execute();
   }
 }
 

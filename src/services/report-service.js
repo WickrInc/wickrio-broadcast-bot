@@ -39,7 +39,7 @@ class ReportService {
     APIService.sendRoomAttachment(vGroupID, path, path);
     // TODO make a reply like here is the attachment
     // TODO can replies just be empty?
-    return path;
+    return csvArray;
   }
 
   static getReportEntry(entry) {
