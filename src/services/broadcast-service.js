@@ -6,20 +6,20 @@ import { logger } from '../helpers/constants';
 
 class BroadcastService {
   constructor() {
-    this.file = ''
-    this.message = ''
-    this.userEmail = ''
-    this.display = ''
-    this.ackFlag = false
-    this.securityGroups = []
-    this.duration = 0
-    this.voiceMemo = ''
-    this.repeatFlag = false
-    this.vGroupID = ''
-    this.APISecurityGroups = []
-    this.users = []
-    this.ttl = ''
-    this.bor = ''
+    this.file = '';
+    this.message = '';
+    this.userEmail = '';
+    this.display = '';
+    this.ackFlag = false;
+    this.securityGroups = [];
+    this.duration = 0;
+    this.voiceMemo = '';
+    this.repeatFlag = false;
+    this.vGroupID = '';
+    this.APISecurityGroups = [];
+    this.users = [];
+    this.ttl = '';
+    this.bor = '';
   }
 
   setRepeatFlag(repeatFlag) {
@@ -72,10 +72,11 @@ class BroadcastService {
   }
 
   setBOR(bor) {
-    this.bor = bor
+    this.bor = bor;
   }
+
   setTTL(ttl) {
-    this.ttl = ttl
+    this.ttl = ttl;
   }
 
   broadcastMessage() {
@@ -89,6 +90,7 @@ class BroadcastService {
       console.log({ users: this.users })
 
     }
+    // TODO what is users vs network?
     const target = (this.users.length > 0) ? 'USERS' : ((this.securityGroups.length < 1 || this.securityGroups === undefined) ? 'NETWORK' : this.securityGroups.join());
 
 
@@ -105,7 +107,13 @@ class BroadcastService {
     let reply = {};
     if (target === 'USERS') {
       logger.debug(`broadcasting to users=${this.users}`);
-      uMessage = APIService.send1to1Message(this.users, messageToSend, this.ttl, this.bor, messageID);
+      uMessage = APIService.send1to1Message(
+        this.users,
+        messageToSend,
+        this.ttl,
+        this.bor,
+        messageID,
+      );
       logger.debug(`send1to1Messge returns=${uMessage}`);
       // reply = 'Broadcast message in process of being sent to list of users';
       reply.message = messageToSend;

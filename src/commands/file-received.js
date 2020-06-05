@@ -2,16 +2,11 @@ import State from '../state';
 
 // TODO add a delete file command??
 class FileReceived {
-  constructor(broadcastService) {
-    this.broadcastService = broadcastService;
+  static shouldExecute() {
   }
 
-  shouldExecute() {
-
-  }
-
-  execute() {
-    const reply = 'Would you like to send this file or is it a file of usernames or hashes? (Please respond with s(end), u(ser), or h(ash)';
+  static execute() {
+    const reply = 'Would you like to broadcast this file, send this file to a list, or is it a file of usernames or hashes? Please respond with (b)roadcast, (s)end, (u)ser, or (h)ash';
     const obj = {
       reply,
       state: State.FILE_TYPE,

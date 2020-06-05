@@ -1,7 +1,4 @@
-
 import State from '../state';
-
-const maxStringLength = 50;
 
 class Status {
   constructor(genericService) {
@@ -17,32 +14,8 @@ class Status {
   }
 
   execute(messageService) {
-    const currentEntries = this.genericService.getMessageEntries(messageService.getUserEmail());
-    let reply;
-    if (currentEntries.length < 1) {
-      reply = 'There are no previous messages to display';
-      return {
-        reply,
-        state: State.NONE,
-      };
-    }
-    const length = Math.min(currentEntries.length, this.genericService.getMaxNumberEntries());
-    let contentData;
-    let index = 1;
-    const messageList = [];
-    let messageString = '';
-    for (let i = 0; i < currentEntries.length; i += 1) {
-      contentData = this.genericService.getMessageEntry(currentEntries[i].message_id);
-      const contentParsed = JSON.parse(contentData);
-      const messageDisplayed = this.genericService.truncate(contentParsed.message, maxStringLength);
-      messageList.push(messageDisplayed);
-      messageString += `(${index}) ${contentParsed.message}\n`;
-      index += 1;
-    }
-    reply = `Here are the past ${length} broadcast message(s):\n`
-      + `${messageString}`
-      + 'Which message would you like to see the status of?';
-
+    const entriesString = this.genericService.getEntriesString(messageService.getUserEmail());
+    const reply = `${entriesString}Which message would you like to see the status of?`;
     return {
       reply,
       state: State.WHICH_STATUS,
