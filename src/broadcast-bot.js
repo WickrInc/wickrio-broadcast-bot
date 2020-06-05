@@ -155,8 +155,7 @@ async function main() {
       startServer()
 
     } else {
-      console.log('If you wanted a web interface, the env variables not set properly. Check BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT')
-
+      console.log('If you wanted a web or rest interface, the env variables not set properly. Check BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT')
     }
     // await bot.startListening(listen); //Passes a callback function that will receive incoming messages into the bot client
   } catch (err) {
