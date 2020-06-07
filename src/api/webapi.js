@@ -299,75 +299,65 @@ const useWebAndRoutes = (app) => {
   });
 
   app.get(endpoint + "/Report/:messageID/:page/:size", checkAuth, (req, res) => {
-    res.set('Content-Type', 'text/plain');
+    res.set('Content-Type', 'application/json');
     res.set('Authorization', 'Basic base64_auth_token');
 
-    var reportEntries = [];
 
-    var statusData = APIService.getMessageStatus(req.params.messageID, "full", req.params.page, req.params.size);
-    var messageStatus = JSON.parse(statusData);
-    for (let entry of messageStatus) {
-      var statusMessageString = "";
-      var statusString = "";
-      var sentDateString = "";
-      var readDateString = "";
-      if (entry.sent_datetime !== undefined)
-        sentDateString = entry.sent_datetime;
-      if (entry.read_datetime !== undefined)
-        readDateString = entry.read_datetime;
-      switch (entry.status) {
-        case 0:
-          statusString = "pending";
-          break;
-        case 1:
-          statusString = "sent";
-          break;
-        case 2:
-          statusString = "failed";
-          statusMessageString = entry.status_message;
-          break;
-        case 3:
-          statusString = "acked";
-          if (entry.status_message !== undefined) {
-            var obj = JSON.parse(entry.status_message);
-            if (obj['location'] !== undefined) {
-              var latitude = obj['location'].latitude;
-              var longitude = obj['location'].longitude;
-              statusMessageString = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
-            } else {
-              statusMessageString = entry.status_message;
-            }
-          }
-          break;
-        case 4:
-          statusString = "ignored";
-          statusMessageString = entry.status_message;
-          break;
-        case 5:
-          statusString = "aborted";
-          statusMessageString = entry.status_message;
-          break;
-        case 6:
-          statusString = "read";
-          statusMessageString = entry.status_message;
-          break;
-        case 7: // NOT SUPPORTED YET
-          statusString = "delivered";
-          statusMessageString = entry.status_message;
-          break;
-      }
-      reportEntries.push(
-        {
-          user: entry.user,
-          status: statusString,
-          statusMessage: statusMessageString,
-          sentDate: sentDateString,
-          readDate: readDateString
-        });
+    const broadcast = JSON.parse(APIService.getMessageIDEntry(req.params.messageID))
+    const parsedBroadcastStatus = JSON.parse(APIService.getMessageStatus(req.params.messageID, "full", req.params.page, req.params.size));
+
+    let broadcastReport = {
+      ...broadcast,
+      report: parsedBroadcastStatus,
+      summary: {}
     }
-    var reply = JSON.stringify(reportEntries);
-    res.set('Content-Type', 'application/json');
-    return res.send(reply);
+    let { summary } = broadcastReport
+
+
+    summary.pending = 0
+    summary.sent = 0
+    summary.failed = 0
+    summary.ack = 0
+    summary.ignored = 0
+    summary.aborted = 0
+    summary.read = 0
+    // user.status = parsedBroadcastStatus
+    parsedBroadcastStatus?.map(user => {
+      if (user.status == 0) {
+        summary.pending += 1
+      }
+      else if (user.status == 1) {
+        summary.sent += 1
+      }
+      else if (user.status == 2) {
+        summary.failed += 1
+      }
+      else if (user.status == 3) {
+        if (user.status_message !== undefined) {
+          var obj = JSON.parse(user.status_message);
+          if (obj['location'] !== undefined) {
+            var latitude = obj['location'].latitude;
+            var longitude = obj['location'].longitude;
+            user.status_message = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
+          }
+        }
+        summary.ack += 1
+      }
+      else if (user.status == 4) {
+        summary.ignored += 1
+      }
+      else if (user.status == 5) {
+        summary.aborted += 1
+      }
+      else if (user.status == 6) {
+        summary.read += 1
+      }
+      else if (user.status == 7) {
+        summary.read += 1
+      }
+    })
+
+    return res.json(broadcastReport);
   });
 
 }

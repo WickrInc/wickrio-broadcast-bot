@@ -373,7 +373,7 @@ async function listen(message) {
       }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
 
       // what will the deploy env be
-      var reply = encodeURI(`localhost:4545/?token=${token}`)
+      var reply = encodeURI(`http://localhost:4545/?token=${token}`)
       APIService.sendRoomMessage(vGroupID, reply);
       return
     }
