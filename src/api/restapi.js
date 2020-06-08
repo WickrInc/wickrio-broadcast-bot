@@ -205,9 +205,9 @@ const useRESTRoutes = (app) => {
     newBroadcast.setUserEmail(req.user.email)
     // set repeats and durations
 
-    acknowledge === true || acknowledge == 'true' ?
-      newBroadcast.setMessage(message + `\n Broadcast sent by: ${req.user.email} \n Please acknowledge you received this message by repling with /ack`) :
-      newBroadcast.setMessage(message + `\n Broadcast sent by: ${req.user.email}`)
+    if (acknowledge) {
+      newBroadcast.setAckFlag(true)
+    }
 
     let response = newBroadcast.broadcastMessage()
 
