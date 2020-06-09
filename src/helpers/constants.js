@@ -16,6 +16,8 @@ const {
   BOT_GOOGLE_MAPS,
   WICKRIO_BOT_NAME,
   VERIFY_USERS,
+  WEBAPP_PORT,
+  WEBAPP_HOST,
   WEB_APPLICATION
 } = JSON.parse(process.env.tokens);
 
@@ -115,6 +117,8 @@ export {
   BOT_KEY,
   BOT_PORT,
   BOT_GOOGLE_MAPS,
+  WEBAPP_HOST,
+  WEBAPP_PORT,
   WICKRIO_BOT_NAME,
   VERIFY_USERS,
   updateLastID,

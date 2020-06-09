@@ -9,6 +9,8 @@ import {
   logger,
   BOT_AUTH_TOKEN,
   BOT_KEY,
+  WEBAPP_HOST,
+  WEBAPP_PORT,
   BOT_PORT,
   BOT_GOOGLE_MAPS,
   WICKRIO_BOT_NAME,
@@ -373,7 +375,7 @@ async function listen(message) {
       }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
 
       // what will the deploy env be
-      var reply = encodeURI(`localhost:4545/?token=${token}`)
+      var reply = encodeURI(`${WEBAPP_HOST}:${WEBAPP_PORT}/?token=${token}`)
       APIService.sendRoomMessage(vGroupID, reply);
       return
     }
