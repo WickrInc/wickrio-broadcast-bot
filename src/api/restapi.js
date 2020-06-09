@@ -215,6 +215,17 @@ const useRESTRoutes = (app) => {
     res.send(response)
   });
 
+  app.post(endpoint + "/Abort/:messageID", checkAuth, (req, res) => {
+    let msgIDJSON = APIService.getMessageIDEntry(req.params.messageID);
+    if (msgIDJSON === undefined) return res.send("Message ID entry does not exist.")
+
+    let msgIDEntry = JSON.parse(msgIDJSON);
+    if (req.user.email !== msgIDEntry.sender) return res.send("Message is not from this user.")
+
+    let reply = APIService.cancelMessageID(req.params.messageID)
+    res.send(reply)
+  });
+
   app.get(endpoint + "/SecGroups", checkAuth, (req, res) => {
     try {
       // how does cmdGetSecurityGroups know what user to get security groups for?
