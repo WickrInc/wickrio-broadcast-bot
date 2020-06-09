@@ -9,6 +9,8 @@ import {
   logger,
   BOT_AUTH_TOKEN,
   BOT_KEY,
+  WEBAPP_HOST,
+  WEBAPP_PORT,
   BOT_PORT,
   BOT_GOOGLE_MAPS,
   WICKRIO_BOT_NAME,
@@ -33,6 +35,7 @@ import StatusService from './services/status-service'
 import RepeatService from './services/repeat-service'
 import ReportService from './services/report-service'
 import GenericService from './services/generic-service'
+import { response } from 'express';
 
 let currentState;
 let job;
@@ -363,17 +366,28 @@ async function listen(message) {
       // generate a random auth code for the session
       // store it in a globally accessable store
 
-      var random = generateRandomString(24);
-      client_auth_codes[userEmail] = random;
-      // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
-      // send token in url, used for calls to receive data, send messages
-      const token = jwt.sign({
-        'email': userEmail,
-        'session': random,
-      }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
+      if (WEBAPP_HOST.value != 'false' && WEBAPP_PORT.value) {
+        var random = generateRandomString(24);
+        client_auth_codes[userEmail] = random;
+        // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
+        // send token in url, used for calls to receive data, send messages
+        const token = jwt.sign({
+          'email': userEmail,
+          'session': random,
+        }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
 
-      // what will the deploy env be
-      var reply = encodeURI(`http://localhost:4545/?token=${token}`)
+        if (HTTPS_CHOICE.value == 'yes') {
+          const host = `https://${WEBAPP_HOST.value}`
+        } else {
+          const host = `http://${WEBAPP_HOST.value}`
+        }
+      } else {
+        // send 
+        APIService.sendRoomMessage(vGroupID, `no webapp_host or webapp_port in config, can't use /panel`);
+        return
+      }
+
+      var reply = encodeURI(`${host}:${WEBAPP_PORT.value}/?token=${token}`)
       APIService.sendRoomMessage(vGroupID, reply);
       return
     }

@@ -4,6 +4,7 @@ import {
   bot,
   client_auth_codes,
   logger,
+  BOT_KEY,
   BOT_AUTH_TOKEN,
   // cronJob
 } from '../helpers/constants';
@@ -15,7 +16,8 @@ const useRESTRoutes = (app) => {
   var upload = multer({ dest: 'attachments/' })
   // parse application/x-www-form-urlencoded
 
-  const endpoint = "/WickrIO/V1/Apps/Broadcast"
+  const base = "/WickrIO/V2/Apps/Broadcast/"
+  const endpoint = base + BOT_KEY.value;
 
   function checkCreds(authToken) {
     try {
@@ -142,15 +144,13 @@ const useRESTRoutes = (app) => {
     }
   });
 
-  app.post(endpoint + "/Message", [checkAuth, upload.single('attachment')], (req, res) => {
+  app.post(endpoint + "/Broadcast", [checkAuth, upload.single('attachment')], (req, res) => {
     // typecheck and validate parameters
     let { message, acknowledge = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = req.body
 
-    const newBroadcast = new BroadcastService()
-
-
     if (!message) return res.send("Broadcast message missing from request.");
 
+    const newBroadcast = new BroadcastService()
     newBroadcast.setMessage(message)
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
@@ -164,13 +164,13 @@ const useRESTRoutes = (app) => {
 
     // set repeats and durations
     if (security_group) {
-
       if (security_group?.includes(',')) {
         security_group = security_group.split(',')
       }
 
       newBroadcast.setSecurityGroups(security_group)
     }
+
     if (acknowledge) {
       newBroadcast.setAckFlag(true)
     }
@@ -184,34 +184,46 @@ const useRESTRoutes = (app) => {
 
   app.post(endpoint + "/Messages", checkAuth, (req, res) => {
     // typecheck and validate parameters
-    let { message, acknowledge = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = req.body
-
+    let { message, acknowledge = false, users, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = req.body
 
     var userList = [];
     for (var i in users) {
       userList.push(users[i].name);
     }
 
-    if (userList.length < 1) return res.send("Users missing from request.");
-
     // validate arguments, append message.
+    if (userList.length < 1) return res.send("Users missing from request.");
     if (!message) return res.send("Broadcast message missing from request.");
-
-    newBroadcast.setTTL(ttl)
-    newBroadcast.setBOR(bor)
 
     const newBroadcast = new BroadcastService()
     newBroadcast.setUsers(userList);
+    newBroadcast.setTTL(ttl)
+    newBroadcast.setBOR(bor)
 
     // let broadcast = {}
     // set user email without plus
     newBroadcast.setUserEmail(req.user.email)
     // set repeats and durations
 
+    if (acknowledge) {
+      newBroadcast.setAckFlag(true)
+    }
+
     let response = newBroadcast.broadcastMessage()
 
     // todo: send status on error
     res.send(response)
+  });
+
+  app.post(endpoint + "/Abort/:messageID", checkAuth, (req, res) => {
+    let msgIDJSON = APIService.getMessageIDEntry(req.params.messageID);
+    if (msgIDJSON === undefined) return res.send("Message ID entry does not exist.")
+
+    let msgIDEntry = JSON.parse(msgIDJSON);
+    if (req.user.email !== msgIDEntry.sender) return res.send("Message is not from this user.")
+
+    let reply = APIService.cancelMessageID(req.params.messageID)
+    res.send(reply)
   });
 
   app.get(endpoint + "/SecGroups", checkAuth, (req, res) => {
@@ -225,6 +237,20 @@ const useRESTRoutes = (app) => {
       res.statusCode = 400;
       res.type('txt').send(err.toString());
     }
+  });
+
+	  // similiar to the /status command, but returns a list of the messages associated with this user
+  // Will have to use the /Summary or /Details endpoints to get the summary information for a specific messageID
+  app.get(endpoint + "/Messages/:page/:size", checkAuth, async (req, res) => {
+    const tableDataRaw = APIService.getMessageIDTable(req.params.page, req.params.size, req.user.email);
+    var messageIdEntries = JSON.parse(tableDataRaw)
+    res.json(messageIdEntries)
+  });
+
+  app.get(endpoint + "/Summary/:messageID", checkAuth, async (req, res) => {
+    let statusdata = await APIService.getMessageStatus(req.params.messageID, 'summary', '', '')
+    const parsedstatus = JSON.parse(statusdata)
+    res.json(parsedstatus)
   });
 
   app.get(endpoint + "/Status/:page/:size", checkAuth, async (req, res) => {
