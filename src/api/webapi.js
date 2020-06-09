@@ -44,14 +44,14 @@ const useWebAndRoutes = (app) => {
   var upload = multer({ dest: 'attachments/' })
 
   const checkAuth = (req, res, next) => {
-    res.set('Authorization', 'Basic base64_auth_token');
+    // res.set('Authorization', 'Basic base64_auth_token');
     res.set('Content-Type', 'application/json');
 
     // Gather the jwt access token from the request header
-    // const authHeader = req.get('Authorization');
-    const authHeader = req.headers['authorization']
-
+    const authHeader = req.get('Authorization');
     const token = authHeader && authHeader.split(' ')[1]
+    // const token = req.cookies.token
+
 
     if (token == null) return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic jwt"'); // if there isn't any token
 
@@ -122,7 +122,8 @@ const useWebAndRoutes = (app) => {
         // send token in url, used for authorization to use routes
         // what will the deploy env be
         let reply = {}
-        reply.token = token
+        // reply.token = token  
+        res.cookie('token', token, { httpOnly: true });
         return res.send(reply);
       }
     } catch (err) {
