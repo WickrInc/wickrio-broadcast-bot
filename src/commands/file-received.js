@@ -2,7 +2,11 @@ import State from '../state';
 
 // TODO add a delete file command??
 class FileReceived {
-  static shouldExecute() {
+  static shouldExecute(messageService) {
+    if (messageService.file) {
+      return true;
+    }
+    return false;
   }
 
   static execute() {
@@ -15,4 +19,4 @@ class FileReceived {
   }
 }
 
-module.exports = FileReceived;
+export default FileReceived;
