@@ -25,6 +25,7 @@ import writer from './helpers/message-writer.js'
 // import logger from './src/logger'
 // const WhitelistRepository = require('./src/helpers/whitelist');
 import Version from './commands/version'
+import FileActions from './commands/file-actions'
 import FileHandler from './helpers/file-handler'
 import Factory from './factory'
 import State from './state'
@@ -68,8 +69,10 @@ const factory = new Factory(
   GenericService
 );
 
-let file;
-let filename;
+const fileActions = new FileActions(broadcastService, sendService);
+
+// let file;
+// let filename;
 
 process.stdin.resume(); // so the program will not close instantly
 if (!fs.existsSync(`${process.cwd()}/attachments`)) {
@@ -196,6 +199,10 @@ async function listen(message) {
     const convoType = parsedMessage.convotype;
     const messageType = parsedMessage.msgtype;
     const personalVGroupID = '';
+
+    const file = '' + parsedMessage.file;
+    const filename = '' + parsedMessage.filename;
+
     logger.debug(`convoType=${convoType}`);
     // Go back to dev toolkit and fix
     /*
@@ -394,16 +401,15 @@ async function listen(message) {
       APIService.sendRoomMessage(vGroupID, reply);
       return
     }
-
+    
     const messageService = new MessageService(messageReceived, userEmail, argument, command, currentState, vGroupID, file, filename);
     // TODO is this JSON.stringify necessary??
     // How to deal with duplicate files??
 
-
-
-    if (currentState === State.FILE_TYPE) {
+    if (false) { // (currentState === State.FILE_TYPE) {
       console.log({ messageService, file, filename })
-      let obj = await factory.fileActions(messageService, file, filename)
+      // let obj = factory.fileActions(messageService)
+      let obj = Factory.fileActions(messageService);
       console.log({ objfileactions: obj })
       // currentState = State.NONE;
       // const type = parsedMessage.message.toLowerCase();
@@ -451,14 +457,15 @@ async function listen(message) {
     } else {
       // TODO parse argument better??
       let obj;
-      if (parsedMessage.file) {
-        obj = factory.file(parsedMessage.file, parsedMessage.filename);
-        file = parsedMessage.file;
-        filename = parsedMessage.filename;
-      } else {
-        obj = factory.execute(messageService);
-        logger.debug(`obj${obj}`);
-      }
+      // if (parsedMessage.file) {
+      //   obj = factory.file(parsedMessage.file, parsedMessage.filename);
+      //   // Here file and filename are persisted across multiple messages
+      //   file = parsedMessage.file;
+      //   filename = parsedMessage.filename;
+      // } else {
+      obj = factory.execute(messageService);
+      logger.debug(`obj${obj}`);
+      // }
       if (obj.reply) {
         logger.debug('Object has a reply');
         const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
