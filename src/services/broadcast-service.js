@@ -85,9 +85,14 @@ class BroadcastService {
     if (this.ackFlag) {
       messageToSend = `${messageToSend}\nPlease acknowledge this message by replying with /ack`
       sentBy = `${sentBy}\nPlease acknowledge this message by replying with /ack`;
+      // console.log({ securityGroups: this.securityGroups })  needds to be array
+      console.log({ users: this.users })
 
     }
     const target = (this.users.length > 0) ? 'USERS' : ((this.securityGroups.length < 1 || this.securityGroups === undefined) ? 'NETWORK' : this.securityGroups.join());
+
+
+
     logger.debug(`target${target}`);
     const currentDate = new Date();
     // "YYYY-MM-DDTHH:MM:SS.sssZ"

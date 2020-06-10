@@ -171,7 +171,7 @@ const useWebAndRoutes = (app) => {
         security_group = security_group.split(',')
       }
 
-      newBroadcast.setSecurityGroups(security_group)
+      newBroadcast.setSecurityGroups([security_group])
     }
     if (acknowledge) {
       newBroadcast.setAckFlag(true)
