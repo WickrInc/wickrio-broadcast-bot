@@ -199,6 +199,20 @@ class BroadcastService {
     if (this.vGroupID !== '' && this.vGroupID !== undefined) {
       StatusService.asyncStatus(messageID, this.vGroupID);
     }
+    this.file = '';
+    this.message = '';
+    this.userEmail = '';
+    this.display = '';
+    this.ackFlag = false;
+    this.securityGroups = [];
+    this.duration = 0;
+    this.voiceMemo = '';
+    this.repeatFlag = false;
+    this.vGroupID = '';
+    this.APISecurityGroups = [];
+    this.users = [];
+    this.ttl = '';
+    this.bor = '';
     logger.debug(`Broadcast uMessage=${uMessage}`);
     reply.message_id = messageID
     if (target === 'USERS') {

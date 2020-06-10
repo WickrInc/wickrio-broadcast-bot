@@ -12,10 +12,11 @@ class FileHandler {
     // return readdir(path);
   }
 
+  // TODO this should be Aysnc
   static async copyFile(originalPath, newPath) {
     try {
-      await copyFileAsync(originalPath, newPath);
-      // await fs.copyFile(originalPath, newPath)
+      // await copyFileAsync(originalPath, newPath);
+      fs.copyFileSync(originalPath, newPath);
       logger.debug(`${originalPath} copied to ${newPath}`);
       return true;
     } catch (err) {
