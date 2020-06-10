@@ -208,7 +208,6 @@ async function listen(message) {
 
     logger.debug('FILENAME bcast' + filename);
     logger.debug('FILE bcast' + file);
-
     logger.debug(`convoType=${convoType}`);
     // Go back to dev toolkit and fix
     /*

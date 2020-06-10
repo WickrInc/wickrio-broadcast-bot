@@ -75,6 +75,7 @@ class Factory {
     this.askForAck = new AskForAck(this.broadcastService);
     this.askRepeat = new AskRepeat(this.repeatService, this.broadcastService);
     this.chooseFile = new ChooseFile(this.sendService);
+<<<<<<< HEAD
     this.chooseSecurityGroups = new ChooseSecurityGroups(this.broadcastService);
     this.confirmSecurityGroups = new ConfirmSecurityGroups(this.broadcastService);
     this.fileActions = new FileActions(this.fileService, this.broadcastService, this.sendService);
@@ -83,6 +84,9 @@ class Factory {
     this.whichStatus = new WhichStatus(this.genericService, this.statusService);
     this.whichAbort = new WhichAbort(this.genericService);
     this.whichReport = new WhichReport(this.genericService, this.reportService);
+=======
+    this.fileActions = new FileActions(this.broadcastService, this.sendService);
+>>>>>>> WIP: Making the copyfile command synchronous
 
     // Order matters here /commands must go first
     // TODO make it so that the order doesn' matter?
@@ -114,6 +118,7 @@ class Factory {
       this.fileReceived,
       Ack,
 <<<<<<< HEAD
+<<<<<<< HEAD
     ];
   }
 
@@ -126,11 +131,17 @@ class Factory {
   async execute(messageService) {
     // this.commandList.forEach((command) => {
 >>>>>>> paired on file actions to get async await to work and abstract from bbjs to their own commands
+=======
+      this.fileActions,
+      FileReceived,
+    ];
+  }
+
+  execute(messageService) {
+>>>>>>> WIP: Making the copyfile command synchronous
     for (const command of this.commandList) {
       if (command.shouldExecute(messageService)) {
-        let commandResponse = await command.execute(messageService);
-        console.log({ commandResponse })
-        return commandResponse
+        return command.execute(messageService);
       }
     }
     // TODO fix the admin command returning this then add it back
@@ -148,16 +159,22 @@ class Factory {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> WIP: Making the copyfile command synchronous
   // static fileActions(messageService) {
   //   const response = FileActions.execute(messageService);
   //   return response;
   // }
+<<<<<<< HEAD
 =======
   async fileActions(messageService, file, filename) {
     let response = await FileActions.execute(messageService, file, filename)
     return response
   }
 >>>>>>> paired on file actions to get async await to work and abstract from bbjs to their own commands
+=======
+>>>>>>> WIP: Making the copyfile command synchronous
 }
 
 export default Factory;
