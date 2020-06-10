@@ -115,7 +115,7 @@ class BroadcastService {
         );
         reply = 'Voice Memo broadcast in process of being sent';
       } else if (this.file !== '') {
-        uMessage = APIService.sendNetworkAttachment(this.file, this.display, this.ttl, this.bor, messageID, sentBy);
+        uMessage = APIService.sendNetworkAttachment(this.file, this.display, this.ttl, this.bor, messageID, messageToSend);
         reply = 'File broadcast in process of being sent';
       } else {
         uMessage = APIService.sendNetworkMessage(messageToSend, this.ttl, this.bor, messageID);
