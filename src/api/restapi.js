@@ -1,5 +1,6 @@
 import multer from 'multer'
 import jwt from "jsonwebtoken"
+import fs from 'fs'
 import {
   bot,
   client_auth_codes,
@@ -53,7 +54,10 @@ const useRESTRoutes = (app) => {
 
     const token = authHeader && authHeader.split(' ')[1]
 
-    if (token == null) return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic jwt"'); // if there isn't any token
+    if (token == null) {
+      // if there isn't any token
+      return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic jwt"');
+    }
 
     jwt.verify(token, BOT_AUTH_TOKEN.value, (err, user) => {
       if (err) {
@@ -148,7 +152,9 @@ const useRESTRoutes = (app) => {
     // typecheck and validate parameters
     let { message, acknowledge = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = req.body
 
-    if (!message) return res.send("Broadcast message missing from request.");
+    if (!message) {
+      return res.status(400).send('Bad request: message missing from request.');
+    }
 
     const newBroadcast = new BroadcastService()
     newBroadcast.setMessage(message)
@@ -164,11 +170,13 @@ const useRESTRoutes = (app) => {
 
     // set repeats and durations
     if (security_group) {
+      var securityGroupTable = [];
       if (security_group?.includes(',')) {
-        security_group = security_group.split(',')
+        securityGroupTable = security_group.split(',')
+      } else {
+        securityGroupTable.push(security_group);
       }
-
-      newBroadcast.setSecurityGroups(security_group)
+      newBroadcast.setSecurityGroups(securityGroupTable)
     }
 
     if (acknowledge) {
@@ -177,7 +185,77 @@ const useRESTRoutes = (app) => {
 
     let response = {}
     response.data = newBroadcast.broadcastMessage()
+    // todo: send status on error
+    res.send(response)
+  });
 
+  app.post(endpoint + "/Broadcast/File", [checkAuth, upload.single('attachment')], (req, res) => {
+    const formData = req.body;
+    console.log('form data: ', formData);
+    console.log('form data body: ', formData.body);
+
+    const fileData = req.file;
+    var userAttachments;
+    var userNewFile;
+    var inFile;
+
+    if (fileData === undefined) {
+      console.log('attachment is not defined!')
+    } else {
+      console.log('originalname: ', fileData.originalname);
+      console.log('size: ', fileData.size);
+      console.log('destination: ', fileData.destination);
+      console.log('filename: ', fileData.filename);
+
+      userAttachments = process.cwd() + '/attachments/' + req.user.email;
+      userNewFile = userAttachments + '/' + fileData.originalname;
+      inFile = process.cwd() + '/attachments/' + fileData.filename;
+
+      fs.mkdirSync(userAttachments, { recursive: true });
+      if (fs.existsSync(userNewFile)) fs.unlinkSync(userNewFile);
+      fs.renameSync(inFile, userNewFile);
+    }
+
+    const obj = JSON.parse(formData.body);
+    let { message, acknowledge = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = obj;
+
+    if (!message) {
+      return res.status(400).send('Bad request: message missing from request.');
+    }
+
+    console.log('message: ', message);
+
+    const newBroadcast = new BroadcastService()
+    newBroadcast.setMessage(message)
+    newBroadcast.setTTL(ttl)
+    newBroadcast.setBOR(bor)
+    console.log({ message, acknowledge, security_group, repeat_num, freq_num, ttl, bor })
+    // set user email without plus
+    newBroadcast.setUserEmail(req.user.email)
+    if (userNewFile === undefined) {
+      newBroadcast.setFile('')
+    } else {
+      newBroadcast.setFile(userNewFile)
+      newBroadcast.setDisplay(fileData.originalname)
+    }
+
+    // set repeats and durations
+    if (security_group) {
+      var securityGroupTable = [];
+      if (security_group?.includes(',')) {
+        securityGroupTable = security_group.split(',')
+      } else {
+        securityGroupTable.push(security_group);
+      }
+      newBroadcast.setSecurityGroups(securityGroupTable)
+    }
+
+    if (acknowledge) {
+      newBroadcast.setAckFlag(true)
+    }
+
+    let response = {}
+    response.data = newBroadcast.broadcastMessage()
     // todo: send status on error
     res.send(response)
   });
@@ -192,10 +270,15 @@ const useRESTRoutes = (app) => {
     }
 
     // validate arguments, append message.
-    if (userList.length < 1) return res.send("Users missing from request.");
-    if (!message) return res.send("Broadcast message missing from request.");
+    if (userList.length < 1) {
+      return res.status(400).send('Bad request: Users missing from request.');
+    }
+    if (!message) {
+      return res.status(400).send('Bad request: message missing from request.');
+    }
 
     const newBroadcast = new BroadcastService()
+    newBroadcast.setMessage(message)
     newBroadcast.setUsers(userList);
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
@@ -209,18 +292,32 @@ const useRESTRoutes = (app) => {
       newBroadcast.setAckFlag(true)
     }
 
-    let response = newBroadcast.broadcastMessage()
+    if (security_group) {
+      var securityGroupTable = [];
+      if (security_group?.includes(',')) {
+        securityGroupTable = security_group.split(',')
+      } else {
+        securityGroupTable.push(security_group);
+      }
+      newBroadcast.setSecurityGroups(securityGroupTable)
+    }
 
+    let response = {}
+    response.data = newBroadcast.broadcastMessage()
     // todo: send status on error
     res.send(response)
   });
 
   app.post(endpoint + "/Abort/:messageID", checkAuth, (req, res) => {
     let msgIDJSON = APIService.getMessageIDEntry(req.params.messageID);
-    if (msgIDJSON === undefined) return res.send("Message ID entry does not exist.")
+    if (msgIDJSON === undefined) {
+      return res.status(404).send('Not Found: Message ID entry does not exist.');
+    }
 
     let msgIDEntry = JSON.parse(msgIDJSON);
-    if (req.user.email !== msgIDEntry.sender) return res.send("Message is not from this user.")
+    if (req.user.email !== msgIDEntry.sender) {
+      return res.status(401).send('Unauthorized: Message is not from this user.');
+    }
 
     let reply = APIService.cancelMessageID(req.params.messageID)
     res.send(reply)
