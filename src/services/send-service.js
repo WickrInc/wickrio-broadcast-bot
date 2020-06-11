@@ -1,13 +1,10 @@
 import { existsSync, mkdirSync } from 'fs';
 import FileHandler from '../helpers/file-handler';
-import WriteMessageIDDB from '../helpers/write-message-id-db';
 import APIService from './api-service';
+import StatusService from './status-service';
 // TODO proper form??
 import updateLastID from '../helpers/message-id-helper';
 import { logger } from '../helpers/constants';
-
-const fileHandler = new FileHandler();
-const writeMessageIdDb = new WriteMessageIDDB();
 
 // TODO make fs a variable that is passed into the constructor
 if (!existsSync(`${process.cwd()}/files`)) {
@@ -28,7 +25,7 @@ class SendService {
   // TODO what happens if someone is adding a file at the same time as someone is sending a message?
   getFiles() {
     try {
-      this.fileArr = fileHandler.listFiles(dir);
+      this.fileArr = FileHandler.listFiles(dir);
       return this.fileArr;
     } catch (err) {
       // TODO fix this!!! gracefully >:)
@@ -78,7 +75,7 @@ class SendService {
       } else if (fileName.endsWith('user')) {
         uMessage = APIService.sendAttachmentUserNameFile(filePath, this.file, this.displayName, '', '', messageID);
       }
-      writeMessageIdDb.writeMessageIDDB(
+      APIService.writeMessageIDDB(
         messageID,
         this.userEmail,
         filePath,
@@ -91,13 +88,16 @@ class SendService {
       } else if (fileName.endsWith('user')) {
         uMessage = APIService.sendMessageUserNameFile(filePath, messageToSend, '', '', messageID);
       }
-      writeMessageIdDb.writeMessageIDDB(
+      APIService.writeMessageIDDB(
         messageID,
         this.userEmail,
         filePath,
         jsonDateTime,
         this.message,
       );
+    }
+    if (this.vGroupID !== '' && this.vGroupID !== undefined) {
+      StatusService.asyncStatus(messageID, this.vGroupID);
     }
     logger.debug(`Broadcast uMessage${uMessage}`);
   }

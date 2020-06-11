@@ -22,8 +22,8 @@ class InitializeBroadcast {
     // TODO check for undefined??
     if (
       (!messageService.getArgument() || messageService.getArgument().length === 0)
-      && !messageService.getFile()
-      && !messageService.getVoiceMemo()
+      && (messageService.getFile().length === 0 || messageService.getFile === '')
+      && (messageService.getVoiceMemo().length === 0 || messageService.getVoiceMemo === '')
     ) {
       reply = 'Must have a message or file to broadcast, Usage: /broadcast <message>';
       state = State.NONE;
