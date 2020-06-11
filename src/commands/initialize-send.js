@@ -26,7 +26,8 @@ class InitializeSend {
     logger.debug(`message:${messageService.getMessage()}userEmail:${messageService.getUserEmail()}`);
     if (
       (!messageService.getArgument() || messageService.getArgument().length === 0)
-      && !messageService.getFile()
+      && (messageService.getFile().length === 0 || messageService.getFile === '')
+      && (messageService.getVoiceMemo().length === 0 || messageService.getVoiceMemo === '')
     ) {
       reply = 'Must have a message or file to send, Usage: /send <message>';
     } else if (length > 0) {
