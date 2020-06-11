@@ -4,8 +4,8 @@ import { logger } from '../helpers/constants';
 const maxStringLength = 50;
 const inc = 10;
 
-const maxNumberEntries = 10;
 const maxStringLength = 50;
+const inc = 10;
 
 class GenericService {
   constructor(endIndex) {
@@ -68,9 +68,9 @@ class GenericService {
       if (entry.sender === userEmail) {
         messageEntries.push(entry);
       }
-      if (messageEntries.length === maxNumberEntries) {
-        break;
-      }
+      // if ( === this.endIndex) {
+      //   break;
+      // }
     }
     this.endIndex = Math.min(this.endIndex, messageEntries.length);
     return messageEntries;

@@ -102,7 +102,6 @@ class BroadcastService {
     const target = (this.users.length > 0) ? 'USERS' : ((this.securityGroups.length < 1 || this.securityGroups === undefined) ? 'NETWORK' : this.securityGroups.join());
 
 
-
     logger.debug(`target${target}`);
     const currentDate = new Date();
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
@@ -110,9 +109,9 @@ class BroadcastService {
     // messageID must be a string
     // TODO is is necessary to do this?
     const messageID = `${updateLastID()}`;
-    console.log({ messageID })
+    console.log({ messageID });
     let uMessage;
-    let reply = {};
+    const reply = {};
     if (target === 'USERS') {
       logger.debug(`broadcasting to users=${this.users}`);
       uMessage = APIService.send1to1Message(
@@ -123,9 +122,8 @@ class BroadcastService {
         messageID,
       );
       logger.debug(`send1to1Messge returns=${uMessage}`);
-      // reply = 'Broadcast message in process of being sent to list of users';
+      reply.pending = 'Broadcast message in process of being sent to list of users';
       reply.message = messageToSend;
-
     } else if (target === 'NETWORK') {
       if (this.voiceMemo !== '') {
         uMessage = APIService.sendNetworkVoiceMemo(
@@ -136,19 +134,23 @@ class BroadcastService {
           messageID,
           messageToSend,
         );
-        // reply = 'Voice Memo broadcast in process of being sent';
+        reply.pending = 'Voice Memo broadcast in process of being sent';
         reply.message = messageToSend;
-
       } else if (this.file !== '') {
-        uMessage = APIService.sendNetworkAttachment(this.file, this.display, this.ttl, this.bor, messageID, messageToSend);
-        // reply = 'File broadcast in process of being sent';
+        uMessage = APIService.sendNetworkAttachment(
+          this.file,
+          this.display,
+          this.ttl,
+          this.bor,
+          messageID,
+          messageToSend,
+        );
+        reply.pending = 'File broadcast in process of being sent';
         reply.message = messageToSend;
-
       } else {
         uMessage = APIService.sendNetworkMessage(messageToSend, this.ttl, this.bor, messageID);
-        // reply = 'Broadcast message in process of being sent';
+        reply.pending = 'Broadcast message in process of being sent';
         reply.message = messageToSend;
-
       }
     } else if (this.voiceMemo !== '') {
       uMessage = APIService.sendSecurityGroupVoiceMemo(
@@ -160,9 +162,8 @@ class BroadcastService {
         messageID,
         messageToSend,
       );
-      // reply = 'Voice Memo broadcast in process of being sent to security group';
+      reply.pending = 'Voice Memo broadcast in process of being sent to security group';
       reply.message = messageToSend;
-
     } else if (this.file !== '') {
       uMessage = APIService.sendSecurityGroupAttachment(
         this.securityGroups,
@@ -173,16 +174,8 @@ class BroadcastService {
         messageID,
         messageToSend,
       );
-      // console.log(this.securityGroups,
-      //   this.file,
-      //   this.display,
-      //   this.ttl,
-      //   this.bor,
-      //   messageID,
-      //   messageToSend)
-      // reply = 'File broadcast in process of being sent to security group';
+      reply.pending = 'File broadcast in process of being sent to security group';
       reply.message = messageToSend;
-
     } else {
       uMessage = APIService.sendSecurityGroupMessage(
         this.securityGroups,
@@ -191,7 +184,12 @@ class BroadcastService {
         this.bor,
         messageID,
       );
+<<<<<<< HEAD
       reply = 'Broadcast message in process of being sent to security group';
+=======
+      reply.pending = 'Broadcast message in process of being sent to security group';
+      reply.message = messageToSend;
+>>>>>>> WIP: Adding the more command
     }
     if (this.file !== '') {
       logger.debug(`display:${this.display}:`);
@@ -219,12 +217,17 @@ class BroadcastService {
     this.ttl = '';
     this.bor = '';
     logger.debug(`Broadcast uMessage=${uMessage}`);
+<<<<<<< HEAD
     reply.message_id = messageID
     if (target === 'USERS') {
       reply.users = this.users
     } else {
       reply.securityGroups = this.securityGroups
     }
+=======
+    reply.message_id = messageID;
+    reply.securityGroups = this.securityGroups;
+>>>>>>> WIP: Adding the more command
     return reply;
   }
 
