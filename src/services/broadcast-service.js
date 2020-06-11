@@ -149,10 +149,17 @@ class BroadcastService {
       );
       reply = 'File broadcast in process of being sent to security group';
     } else {
-      uMessage = APIService.sendSecurityGroupMessage(this.securityGroups, messageToSend, this.ttl, this.bor, messageID);
+      uMessage = APIService.sendSecurityGroupMessage(
+        this.securityGroups,
+        messageToSend,
+        this.ttl,
+        this.bor,
+        messageID,
+      );
       reply = 'Broadcast message in process of being sent to security group';
     }
     if (this.file !== '') {
+      logger.debug(`display:${this.display}:`);
       APIService.writeMessageIDDB(messageID, this.userEmail, target, jsonDateTime, this.display);
     } else if (this.voiceMemo !== '') {
       APIService.writeMessageIDDB(messageID, this.userEmail, target, jsonDateTime, `VoiceMemo-${jsonDateTime}`);

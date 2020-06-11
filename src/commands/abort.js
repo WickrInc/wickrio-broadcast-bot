@@ -1,5 +1,4 @@
 import State from '../state';
-import GenericService from '../services/generic-service';
 import { logger } from '../helpers/constants';
 
 class Abort {
@@ -48,7 +47,7 @@ class Abort {
     return {
       reply,
       state: State.WHICH_ABORT,
-    }
+    };
   }
 }
 

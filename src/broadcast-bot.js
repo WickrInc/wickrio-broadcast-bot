@@ -37,10 +37,13 @@ import StatusService from './services/status-service'
 import RepeatService from './services/repeat-service'
 import ReportService from './services/report-service'
 import GenericService from './services/generic-service'
+import FileService from './services/file-service'
 
 let currentState;
 let job;
 let verifyUsersMode
+let webAppEnabled;
+let webAppString = '';
 
 // need to be able to debug and lint for syntax errors
 //
@@ -50,14 +53,13 @@ process.stdin.resume(); //so the program will not close instantly
 
 // const {exec, execSync, execFileSync} = require('child_process');
 
-
-
 const fileHandler = new FileHandler();
 // const whitelist = new WhitelistRepository(fs);
 const broadcastService = new BroadcastService();
 const repeatService = new RepeatService(broadcastService);
 const sendService = new SendService();
-
+const fileService = new FileService();
+const genericService = new GenericService(10);
 
 const factory = new Factory(
   broadcastService,
@@ -65,7 +67,8 @@ const factory = new Factory(
   StatusService,
   repeatService,
   ReportService,
-  GenericService
+  genericService,
+  fileService,
 );
 
 const fileActions = new FileActions(broadcastService, sendService);
@@ -159,7 +162,7 @@ async function main() {
     ) {
       // run server
       startServer()
-
+      webAppEnabled = true;
     } else {
       console.log('If you wanted a web interface, the env variables not set properly. Check BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT')
 
@@ -203,6 +206,9 @@ async function listen(message) {
     const file = '' + parsedMessage.file;
     const filename = '' + parsedMessage.filename;
 
+    logger.debug('FILENAME bcast' + filename);
+    logger.debug('FILE bcast' + file);
+
     logger.debug(`convoType=${convoType}`);
     // Go back to dev toolkit and fix
     /*
@@ -226,7 +232,7 @@ async function listen(message) {
       };
       const statusMessage = JSON.stringify(obj);
       logger.debug(`location statusMessage=${statusMessage}`);
-      GenericService.setMessageStatus('', userEmailString, '3', statusMessage);
+      genericService.setMessageStatus('', userEmailString, '3', statusMessage);
       return;
     }
 
@@ -238,8 +244,13 @@ async function listen(message) {
 
     if (command === '/ack') {
       const userEmailString = `${userEmail}`;
-      GenericService.setMessageStatus('', userEmailString, '3', '');
+      genericService.setMessageStatus('', userEmailString, '3', '');
       return;
+    }
+    
+    if (webAppEnabled) {
+      webAppString = '*Web App Commands*\n'
+        + '/panel';
     }
 
     // TODO  put this in it's own command
@@ -254,6 +265,8 @@ async function listen(message) {
         + '/messages : To get a text file of all the messages sent to the bot\n'
         + '/status : To get the status of a broadcast message\n'
         + '/report : To get a CSV file with the status of each user for a broadcast message\n\n'
+        + '/abort : To abort a broadcast or send that is currently in progress\n'
+        + `${webAppString}`
         + '*Admin Commands*\n'
         + '%{adminHelp}\n'
         + '*Other Commands*\n'
@@ -361,7 +374,7 @@ async function listen(message) {
       return
     }
 
-    if (command === '/panel') {
+    if (webAppEnabled && command === '/panel') {
       // Check if this user is an administrator
       // var adminUser = bot.myAdmins.getAdmin(userEmail);
       // scope this conditional down further
