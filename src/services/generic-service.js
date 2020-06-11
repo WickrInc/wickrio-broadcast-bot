@@ -15,7 +15,9 @@ class GenericService {
   static getMessageEntries(userEmail) {
     const messageEntries = [];
     const tableDataRaw = APIService.getMessageIDTable('0', '1000', userEmail);
-    const tableData = JSON.parse(tableDataRaw);
+    const messageIDData = JSON.parse(tableDataRaw);
+	
+    const tableData = messageIDData.list;
     for (let i = tableData.length - 1; i >= 0; i -= 1) {
       const entry = tableData[i];
       if (entry.sender === userEmail) {
