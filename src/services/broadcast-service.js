@@ -102,12 +102,14 @@ class BroadcastService {
     const messageID = `${updateLastID()}`;
     console.log({ messageID })
     let uMessage;
-    let reply;
+    let reply = {};
     if (target === 'USERS') {
       logger.debug(`broadcasting to users=${this.users}`);
       uMessage = APIService.send1to1Message(this.users, messageToSend, this.ttl, this.bor, messageID);
       logger.debug(`send1to1Messge returns=${uMessage}`);
-      reply = 'Broadcast message in process of being sent to list of users';
+      // reply = 'Broadcast message in process of being sent to list of users';
+      reply.message = messageToSend;
+
     } else if (target === 'NETWORK') {
       if (this.voiceMemo !== '') {
         uMessage = APIService.sendNetworkVoiceMemo(
@@ -118,13 +120,19 @@ class BroadcastService {
           messageID,
           messageToSend,
         );
-        reply = 'Voice Memo broadcast in process of being sent';
+        // reply = 'Voice Memo broadcast in process of being sent';
+        reply.message = messageToSend;
+
       } else if (this.file !== '') {
         uMessage = APIService.sendNetworkAttachment(this.file, this.display, this.ttl, this.bor, messageID, messageToSend);
-        reply = 'File broadcast in process of being sent';
+        // reply = 'File broadcast in process of being sent';
+        reply.message = messageToSend;
+
       } else {
         uMessage = APIService.sendNetworkMessage(messageToSend, this.ttl, this.bor, messageID);
-        reply = 'Broadcast message in process of being sent';
+        // reply = 'Broadcast message in process of being sent';
+        reply.message = messageToSend;
+
       }
     } else if (this.voiceMemo !== '') {
       uMessage = APIService.sendSecurityGroupVoiceMemo(
@@ -136,7 +144,9 @@ class BroadcastService {
         messageID,
         messageToSend,
       );
-      reply = 'Voice Memo broadcast in process of being sent to security group';
+      // reply = 'Voice Memo broadcast in process of being sent to security group';
+      reply.message = messageToSend;
+
     } else if (this.file !== '') {
       uMessage = APIService.sendSecurityGroupAttachment(
         this.securityGroups,
@@ -147,10 +157,21 @@ class BroadcastService {
         messageID,
         messageToSend,
       );
-      reply = 'File broadcast in process of being sent to security group';
+      // console.log(this.securityGroups,
+      //   this.file,
+      //   this.display,
+      //   this.ttl,
+      //   this.bor,
+      //   messageID,
+      //   messageToSend)
+      // reply = 'File broadcast in process of being sent to security group';
+      reply.message = messageToSend;
+
     } else {
       uMessage = APIService.sendSecurityGroupMessage(this.securityGroups, messageToSend, this.ttl, this.bor, messageID);
-      reply = 'Broadcast message in process of being sent to security group';
+      // reply.message = 'Broadcast message in process of being sent to security group';
+      reply.message = messageToSend;
+
     }
     if (this.file !== '') {
       APIService.writeMessageIDDB(messageID, this.userEmail, target, jsonDateTime, this.display);
@@ -163,6 +184,8 @@ class BroadcastService {
       StatusService.asyncStatus(messageID, this.vGroupID);
     }
     logger.debug(`Broadcast uMessage=${uMessage}`);
+    reply.message_id = messageID
+    reply.securityGroups = this.securityGroups
     return reply;
   }
 

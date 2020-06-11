@@ -389,7 +389,7 @@ async function listen(message) {
       }
 
       // const host = `http://localhost:4545`
-
+      console.log(`${host}:${port}/?token=${token}`)
       var reply = encodeURI(`${host}:${port}/?token=${token}`)
       APIService.sendRoomMessage(vGroupID, reply);
       return

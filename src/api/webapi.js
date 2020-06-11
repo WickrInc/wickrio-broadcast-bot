@@ -1,6 +1,7 @@
 import express from 'express';
 import jwt from "jsonwebtoken"
 import multer from 'multer'
+import fs from 'fs'
 import {
   bot,
   client_auth_codes,
@@ -16,7 +17,7 @@ const useWebAndRoutes = (app) => {
 
   app.use(express.static('public'))
 
-  const endpoint = "/WickrIO/V1/Apps/Web/Broadcast"
+  const endpoint = "/WickrIO/V2/Apps/Web/Broadcast"
 
   function checkCreds(authToken) {
     try {
@@ -72,7 +73,7 @@ const useWebAndRoutes = (app) => {
       if (dictAuthCode === undefined || user.session != dictAuthCode) {
         return res.status(401).send('Access denied: invalid user authentication code.');
       }
-      logger.debug({ user })
+      // logger.debug({ user })
       req.user = user
       next()
     })
@@ -156,14 +157,45 @@ const useWebAndRoutes = (app) => {
     newBroadcast.setMessage(message)
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
-    console.log({ message, acknowledge, security_group, repeat_num, freq_num, ttl, bor })
+    // console.log({ message, acknowledge, security_group, repeat_num, freq_num, ttl, bor })
     // set user email without plus
     newBroadcast.setUserEmail(req.user.email)
-    if (req.file === undefined)
-      newBroadcast.setFile('')
-    else
-      newBroadcast.setFile(req.file)
+    // console.log(req.file)
+    const fileData = req.file;
+    var userAttachments;
+    var userNewFile;
+    var inFile;
 
+    if (fileData === undefined) {
+      console.log('attachment is not defined!')
+    } else {
+      console.log('originalname: ', fileData.originalname);
+      console.log('size: ', fileData.size);
+      console.log('destination: ', fileData.destination);
+      console.log('filename: ', fileData.filename);
+
+      userAttachments = process.cwd() + '/attachments/' + req.user.email;
+      userNewFile = userAttachments + '/' + fileData.originalname;
+      inFile = process.cwd() + '/attachments/' + fileData.filename;
+
+      fs.mkdirSync(userAttachments, { recursive: true });
+      if (fs.existsSync(userNewFile)) fs.unlinkSync(userNewFile);
+      fs.renameSync(inFile, userNewFile);
+    }
+    if (userNewFile === undefined) {
+      newBroadcast.setFile('')
+    } else {
+      newBroadcast.setFile(userNewFile)
+      newBroadcast.setDisplay(fileData.originalname)
+    }
+
+    // console.log({ file: req.file })
+    // if (req.file === undefined) {
+    //   newBroadcast.setFile('')
+    // } else {
+    //   newBroadcast.setFile(req.file.filename)
+    //   newBroadcast.setDisplay(req.file.originalname)
+    // }
     // set repeats and durations
     if (security_group) {
 
@@ -209,6 +241,16 @@ const useWebAndRoutes = (app) => {
     // set user email without plus
     newBroadcast.setUserEmail(req.user.email)
     // set repeats and durations
+    // console.log(req.file)
+    // if (!req.file) {
+    //   newBroadcast.setFile('')
+    // } else {
+    //   let userAttachments = process.cwd() + '/attachments/' + req.user.email;
+    //   let userNewFile = userAttachments + '/' + fileData.originalname;
+    //   newBroadcast.setFile(userNewFile)
+    //   newBroadcast.setDisplay(fileData.originalname)
+    // }
+
 
     let response = newBroadcast.broadcastMessage()
 
@@ -229,60 +271,22 @@ const useWebAndRoutes = (app) => {
     }
   });
 
-  app.get(endpoint + "/Status/:page/:size", checkAuth, async (req, res) => {
-    // too many calls, wickrio api should support a single status call for x records including sender and message content
-    const status = await getStatus(req.params.page, req.params.size, req.user.email)
-    res.json(status)
-  });
-
-  const mapEntries = (messageIdEntries, type, page, size) => {
-    messageIdEntries?.map(async entry => {
-      console.log({ entry })
-      let contentData = JSON.parse(APIService.getMessageIDEntry(entry.message_id));
-      entry.message = contentData.message
-      let statusdata = await APIService.getMessageStatus(entry.message_id, type, page, size)
-      console.log({ statusdata })
-      const parsedstatus = JSON.parse(statusdata)
-      entry.summary = {}
-      entry.test = "test"
-      entry.summary.pending = 0
-      entry.summary.sent = 0
-      entry.summary.failed = 0
-      entry.summary.ack = 0
-      entry.summary.ignored = 0
-      entry.summary.aborted = 0
-      entry.summary.read = 0
-      entry.status = parsedstatus
-
-      parsedstatus?.map(user => {
-        if (user.status == 0) { entry.summary.pending += 1 }
-        else if (user.status == 1) { entry.summary.sent += 1 }
-        else if (user.status == 2) { entry.summary.failed += 1 }
-        else if (user.status == 3) { entry.summary.ack += 1 }
-      })
-
-    })
-    return messageIdEntries
-  }
-
-  const getStatus = async (page, size, email) => {
+  const getStatusSummary = async (email) => {
     // if user hasn't sent a message in the last 'size' messages, will it show zero messages unless we search a larger index that captures the user's message?
-    var tableDataRaw = APIService.getMessageIDTable(String(page), String(size), String(email));
+    var tableDataRaw = APIService.getMessageIDTable() //gets all of the entries with all data, just need a number of broadcasts returned for total number to paginate thru 
 
     var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
       return entry.sender == email
     });
 
     try {
-      const builtStatus = await mapEntries(messageIdEntries, 'full', page, size)
-
       var reply = {};
-      if (builtStatus.length < 1) {
+      if (messageIdEntries.length < 1) {
         reply.data = []
         reply.error = "no broadcasts yet"
       } else {
-        reply.data = builtStatus
-        console.log({ builtStatus })
+        reply.data = messageIdEntries.length
+        console.log(messageIdEntries.length)
       }
       return reply
     } catch (e) {
@@ -291,10 +295,86 @@ const useWebAndRoutes = (app) => {
     }
   }
 
+  app.get(endpoint + "/Status", checkAuth, async (req, res) => {
+    // too many calls, wickrio api should support a single status call for x records including sender and message content
+    const status = getStatusSummary(req.user.email)
+    res.json(status)
+  });
+
+  const mapEntries = (messageIdEntries, type, page, size) => {
+    messageIdEntries?.map(async entry => {
+      // console.log({ entry })
+      let contentData = JSON.parse(APIService.getMessageIDEntry(entry.message_id));
+      entry.message = contentData.message
+      try {
+
+        let statusdata = await APIService.getMessageStatus(entry.message_id, type, page, size)
+        const parsedstatus = JSON.parse(statusdata)
+
+        // console.log({ statusdata })
+        entry.summary = {}
+        entry.test = "test"
+        entry.summary.pending = 0
+        entry.summary.sent = 0
+        entry.summary.failed = 0
+        entry.summary.ack = 0
+        entry.summary.ignored = 0
+        entry.summary.aborted = 0
+        entry.summary.read = 0
+        entry.status = parsedstatus
+
+        parsedstatus?.map(user => {
+          if (user.status == 0) { entry.summary.pending += 1 }
+          else if (user.status == 1) { entry.summary.sent += 1 }
+          else if (user.status == 2) { entry.summary.failed += 1 }
+          else if (user.status == 3) { entry.summary.ack += 1 }
+        })
+      } catch (e) {
+        console.log({ err: e })
+      }
+
+    })
+    return messageIdEntries
+  }
+
+  const getStatus = async (page, size, email) => {
+    // if user hasn't sent a message in the last 'size' messages, will it show zero messages unless we search a larger index that captures the user's message?
+    var tableDataRaw = APIService.getMessageIDTable(String(page), String(size), String(email));
+    // console.log({ tableDataRaw: JSON.parse(tableDataRaw) })
+    // don't need this with the email  in getMessageIDTable
+    // var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
+    //   return entry.sender == email
+    // });
+
+    try {
+      const builtStatus = await mapEntries(JSON.parse(tableDataRaw), 'full', page, size)
+      // console.log({ builtStatus })
+
+      var reply = {};
+      if (builtStatus.length < 1) {
+        reply.data = []
+        reply.error = "no broadcasts yet"
+      } else {
+        reply.data = builtStatus.reverse()
+      }
+      return reply
+    } catch (e) {
+      console.log(e)
+      return e
+    }
+  }
+
+  app.get(endpoint + "/Status/:page/:size", checkAuth, async (req, res) => {
+    // too many calls, wickrio api should support a single status call for x records including sender and message content
+    // console.log({ email: req.user.email })
+    const status = await getStatus(req.params.page, req.params.size, req.user.email)
+    res.json(status)
+  });
+
   // need page or size? 
   app.get(endpoint + "/Status/:messageID", checkAuth, (req, res) => {
     // validate message id
-    var statusData = APIService.getMessageStatus(req.params.messageID, "full", "0", "1000");
+    var statusData = APIService.getMessageStatus(req.params.messageID);
     var reply = statusData;
     return res.send(reply);
   });
