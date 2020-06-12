@@ -160,7 +160,7 @@ const useRESTRoutes = (app) => {
     newBroadcast.setMessage(message)
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
-    console.log({ message, acknowledge, security_group, repeat_num, freq_num, ttl, bor })
+    // console.log({ message, acknowledge, security_group, repeat_num, freq_num, ttl, bor })
     // set user email without plus
     newBroadcast.setUserEmail(req.user.email)
     if (req.file === undefined)
@@ -336,7 +336,7 @@ const useRESTRoutes = (app) => {
     }
   });
 
-	  // similiar to the /status command, but returns a list of the messages associated with this user
+  // similiar to the /status command, but returns a list of the messages associated with this user
   // Will have to use the /Summary or /Details endpoints to get the summary information for a specific messageID
   app.get(endpoint + "/Messages/:page/:size", checkAuth, async (req, res) => {
     const tableDataRaw = APIService.getMessageIDTable(req.params.page, req.params.size, req.user.email);

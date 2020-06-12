@@ -1,6 +1,7 @@
 import express from 'express';
 import jwt from "jsonwebtoken"
 import multer from 'multer'
+import fs from 'fs'
 import {
   bot,
   client_auth_codes,
@@ -16,7 +17,7 @@ const useWebAndRoutes = (app) => {
 
   app.use(express.static('public'))
 
-  const endpoint = "/WickrIO/V1/Apps/Web/Broadcast"
+  const endpoint = "/WickrIO/V2/Apps/Web/Broadcast"
 
   function checkCreds(authToken) {
     try {
@@ -44,14 +45,14 @@ const useWebAndRoutes = (app) => {
   var upload = multer({ dest: 'attachments/' })
 
   const checkAuth = (req, res, next) => {
-    res.set('Authorization', 'Basic base64_auth_token');
+    // res.set('Authorization', 'Basic base64_auth_token');
     res.set('Content-Type', 'application/json');
 
     // Gather the jwt access token from the request header
-    // const authHeader = req.get('Authorization');
-    const authHeader = req.headers['authorization']
-
+    const authHeader = req.get('Authorization');
     const token = authHeader && authHeader.split(' ')[1]
+    // const token = req.cookies.token
+
 
     if (token == null) return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic jwt"'); // if there isn't any token
 
@@ -72,7 +73,7 @@ const useWebAndRoutes = (app) => {
       if (dictAuthCode === undefined || user.session != dictAuthCode) {
         return res.status(401).send('Access denied: invalid user authentication code.');
       }
-      logger.debug({ user })
+      // logger.debug({ user })
       req.user = user
       next()
     })
@@ -122,7 +123,8 @@ const useWebAndRoutes = (app) => {
         // send token in url, used for authorization to use routes
         // what will the deploy env be
         let reply = {}
-        reply.token = token
+        // reply.token = token  
+        res.cookie('token', token, { httpOnly: true });
         return res.send(reply);
       }
     } catch (err) {
@@ -155,14 +157,45 @@ const useWebAndRoutes = (app) => {
     newBroadcast.setMessage(message)
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
-    console.log({ message, acknowledge, security_group, repeat_num, freq_num, ttl, bor })
+    // console.log({ message, acknowledge, security_group, repeat_num, freq_num, ttl, bor })
     // set user email without plus
     newBroadcast.setUserEmail(req.user.email)
-    if (req.file === undefined)
-      newBroadcast.setFile('')
-    else
-      newBroadcast.setFile(req.file)
+    // console.log(req.file)
+    const fileData = req.file;
+    var userAttachments;
+    var userNewFile;
+    var inFile;
 
+    if (fileData === undefined) {
+      console.log('attachment is not defined!')
+    } else {
+      console.log('originalname: ', fileData.originalname);
+      console.log('size: ', fileData.size);
+      console.log('destination: ', fileData.destination);
+      console.log('filename: ', fileData.filename);
+
+      userAttachments = process.cwd() + '/attachments/' + req.user.email;
+      userNewFile = userAttachments + '/' + fileData.originalname;
+      inFile = process.cwd() + '/attachments/' + fileData.filename;
+
+      fs.mkdirSync(userAttachments, { recursive: true });
+      if (fs.existsSync(userNewFile)) fs.unlinkSync(userNewFile);
+      fs.renameSync(inFile, userNewFile);
+    }
+    if (userNewFile === undefined) {
+      newBroadcast.setFile('')
+    } else {
+      newBroadcast.setFile(userNewFile)
+      newBroadcast.setDisplay(fileData.originalname)
+    }
+
+    // console.log({ file: req.file })
+    // if (req.file === undefined) {
+    //   newBroadcast.setFile('')
+    // } else {
+    //   newBroadcast.setFile(req.file.filename)
+    //   newBroadcast.setDisplay(req.file.originalname)
+    // }
     // set repeats and durations
     if (security_group) {
 
@@ -170,7 +203,7 @@ const useWebAndRoutes = (app) => {
         security_group = security_group.split(',')
       }
 
-      newBroadcast.setSecurityGroups(security_group)
+      newBroadcast.setSecurityGroups([security_group])
     }
     if (acknowledge) {
       newBroadcast.setAckFlag(true)
@@ -208,6 +241,16 @@ const useWebAndRoutes = (app) => {
     // set user email without plus
     newBroadcast.setUserEmail(req.user.email)
     // set repeats and durations
+    // console.log(req.file)
+    // if (!req.file) {
+    //   newBroadcast.setFile('')
+    // } else {
+    //   let userAttachments = process.cwd() + '/attachments/' + req.user.email;
+    //   let userNewFile = userAttachments + '/' + fileData.originalname;
+    //   newBroadcast.setFile(userNewFile)
+    //   newBroadcast.setDisplay(fileData.originalname)
+    // }
+
 
     let response = newBroadcast.broadcastMessage()
 
@@ -228,60 +271,22 @@ const useWebAndRoutes = (app) => {
     }
   });
 
-  app.get(endpoint + "/Status/:page/:size", checkAuth, async (req, res) => {
-    // too many calls, wickrio api should support a single status call for x records including sender and message content
-    const status = await getStatus(req.params.page, req.params.size, req.user.email)
-    res.json(status)
-  });
-
-  const mapEntries = (messageIdEntries, type, page, size) => {
-    messageIdEntries?.map(async entry => {
-      console.log({ entry })
-      let contentData = JSON.parse(APIService.getMessageIDEntry(entry.message_id));
-      entry.message = contentData.message
-      let statusdata = await APIService.getMessageStatus(entry.message_id, type, page, size)
-      console.log({ statusdata })
-      const parsedstatus = JSON.parse(statusdata)
-      entry.summary = {}
-      entry.test = "test"
-      entry.summary.pending = 0
-      entry.summary.sent = 0
-      entry.summary.failed = 0
-      entry.summary.ack = 0
-      entry.summary.ignored = 0
-      entry.summary.aborted = 0
-      entry.summary.read = 0
-      entry.status = parsedstatus
-
-      parsedstatus?.map(user => {
-        if (user.status == 0) { entry.summary.pending += 1 }
-        else if (user.status == 1) { entry.summary.sent += 1 }
-        else if (user.status == 2) { entry.summary.failed += 1 }
-        else if (user.status == 3) { entry.summary.ack += 1 }
-      })
-
-    })
-    return messageIdEntries
-  }
-
-  const getStatus = async (page, size, email) => {
+  const getStatusSummary = async (email) => {
     // if user hasn't sent a message in the last 'size' messages, will it show zero messages unless we search a larger index that captures the user's message?
-    var tableDataRaw = APIService.getMessageIDTable(String(page), String(size), String(email));
+    var tableDataRaw = APIService.getMessageIDTable() //gets all of the entries with all data, just need a number of broadcasts returned for total number to paginate thru 
 
     var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
       return entry.sender == email
     });
 
     try {
-      const builtStatus = await mapEntries(messageIdEntries, 'full', page, size)
-
       var reply = {};
-      if (builtStatus.length < 1) {
+      if (messageIdEntries.length < 1) {
         reply.data = []
         reply.error = "no broadcasts yet"
       } else {
-        reply.data = builtStatus
-        console.log({ builtStatus })
+        reply.data = messageIdEntries.length
+        console.log(messageIdEntries.length)
       }
       return reply
     } catch (e) {
@@ -290,84 +295,150 @@ const useWebAndRoutes = (app) => {
     }
   }
 
+  app.get(endpoint + "/Status", checkAuth, async (req, res) => {
+    // too many calls, wickrio api should support a single status call for x records including sender and message content
+    const status = getStatusSummary(req.user.email)
+    res.json(status)
+  });
+
+  const mapEntries = (messageIdEntries, type, page, size) => {
+    messageIdEntries?.map(async entry => {
+      // console.log({ entry })
+      let contentData = JSON.parse(APIService.getMessageIDEntry(entry.message_id));
+      entry.message = contentData.message
+      try {
+
+        let statusdata = await APIService.getMessageStatus(entry.message_id, type, page, size)
+        const parsedstatus = JSON.parse(statusdata)
+
+        // console.log({ statusdata })
+        entry.summary = {}
+        entry.test = "test"
+        entry.summary.pending = 0
+        entry.summary.sent = 0
+        entry.summary.failed = 0
+        entry.summary.ack = 0
+        entry.summary.ignored = 0
+        entry.summary.aborted = 0
+        entry.summary.read = 0
+        entry.status = parsedstatus
+
+        parsedstatus?.map(user => {
+          if (user.status == 0) { entry.summary.pending += 1 }
+          else if (user.status == 1) { entry.summary.sent += 1 }
+          else if (user.status == 2) { entry.summary.failed += 1 }
+          else if (user.status == 3) { entry.summary.ack += 1 }
+        })
+      } catch (e) {
+        console.log({ err: e })
+      }
+
+    })
+    return messageIdEntries
+  }
+
+  const getStatus = async (page, size, email) => {
+    // if user hasn't sent a message in the last 'size' messages, will it show zero messages unless we search a larger index that captures the user's message?
+    var tableDataRaw = APIService.getMessageIDTable(String(page), String(size), String(email));
+    // console.log({ tableDataRaw: JSON.parse(tableDataRaw) })
+    // don't need this with the email  in getMessageIDTable
+    // var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
+    //   return entry.sender == email
+    // });
+
+    try {
+      const builtStatus = await mapEntries(JSON.parse(tableDataRaw), 'full', page, size)
+      // console.log({ builtStatus })
+
+      var reply = {};
+      if (builtStatus.length < 1) {
+        reply.data = []
+        reply.error = "no broadcasts yet"
+      } else {
+        reply.data = builtStatus.reverse()
+      }
+      return reply
+    } catch (e) {
+      console.log(e)
+      return e
+    }
+  }
+
+  app.get(endpoint + "/Status/:page/:size", checkAuth, async (req, res) => {
+    // too many calls, wickrio api should support a single status call for x records including sender and message content
+    // console.log({ email: req.user.email })
+    const status = await getStatus(req.params.page, req.params.size, req.user.email)
+    res.json(status)
+  });
+
   // need page or size? 
   app.get(endpoint + "/Status/:messageID", checkAuth, (req, res) => {
     // validate message id
-    var statusData = APIService.getMessageStatus(req.params.messageID, "full", "0", "1000");
+    var statusData = APIService.getMessageStatus(req.params.messageID);
     var reply = statusData;
     return res.send(reply);
   });
 
   app.get(endpoint + "/Report/:messageID/:page/:size", checkAuth, (req, res) => {
-    res.set('Content-Type', 'text/plain');
+    res.set('Content-Type', 'application/json');
     res.set('Authorization', 'Basic base64_auth_token');
 
-    var reportEntries = [];
 
-    var statusData = APIService.getMessageStatus(req.params.messageID, "full", req.params.page, req.params.size);
-    var messageStatus = JSON.parse(statusData);
-    for (let entry of messageStatus) {
-      var statusMessageString = "";
-      var statusString = "";
-      var sentDateString = "";
-      var readDateString = "";
-      if (entry.sent_datetime !== undefined)
-        sentDateString = entry.sent_datetime;
-      if (entry.read_datetime !== undefined)
-        readDateString = entry.read_datetime;
-      switch (entry.status) {
-        case 0:
-          statusString = "pending";
-          break;
-        case 1:
-          statusString = "sent";
-          break;
-        case 2:
-          statusString = "failed";
-          statusMessageString = entry.status_message;
-          break;
-        case 3:
-          statusString = "acked";
-          if (entry.status_message !== undefined) {
-            var obj = JSON.parse(entry.status_message);
-            if (obj['location'] !== undefined) {
-              var latitude = obj['location'].latitude;
-              var longitude = obj['location'].longitude;
-              statusMessageString = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
-            } else {
-              statusMessageString = entry.status_message;
-            }
-          }
-          break;
-        case 4:
-          statusString = "ignored";
-          statusMessageString = entry.status_message;
-          break;
-        case 5:
-          statusString = "aborted";
-          statusMessageString = entry.status_message;
-          break;
-        case 6:
-          statusString = "read";
-          statusMessageString = entry.status_message;
-          break;
-        case 7: // NOT SUPPORTED YET
-          statusString = "delivered";
-          statusMessageString = entry.status_message;
-          break;
-      }
-      reportEntries.push(
-        {
-          user: entry.user,
-          status: statusString,
-          statusMessage: statusMessageString,
-          sentDate: sentDateString,
-          readDate: readDateString
-        });
+    const broadcast = JSON.parse(APIService.getMessageIDEntry(req.params.messageID))
+    const parsedBroadcastStatus = JSON.parse(APIService.getMessageStatus(req.params.messageID, "full", req.params.page, req.params.size));
+
+    let broadcastReport = {
+      ...broadcast,
+      report: parsedBroadcastStatus,
+      summary: {}
     }
-    var reply = JSON.stringify(reportEntries);
-    res.set('Content-Type', 'application/json');
-    return res.send(reply);
+    let { summary } = broadcastReport
+
+
+    summary.pending = 0
+    summary.sent = 0
+    summary.failed = 0
+    summary.ack = 0
+    summary.ignored = 0
+    summary.aborted = 0
+    summary.read = 0
+    // user.status = parsedBroadcastStatus
+    parsedBroadcastStatus?.map(user => {
+      if (user.status == 0) {
+        summary.pending += 1
+      }
+      else if (user.status == 1) {
+        summary.sent += 1
+      }
+      else if (user.status == 2) {
+        summary.failed += 1
+      }
+      else if (user.status == 3) {
+        if (user.status_message !== undefined) {
+          var obj = JSON.parse(user.status_message);
+          if (obj['location'] !== undefined) {
+            var latitude = obj['location'].latitude;
+            var longitude = obj['location'].longitude;
+            user.status_message = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
+          }
+        }
+        summary.ack += 1
+      }
+      else if (user.status == 4) {
+        summary.ignored += 1
+      }
+      else if (user.status == 5) {
+        summary.aborted += 1
+      }
+      else if (user.status == 6) {
+        summary.read += 1
+      }
+      else if (user.status == 7) {
+        summary.read += 1
+      }
+    })
+
+    return res.json(broadcastReport);
   });
 
 }

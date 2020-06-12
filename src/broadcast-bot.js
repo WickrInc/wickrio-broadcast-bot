@@ -11,6 +11,7 @@ import {
   BOT_KEY,
   WEBAPP_HOST,
   WEBAPP_PORT,
+  HTTPS_CHOICE,
   BOT_PORT,
   BOT_GOOGLE_MAPS,
   WICKRIO_BOT_NAME,
@@ -366,30 +367,30 @@ async function listen(message) {
       // generate a random auth code for the session
       // store it in a globally accessable store
 
-
-
-      if (WEBAPP_HOST.value != 'false' && WEBAPP_PORT.value) {
-        var random = generateRandomString(24);
-        client_auth_codes[userEmail] = random;
-        // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
-        // send token in url, used for calls to receive data, send messages
-        const token = jwt.sign({
-          'email': userEmail,
-          'session': random,
-        }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
-
-        if (HTTPS_CHOICE.value == 'yes') {
-          const host = `https://${WEBAPP_HOST.value}`
-        } else {
-          const host = `http://${WEBAPP_HOST.value}`
-        }
+      var random = generateRandomString(24);
+      client_auth_codes[userEmail] = random;
+      // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
+      // send token in url, used for calls to receive data, send messages
+      const token = jwt.sign({
+        'email': userEmail,
+        'session': random,
+      }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
+      let host;
+      if (HTTPS_CHOICE.value == 'yes') {
+        host = `https://${WEBAPP_HOST.value}`
       } else {
-        // send 
-        APIService.sendRoomMessage(vGroupID, `no webapp_host or webapp_port in config, can't use /panel`);
-        return
+        host = `http://${WEBAPP_HOST.value}`
+      }
+      let port
+      if (BOT_PORT && !WEBAPP_PORT) {
+        port = BOT_PORT.value
+      } else if (BOT_PORT && WEBAPP_PORT) {
+        port = WEBAPP_PORT.value
       }
 
-      var reply = encodeURI(`${host}:${WEBAPP_PORT.value}/?token=${token}`)
+      // const host = `http://localhost:4545`
+      console.log(`${host}:${port}/?token=${token}`)
+      var reply = encodeURI(`${host}:${port}/?token=${token}`)
       APIService.sendRoomMessage(vGroupID, reply);
       return
     }

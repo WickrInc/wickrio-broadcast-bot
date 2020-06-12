@@ -55,7 +55,7 @@ const startServer = () => {
     next()
   });
 
-  if (WEB_APPLICATION) {
+  if (WEB_APPLICATION.value != 'false' && WEB_APPLICATION.value != 'no') {
     useWebAndRoutes(app)
   }
   useRESTRoutes(app)
