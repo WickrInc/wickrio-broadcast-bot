@@ -84,6 +84,12 @@ class APIService {
     return WickrIOAPI.cmdSend1to1Message(userArray, reply, ttl, bor, messageID);
   }
 
+  static send1to1MessageLowPriority(userArray, reply, ttl, bor, messageID) {
+    const flags = [];
+    const buttons = [];
+    return WickrIOAPI.cmdSend1to1Message(userArray, reply, ttl, bor, messageID, flags, buttons, true);
+  }
+
   static cancelMessageID(messageID) {
     return WickrIOAPI.cmdCancelMessageID(messageID);
   }
