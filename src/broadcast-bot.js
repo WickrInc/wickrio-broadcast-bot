@@ -208,10 +208,6 @@ async function listen(message) {
 
     logger.debug('FILENAME bcast' + filename);
     logger.debug('FILE bcast' + file);
-<<<<<<< HEAD
-=======
-
->>>>>>> WIP: Adding the more command
     logger.debug(`convoType=${convoType}`);
     // Go back to dev toolkit and fix
     /*
@@ -236,10 +232,7 @@ async function listen(message) {
       const statusMessage = JSON.stringify(obj);
       logger.debug(`location statusMessage=${statusMessage}`);
       genericService.setMessageStatus('', userEmailString, '3', statusMessage);
-<<<<<<< HEAD
       currentState = State.NONE;
-=======
->>>>>>> WIP: Adding the more command
       return;
     }
 
@@ -253,10 +246,7 @@ async function listen(message) {
     if (command === '/ack') {
       const userEmailString = `${userEmail}`;
       genericService.setMessageStatus('', userEmailString, '3', '');
-<<<<<<< HEAD
       currentState = State.NONE;
-=======
->>>>>>> WIP: Adding the more command
       return;
     }
     
@@ -276,17 +266,10 @@ async function listen(message) {
         + '/ack : To acknowledge a broadcast message \n'
         + '/messages : To get a text file of all the messages sent to the bot\n'
         + '/status : To get the status of a broadcast message\n'
-<<<<<<< HEAD
         + '/report : To get a CSV file with the status of each user for a broadcast message\n'
         + '/abort : To abort a broadcast or send that is currently in progress\n'
         + `\n${webAppString}`
         + '\n*Admin Commands*\n'
-=======
-        + '/report : To get a CSV file with the status of each user for a broadcast message\n\n'
-        + '/abort : To abort a broadcast or send that is currently in progress\n'
-        + `${webAppString}`
-        + '*Admin Commands*\n'
->>>>>>> WIP: Adding the more command
         + '%{adminHelp}\n'
         + '*Other Commands*\n'
         + '/help : Show help information\n'
