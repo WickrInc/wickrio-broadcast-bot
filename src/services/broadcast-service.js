@@ -105,7 +105,7 @@ class BroadcastService {
     let reply = {};
     if (target === 'USERS') {
       logger.debug(`broadcasting to users=${this.users}`);
-      uMessage = APIService.send1to1Message(this.users, messageToSend, this.ttl, this.bor, messageID);
+      uMessage = APIService.send1to1MessageLowPriority(this.users, messageToSend, this.ttl, this.bor, messageID);
       logger.debug(`send1to1Messge returns=${uMessage}`);
       // reply = 'Broadcast message in process of being sent to list of users';
       reply.message = messageToSend;
