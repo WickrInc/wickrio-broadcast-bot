@@ -233,18 +233,21 @@ async function listen(message) {
       const statusMessage = JSON.stringify(obj);
       logger.debug(`location statusMessage=${statusMessage}`);
       genericService.setMessageStatus('', userEmailString, '3', statusMessage);
+      currentState = State.NONE;
       return;
     }
 
     if (command === '/version') {
       const obj = Version.execute();
       const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
+      currentState = State.NONE;
       return;
     }
 
     if (command === '/ack') {
       const userEmailString = `${userEmail}`;
       genericService.setMessageStatus('', userEmailString, '3', '');
+      currentState = State.NONE;
       return;
     }
     
@@ -264,10 +267,10 @@ async function listen(message) {
         + '/ack : To acknowledge a broadcast message \n'
         + '/messages : To get a text file of all the messages sent to the bot\n'
         + '/status : To get the status of a broadcast message\n'
-        + '/report : To get a CSV file with the status of each user for a broadcast message\n\n'
+        + '/report : To get a CSV file with the status of each user for a broadcast message\n'
         + '/abort : To abort a broadcast or send that is currently in progress\n'
-        + `${webAppString}`
-        + '*Admin Commands*\n'
+        + `\n${webAppString}`
+        + '\n*Admin Commands*\n'
         + '%{adminHelp}\n'
         + '*Other Commands*\n'
         + '/help : Show help information\n'
@@ -279,6 +282,7 @@ async function listen(message) {
       // const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       const sMessage = APIService.sendRoomMessage(vGroupID, reply);
       logger.debug(sMessage);
+      currentState = State.NONE;
       return;
     }
 
@@ -294,6 +298,7 @@ async function listen(message) {
     if (command === '/messages') {
       const path = `${process.cwd()}/attachments/messages.txt`;
       const uMessage = WickrIOAPI.cmdSendRoomAttachment(vGroupID, path, path);
+      currentState = State.NONE;
       return;
     }
 
@@ -315,7 +320,7 @@ async function listen(message) {
     logger.debug('user:', user);
 
 
-    if (command === '/map') {
+    if (command === '/map' && webAppEnabled) {
       let last_id = getLastID()
       let locatedusers = false
       // request last broadcast requested with location
