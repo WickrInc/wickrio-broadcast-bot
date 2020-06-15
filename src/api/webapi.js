@@ -345,23 +345,26 @@ const useWebAndRoutes = (app) => {
     // var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
     //   return entry.sender == email
     // });
-
-    try {
-      const builtStatus = await mapEntries(JSON.parse(tableDataRaw), 'full', page, size)
-      // console.log({ builtStatus })
-
-      var reply = {};
-      if (builtStatus.length < 1) {
-        reply.data = []
-        reply.error = "no broadcasts yet"
-      } else {
-        reply.data = builtStatus.reverse()
+    let reply = {}
+    let broadcastTable = JSON.parse(tableDataRaw)
+    if (broadcastTable.max_entries === 0) {
+      reply.list = []
+      reply.max_entries = broadcastTable.max_entries
+      reply.source = broadcastTable.source
+      reply.error = "no broadcasts yet"
+    } else {
+      try {
+        const builtStatus = await mapEntries(broadcastTable.list, 'full', page, size)
+        reply.list = builtStatus.reverse()
+      } catch (e) {
+        console.log(e)
+        return e
       }
-      return reply
-    } catch (e) {
-      console.log(e)
-      return e
+      reply.max_entries = broadcastTable.max_entries
+      reply.source = broadcastTable.source
     }
+    return reply
+
   }
 
   app.get(endpoint + "/Status/:page/:size", checkAuth, async (req, res) => {
