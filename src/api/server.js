@@ -2,10 +2,8 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import helmet from 'helmet';
-import multer from 'multer'
 import {
   BOT_PORT,
-  WEBAPP_PORT,
   WEB_APPLICATION
 } from '../helpers/constants'
 import useWebAndRoutes from './webapi';
@@ -16,8 +14,8 @@ const startServer = () => {
   const app = express();
   app.use(helmet()); //security http headers
 
-  app.listen(WEBAPP_PORT.value, () => {
-    console.log('We are live on ' + WEBAPP_PORT.value);
+  app.listen(BOT_PORT.value, () => {
+    console.log('We are live on ' + BOT_PORT.value);
   });
 
   // parse application/x-www-form-urlencoded
