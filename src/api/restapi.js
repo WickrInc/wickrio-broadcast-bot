@@ -70,11 +70,52 @@ const useRESTRoutes = (app) => {
   }
 
   app.post(endpoint + "/Broadcast", [checkBasicAuth, upload.single('attachment')], (req, res) => {
+    var obj;
+    var userNewFile;
+    var fileData;
+
     // typecheck and validate parameters
-    let { message, acknowledge = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = req.body
+    if (req.is('multipart/form-data')) {
+      const formData = req.body;
+      console.log('form data: ', formData);
+      console.log('form data body: ', formData.body);
+
+      fileData = req.file;
+      var userAttachments;
+      var inFile;
+
+      if (fileData === undefined) {
+        console.log('attachment is not defined!')
+      } else {
+        console.log('originalname: ', fileData.originalname);
+        console.log('size: ', fileData.size);
+        console.log('destination: ', fileData.destination);
+        console.log('filename: ', fileData.filename);
+
+        userAttachments = process.cwd() + '/attachments/' + WICKRIO_BOT_NAME.value;
+        userNewFile = userAttachments + '/' + fileData.originalname;
+        inFile = process.cwd() + '/attachments/' + fileData.filename;
+
+        fs.mkdirSync(userAttachments, { recursive: true });
+        if (fs.existsSync(userNewFile)) fs.unlinkSync(userNewFile);
+        fs.renameSync(inFile, userNewFile);
+      }
+
+      obj = JSON.parse(formData.body);
+    } else {
+      obj = req.body;
+    }
+    let { message, acknowledge = false, users = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = obj;
 
     if (!message) {
       return res.status(400).send('Bad request: message missing from request.');
+    }
+
+    var userList = [];
+    if (users) {
+      for (var i in users) {
+        userList.push(users[i].name);
+      }
     }
 
     const newBroadcast = new BroadcastService()
@@ -85,10 +126,16 @@ const useRESTRoutes = (app) => {
     console.log({ message, acknowledge, security_group, repeat_num, freq_num, ttl, bor })
     // set user email without plus
     newBroadcast.setUserEmail(WICKRIO_BOT_NAME.value)
-    if (req.file === undefined)
+//    if (req.file === undefined)
+//      newBroadcast.setFile('')
+//    else
+//      newBroadcast.setFile(req.file)
+    if (userNewFile === undefined) {
       newBroadcast.setFile('')
-    else
-      newBroadcast.setFile(req.file)
+    } else {
+      newBroadcast.setFile(userNewFile)
+      newBroadcast.setDisplay(fileData.originalname)
+    }
 
     // set repeats and durations
     if (security_group) {
@@ -99,6 +146,8 @@ const useRESTRoutes = (app) => {
         securityGroupTable.push(security_group);
       }
       newBroadcast.setSecurityGroups(securityGroupTable)
+    } else if (users) {
+      newBroadcast.setUsers(userList);
     }
 
     if (acknowledge) {

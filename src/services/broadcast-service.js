@@ -193,7 +193,11 @@ class BroadcastService {
     }
     logger.debug(`Broadcast uMessage=${uMessage}`);
     reply.message_id = messageID
-    reply.securityGroups = this.securityGroups
+    if (target === 'USERS') {
+      reply.users = this.users
+    } else {
+      reply.securityGroups = this.securityGroups
+    }
     return reply;
   }
 
