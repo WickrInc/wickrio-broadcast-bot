@@ -295,8 +295,10 @@ const useRESTRoutes = (app) => {
       return res.status(401).send('Unauthorized: Message is not from this user.');
     }
 
-    let reply = APIService.cancelMessageID(messageID)
-    res.send(reply)
+    var reply = {};
+    reply['result'] = APIService.cancelMessageID(messageID)
+    reply['status'] = APIService.getMessageStatus(messageID, 'summary', '', '')
+    res.json(reply)
   });
 
   app.get(endpoint + "/SecGroups", checkBasicAuth, (req, res) => {

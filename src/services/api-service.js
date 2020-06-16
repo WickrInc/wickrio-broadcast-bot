@@ -45,7 +45,11 @@ class APIService {
   }
 
   static getMessageIDEntry(messageID) {
-    return WickrIOAPI.cmdGetMessageIDEntry(messageID);
+    try {
+      return WickrIOAPI.cmdGetMessageIDEntry(messageID);
+    } catch (err) {
+      return undefined;
+    }
   }
 
   static getMessageIDTable(page, size, sender) {
