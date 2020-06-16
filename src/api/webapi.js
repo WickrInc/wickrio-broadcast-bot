@@ -134,7 +134,7 @@ const useWebAndRoutes = (app) => {
     }
   });
 
-  app.get(endpoint + "/Authenticate", checkAuth, (req, res) => {
+  app.get(endpoint + "/Authorize", checkAuth, (req, res) => {
     try {
       let reply = { data: req.user }
       res.json(reply)
@@ -306,21 +306,21 @@ const useWebAndRoutes = (app) => {
       // console.log({ entry })
       let contentData = JSON.parse(APIService.getMessageIDEntry(entry.message_id));
       entry.message = contentData.message
+      entry.summary = {}
+      entry.test = "test"
+      entry.summary.pending = 0
+      entry.summary.sent = 0
+      entry.summary.failed = 0
+      entry.summary.ack = 0
+      entry.summary.ignored = 0
+      entry.summary.aborted = 0
+      entry.summary.read = 0
       try {
 
         let statusdata = await APIService.getMessageStatus(entry.message_id, type, page, size)
         const parsedstatus = JSON.parse(statusdata)
 
         // console.log({ statusdata })
-        entry.summary = {}
-        entry.test = "test"
-        entry.summary.pending = 0
-        entry.summary.sent = 0
-        entry.summary.failed = 0
-        entry.summary.ack = 0
-        entry.summary.ignored = 0
-        entry.summary.aborted = 0
-        entry.summary.read = 0
         entry.status = parsedstatus
 
         parsedstatus?.map(user => {
@@ -331,6 +331,8 @@ const useWebAndRoutes = (app) => {
         })
       } catch (e) {
         console.log({ err: e })
+        entry.status = e
+        entry.err = e
       }
 
     })

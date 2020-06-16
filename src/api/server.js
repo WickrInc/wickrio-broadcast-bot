@@ -5,7 +5,10 @@ import helmet from 'helmet';
 import {
   BOT_PORT,
   WEB_APPLICATION,
-  REST_APPLICATION
+  REST_APPLICATION,
+  HTTPS_CHOICE,
+  WEBAPP_PORT,
+  WEBAPP_HOST
 } from '../helpers/constants'
 import useWebAndRoutes from './webapi';
 import useRESTRoutes from './restapi';
@@ -39,22 +42,32 @@ const startServer = () => {
 
   // add cors for development
   // TODO: set conditional for NODE_ENV to match and set the right origin host header - 8000 for dev, 4545 for prod
-  app.options("/*", (req, res, next) => {
-    res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization, Content-Length, X-Requested-With');
-    res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Origin', 'http://localhost:8000');
-
-    res.sendStatus(200)
-  });
-
-  app.all("/*", (req, res, next) => {
-    res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization, Content-Length, X-Requested-With');
-    res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Origin', 'http://localhost:8000');
-    next()
-  });
 
   if (WEB_APPLICATION.value != 'false' && WEB_APPLICATION.value != 'no') {
+    let host
+    if (HTTPS_CHOICE.value == 'yes') {
+      host = `https://${WEBAPP_HOST.value}`
+    } else {
+      host = `http://${WEBAPP_HOST.value}`
+    }
+
+    app.options("/*", (req, res, next) => {
+      res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization, Content-Length, X-Requested-With');
+      res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+      res.header('Access-Control-Allow-Origin', `${host}:9000`); // use for debuggging
+      // res.header('Access-Control-Allow-Origin', `${host}:${WEBAPP_PORT.value}`);
+
+      res.sendStatus(200)
+    });
+
+    app.all("/*", (req, res, next) => {
+      res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization, Content-Length, X-Requested-With');
+      res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+      res.header('Access-Control-Allow-Origin', `${host}:9000`); // use for debuggging
+      // res.header('Access-Control-Allow-Origin', `${host}:${WEBAPP_PORT.value}`);
+
+      next()
+    });
     useWebAndRoutes(app)
   }
   if (REST_APPLICATION.value != 'false' && REST_APPLICATION.value != 'no') {
