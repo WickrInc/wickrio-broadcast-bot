@@ -7,6 +7,7 @@ import {
   logger,
   BOT_KEY,
   BOT_AUTH_TOKEN,
+  WICKRIO_BOT_NAME
   // cronJob
 } from '../helpers/constants';
 import APIService from '../services/api-service'
@@ -44,111 +45,31 @@ const useRESTRoutes = (app) => {
     return text;
   }
 
-  const checkAuth = (req, res, next) => {
+  const checkBasicAuth = (req, res, next) => {
     res.set('Authorization', 'Basic base64_auth_token');
     res.set('Content-Type', 'application/json');
 
-    // Gather the jwt access token from the request header
-    // const authHeader = req.get('Authorization');
-    const authHeader = req.headers['authorization']
-
-    const token = authHeader && authHeader.split(' ')[1]
-
-    if (token == null) {
-      // if there isn't any token
-      return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Authorization: Basic jwt"');
+    var authHeader = req.get('Authorization');
+    var authToken;
+    if (authHeader) {
+      if (authHeader.indexOf(' ') == -1) {
+        authToken = authHeader;
+      } else {
+        authHeader = authHeader.split(' ');
+        authToken = authHeader[1];
+      }
+    } else {
+      // expecting
+      // Bearer: BOT_AUTH_TOKEN base64
+      return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Bearer JWT"');
     }
+    if (!checkCreds(authToken))
+      return res.status(401).send('Access denied: invalid basic-auth token.');
 
-    jwt.verify(token, BOT_AUTH_TOKEN.value, (err, user) => {
-      if (err) {
-        console.log(err)
-        console.log("err: " + err.message)
-        return res.status(403).send(err.message)
-      }
-
-      var adminUser = bot.myAdmins.getAdmin(user.email);
-      if (adminUser === undefined) {
-        return res.status(401).send('Access denied: ' + user.email + ' is not authorized to broadcast!');
-      }
-
-      // Check if the authCode is valid for the input user
-      var dictAuthCode = client_auth_codes[user.email];
-      if (dictAuthCode === undefined || user.session != dictAuthCode) {
-        return res.status(401).send('Access denied: invalid user authentication code.');
-      }
-      logger.debug({ user })
-      req.user = user
-      next()
-    })
+    next()
   }
 
-  app.get(endpoint + "/Authenticate/:wickrUser", (req, res) => {
-    try {
-      res.set('Content-Type', 'text/plain');
-      res.set('Authorization', 'Bearer base64_auth_token');
-      var authHeader = req.get('Authorization');
-      var authToken;
-      if (authHeader) {
-        if (authHeader.indexOf(' ') == -1) {
-          authToken = authHeader;
-        } else {
-          authHeader = authHeader.split(' ');
-          authToken = authHeader[1];
-        }
-      } else {
-        // expecting
-        // Bearer: BOT_AUTH_TOKEN base64
-        return res.status(401).send('Access denied: invalid Authorization Header format. Correct format: "Bearer JWT"');
-      }
-      if (!checkCreds(authToken)) {
-        return res.status(401).send('Access denied: invalid basic-auth token.');
-      } else {
-        let wickrUser = req.params.wickrUser
-
-        if (typeof wickrUser !== 'string')
-          return res.status(400).send('Bad request: WickrUser must be a string.');
-
-        // Check if this user is an administrator
-        var adminUser = bot.myAdmins.getAdmin(wickrUser);
-        if (adminUser === undefined) {
-          return res.status(401).send('Access denied: ' + wickrUser + ' is not authorized to broadcast!');
-        }
-
-
-        var random = generateRandomString(24);
-        client_auth_codes[wickrUser] = random;
-        // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
-
-        var token = jwt.sign({
-          'email': wickrUser,
-          'session': random,
-        }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
-
-        // send token in url, used for authorization to use routes
-        // what will the deploy env be
-        let reply = {}
-        reply.token = token
-        return res.send(reply);
-      }
-    } catch (err) {
-      console.log(err);
-      res.statusCode = 400;
-      res.send(err.toString());
-    }
-  });
-
-  app.get(endpoint + "/Authenticate", checkAuth, (req, res) => {
-    try {
-      let reply = { data: req.user }
-      res.json(reply)
-    } catch (err) {
-      console.log(err);
-      res.statusCode = 400;
-      res.send(err.toString());
-    }
-  });
-
-  app.post(endpoint + "/Broadcast", [checkAuth, upload.single('attachment')], (req, res) => {
+  app.post(endpoint + "/Broadcast", [checkBasicAuth, upload.single('attachment')], (req, res) => {
     // typecheck and validate parameters
     let { message, acknowledge = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = req.body
 
@@ -160,9 +81,10 @@ const useRESTRoutes = (app) => {
     newBroadcast.setMessage(message)
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
-    // console.log({ message, acknowledge, security_group, repeat_num, freq_num, ttl, bor })
+    newBroadcast.setSentByFlag(false)
+    console.log({ message, acknowledge, security_group, repeat_num, freq_num, ttl, bor })
     // set user email without plus
-    newBroadcast.setUserEmail(req.user.email)
+    newBroadcast.setUserEmail(WICKRIO_BOT_NAME.value)
     if (req.file === undefined)
       newBroadcast.setFile('')
     else
@@ -189,7 +111,7 @@ const useRESTRoutes = (app) => {
     res.send(response)
   });
 
-  app.post(endpoint + "/Broadcast/File", [checkAuth, upload.single('attachment')], (req, res) => {
+  app.post(endpoint + "/Broadcast/File", [checkBasicAuth, upload.single('attachment')], (req, res) => {
     const formData = req.body;
     console.log('form data: ', formData);
     console.log('form data body: ', formData.body);
@@ -207,7 +129,7 @@ const useRESTRoutes = (app) => {
       console.log('destination: ', fileData.destination);
       console.log('filename: ', fileData.filename);
 
-      userAttachments = process.cwd() + '/attachments/' + req.user.email;
+      userAttachments = process.cwd() + '/attachments/' + WICKRIO_BOT_NAME.value;
       userNewFile = userAttachments + '/' + fileData.originalname;
       inFile = process.cwd() + '/attachments/' + fileData.filename;
 
@@ -229,9 +151,10 @@ const useRESTRoutes = (app) => {
     newBroadcast.setMessage(message)
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
+    newBroadcast.setSentByFlag(false)
     console.log({ message, acknowledge, security_group, repeat_num, freq_num, ttl, bor })
     // set user email without plus
-    newBroadcast.setUserEmail(req.user.email)
+    newBroadcast.setUserEmail(WICKRIO_BOT_NAME.value)
     if (userNewFile === undefined) {
       newBroadcast.setFile('')
     } else {
@@ -260,7 +183,7 @@ const useRESTRoutes = (app) => {
     res.send(response)
   });
 
-  app.post(endpoint + "/Messages", checkAuth, (req, res) => {
+  app.post(endpoint + "/Messages", checkBasicAuth, (req, res) => {
     // typecheck and validate parameters
     let { message, acknowledge = false, users, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = req.body
 
@@ -282,10 +205,11 @@ const useRESTRoutes = (app) => {
     newBroadcast.setUsers(userList);
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
+    newBroadcast.setSentByFlag(false)
 
     // let broadcast = {}
     // set user email without plus
-    newBroadcast.setUserEmail(req.user.email)
+    newBroadcast.setUserEmail(WICKRIO_BOT_NAME.value)
     // set repeats and durations
 
     if (acknowledge) {
@@ -308,22 +232,25 @@ const useRESTRoutes = (app) => {
     res.send(response)
   });
 
-  app.post(endpoint + "/Abort/:messageID", checkAuth, (req, res) => {
-    let msgIDJSON = APIService.getMessageIDEntry(req.params.messageID);
+  app.post(endpoint + "/Abort", checkBasicAuth, (req, res) => {
+    if (!req.query.messageID) return res.status(400).send('Bad request: messageID missing from request.');
+    let messageID = req.query.messageID;
+
+    let msgIDJSON = APIService.getMessageIDEntry(messageID);
     if (msgIDJSON === undefined) {
       return res.status(404).send('Not Found: Message ID entry does not exist.');
     }
 
     let msgIDEntry = JSON.parse(msgIDJSON);
-    if (req.user.email !== msgIDEntry.sender) {
+    if (WICKRIO_BOT_NAME.value !== msgIDEntry.sender) {
       return res.status(401).send('Unauthorized: Message is not from this user.');
     }
 
-    let reply = APIService.cancelMessageID(req.params.messageID)
+    let reply = APIService.cancelMessageID(messageID)
     res.send(reply)
   });
 
-  app.get(endpoint + "/SecGroups", checkAuth, (req, res) => {
+  app.get(endpoint + "/SecGroups", checkBasicAuth, (req, res) => {
     try {
       // how does cmdGetSecurityGroups know what user to get security groups for?
       // could we get securityg groups for a targeted user?
@@ -338,21 +265,32 @@ const useRESTRoutes = (app) => {
 
   // similiar to the /status command, but returns a list of the messages associated with this user
   // Will have to use the /Summary or /Details endpoints to get the summary information for a specific messageID
-  app.get(endpoint + "/Messages/:page/:size", checkAuth, async (req, res) => {
-    const tableDataRaw = APIService.getMessageIDTable(req.params.page, req.params.size, req.user.email);
+  app.get(endpoint + "/Messages", checkBasicAuth, async (req, res) => {
+    if (!req.query.page) return res.status(400).send('Bad request: page missing from request.');
+    if (!req.query.limit) return res.status(400).send('Bad request: limit missing from request.');
+    let page = req.query.page;
+    let limit = req.query.limit;
+    const tableDataRaw = APIService.getMessageIDTable(page, limit, WICKRIO_BOT_NAME.value);
     var messageIdEntries = JSON.parse(tableDataRaw)
     res.json(messageIdEntries)
   });
 
-  app.get(endpoint + "/Summary/:messageID", checkAuth, async (req, res) => {
-    let statusdata = await APIService.getMessageStatus(req.params.messageID, 'summary', '', '')
+  app.get(endpoint + "/Summary", checkBasicAuth, async (req, res) => {
+    if (!req.query.messageID) return res.status(400).send('Bad request: messageID missing from request.');
+    let messageID = req.query.messageID;
+
+    let statusdata = await APIService.getMessageStatus(messageID, 'summary', '', '')
     const parsedstatus = JSON.parse(statusdata)
     res.json(parsedstatus)
   });
 
-  app.get(endpoint + "/Status/:page/:size", checkAuth, async (req, res) => {
+  app.get(endpoint + "/Status", checkBasicAuth, async (req, res) => {
+    if (!req.query.page) return res.status(400).send('Bad request: page missing from request.');
+    if (!req.query.limit) return res.status(400).send('Bad request: limit missing from request.');
+    let page = req.query.page;
+    let limit = req.query.limit;
     // too many calls, wickrio api should support a single status call for x records including sender and message content
-    const status = await getStatus(req.params.page, req.params.size, req.user.email)
+    const status = await getStatus(page, limit, WICKRIO_BOT_NAME.value)
     res.json(status)
   });
 
@@ -412,21 +350,19 @@ const useRESTRoutes = (app) => {
     }
   }
 
-  // need page or size? 
-  app.get(endpoint + "/Status/:messageID", checkAuth, (req, res) => {
-    // validate message id
-    var statusData = APIService.getMessageStatus(req.params.messageID, "full", "0", "1000");
-    var reply = statusData;
-    return res.send(reply);
-  });
-
-  app.get(endpoint + "/Report/:messageID/:page/:size", checkAuth, (req, res) => {
+  app.get(endpoint + "/Report", checkBasicAuth, (req, res) => {
+    if (!req.query.messageID) return res.status(400).send('Bad request: messageID missing from request.');
+    if (!req.query.page) return res.status(400).send('Bad request: page missing from request.');
+    if (!req.query.limit) return res.status(400).send('Bad request: limit missing from request.');
+    let messageID = req.query.messageID;
+    let page = req.query.page;
+    let limit = req.query.limit;
     res.set('Content-Type', 'text/plain');
     res.set('Authorization', 'Basic base64_auth_token');
 
     var reportEntries = [];
 
-    var statusData = APIService.getMessageStatus(req.params.messageID, "full", req.params.page, req.params.size);
+    var statusData = APIService.getMessageStatus(messageID, "full", page, limit);
     var messageStatus = JSON.parse(statusData);
     for (let entry of messageStatus) {
       var statusMessageString = "";

@@ -4,7 +4,8 @@ import express from 'express';
 import helmet from 'helmet';
 import {
   BOT_PORT,
-  WEB_APPLICATION
+  WEB_APPLICATION,
+  REST_APPLICATION
 } from '../helpers/constants'
 import useWebAndRoutes from './webapi';
 import useRESTRoutes from './restapi';
@@ -56,7 +57,9 @@ const startServer = () => {
   if (WEB_APPLICATION.value != 'false' && WEB_APPLICATION.value != 'no') {
     useWebAndRoutes(app)
   }
-  useRESTRoutes(app)
+  if (REST_APPLICATION.value != 'false' && REST_APPLICATION.value != 'no') {
+    useRESTRoutes(app)
+  }
 
 
   // What to do for ALL requests for ALL Paths

@@ -11,6 +11,7 @@ class BroadcastService {
     this.userEmail = ''
     this.display = ''
     this.ackFlag = false
+    this.sentByFlag = true
     this.securityGroups = []
     this.duration = 0
     this.voiceMemo = ''
@@ -67,6 +68,10 @@ class BroadcastService {
     this.ackFlag = ackFlag;
   }
 
+  setSentByFlag(sentByFlag) {
+    this.sentByFlag = sentByFlag
+  }
+
   setVGroupID(vGroupID) {
     this.vGroupID = vGroupID;
   }
@@ -79,15 +84,19 @@ class BroadcastService {
   }
 
   broadcastMessage() {
+    var messageToSend;
+    if (this.sentByFlag) {
+      messageToSend = this.message + `\n\nBroadcast message sent by: ${this.userEmail}`;
+    } else {
+      messageToSend = this.message;
+    }
 
-    let sentBy = `\n\nBroadcast message sent by: ${this.userEmail}`;
-    let messageToSend = this.message + sentBy;
     if (this.ackFlag) {
-      messageToSend = `${messageToSend}\nPlease acknowledge this message by replying with /ack`
-      sentBy = `${sentBy}\nPlease acknowledge this message by replying with /ack`;
-      // console.log({ securityGroups: this.securityGroups })  needds to be array
-      console.log({ users: this.users })
-
+      if (this.sentByFlag) {
+        messageToSend = `${messageToSend}\nPlease acknowledge this message by replying with /ack`
+      } else {
+        messageToSend = `${messageToSend}\n\nPlease acknowledge this message by replying with /ack`
+      }
     }
     const target = (this.users.length > 0) ? 'USERS' : ((this.securityGroups.length < 1 || this.securityGroups === undefined) ? 'NETWORK' : this.securityGroups.join());
 
@@ -104,7 +113,6 @@ class BroadcastService {
     let uMessage;
     let reply = {};
     if (target === 'USERS') {
-      logger.debug(`broadcasting to users=${this.users}`);
       uMessage = APIService.send1to1MessageLowPriority(this.users, messageToSend, this.ttl, this.bor, messageID);
       logger.debug(`send1to1Messge returns=${uMessage}`);
       // reply = 'Broadcast message in process of being sent to list of users';
