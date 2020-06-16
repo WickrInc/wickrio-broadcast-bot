@@ -370,8 +370,6 @@ async function listen(message) {
       } else {
         host = `http://${WEBAPP_HOST.value}`
       }
-
-
       // generate a random auth code for the session
       // store it in a globally accessable store
 

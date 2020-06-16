@@ -19,7 +19,8 @@ const {
   WEBAPP_PORT,
   HTTPS_CHOICE,
   WEBAPP_HOST,
-  WEB_APPLICATION
+  WEB_APPLICATION,
+  REST_APPLICATION
 } = JSON.parse(process.env.tokens);
 
 const updateLastID = () => {
@@ -115,6 +116,7 @@ export {
   logger,
   BOT_AUTH_TOKEN,
   WEB_APPLICATION,
+  REST_APPLICATION,
   BOT_KEY,
   HTTPS_CHOICE,
   BOT_PORT,
