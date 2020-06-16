@@ -25,12 +25,6 @@ class GenericService {
   getEntriesString(userEmail) {
     const currentEntries = this.getMessageEntries(userEmail);
     let reply;
-
-    // let messageCounter = 0;
-    // messageCounter += 1;
-    // if (messageCounter > this.startIndex) {
-    // }
-
     logger.debug(`startIndex${this.startIndex}`);
     if (currentEntries.length < 1 || this.startIndex > this.endIndex) {
       reply = 'There are no previous messages to display';
@@ -58,16 +52,13 @@ class GenericService {
     const messageEntries = [];
     const tableDataRaw = APIService.getMessageIDTable('0', '1000', userEmail);
     const messageIDData = JSON.parse(tableDataRaw);
-	
+
     const tableData = messageIDData.list;
     for (let i = tableData.length - 1; i >= 0; i -= 1) {
       const entry = tableData[i];
       if (entry.sender === userEmail) {
         messageEntries.push(entry);
       }
-      // if ( === this.endIndex) {
-      //   break;
-      // }
     }
     this.endIndex = Math.min(this.endIndex, messageEntries.length);
     return messageEntries;
