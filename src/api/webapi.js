@@ -134,9 +134,9 @@ const useWebAndRoutes = (app) => {
     }
   });
 
-  app.get(endpoint + "/Authenticate", checkAuth, (req, res) => {
+  app.get(endpoint + "/Authorize", checkAuth, (req, res) => {
     try {
-      let reply = { data: req.user }
+      let reply = { user: req.user }
       res.json(reply)
     } catch (err) {
       console.log(err);
@@ -306,33 +306,44 @@ const useWebAndRoutes = (app) => {
       // console.log({ entry })
       let contentData = JSON.parse(APIService.getMessageIDEntry(entry.message_id));
       entry.message = contentData.message
-      try {
 
-        let statusdata = await APIService.getMessageStatus(entry.message_id, type, page, size)
-        const parsedstatus = JSON.parse(statusdata)
+      console.log({ contentData })
+      if (contentData) {
+        try {
+          let statusdata = await APIService.getMessageStatus(entry.message_id, type, page, size)
+          const parsedstatus = JSON.parse(statusdata)
 
-        // console.log({ statusdata })
-        entry.summary = {}
-        entry.test = "test"
-        entry.summary.pending = 0
-        entry.summary.sent = 0
-        entry.summary.failed = 0
-        entry.summary.ack = 0
-        entry.summary.ignored = 0
-        entry.summary.aborted = 0
-        entry.summary.read = 0
-        entry.status = parsedstatus
+          // console.log({ statusdata })
+          entry.summary = {}
+          entry.summary.pending = 0
+          entry.summary.sent = 0
+          entry.summary.failed = 0
+          entry.summary.ack = 0
+          entry.summary.ignored = 0
+          entry.summary.aborted = 0
+          entry.summary.read = 0
+          entry.status = parsedstatus
 
-        parsedstatus?.map(user => {
-          if (user.status == 0) { entry.summary.pending += 1 }
-          else if (user.status == 1) { entry.summary.sent += 1 }
-          else if (user.status == 2) { entry.summary.failed += 1 }
-          else if (user.status == 3) { entry.summary.ack += 1 }
-        })
-      } catch (e) {
-        console.log({ err: e })
+          parsedstatus?.map(user => {
+            if (user.status == 0) { entry.summary.pending += 1 }
+            else if (user.status == 1) { entry.summary.sent += 1 }
+            else if (user.status == 2) { entry.summary.failed += 1 }
+            else if (user.status == 3) { entry.summary.ack += 1 }
+          })
+        } catch (e) {
+          entry.summary = {}
+          entry.summary.pending = 0
+          entry.summary.sent = 0
+          entry.summary.failed = 0
+          entry.summary.ack = 0
+          entry.summary.ignored = 0
+          entry.summary.aborted = 0
+          entry.summary.read = 0
+          // entry.status = parsedstatus
+          entry.state = "cant getMessageStatus"
+          console.log({ err: e })
+        }
       }
-
     })
     return messageIdEntries
   }

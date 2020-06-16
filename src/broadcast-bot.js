@@ -370,7 +370,7 @@ async function listen(message) {
       } else {
         host = `http://${WEBAPP_HOST.value}`
       }
-      let port
+
 
       // generate a random auth code for the session
       // store it in a globally accessable store
@@ -383,10 +383,10 @@ async function listen(message) {
         email: userEmail,
         session: random,
         host: host,
-        port: BOT_PORT.value
+        port: WEBAPP_PORT.value
       }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
 
-      var reply = encodeURI(`${host}:${BOT_PORT.value}/?token=${token}`)
+      var reply = encodeURI(`${host}:${WEBAPP_PORT.value}/?token=${token}`)
       APIService.sendRoomMessage(vGroupID, reply);
       return
     }
