@@ -48,20 +48,11 @@ async function main() {
       token: 'WEB_INTERFACE',
       pattern: 'yes|no',
       type: 'string',
-      description: 'Do you want to setup the web interface (REST API)',
+      description: 'Do you want to setup the web interface (REST API or WEB Application)',
       message: 'Please enter either yes or no',
       required: true,
       default: 'no',
       list: [
-        {
-          token: 'BOT_PORT',
-          pattern: '^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$',
-          type: 'number',
-          description: "Please enter your client bot's port",
-          message: 'Cannot leave empty! Please enter a value',
-          required: false,
-          default: false,
-        },
         {
           token: 'WEB_APPLICATION',
           pattern: 'yes|no',
@@ -81,6 +72,24 @@ async function main() {
               default: false,
             }
           ]
+        },
+        {
+          token: 'REST_APPLICATION',
+          pattern: 'yes|no',
+          type: 'string',
+          description: 'Do you want to use the REST application',
+          message: 'Please enter either yes or no',
+          required: true,
+          default: 'no',
+        },
+        {
+          token: 'BOT_PORT',
+          pattern: '^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$',
+          type: 'number',
+          description: "Please enter your client bot's port",
+          message: 'Cannot leave empty! Please enter a value',
+          required: false,
+          default: false,
         },
         {
           token: 'BOT_KEY',
