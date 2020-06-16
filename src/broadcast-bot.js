@@ -40,7 +40,7 @@ import GenericService from './services/generic-service'
 import { response } from 'express';
 import FileService from './services/file-service'
 
-let currentState;
+// let currentState;
 let job;
 let verifyUsersMode
 let webAppEnabled;
@@ -54,23 +54,21 @@ process.stdin.resume(); //so the program will not close instantly
 
 // const {exec, execSync, execFileSync} = require('child_process');
 
-const fileHandler = new FileHandler();
-// const whitelist = new WhitelistRepository(fs);
-const broadcastService = new BroadcastService();
-const repeatService = new RepeatService(broadcastService);
-const sendService = new SendService();
-const fileService = new FileService();
-const genericService = new GenericService(10);
+// const broadcastService = new BroadcastService();
+// const repeatService = new RepeatService(broadcastService);
+// const sendService = new SendService();
+// const fileService = new FileService();
+// const genericService = new GenericService(10);
 
-const factory = new Factory(
-  broadcastService,
-  sendService,
-  StatusService,
-  repeatService,
-  ReportService,
-  genericService,
-  fileService,
-);
+// const factory = new Factory(
+//   broadcastService,
+//   sendService,
+//   StatusService,
+//   repeatService,
+//   ReportService,
+//   genericService,
+//   fileService,
+// );
 
 const fileActions = new FileActions(broadcastService, sendService);
 
@@ -232,27 +230,27 @@ async function listen(message) {
       const statusMessage = JSON.stringify(obj);
       logger.debug(`location statusMessage=${statusMessage}`);
       genericService.setMessageStatus('', userEmailString, '3', statusMessage);
-      currentState = State.NONE;
+      user.currentState = State.NONE;
       return;
     }
 
     if (command === '/version') {
       const obj = Version.execute();
       const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
-      currentState = State.NONE;
+      user.currentState = State.NONE;
       return;
     }
 
     if (command === '/ack') {
       const userEmailString = `${userEmail}`;
       genericService.setMessageStatus('', userEmailString, '3', '');
-      currentState = State.NONE;
+      user.currentState = State.NONE;
       return;
     }
     
     if (webAppEnabled) {
       webAppString = '*Web App Commands*\n'
-        + '/panel';
+        + '/panel : displays the link and token to the web user interface';
     }
 
     // TODO  put this in it's own command
@@ -281,7 +279,7 @@ async function listen(message) {
       // const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       const sMessage = APIService.sendRoomMessage(vGroupID, reply);
       logger.debug(sMessage);
-      currentState = State.NONE;
+      user.currentState = State.NONE;
       return;
     }
 
@@ -297,27 +295,58 @@ async function listen(message) {
     if (command === '/messages') {
       const path = `${process.cwd()}/attachments/messages.txt`;
       const uMessage = WickrIOAPI.cmdSendRoomAttachment(vGroupID, path, path);
-      currentState = State.NONE;
+      user.currentState = State.NONE;
       return;
     }
 
     let user = bot.getUser(userEmail); // Look up user by their wickr email
 
+    // if (user === undefined) { // Check if a user exists in the database
+    //   wickrUser = new WickrUser(userEmail, {
+    //     index: 0,
+    //     vGroupID,
+    //     personalVGroupID,
+    //     command: '',
+    //     argument: '',
+    //     confirm: '',
+    //     type: '',
+    //   });
+    //   user = bot.addUser(wickrUser); // Add a new user to the database
+    // }
+
+    const broadcastService = new BroadcastService();
+    const repeatService = new RepeatService(broadcastService);
+    const sendService = new SendService();
+    const fileService = new FileService();
+    const genericService = new GenericService(10);
     if (user === undefined) { // Check if a user exists in the database
       wickrUser = new WickrUser(userEmail, {
-        index: 0,
+        message,
         vGroupID,
         personalVGroupID,
         command: '',
         argument: '',
-        confirm: '',
-        type: '',
+        currentState,
+        broadcastService,
+        repeatService,
+        sendService,
+        fileService,
+        genericService,
       });
       user = bot.addUser(wickrUser); // Add a new user to the database
     }
 
     logger.debug('user:', user);
 
+    const factory = new Factory(
+      user.broadcastService,
+      user.sendService,
+      StatusService,
+      user.repeatService,
+      ReportService,
+      user.genericService,
+      user.fileService,
+    );
 
     if (command === '/map' && webAppEnabled) {
       let last_id = getLastID()
@@ -412,67 +441,14 @@ async function listen(message) {
       APIService.sendRoomMessage(vGroupID, reply);
       return
     }
-    const messageService = new MessageService(messageReceived, userEmail, argument, command, currentState, vGroupID, file, filename);
+
+    // const messageService = new MessageService(messageReceived, userEmail, argument, command, currentState, vGroupID, file, filename);
+    const messageService = new MessageService(messageReceived, userEmail, argument, command, user.currentState, vGroupID, file, filename, user);
     // TODO is this JSON.stringify necessary??
     // How to deal with duplicate files??
 
-    if (false) { // (currentState === State.FILE_TYPE) {
-      console.log({ messageService, file, filename })
-      // let obj = factory.fileActions(messageService)
-      let obj = Factory.fileActions(messageService);
-      console.log({ objfileactions: obj })
-      // currentState = State.NONE;
-      // const type = parsedMessage.message.toLowerCase();
-      // let fileAppend = '';
-      // logger.debug(`Here is the filetype message${type}`);
-      // if (type === 'u' || type === 'user') {
-      //   fileAppend = '.user';
-      // } else if (type === 'h' || type === 'hash') {
-      //   fileAppend = '.hash';
-      // } else if (type === 's' || type === 'send') {
-      //   command = '/send';
-      //   const obj = factory.execute(messageService);
-      //   if (obj.reply) {
-      //     logger.debug('Object has a reply');
-      //     const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
-      //   }
-      //   currentState = obj.state;
-      // } else if (type === 'b' || type === 'broadcast') {
-      //   // TODO fix this
-      //   // sendFile.execute();
-      //   command = '/broadcast';
-      //   const obj = factory.execute(messageService);
-      //   if (obj.reply) {
-      //     logger.debug('Object has a reply');
-      //     const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
-      //   }
-      //   currentState = obj.state;
-      // } else {
-      //   const reply = 'Input not recognized please reply with (b)roadcast, (s)end, (u)ser, or (h)ash' ;
-      //   const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-      //   currentState = State.FILE_TYPE;
-      // }
-      // if (fileAppend) {
-      //   logger.debug(`Here is file info${file}`);
-      //   const cp = await fileHandler.copyFile(file.toString(), `${process.cwd()}/files/${filename.toString()}${fileAppend}`);
-      //   logger.debug(`Here is cp:${cp}`);
-      if (obj) {
-        const reply = `File named: ${filename} successfully saved to directory.`;
-        const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-      } else {
-        const reply = `Error: File named: ${filename} not saved to directory.`;
-        const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-      }
-      // }
-    } else {
       // TODO parse argument better??
       let obj;
-      // if (parsedMessage.file) {
-      //   obj = factory.file(parsedMessage.file, parsedMessage.filename);
-      //   // Here file and filename are persisted across multiple messages
-      //   file = parsedMessage.file;
-      //   filename = parsedMessage.filename;
-      // } else {
       obj = factory.execute(messageService);
       logger.debug(`obj${obj}`);
       // }
@@ -480,8 +456,7 @@ async function listen(message) {
         logger.debug('Object has a reply');
         const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
       }
-      currentState = obj.state;
-    }
+      user.currentState = obj.state;
 
   } catch (err) {
     logger.error(err);

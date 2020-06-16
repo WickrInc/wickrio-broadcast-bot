@@ -7,18 +7,12 @@ class FileReceived {
   }
 
   shouldExecute(messageService) {
-    console.log(this.fileService);
-    // if (messageService.getFile().length !== 0 && messageService.getFile() !== '') {
-    const file = messageService.getFile();
-    console.log(`GILE${messageService.getFile()}`);
-    console.log(`GILE2${file}`);
-    // if (
-    //   messageService.getFile() !== undefined
-    //   && messageService.getFile().length !== 0
-    //   && messageService.getFile() !== ''
-    // ) {
-    if (file) {
-      console.log(`Am i insane?${file}`);
+    // const file = messageService.getFile();
+    if (
+      messageService.getFile() !== 'undefined'
+      && messageService.getFile().length !== 0
+      && messageService.getFile() !== ''
+    ) {
       return true;
     }
     return false;

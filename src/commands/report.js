@@ -17,8 +17,14 @@ class Report {
     const userEmail = messageService.getUserEmail();
     this.genericService.resetIndexes();
     const entriesString = this.genericService.getEntriesString(userEmail);
-    const reply = `${entriesString}Which message would you like to see the report of?`
+    const entries = this.genericService.getMessageEntries(userEmail);
+    let reply;
+    if (!entries || entries.length === 0) {
+      reply = entriesString;
+    } else {
+      reply = `${entriesString}Which message would you like to see the report of?`
       + '\nOr to see more messages reply more';
+    }
     return {
       reply,
       state: State.WHICH_REPORT,

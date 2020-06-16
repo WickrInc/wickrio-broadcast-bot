@@ -28,12 +28,6 @@ class GenericService {
   getEntriesString(userEmail) {
     const currentEntries = this.getMessageEntries(userEmail);
     let reply;
-
-    // let messageCounter = 0;
-    // messageCounter += 1;
-    // if (messageCounter > this.startIndex) {
-    // }
-
     logger.debug(`startIndex${this.startIndex}`);
     if (currentEntries.length < 1 || this.startIndex > this.endIndex) {
       reply = 'There are no previous messages to display';
@@ -68,9 +62,6 @@ class GenericService {
       if (entry.sender === userEmail) {
         messageEntries.push(entry);
       }
-      // if ( === this.endIndex) {
-      //   break;
-      // }
     }
     this.endIndex = Math.min(this.endIndex, messageEntries.length);
     return messageEntries;
