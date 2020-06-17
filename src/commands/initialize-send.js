@@ -20,11 +20,15 @@ class InitializeSend {
     this.sendService.setUserEmail(messageService.getUserEmail());
     this.sendService.setVGroupID(messageService.getVGroupID());
     const fileArr = this.sendService.getFiles();
-    const length = Math.min(fileArr.length, 5);
+    const length = Math.min(fileArr.length, 10);
     let reply;
     let state = State.NONE;
     logger.debug(`message:${messageService.getMessage()}userEmail:${messageService.getUserEmail()}`);
-    if (!messageService.getArgument() || messageService.getArgument().length === 0) {
+    if (
+      (!messageService.getArgument() || messageService.getArgument().length === 0)
+      && (messageService.getFile().length === 0 || messageService.getFile === '')
+      && (messageService.getVoiceMemo().length === 0 || messageService.getVoiceMemo === '')
+    ) {
       reply = 'Must have a message or file to send, Usage: /send <message>';
     } else if (length > 0) {
       // TODO get rid of newline on last line

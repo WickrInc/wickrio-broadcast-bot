@@ -15,4 +15,4 @@ class CronHelper {
   }
 }
 
-module.exports = CronHelper;
+export default CronHelper;

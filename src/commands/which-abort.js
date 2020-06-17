@@ -1,6 +1,5 @@
 import logger from '../logger';
 import State from '../state';
-import GenericService from '../services/generic-service';
 
 class WhichAbort {
   constructor(genericService) {
@@ -17,13 +16,13 @@ class WhichAbort {
 
   execute(messageService) {
     let reply;
-    const currentEntries = this.genericService.getMessageEntries(messageService.getUserEmail());
+    const userEmail = messageService.getUserEmail();
+    const currentEntries = this.genericService.getMessageEntries(userEmail, 0, 10);
     // TODO do we need an object here or can we just return inside the if/else?
     let obj;
     const index = messageService.getMessage();
-    const length = Math.min(currentEntries.length, 5);
-    if (!messageService.isInt() || index < 1 || index > length) {
-      reply = `Index: ${index} is out of range. Please enter a number between 1 and ${length}`;
+    if (!messageService.isInt() || index < 1 || index > currentEntries.length) {
+      reply = `Index: ${index} is out of range. Please enter a number between 1 and ${currentEntries.length}`;
       obj = {
         reply,
         state: State.WHICH_ABORT,
