@@ -149,13 +149,14 @@ const useWebAndRoutes = (app) => {
     // typecheck and validate parameters
     let { message, acknowledge = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '', sent_by } = req.body
 
-    
-    let user = bot.getUser(userEmail); // Look up user by their wickr email
+
+    let user = bot.getUser(req.user.email); // Look up user by their wickr email
     if (user === undefined) { // Check if a user exists in the database
-      wickrUser = new WickrUser(userEmail);
+      wickrUser = new WickrUser(req.user.email);
       user = bot.addUser(wickrUser); // Add a new user to the database
     }
-    const newBroadcast = new BroadcastService()
+
+    const newBroadcast = new BroadcastService(user)
 
 
     if (!message) return res.send("Broadcast message missing from request.");
@@ -166,6 +167,7 @@ const useWebAndRoutes = (app) => {
     // console.log({ message, acknowledge, security_group, repeat_num, freq_num, ttl, bor })
     // set user email without plus
     newBroadcast.setUserEmail(req.user.email)
+    newBroadcast.setUsers([])
     newBroadcast.setSentByFlag(true)
     // console.log(req.file)
     const fileData = req.file;
