@@ -147,7 +147,7 @@ const useWebAndRoutes = (app) => {
 
   app.post(endpoint + "/Message", [checkAuth, upload.single('attachment')], (req, res) => {
     // typecheck and validate parameters
-    let { message, acknowledge = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = req.body
+    let { message, acknowledge = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '', sent_by } = req.body
 
     const newBroadcast = new BroadcastService()
 
@@ -160,6 +160,7 @@ const useWebAndRoutes = (app) => {
     // console.log({ message, acknowledge, security_group, repeat_num, freq_num, ttl, bor })
     // set user email without plus
     newBroadcast.setUserEmail(req.user.email)
+    newBroadcast.setSentByFlag(true)
     // console.log(req.file)
     const fileData = req.file;
     var userAttachments;
@@ -205,7 +206,7 @@ const useWebAndRoutes = (app) => {
 
       newBroadcast.setSecurityGroups([security_group])
     }
-    if (acknowledge) {
+    if (acknowledge !== 'false' && acknowledge !== false) {
       newBroadcast.setAckFlag(true)
     }
 
