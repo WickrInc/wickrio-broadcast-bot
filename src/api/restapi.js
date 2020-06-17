@@ -118,13 +118,7 @@ const useRESTRoutes = (app) => {
       }
     }
 
-    let user = bot.getUser(req.user.userEmail); // Look up user by their wickr email
-    if (user === undefined) { // Check if a user exists in the database
-      wickrUser = new WickrUser(userEmail);
-      user = bot.addUser(wickrUser); // Add a new user to the database
-    }
-
-    const newBroadcast = new BroadcastService()
+    const newBroadcast = new BroadcastService(WICKRIO_BOT_NAME.value)
     newBroadcast.setMessage(message)
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
@@ -202,13 +196,7 @@ const useRESTRoutes = (app) => {
 
     console.log('message: ', message);
 
-    let user = bot.getUser(req.user.userEmail); // Look up user by their wickr email
-    if (user === undefined) { // Check if a user exists in the database
-      wickrUser = new WickrUser(userEmail);
-      user = bot.addUser(wickrUser); // Add a new user to the database
-    }
-
-    const newBroadcast = new BroadcastService()
+    const newBroadcast = new BroadcastService(WICKRIO_BOT_NAME.value)
     newBroadcast.setMessage(message)
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
@@ -267,7 +255,7 @@ const useRESTRoutes = (app) => {
       user = bot.addUser(wickrUser); // Add a new user to the database
     }
 
-    const newBroadcast = new BroadcastService()
+    const newBroadcast = new BroadcastService(WICKRIO_BOT_NAME.value)
     newBroadcast.setMessage(message)
     newBroadcast.setUsers(userList);
     newBroadcast.setTTL(ttl)
