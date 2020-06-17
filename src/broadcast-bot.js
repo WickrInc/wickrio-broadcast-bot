@@ -329,58 +329,6 @@ async function listen(message) {
       return;
     }
 
-<<<<<<< HEAD
-
-=======
-    let user = bot.getUser(userEmail); // Look up user by their wickr email
-
-    // if (user === undefined) { // Check if a user exists in the database
-    //   wickrUser = new WickrUser(userEmail, {
-    //     index: 0,
-    //     vGroupID,
-    //     personalVGroupID,
-    //     command: '',
-    //     argument: '',
-    //     confirm: '',
-    //     type: '',
-    //   });
-    //   user = bot.addUser(wickrUser); // Add a new user to the database
-    // }
-
-    const broadcastService = new BroadcastService();
-    const repeatService = new RepeatService(broadcastService);
-    const sendService = new SendService();
-    const fileService = new FileService();
-    const genericService = new GenericService(10);
-    if (user === undefined) { // Check if a user exists in the database
-      wickrUser = new WickrUser(userEmail, {
-        message,
-        vGroupID,
-        personalVGroupID,
-        command: '',
-        argument: '',
-        currentState,
-        broadcastService,
-        repeatService,
-        sendService,
-        fileService,
-        genericService,
-      });
-      user = bot.addUser(wickrUser); // Add a new user to the database
-    }
-
-    logger.debug('user:', user);
-
-    const factory = new Factory(
-      user.broadcastService,
-      user.sendService,
-      StatusService,
-      user.repeatService,
-      ReportService,
-      user.genericService,
-      user.fileService,
-    );
->>>>>>> 83ec275a2e095a63f9fcd978fbff922c354c4d96
 
     if (command === '/map' && webAppEnabled) {
       let last_id = getLastID()
