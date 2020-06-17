@@ -102,7 +102,6 @@ class BroadcastService {
     // TODO what is users vs network?
     const target = (this.user.users !== undefined && this.user.users.length > 0) ? 'USERS' : ((this.user.securityGroups.length < 1 || this.user.securityGroups === undefined) ? 'NETWORK' : this.user.securityGroups.join());
 
-
     logger.debug(`target${target}`);
     const currentDate = new Date();
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
