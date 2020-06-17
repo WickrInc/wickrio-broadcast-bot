@@ -118,7 +118,7 @@ const useRESTRoutes = (app) => {
       }
     }
 
-    let user = bot.getUser(userEmail); // Look up user by their wickr email
+    let user = bot.getUser(req.user.userEmail); // Look up user by their wickr email
     if (user === undefined) { // Check if a user exists in the database
       wickrUser = new WickrUser(userEmail);
       user = bot.addUser(wickrUser); // Add a new user to the database
@@ -202,7 +202,7 @@ const useRESTRoutes = (app) => {
 
     console.log('message: ', message);
 
-    let user = bot.getUser(userEmail); // Look up user by their wickr email
+    let user = bot.getUser(req.user.userEmail); // Look up user by their wickr email
     if (user === undefined) { // Check if a user exists in the database
       wickrUser = new WickrUser(userEmail);
       user = bot.addUser(wickrUser); // Add a new user to the database
