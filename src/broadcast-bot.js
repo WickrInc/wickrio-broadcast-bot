@@ -214,8 +214,40 @@ async function listen(message) {
       return;
     }
     */
-    // Send the location as an acknowledgement
 
+    let user = bot.getUser(userEmail); // Look up user by their wickr email
+
+    if (user === undefined) { // Check if a user exists in the database
+      wickrUser = new WickrUser(userEmail, {
+        message,
+        vGroupID,
+        personalVGroupID,
+        command: '',
+        argument: '',
+        currentState,
+      });
+      user = bot.addUser(wickrUser); // Add a new user to the database
+    }
+    logger.debug('user:', user);
+
+    const broadcastService = new BroadcastService(user);
+    const repeatService = new RepeatService(broadcastService, user);
+    const sendService = new SendService(user);
+    const fileService = new FileService(user);
+    const genericService = new GenericService(10, user);
+
+    const factory = new Factory(
+      broadcastService,
+      sendService,
+      StatusService,
+      repeatService,
+      ReportService,
+      genericService,
+      fileService,
+    );
+
+    // Send the location as an acknowledgement
+    //
     // TODO create a pre-admin factory method with all the commands that are pre-admin
     if (messageType === 'location') {
       // acknowledges all messages sent to user
@@ -297,6 +329,9 @@ async function listen(message) {
       return;
     }
 
+<<<<<<< HEAD
+
+=======
     let user = bot.getUser(userEmail); // Look up user by their wickr email
 
     // if (user === undefined) { // Check if a user exists in the database
@@ -345,6 +380,7 @@ async function listen(message) {
       user.genericService,
       user.fileService,
     );
+>>>>>>> 83ec275a2e095a63f9fcd978fbff922c354c4d96
 
     if (command === '/map' && webAppEnabled) {
       let last_id = getLastID()

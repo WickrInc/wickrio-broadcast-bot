@@ -14,14 +14,15 @@ class ChooseFile {
     return false;
   }
 
+  // TODO add more function here as well
   execute(messageService) {
     const index = messageService.getMessage();
     let reply = null;
     let obj;
     const fileArr = this.sendService.getFileArr();
-    const length = Math.min(fileArr.length, 5);
-    if (!messageService.isInt() || index < 1 || index > length) {
-      reply = `Index: ${index} is out of range. Please enter a number between 1 and ${length}`;
+    // const length = Math.min(fileArr.length, 5);
+    if (!messageService.isInt() || index < 1 || index > fileArr.length) {
+      reply = `Index: ${index} is out of range. Please enter a number between 1 and ${fileArr.length}`;
       obj = {
         reply,
         state: State.CHOOSE_FILE,

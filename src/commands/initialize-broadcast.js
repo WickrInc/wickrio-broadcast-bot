@@ -17,6 +17,9 @@ class InitializeBroadcast {
     this.broadcastService.setMessage(messageService.getArgument());
     this.broadcastService.setUserEmail(messageService.getUserEmail());
     this.broadcastService.setVGroupID(messageService.getVGroupID());
+    this.broadcastService.setTTL('');
+    this.broadcastService.setBOR('');
+    this.broadcastService.setSentByFlag(true);
     let reply = 'Would you like to ask the recipients for an acknowledgement?';
     let state = State.ASK_FOR_ACK;
     // TODO check for undefined??

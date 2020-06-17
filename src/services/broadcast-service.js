@@ -5,172 +5,172 @@ import updateLastID from '../helpers/message-id-helper';
 import { logger } from '../helpers/constants';
 
 class BroadcastService {
-  constructor() {
-    this.file = '';
-    this.message = '';
-    this.userEmail = '';
-    this.display = '';
-    this.ackFlag = false;
-    this.securityGroups = [];
-    this.duration = 0;
-    this.voiceMemo = '';
-    this.repeatFlag = false;
-    this.vGroupID = '';
-    this.APISecurityGroups = [];
-    this.users = [];
-    this.ttl = '';
-    this.bor = '';
+  constructor(user) {
+    this.user = user;
+    // this.file = '';
+    // this.message = '';
+    // this.mail = '';
+    // this.display = '';
+    // this.ackFlag = false;
+    // this.securityGroups = [];
+    // this.duration = 0;
+    // this.voiceMemo = '';
+    // this.repeatFlag = false;
+    // this.vGroupID = '';
+    // this.APISecurityGroups = [];
+    // this. = [];
+    // this.ttl = '';
+    // this.bor = '';
   }
 
   setRepeatFlag(repeatFlag) {
-    this.repeatFlag = repeatFlag;
+    this.user.repeatFlag = repeatFlag;
   }
 
   setFile(file) {
-    this.file = file;
+    this.user.file = file;
   }
 
   setVoiceMemo(voiceMemo) {
-    this.voiceMemo = voiceMemo;
+    this.user.voiceMemo = voiceMemo;
   }
 
   setDuration(duration) {
-    this.duration = duration;
+    this.user.duration = duration;
   }
 
   setMessage(message) {
-    this.message = message;
+    this.user.message = message;
   }
 
   setDisplay(display) {
-    this.display = display;
+    this.user.display = display;
   }
 
   setUserEmail(email) {
-    this.userEmail = email;
+    this.user.userEmail = email;
   }
 
   setSecurityGroups(securityGroups) {
-    this.securityGroups = securityGroups;
+    this.user.securityGroups = securityGroups;
   }
 
   setUsers(users) {
-    this.users = users;
+    this.user.users = users;
   }
 
   getAPISecurityGroups() {
-    this.APISecurityGroups = APIService.getSecurityGroups();
-    return this.APISecurityGroups;
+    this.user.APISecurityGroups = APIService.getSecurityGroups();
+    return this.user.APISecurityGroups;
   }
 
   setAckFlag(ackFlag) {
-    this.ackFlag = ackFlag;
+    this.user.ackFlag = ackFlag;
   }
 
   setSentByFlag(sentByFlag) {
-    this.sentByFlag = sentByFlag;
+    this.user.sentByFlag = sentByFlag;
   }
 
   setVGroupID(vGroupID) {
-    this.vGroupID = vGroupID;
+    this.user.vGroupID = vGroupID;
   }
 
   setBOR(bor) {
-    this.bor = bor;
+    this.user.bor = bor;
   }
 
   setTTL(ttl) {
-    this.ttl = ttl;
+    this.user.ttl = ttl;
   }
 
   broadcastMessage() {
     let messageToSend;
-    if (this.sentByFlag) {
-      messageToSend = `${this.message}\n\nBroadcast message sent by: ${this.userEmail}`;
+    if (this.user.sentByFlag) {
+      messageToSend = `${this.user.message}\n\nBroadcast message sent by: ${this.user.userEmail}`;
     } else {
-      messageToSend = this.message;
+      messageToSend = this.user.message;
     }
 
-    if (this.ackFlag) {
-      if (this.sentByFlag) {
-        messageToSend = `${messageToSend}\nPlease acknowledge this message by replying with /ack`;
+    if (this.user.ackFlag) {
+      if (this.user.sentByFlag) {
+        messageToSend = `${messageToSend}\nPlease acknowledge this.user.message by replying with /ack`;
       } else {
-        messageToSend = `${messageToSend}\n\nPlease acknowledge this message by replying with /ack`;
+        messageToSend = `${messageToSend}\n\nPlease acknowledge this.user.message by replying with /ack`;
       }
     }
     // TODO what is users vs network?
-    const target = (this.users.length > 0) ? 'USERS' : ((this.securityGroups.length < 1 || this.securityGroups === undefined) ? 'NETWORK' : this.securityGroups.join());
-
+    const target = (this.user.users !== undefined && this.user.users.length > 0) ? 'USERS' : ((this.user.securityGroups.length < 1 || this.user.securityGroups === undefined) ? 'NETWORK' : this.user.securityGroups.join());
 
     logger.debug(`target${target}`);
     const currentDate = new Date();
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
     const jsonDateTime = currentDate.toJSON();
     // messageID must be a string
-    // TODO is is necessary to do this?
+    // TODO is is necessary to do this.user.
     const messageID = `${updateLastID()}`;
     console.log({ messageID });
     let uMessage;
     const reply = {};
     if (target === 'USERS') {
-      logger.debug(`broadcasting to users=${this.users}`);
+      logger.debug(`broadcasting to users=${this.user.users}`);
       uMessage = APIService.send1to1Message(
-        this.users,
+        this.user.users,
         messageToSend,
-        this.ttl,
-        this.bor,
+        this.user.ttl,
+        this.user.bor,
         messageID,
       );
       logger.debug(`send1to1Messge returns=${uMessage}`);
       reply.pending = 'Broadcast message in process of being sent to list of users';
       reply.message = messageToSend;
     } else if (target === 'NETWORK') {
-      if (this.voiceMemo !== '') {
+      if (this.user.voiceMemo !== undefined && this.user.voiceMemo !== '') {
         uMessage = APIService.sendNetworkVoiceMemo(
-          this.voiceMemo,
-          this.duration,
-          this.ttl,
-          this.bor,
+          this.user.voiceMemo,
+          this.user.duration,
+          this.user.ttl,
+          this.user.bor,
           messageID,
           messageToSend,
         );
         reply.pending = 'Voice Memo broadcast in process of being sent';
         reply.message = messageToSend;
-      } else if (this.file !== '') {
+      } else if (this.user.file !== undefined && this.user.file !== '') {
         uMessage = APIService.sendNetworkAttachment(
-          this.file,
-          this.display,
-          this.ttl,
-          this.bor,
+          this.user.file,
+          this.user.display,
+          this.user.ttl,
+          this.user.bor,
           messageID,
           messageToSend,
         );
         reply.pending = 'File broadcast in process of being sent';
         reply.message = messageToSend;
       } else {
-        uMessage = APIService.sendNetworkMessage(messageToSend, this.ttl, this.bor, messageID);
+        uMessage = APIService.sendNetworkMessage(messageToSend, this.user.ttl, this.user.bor, messageID);
         reply.pending = 'Broadcast message in process of being sent';
         reply.message = messageToSend;
       }
-    } else if (this.voiceMemo !== '') {
+    } else if (this.user.voiceMemo !== undefined && this.user.voiceMemo !== '') {
       uMessage = APIService.sendSecurityGroupVoiceMemo(
-        this.securityGroups,
-        this.voiceMemo,
-        this.duration,
-        this.ttl,
-        this.bor,
+        this.user.securityGroups,
+        this.user.voiceMemo,
+        this.user.duration,
+        this.user.ttl,
+        this.user.bor,
         messageID,
         messageToSend,
       );
       reply.pending = 'Voice Memo broadcast in process of being sent to security group';
       reply.message = messageToSend;
-    } else if (this.file !== '') {
+    } else if (this.user.file !== undefined && this.user.file !== '') {
       uMessage = APIService.sendSecurityGroupAttachment(
-        this.securityGroups,
-        this.file,
-        this.display,
-        this.ttl,
-        this.bor,
+        this.user.securityGroups,
+        this.user.file,
+        this.user.display,
+        this.user.ttl,
+        this.user.bor,
         messageID,
         messageToSend,
       );
@@ -178,51 +178,51 @@ class BroadcastService {
       reply.message = messageToSend;
     } else {
       uMessage = APIService.sendSecurityGroupMessage(
-        this.securityGroups,
+        this.user.securityGroups,
         messageToSend,
-        this.ttl,
-        this.bor,
+        this.user.ttl,
+        this.user.bor,
         messageID,
       );
       reply.pending = 'Broadcast message in process of being sent to security group';
       reply.message = messageToSend;
     }
-    if (this.file !== '') {
-      logger.debug(`display:${this.display}:`);
-      APIService.writeMessageIDDB(messageID, this.userEmail, target, jsonDateTime, this.display);
-    } else if (this.voiceMemo !== '') {
-      APIService.writeMessageIDDB(messageID, this.userEmail, target, jsonDateTime, `VoiceMemo-${jsonDateTime}`);
+    if (this.user.file !== undefined && this.user.file !== '') {
+      logger.debug(`display:${this.user.display}:`);
+      APIService.writeMessageIDDB(messageID, this.user.userEmail, target, jsonDateTime, this.user.display);
+    } else if (this.user.voiceMemo !== undefined && this.user.voiceMemo !== '') {
+      APIService.writeMessageIDDB(messageID, this.user.userEmail, target, jsonDateTime, `VoiceMemo-${jsonDateTime}`);
     } else {
-      APIService.writeMessageIDDB(messageID, this.userEmail, target, jsonDateTime, this.message);
+      APIService.writeMessageIDDB(messageID, this.user.userEmail, target, jsonDateTime, this.user.message);
     }
-    if (this.vGroupID !== '' && this.vGroupID !== undefined) {
-      StatusService.asyncStatus(messageID, this.vGroupID);
+    if (this.user.vGroupID !== '' && this.user.vGroupID !== undefined) {
+      StatusService.asyncStatus(messageID, this.user.vGroupID);
     }
-    this.file = '';
-    this.message = '';
-    this.userEmail = '';
-    this.display = '';
-    this.ackFlag = false;
-    this.securityGroups = [];
-    this.duration = 0;
-    this.voiceMemo = '';
-    this.repeatFlag = false;
-    this.vGroupID = '';
-    this.APISecurityGroups = [];
-    this.users = [];
-    this.ttl = '';
-    this.bor = '';
+    this.user.file = '';
+    this.user.message = '';
+    this.user.userEmail = '';
+    this.user.display = '';
+    this.user.ackFlag = false;
+    this.user.securityGroups = [];
+    this.user.duration = 0;
+    this.user.voiceMemo = '';
+    this.user.repeatFlag = false;
+    this.user.vGroupID = '';
+    this.user.APISecurityGroups = [];
+    this.user.users = [];
+    this.user.ttl = '';
+    this.user.bor = '';
     logger.debug(`Broadcast uMessage=${uMessage}`);
     reply.message_id = messageID;
     if (target === 'USERS') {
-      reply.users = this.users;
+      reply.users = this.user.users;
     } else {
-      reply.securityGroups = this.securityGroups;
+      reply.securityGroups = this.user.securityGroups;
     }
     return reply;
   }
 
-  // TODO check if this works as expected
+  // TODO check if this.user.works as expected
   static isInt(value) {
     return !(Number.isNaN(value));
   }
