@@ -68,7 +68,7 @@ class BroadcastService {
   }
 
   setSentByFlag(sentByFlag) {
-    this.sentByFlag = sentByFlag
+    this.sentByFlag = sentByFlag;
   }
 
   setVGroupID(vGroupID) {
@@ -84,18 +84,18 @@ class BroadcastService {
   }
 
   broadcastMessage() {
-    var messageToSend;
+    let messageToSend;
     if (this.sentByFlag) {
-      messageToSend = this.message + `\n\nBroadcast message sent by: ${this.userEmail}`;
+      messageToSend = `${this.message}\n\nBroadcast message sent by: ${this.userEmail}`;
     } else {
       messageToSend = this.message;
     }
 
     if (this.ackFlag) {
       if (this.sentByFlag) {
-        messageToSend = `${messageToSend}\nPlease acknowledge this message by replying with /ack`
+        messageToSend = `${messageToSend}\nPlease acknowledge this message by replying with /ack`;
       } else {
-        messageToSend = `${messageToSend}\n\nPlease acknowledge this message by replying with /ack`
+        messageToSend = `${messageToSend}\n\nPlease acknowledge this message by replying with /ack`;
       }
     }
     // TODO what is users vs network?
@@ -184,12 +184,8 @@ class BroadcastService {
         this.bor,
         messageID,
       );
-<<<<<<< HEAD
-      reply = 'Broadcast message in process of being sent to security group';
-=======
       reply.pending = 'Broadcast message in process of being sent to security group';
       reply.message = messageToSend;
->>>>>>> WIP: Adding the more command
     }
     if (this.file !== '') {
       logger.debug(`display:${this.display}:`);
@@ -217,17 +213,12 @@ class BroadcastService {
     this.ttl = '';
     this.bor = '';
     logger.debug(`Broadcast uMessage=${uMessage}`);
-<<<<<<< HEAD
-    reply.message_id = messageID
-    if (target === 'USERS') {
-      reply.users = this.users
-    } else {
-      reply.securityGroups = this.securityGroups
-    }
-=======
     reply.message_id = messageID;
-    reply.securityGroups = this.securityGroups;
->>>>>>> WIP: Adding the more command
+    if (target === 'USERS') {
+      reply.users = this.users;
+    } else {
+      reply.securityGroups = this.securityGroups;
+    }
     return reply;
   }
 

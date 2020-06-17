@@ -441,6 +441,7 @@ async function listen(message) {
       APIService.sendRoomMessage(vGroupID, reply);
       return
     }
+    
 
     // const messageService = new MessageService(messageReceived, userEmail, argument, command, currentState, vGroupID, file, filename);
     const messageService = new MessageService(messageReceived, userEmail, argument, command, user.currentState, vGroupID, file, filename, user);

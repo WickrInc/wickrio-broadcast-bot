@@ -4,9 +4,6 @@ import { logger } from '../helpers/constants';
 const maxStringLength = 50;
 const inc = 10;
 
-const maxStringLength = 50;
-const inc = 10;
-
 class GenericService {
   constructor(endIndex) {
     this.startIndex = 0;

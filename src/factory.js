@@ -20,25 +20,12 @@ import AskForAck from './commands/ask-for-ack';
 import ChooseFile from './commands/choose-file';
 import ChooseSecurityGroups from './commands/choose-security-groups';
 import ConfirmSecurityGroups from './commands/confirm-security-groups';
-<<<<<<< HEAD
-import FileActions from './commands/file-actions';
-import RepeatFrequency from './commands/repeat-frequency';
-<<<<<<< HEAD
-import TimesRepeat from './commands/times-repeat';
-import WhichAbort from './commands/which-abort';
-import WhichStatus from './commands/which-status';
-import WhichReport from './commands/which-report';
-=======
-import FileActions from './commands/file-actions';
->>>>>>> paired on file actions to get async await to work and abstract from bbjs to their own commands
-=======
 import FileActions from './commands/file-actions';
 import RepeatFrequency from './commands/repeat-frequency';
 import TimesRepeat from './commands/times-repeat';
 import WhichAbort from './commands/which-abort';
 import WhichStatus from './commands/which-status';
 import WhichReport from './commands/which-report';
->>>>>>> WIP: Adding the more command
 
 // TODO how can we use a new Broadcast service each time???
 class Factory {
@@ -64,17 +51,6 @@ class Factory {
     // These are the /commands
     this.ack = new Ack(this.genericService);
     this.abort = new Abort(this.genericService);
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    this.whichAbort = new WhichAbort(this.genericService);
-    this.report = new Report(this.genericService);
-    this.whichReport = new WhichReport(this.genericService, this.reportService);
-    this.initializeBroadcast = new InitializeBroadcast(this.broadcastService);
-    this.chooseFile = new ChooseFile(this.sendService);
->>>>>>> WIP: Trying to call async outside of main
-=======
->>>>>>> WIP: Adding the more command
     this.filesCommand = new FilesCommand(this.sendService);
     this.fileReceived = new FileReceived(this.fileService);
     this.initializeBroadcast = new InitializeBroadcast(this.broadcastService);
@@ -87,10 +63,6 @@ class Factory {
     this.askForAck = new AskForAck(this.broadcastService);
     this.askRepeat = new AskRepeat(this.repeatService, this.broadcastService);
     this.chooseFile = new ChooseFile(this.sendService);
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> WIP: Adding the more command
     this.chooseSecurityGroups = new ChooseSecurityGroups(this.broadcastService);
     this.confirmSecurityGroups = new ConfirmSecurityGroups(this.broadcastService);
     this.fileActions = new FileActions(this.fileService, this.broadcastService, this.sendService);
@@ -99,12 +71,6 @@ class Factory {
     this.whichStatus = new WhichStatus(this.genericService, this.statusService);
     this.whichAbort = new WhichAbort(this.genericService);
     this.whichReport = new WhichReport(this.genericService, this.reportService);
-<<<<<<< HEAD
-=======
-    this.fileActions = new FileActions(this.broadcastService, this.sendService);
->>>>>>> WIP: Making the copyfile command synchronous
-=======
->>>>>>> WIP: Adding the more command
 
     // Order matters here /commands must go first
     // TODO make it so that the order doesn' matter?
@@ -134,32 +100,10 @@ class Factory {
       this.whichReport,
       this.whichAbort,
       this.fileReceived,
-<<<<<<< HEAD
-      Ack,
-<<<<<<< HEAD
-<<<<<<< HEAD
     ];
   }
 
   execute(messageService) {
-=======
-      FileActions,
-    ];
-  }
-
-  async execute(messageService) {
-    // this.commandList.forEach((command) => {
->>>>>>> paired on file actions to get async await to work and abstract from bbjs to their own commands
-=======
-      this.fileActions,
-      FileReceived,
-=======
->>>>>>> WIP: Adding the more command
-    ];
-  }
-
-  execute(messageService) {
->>>>>>> WIP: Making the copyfile command synchronous
     for (const command of this.commandList) {
       if (command.shouldExecute(messageService)) {
         return command.execute(messageService);
@@ -179,23 +123,10 @@ class Factory {
     return FileReceived.execute();
   }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> WIP: Making the copyfile command synchronous
   // static fileActions(messageService) {
   //   const response = FileActions.execute(messageService);
   //   return response;
   // }
-<<<<<<< HEAD
-=======
-  async fileActions(messageService, file, filename) {
-    let response = await FileActions.execute(messageService, file, filename)
-    return response
-  }
->>>>>>> paired on file actions to get async await to work and abstract from bbjs to their own commands
-=======
->>>>>>> WIP: Making the copyfile command synchronous
 }
 
 export default Factory;
