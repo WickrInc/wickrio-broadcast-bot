@@ -149,6 +149,12 @@ const useWebAndRoutes = (app) => {
     // typecheck and validate parameters
     let { message, acknowledge = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '', sent_by } = req.body
 
+    
+    let user = bot.getUser(userEmail); // Look up user by their wickr email
+    if (user === undefined) { // Check if a user exists in the database
+      wickrUser = new WickrUser(userEmail);
+      user = bot.addUser(wickrUser); // Add a new user to the database
+    }
     const newBroadcast = new BroadcastService()
 
 
@@ -235,6 +241,11 @@ const useWebAndRoutes = (app) => {
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
 
+    let user = bot.getUser(userEmail); // Look up user by their wickr email
+    if (user === undefined) { // Check if a user exists in the database
+      wickrUser = new WickrUser(userEmail);
+      user = bot.addUser(wickrUser); // Add a new user to the database
+    }
     const newBroadcast = new BroadcastService()
     newBroadcast.setUsers(userList);
 
