@@ -44,6 +44,10 @@ class APIService {
     return WickrIOAPI.cmdGetMessageStatus(messageID, type, page, pageSize);
   }
 
+  static getMessageStatusFiltered(messageID, type, page, pageSize, filter) {
+    return WickrIOAPI.cmdGetMessageStatus(messageID, type, page, pageSize, filter);
+  }
+
   static getMessageIDEntry(messageID) {
     try {
       return WickrIOAPI.cmdGetMessageIDEntry(messageID);

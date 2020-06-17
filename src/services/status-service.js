@@ -7,13 +7,7 @@ class StatusService {
     // TODO Here we need which Message??
     let statusData;
     try {
-      // console.log({ statusData })
-      // statusData = APIService.getMessageStatus(messageID, 'summary', '0', '1000').then(response => console.log({ response }))
-      // statusData = await Promise.resolve(APIService.getMessageStatus(messageID, 'summary', '0', '1000'))
-      // statusData = await APIService.getMessageStatus(messageID, 'summary', '0', '1000')
-      statusData = status(messageID)
-
-      console.log({ statusData })
+      statusData = status(messageID);
     } catch (err) {
       if (asyncStatus) {
         return {
@@ -24,7 +18,7 @@ class StatusService {
       return 'No data found for that message';
     }
     const messageStatus = JSON.parse(statusData);
-    console.log({ messageStatus })
+    console.log({ messageStatus });
     let statusString = '*Message Status:*\n'
       + `Total Users: ${messageStatus.num2send}\n`
       + `Messages Sent: ${messageStatus.sent}\n`
@@ -37,14 +31,12 @@ class StatusService {
       statusString = `${statusString}Messages Ignored: ${messageStatus.ignored}`;
     }
     if (asyncStatus) {
-
       const complete = messageStatus.pending === 0;
       return {
         statusString,
         complete,
       };
     }
-
     return statusString;
   }
 
@@ -66,9 +58,8 @@ class StatusService {
 }
 
 const status = (messageID) => {
-  const statuscall = APIService.getMessageStatus(messageID, 'summary', '0', '1000')
-  return statuscall
-}
-
+  const statuscall = APIService.getMessageStatus(messageID, 'summary', '0', '1000');
+  return statuscall;
+};
 
 export default StatusService;

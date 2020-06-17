@@ -285,11 +285,13 @@ const useRESTRoutes = (app) => {
     if (!req.query.messageID) return res.status(400).send('Bad request: messageID missing from request.');
     let messageID = req.query.messageID;
 
+    // Make sure the MessageID entry exists
     let msgIDJSON = APIService.getMessageIDEntry(messageID);
     if (msgIDJSON === undefined) {
       return res.status(404).send('Not Found: Message ID entry does not exist.');
     }
 
+    // Make sure the MessageID entry is for this user
     let msgIDEntry = JSON.parse(msgIDJSON);
     if (WICKRIO_BOT_NAME.value !== msgIDEntry.sender) {
       return res.status(401).send('Unauthorized: Message is not from this user.');
@@ -408,12 +410,30 @@ const useRESTRoutes = (app) => {
     let messageID = req.query.messageID;
     let page = req.query.page;
     let limit = req.query.limit;
+
+    // Make sure the MessageID entry exists
+    let msgIDJSON = APIService.getMessageIDEntry(messageID);
+    if (msgIDJSON === undefined) {
+      return res.status(404).send('Not Found: Message ID entry does not exist.');
+    }
+
+    // Make sure the MessageID entry is for this user
+    let msgIDEntry = JSON.parse(msgIDJSON);
+    if (WICKRIO_BOT_NAME.value !== msgIDEntry.sender) {
+      return res.status(401).send('Unauthorized: Message is not from this user.');
+    }
+
     res.set('Content-Type', 'text/plain');
     res.set('Authorization', 'Basic base64_auth_token');
 
     var reportEntries = [];
 
-    var statusData = APIService.getMessageStatus(messageID, "full", page, limit);
+    var statusData;
+    if (req.query.filter) {
+      statusData = APIService.getMessageStatusFiltered(messageID, "full", page, limit, req.query.filter);
+    } else {
+      statusData = APIService.getMessageStatus(messageID, "full", page, limit);
+    }
     var messageStatus = JSON.parse(statusData);
     for (let entry of messageStatus) {
       var statusMessageString = "";

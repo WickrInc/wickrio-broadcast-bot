@@ -1,17 +1,20 @@
 import State from '../state';
-import GenericService from '../services/generic-service';
-
 
 class Ack {
-  static shouldExecute(messageService) {
-    if (messageService.getCommand() === '/ack') {
+  constructor(genericService) {
+    this.genericService = genericService;
+    this.commandString = '/ack';
+  }
+
+  shouldExecute(messageService) {
+    if (messageService.getCommand() === this.commandString) {
       return true;
     }
     return false;
   }
 
-  static execute(messageService) {
-    GenericService.setMessageStatus('', messageService.getUserEmail(), '3', '');
+  execute(messageService) {
+    this.genericService.setMessageStatus('', messageService.getUserEmail(), '3', '');
     const reply = '';
     const obj = {
       reply,

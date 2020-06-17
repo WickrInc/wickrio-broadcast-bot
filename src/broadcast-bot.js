@@ -37,10 +37,13 @@ import RepeatService from './services/repeat-service'
 import ReportService from './services/report-service'
 import GenericService from './services/generic-service'
 import { response } from 'express';
+import FileService from './services/file-service'
 
-let currentState;
+// let currentState;
 let job;
 let verifyUsersMode
+let webAppEnabled;
+let webAppString = '';
 
 // need to be able to debug and lint for syntax errors
 //
@@ -50,26 +53,25 @@ process.stdin.resume(); //so the program will not close instantly
 
 // const {exec, execSync, execFileSync} = require('child_process');
 
+// const broadcastService = new BroadcastService();
+// const repeatService = new RepeatService(broadcastService);
+// const sendService = new SendService();
+// const fileService = new FileService();
+// const genericService = new GenericService(10);
+
+// const factory = new Factory(
+//   broadcastService,
+//   sendService,
+//   StatusService,
+//   repeatService,
+//   ReportService,
+//   genericService,
+//   fileService,
+// );
 
 
-const fileHandler = new FileHandler();
-// const whitelist = new WhitelistRepository(fs);
-const broadcastService = new BroadcastService();
-const repeatService = new RepeatService(broadcastService);
-const sendService = new SendService();
-
-
-const factory = new Factory(
-  broadcastService,
-  sendService,
-  StatusService,
-  repeatService,
-  ReportService,
-  GenericService
-);
-
-let file;
-let filename;
+// let file;
+// let filename;
 
 process.stdin.resume(); // so the program will not close instantly
 if (!fs.existsSync(`${process.cwd()}/attachments`)) {
@@ -157,7 +159,7 @@ async function main() {
     ) {
       // run server
       startServer()
-
+      webAppEnabled = true;
     } else {
       console.log('If you wanted a web or rest interface, the env variables not set properly. Check BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT')
     }
@@ -196,6 +198,12 @@ async function listen(message) {
     const convoType = parsedMessage.convotype;
     const messageType = parsedMessage.msgtype;
     const personalVGroupID = '';
+
+    const file = '' + parsedMessage.file;
+    const filename = '' + parsedMessage.filename;
+
+    logger.debug('FILENAME bcast' + filename);
+    logger.debug('FILE bcast' + file);
     logger.debug(`convoType=${convoType}`);
     // Go back to dev toolkit and fix
     /*
@@ -219,20 +227,28 @@ async function listen(message) {
       };
       const statusMessage = JSON.stringify(obj);
       logger.debug(`location statusMessage=${statusMessage}`);
-      GenericService.setMessageStatus('', userEmailString, '3', statusMessage);
+      genericService.setMessageStatus('', userEmailString, '3', statusMessage);
+      user.currentState = State.NONE;
       return;
     }
 
     if (command === '/version') {
       const obj = Version.execute();
       const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
+      user.currentState = State.NONE;
       return;
     }
 
     if (command === '/ack') {
       const userEmailString = `${userEmail}`;
-      GenericService.setMessageStatus('', userEmailString, '3', '');
+      genericService.setMessageStatus('', userEmailString, '3', '');
+      user.currentState = State.NONE;
       return;
+    }
+    
+    if (webAppEnabled) {
+      webAppString = '*Web App Commands*\n'
+        + '/panel : displays the link and token to the web user interface';
     }
 
     // TODO  put this in it's own command
@@ -246,8 +262,10 @@ async function listen(message) {
         + '/ack : To acknowledge a broadcast message \n'
         + '/messages : To get a text file of all the messages sent to the bot\n'
         + '/status : To get the status of a broadcast message\n'
-        + '/report : To get a CSV file with the status of each user for a broadcast message\n\n'
-        + '*Admin Commands*\n'
+        + '/report : To get a CSV file with the status of each user for a broadcast message\n'
+        + '/abort : To abort a broadcast or send that is currently in progress\n'
+        + `\n${webAppString}`
+        + '\n*Admin Commands*\n'
         + '%{adminHelp}\n'
         + '*Other Commands*\n'
         + '/help : Show help information\n'
@@ -259,6 +277,7 @@ async function listen(message) {
       // const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
       const sMessage = APIService.sendRoomMessage(vGroupID, reply);
       logger.debug(sMessage);
+      user.currentState = State.NONE;
       return;
     }
 
@@ -274,28 +293,60 @@ async function listen(message) {
     if (command === '/messages') {
       const path = `${process.cwd()}/attachments/messages.txt`;
       const uMessage = WickrIOAPI.cmdSendRoomAttachment(vGroupID, path, path);
+      user.currentState = State.NONE;
       return;
     }
 
     let user = bot.getUser(userEmail); // Look up user by their wickr email
 
+    // if (user === undefined) { // Check if a user exists in the database
+    //   wickrUser = new WickrUser(userEmail, {
+    //     index: 0,
+    //     vGroupID,
+    //     personalVGroupID,
+    //     command: '',
+    //     argument: '',
+    //     confirm: '',
+    //     type: '',
+    //   });
+    //   user = bot.addUser(wickrUser); // Add a new user to the database
+    // }
+
+    const broadcastService = new BroadcastService();
+    const repeatService = new RepeatService(broadcastService);
+    const sendService = new SendService();
+    const fileService = new FileService();
+    const genericService = new GenericService(10);
     if (user === undefined) { // Check if a user exists in the database
       wickrUser = new WickrUser(userEmail, {
-        index: 0,
+        message,
         vGroupID,
         personalVGroupID,
         command: '',
         argument: '',
-        confirm: '',
-        type: '',
+        currentState,
+        broadcastService,
+        repeatService,
+        sendService,
+        fileService,
+        genericService,
       });
       user = bot.addUser(wickrUser); // Add a new user to the database
     }
 
     logger.debug('user:', user);
 
+    const factory = new Factory(
+      user.broadcastService,
+      user.sendService,
+      StatusService,
+      user.repeatService,
+      ReportService,
+      user.genericService,
+      user.fileService,
+    );
 
-    if (command === '/map') {
+    if (command === '/map' && webAppEnabled) {
       let last_id = getLastID()
       let locatedusers = false
       // request last broadcast requested with location
@@ -354,7 +405,7 @@ async function listen(message) {
       return
     }
 
-    if (command === '/panel') {
+    if (webAppEnabled && command === '/panel') {
       // Check if this user is an administrator
       // var adminUser = bot.myAdmins.getAdmin(userEmail);
       // scope this conditional down further
@@ -388,64 +439,23 @@ async function listen(message) {
       APIService.sendRoomMessage(vGroupID, reply);
       return
     }
+    
 
-    const messageService = new MessageService(messageReceived, userEmail, argument, command, currentState, vGroupID);
-
+    // const messageService = new MessageService(messageReceived, userEmail, argument, command, currentState, vGroupID, file, filename);
+    const messageService = new MessageService(messageReceived, userEmail, argument, command, user.currentState, vGroupID, file, filename, user);
     // TODO is this JSON.stringify necessary??
     // How to deal with duplicate files??
-    if (currentState === State.FILE_TYPE) {
-      currentState = State.NONE;
-      const type = parsedMessage.message.toLowerCase();
-      let fileAppend = '';
-      logger.debug(`Here is the filetype message${type}`);
-      if (type === 'u' || type === 'user') {
-        fileAppend = '.user';
-      } else if (type === 'h' || type === 'hash') {
-        fileAppend = '.hash';
-      } else if (type === 's' || type === 'send') {
-        // TODO fix this
-        // sendFile.execute();
-        command = '/broadcast';
-        const obj = factory.execute(currentState, command, argument, parsedMessage.message, userEmail);
-        if (obj.reply) {
-          logger.debug('Object has a reply');
-          const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
-        }
-        currentState = obj.state;
-      } else {
-        const reply = 'Input not recognized please reply with (u)ser, (h)ash, or (s)end.';
-        const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-        currentState = State.FILE_TYPE;
-      }
-      if (fileAppend) {
-        logger.debug(`Here is file info${file}`);
-        const cp = await fileHandler.copyFile(file.toString(), `${process.cwd()}/files/${filename.toString()}${fileAppend}`);
-        logger.debug(`Here is cp:${cp}`);
-        if (cp) {
-          const reply = `File named: ${filename} successfully saved to directory.`;
-          const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-        } else {
-          const reply = `Error: File named: ${filename} not saved to directory.`;
-          const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
-        }
-      }
-    } else {
+
       // TODO parse argument better??
       let obj;
-      if (parsedMessage.file) {
-        obj = factory.file(parsedMessage.file, parsedMessage.filename);
-        file = parsedMessage.file;
-        filename = parsedMessage.filename;
-      } else {
-        obj = factory.execute(messageService);
-        logger.debug(`obj${obj}`);
-      }
+      obj = factory.execute(messageService);
+      logger.debug(`obj${obj}`);
+      // }
       if (obj.reply) {
         logger.debug('Object has a reply');
         const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
       }
-      currentState = obj.state;
-    }
+      user.currentState = obj.state;
 
   } catch (err) {
     logger.error(err);
