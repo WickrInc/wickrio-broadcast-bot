@@ -5,10 +5,11 @@ const maxStringLength = 50;
 const inc = 10;
 
 class GenericService {
-  constructor(endIndex) {
-    this.startIndex = 0;
-    this.endIndex = endIndex;
-    this.defaultEndIndex = endIndex;
+  constructor(endIndex, user) {
+    this.user = user;
+    this.user.startIndex = 0;
+    this.user.endIndex = endIndex;
+    this.user.defaultEndIndex = endIndex;
   }
 
   setMessageStatus(messageID, userID, statusNumber, statusMessage) {
@@ -25,22 +26,22 @@ class GenericService {
   getEntriesString(userEmail) {
     const currentEntries = this.getMessageEntries(userEmail);
     let reply;
-    logger.debug(`startIndex${this.startIndex}`);
-    if (currentEntries.length < 1 || this.startIndex > this.endIndex) {
+    logger.debug(`startIndex${this.user.startIndex}`);
+    if (currentEntries.length < 1 || this.user.startIndex > this.user.endIndex) {
       reply = 'There are no previous messages to display';
     } else {
       let contentData;
       let index = 1;
       let messageString = '';
       // TODO fix extra \n in more functionality
-      for (let i = this.startIndex; i < this.endIndex; i += 1) {
+      for (let i = this.user.startIndex; i < this.user.endIndex; i += 1) {
         contentData = this.getMessageEntry(currentEntries[i].message_id);
         const contentParsed = JSON.parse(contentData);
         const messageDisplayed = this.truncate(contentParsed.message, maxStringLength);
-        messageString += `(${this.startIndex + index}) ${messageDisplayed}\n`;
+        messageString += `(${this.user.startIndex + index}) ${messageDisplayed}\n`;
         index += 1;
       }
-      reply = `Here are the past ${this.endIndex} broadcast message(s):\n`
+      reply = `Here are the past ${this.user.endIndex} broadcast message(s):\n`
         + `${messageString}`;
       // + `Which message would you like to ${commandString}\n`
       // + 'Or to see more messages reply more';
@@ -60,7 +61,7 @@ class GenericService {
         messageEntries.push(entry);
       }
     }
-    this.endIndex = Math.min(this.endIndex, messageEntries.length);
+    this.user.endIndex = Math.min(this.user.endIndex, messageEntries.length);
     return messageEntries;
   }
 
@@ -73,17 +74,17 @@ class GenericService {
   }
 
   getEndIndex() {
-    return this.endIndex;
+    return this.user.endIndex;
   }
 
   incrementIndexes() {
-    this.startIndex += inc;
-    this.endIndex += inc;
+    this.user.startIndex += inc;
+    this.user.endIndex += inc;
   }
 
   resetIndexes() {
-    this.startIndex = 0;
-    this.endIndex = this.defaultEndIndex;
+    this.user.startIndex = 0;
+    this.user.endIndex = this.user.defaultEndIndex;
   }
 }
 

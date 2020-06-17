@@ -27,6 +27,7 @@ class AskRepeat {
         state = State.TIMES_REPEAT;
       }
     } else if (messageService.negativeReply()) {
+      this.repeatService.setActiveRepeat(false);
       reply = this.broadcastService.broadcastMessage().pending;
       // TODO fix this!
       state = State.NONE;

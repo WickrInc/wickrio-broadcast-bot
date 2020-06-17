@@ -136,7 +136,7 @@ const useWebAndRoutes = (app) => {
 
   app.get(endpoint + "/Authorize", checkAuth, (req, res) => {
     try {
-      let reply = { data: req.user }
+      let reply = { user: req.user }
       res.json(reply)
     } catch (err) {
       console.log(err);
@@ -147,9 +147,16 @@ const useWebAndRoutes = (app) => {
 
   app.post(endpoint + "/Message", [checkAuth, upload.single('attachment')], (req, res) => {
     // typecheck and validate parameters
-    let { message, acknowledge = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = req.body
+    let { message, acknowledge = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '', sent_by } = req.body
 
-    const newBroadcast = new BroadcastService()
+
+    let user = bot.getUser(req.user.email); // Look up user by their wickr email
+    if (user === undefined) { // Check if a user exists in the database
+      wickrUser = new WickrUser(req.user.email);
+      user = bot.addUser(wickrUser); // Add a new user to the database
+    }
+
+    const newBroadcast = new BroadcastService(user)
 
 
     if (!message) return res.send("Broadcast message missing from request.");
@@ -160,6 +167,8 @@ const useWebAndRoutes = (app) => {
     // console.log({ message, acknowledge, security_group, repeat_num, freq_num, ttl, bor })
     // set user email without plus
     newBroadcast.setUserEmail(req.user.email)
+    newBroadcast.setUsers([])
+    newBroadcast.setSentByFlag(true)
     // console.log(req.file)
     const fileData = req.file;
     var userAttachments;
@@ -205,7 +214,7 @@ const useWebAndRoutes = (app) => {
 
       newBroadcast.setSecurityGroups([security_group])
     }
-    if (acknowledge) {
+    if (acknowledge !== 'false' && acknowledge !== false) {
       newBroadcast.setAckFlag(true)
     }
 
@@ -234,6 +243,11 @@ const useWebAndRoutes = (app) => {
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
 
+    let user = bot.getUser(userEmail); // Look up user by their wickr email
+    if (user === undefined) { // Check if a user exists in the database
+      wickrUser = new WickrUser(userEmail);
+      user = bot.addUser(wickrUser); // Add a new user to the database
+    }
     const newBroadcast = new BroadcastService()
     newBroadcast.setUsers(userList);
 
@@ -269,36 +283,6 @@ const useWebAndRoutes = (app) => {
       res.statusCode = 400;
       res.type('txt').send(err.toString());
     }
-  });
-
-  const getStatusSummary = async (email) => {
-    // if user hasn't sent a message in the last 'size' messages, will it show zero messages unless we search a larger index that captures the user's message?
-    var tableDataRaw = APIService.getMessageIDTable() //gets all of the entries with all data, just need a number of broadcasts returned for total number to paginate thru 
-
-    var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
-      return entry.sender == email
-    });
-
-    try {
-      var reply = {};
-      if (messageIdEntries.length < 1) {
-        reply.data = []
-        reply.error = "no broadcasts yet"
-      } else {
-        reply.data = messageIdEntries.length
-        console.log(messageIdEntries.length)
-      }
-      return reply
-    } catch (e) {
-      console.log(e)
-      return e
-    }
-  }
-
-  app.get(endpoint + "/Status", checkAuth, async (req, res) => {
-    // too many calls, wickrio api should support a single status call for x records including sender and message content
-    const status = getStatusSummary(req.user.email)
-    res.json(status)
   });
 
   const mapEntries = (messageIdEntries, type, page, size) => {
@@ -379,7 +363,7 @@ const useWebAndRoutes = (app) => {
   // need page or size? 
   app.get(endpoint + "/Status/:messageID", checkAuth, (req, res) => {
     // validate message id
-    var statusData = APIService.getMessageStatus(req.params.messageID);
+    var statusData = APIService.getMessageStatus(String(req.params.messageID), 'summary', '0', '25');
     var reply = statusData;
     return res.send(reply);
   });
