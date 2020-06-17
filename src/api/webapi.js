@@ -136,7 +136,7 @@ const useWebAndRoutes = (app) => {
 
   app.get(endpoint + "/Authorize", checkAuth, (req, res) => {
     try {
-      let reply = { data: req.user }
+      let reply = { user: req.user }
       res.json(reply)
     } catch (err) {
       console.log(err);
@@ -271,36 +271,6 @@ const useWebAndRoutes = (app) => {
     }
   });
 
-  const getStatusSummary = async (email) => {
-    // if user hasn't sent a message in the last 'size' messages, will it show zero messages unless we search a larger index that captures the user's message?
-    var tableDataRaw = APIService.getMessageIDTable() //gets all of the entries with all data, just need a number of broadcasts returned for total number to paginate thru 
-
-    var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
-      return entry.sender == email
-    });
-
-    try {
-      var reply = {};
-      if (messageIdEntries.length < 1) {
-        reply.data = []
-        reply.error = "no broadcasts yet"
-      } else {
-        reply.data = messageIdEntries.length
-        console.log(messageIdEntries.length)
-      }
-      return reply
-    } catch (e) {
-      console.log(e)
-      return e
-    }
-  }
-
-  app.get(endpoint + "/Status", checkAuth, async (req, res) => {
-    // too many calls, wickrio api should support a single status call for x records including sender and message content
-    const status = getStatusSummary(req.user.email)
-    res.json(status)
-  });
-
   const mapEntries = (messageIdEntries, type, page, size) => {
     messageIdEntries?.map(async entry => {
       // console.log({ entry })
@@ -379,7 +349,7 @@ const useWebAndRoutes = (app) => {
   // need page or size? 
   app.get(endpoint + "/Status/:messageID", checkAuth, (req, res) => {
     // validate message id
-    var statusData = APIService.getMessageStatus(req.params.messageID);
+    var statusData = APIService.getMessageStatus(String(req.params.messageID), 'summary', '0', '25');
     var reply = statusData;
     return res.send(reply);
   });
