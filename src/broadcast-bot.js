@@ -25,7 +25,6 @@ import writer from './helpers/message-writer.js'
 // import logger from './src/logger'
 // const WhitelistRepository = require('./src/helpers/whitelist');
 import Version from './commands/version'
-import FileActions from './commands/file-actions'
 import FileHandler from './helpers/file-handler'
 import Factory from './factory'
 import State from './state'
@@ -70,7 +69,6 @@ process.stdin.resume(); //so the program will not close instantly
 //   fileService,
 // );
 
-const fileActions = new FileActions(broadcastService, sendService);
 
 // let file;
 // let filename;
