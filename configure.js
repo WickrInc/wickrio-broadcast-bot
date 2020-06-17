@@ -70,6 +70,15 @@ async function main() {
               message: 'Cannot leave empty! Please enter a value',
               required: true,
               default: false,
+            },
+            {
+              token: 'WEBAPP_PORT',
+              pattern: '^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$',
+              type: 'number',
+              description: "Please enter the host port to use to reach the web application",
+              message: 'Cannot leave empty! Please enter a value',
+              required: true,
+              default: false,
             }
           ]
         },
