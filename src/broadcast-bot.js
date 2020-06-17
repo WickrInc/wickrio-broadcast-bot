@@ -39,7 +39,7 @@ import GenericService from './services/generic-service'
 import { response } from 'express';
 import FileService from './services/file-service'
 
-// let currentState;
+let currentState;
 let job;
 let verifyUsersMode
 let webAppEnabled;

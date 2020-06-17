@@ -18,7 +18,7 @@ class BroadcastService {
     // this.repeatFlag = false;
     // this.vGroupID = '';
     // this.APISecurityGroups = [];
-    // this. = [];
+    // this.users = [];
     // this.ttl = '';
     // this.bor = '';
   }
