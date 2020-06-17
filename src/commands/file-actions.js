@@ -34,6 +34,9 @@ class FileActions {
       this.sendService.setMessage(messageService.getArgument());
       this.sendService.setUserEmail(messageService.getUserEmail());
       this.sendService.setVGroupID(messageService.getVGroupID());
+      this.sendService.setTTL('');
+      this.sendService.setBOR('');
+      this.sendService.setSentByFlag(true);
       reply = 'To which list would you like to send your message:\n';
       state = State.CHOOSE_FILE;
     } else if (type === 'b' || type === 'broadcast') {
@@ -42,6 +45,9 @@ class FileActions {
       this.broadcastService.setMessage(messageService.getArgument());
       this.broadcastService.setUserEmail(messageService.getUserEmail());
       this.broadcastService.setVGroupID(messageService.getVGroupID());
+      this.broadcastService.setTTL('');
+      this.broadcastService.setBOR('');
+      this.broadcastService.setSentByFlag(true);
       reply = 'Would you like to ask the recipients for an acknowledgement?';
       state = State.ASK_FOR_ACK;
     } else {

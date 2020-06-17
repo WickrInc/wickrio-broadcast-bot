@@ -19,6 +19,9 @@ class InitializeSend {
     this.sendService.setMessage(messageService.getArgument());
     this.sendService.setUserEmail(messageService.getUserEmail());
     this.sendService.setVGroupID(messageService.getVGroupID());
+    this.sendService.setTTL('');
+    this.sendService.setBOR('');
+    // this.broadcastService.setSentByFlag(true);
     const fileArr = this.sendService.getFiles();
     const length = Math.min(fileArr.length, 10);
     let reply;
@@ -32,6 +35,7 @@ class InitializeSend {
       reply = 'Must have a message or file to send, Usage: /send <message>';
     } else if (length > 0) {
       // TODO get rid of newline on last line
+      // TODO add more function to listing files as well
       reply = 'To which list would you like to send your message:\n';
       for (let index = 0; index < length; index += 1) {
         reply += `(${index + 1}) ${fileArr[index]}\n`;

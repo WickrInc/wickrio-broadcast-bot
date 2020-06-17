@@ -14,53 +14,54 @@ if (!existsSync(`${process.cwd()}/files`)) {
 const dir = `${process.cwd()}/files/`;
 
 class SendService {
-  constructor() {
-    this.file = '';
-    this.message = '';
-    this.userEmail = '';
-    this.displayName = '';
-    this.vGroupID = '';
+  constructor(user) {
+    this.user = user;
+    // this.user.file = '';
+    // this.user.message = '';
+    // this.user.userEmail = '';
+    // this.user.display = '';
+    // this.user.vGroupID = '';
   }
 
   // TODO what happens if someone is adding a file at the same time as someone is sending a message?
   getFiles() {
     try {
-      this.fileArr = FileHandler.listFiles(dir);
-      return this.fileArr;
+      this.user.fileArr = FileHandler.listFiles(dir);
+      return this.user.fileArr;
     } catch (err) {
-      // TODO fix this!!! gracefully >:)
+      // TODO fix this.user.!! gracefully >:)
       logger.error(err);
       return null;
     }
   }
 
   getFileArr() {
-    return this.getFiles();
+    return this.user.getFiles();
   }
 
   setFile(file) {
-    this.file = file;
+    this.user.file = file;
   }
 
   setMessage(message) {
-    this.message = message;
+    this.user.message = message;
   }
 
-  setDisplayName(displayName) {
-    this.displayName = displayName;
+  setDisplay(display) {
+    this.user.display = display;
   }
 
   setUserEmail(email) {
-    this.userEmail = email;
+    this.user.userEmail = email;
   }
 
   setVGroupID(vGroupID) {
-    this.vGroupID = vGroupID;
+    this.user.vGroupID = vGroupID;
   }
 
   sendToFile(fileName) {
-    const sentBy = `\n\nBroadcast message sent by: ${this.userEmail}`;
-    const messageToSend = this.message + sentBy;
+    const sentBy = `\n\nBroadcast message sent by: ${this.user.userEmail}`;
+    const messageToSend = this.user.message + sentBy;
     logger.debug('Broadcasting to a file');
     const currentDate = new Date();
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
@@ -69,18 +70,18 @@ class SendService {
     const filePath = dir + fileName;
     let uMessage;
     const messageID = updateLastID();
-    if (this.file !== '') {
+    if (this.user.file !== '') {
       if (fileName.endsWith('hash')) {
-        uMessage = APIService.sendAttachmentUserHashFile(filePath, this.file, this.displayName, '', '', messageID);
+        uMessage = APIService.sendAttachmentUserHashFile(filePath, this.user.file, this.user.display, '', '', messageID);
       } else if (fileName.endsWith('user')) {
-        uMessage = APIService.sendAttachmentUserNameFile(filePath, this.file, this.displayName, '', '', messageID);
+        uMessage = APIService.sendAttachmentUserNameFile(filePath, this.user.file, this.user.display, '', '', messageID);
       }
       APIService.writeMessageIDDB(
         messageID,
-        this.userEmail,
+        this.user.userEmail,
         filePath,
         jsonDateTime,
-        this.displayName,
+        this.user.display,
       );
     } else {
       if (fileName.endsWith('hash')) {
@@ -90,14 +91,14 @@ class SendService {
       }
       APIService.writeMessageIDDB(
         messageID,
-        this.userEmail,
+        this.user.userEmail,
         filePath,
         jsonDateTime,
-        this.message,
+        this.user.message,
       );
     }
-    if (this.vGroupID !== '' && this.vGroupID !== undefined) {
-      StatusService.asyncStatus(messageID, this.vGroupID);
+    if (this.user.vGroupID !== '' && this.user.vGroupID !== undefined) {
+      StatusService.asyncStatus(messageID, this.user.vGroupID);
     }
     logger.debug(`Broadcast uMessage${uMessage}`);
   }

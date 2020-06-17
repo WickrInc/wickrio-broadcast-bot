@@ -1,23 +1,24 @@
 class FileService {
-  constructor() {
-    this.file = '';
-    this.filename = '';
+  constructor(user) {
+    this.user = user;
+    this.user.fileServiceFile = '';
+    this.user.fileServiceFilename = '';
   }
 
   getFile() {
-    return this.file;
+    return this.user.fileServiceFile;
   }
 
   getFilename() {
-    return this.filename;
+    return this.user.fileServiceFilename;
   }
 
   setFile(file) {
-    this.file = file;
+    this.user.fileServiceFile = file;
   }
 
   setFilename(filename) {
-    this.filename = filename;
+    this.user.fileServiceFilename = filename;
   }
 }
 

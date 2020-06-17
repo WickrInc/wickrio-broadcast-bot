@@ -1,7 +1,7 @@
 const logger = require('../logger');
 
 class MessageService {
-  constructor(message, userEmail, argument, command, currentState, vGroupID, file, filename) {
+  constructor(message, userEmail, argument, command, currentState, vGroupID, file, filename, user) {
     this.message = message;
     this.userEmail = userEmail;
     this.argument = argument;
@@ -10,6 +10,7 @@ class MessageService {
     this.vGroupID = vGroupID;
     this.file = file;
     this.filename = filename;
+    this.user = user;
   }
 
   // TODO why use getters and setters here??
@@ -43,6 +44,10 @@ class MessageService {
 
   getFilename() {
     return this.filename;
+  }
+
+  getUser() {
+    return this.user;
   }
 
   affirmativeReply() {
