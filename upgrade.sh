@@ -42,6 +42,7 @@ sed -e "s/WHITELISTED_USERS/ADMINISTRATORS/g" <processes.json > $NEW_BOT_LOCATIO
 cp -f users.txt last_id.json $NEW_BOT_LOCATION
 set -e
 
+
 #
 # Copy the attachment files to the new software location
 #
@@ -64,3 +65,9 @@ mv $OLD_BOT_LOCATION broadcast_bot.old_Version
 #
 cd $NEW_BOT_LOCATION/..
 mv $NEW_BOT_LOCATION $OLD_BOT_LOCATION
+
+#
+# Change the script value in processes.json
+#
+cd $OLD_BOT_LOCATION
+node upgrade.js
