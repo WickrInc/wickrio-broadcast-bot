@@ -129,6 +129,7 @@ class BroadcastService {
       );
       logger.debug(`send1to1Messge returns=${uMessage}`);
       reply.pending = 'Broadcast message in process of being sent to list of users';
+      reply.rawMessage = this.user.message;
       reply.message = messageToSend;
     } else if (target === 'NETWORK') {
       if (this.user.voiceMemo !== undefined && this.user.voiceMemo !== '') {
@@ -141,6 +142,7 @@ class BroadcastService {
           messageToSend,
         );
         reply.pending = 'Voice Memo broadcast in process of being sent';
+        reply.rawMessage = this.user.message;
         reply.message = messageToSend;
       } else if (this.user.file !== undefined && this.user.file !== '') {
         uMessage = APIService.sendNetworkAttachment(
@@ -152,10 +154,12 @@ class BroadcastService {
           messageToSend,
         );
         reply.pending = 'File broadcast in process of being sent';
+        reply.rawMessage = this.user.message;
         reply.message = messageToSend;
       } else {
         uMessage = APIService.sendNetworkMessage(messageToSend, this.user.ttl, this.user.bor, messageID);
         reply.pending = 'Broadcast message in process of being sent';
+        reply.rawMessage = this.user.message;
         reply.message = messageToSend;
       }
     } else if (this.user.voiceMemo !== undefined && this.user.voiceMemo !== '') {
@@ -169,6 +173,7 @@ class BroadcastService {
         messageToSend,
       );
       reply.pending = 'Voice Memo broadcast in process of being sent to security group';
+      reply.rawMessage = this.user.message;
       reply.message = messageToSend;
     } else if (this.user.file !== undefined && this.user.file !== '') {
       uMessage = APIService.sendSecurityGroupAttachment(
@@ -181,6 +186,7 @@ class BroadcastService {
         messageToSend,
       );
       reply.pending = 'File broadcast in process of being sent to security group';
+      reply.rawMessage = this.user.message;
       reply.message = messageToSend;
     } else {
       uMessage = APIService.sendSecurityGroupMessage(
@@ -191,6 +197,7 @@ class BroadcastService {
         messageID,
       );
       reply.pending = 'Broadcast message in process of being sent to security group';
+      reply.rawMessage = this.user.message;
       reply.message = messageToSend;
     }
     if (this.user.file !== undefined && this.user.file !== '') {
