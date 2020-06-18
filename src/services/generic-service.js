@@ -55,7 +55,8 @@ class GenericService {
     const messageIDData = JSON.parse(tableDataRaw);
 
     const tableData = messageIDData.list;
-    for (let i = tableData.length - 1; i >= 0; i -= 1) {
+    // for (let i = tableData.length - 1; i >= 0; i -= 1) {
+    for (let i = 0; i < tableData.length; i += 1) {
       const entry = tableData[i];
       if (entry.sender === userEmail) {
         messageEntries.push(entry);
