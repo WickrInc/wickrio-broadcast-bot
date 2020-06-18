@@ -204,6 +204,14 @@ class BroadcastService {
     if (this.user.vGroupID !== '' && this.user.vGroupID !== undefined) {
       StatusService.asyncStatus(messageID, this.user.vGroupID);
     }
+    logger.debug(`Broadcast uMessage=${uMessage}`);
+    reply.message_id = messageID;
+    if (target === 'USERS') {
+      reply.users = this.user.users;
+    } else {
+      reply.securityGroups = this.user.securityGroups;
+    }
+
     this.user.file = '';
     this.user.message = '';
     this.user.userEmail = '';
@@ -218,13 +226,7 @@ class BroadcastService {
     this.user.users = [];
     this.user.ttl = '';
     this.user.bor = '';
-    logger.debug(`Broadcast uMessage=${uMessage}`);
-    reply.message_id = messageID;
-    if (target === 'USERS') {
-      reply.users = this.user.users;
-    } else {
-      reply.securityGroups = this.user.securityGroups;
-    }
+
     return reply;
   }
 
