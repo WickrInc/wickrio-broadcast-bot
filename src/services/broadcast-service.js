@@ -100,7 +100,14 @@ class BroadcastService {
       }
     }
     // TODO what is users vs network?
-    const target = (this.user.users !== undefined && this.user.users.length > 0) ? 'USERS' : ((this.user.securityGroups.length < 1 || this.user.securityGroups === undefined) ? 'NETWORK' : this.user.securityGroups.join());
+    var target;
+    if (this.user.users !== undefined && this.user.users.length > 0) {
+      target = 'USERS';
+    } else if (this.user.securityGroups === undefined || this.user.securityGroups.length < 1) {
+      target = 'NETWORK';
+    } else {
+      target = this.user.securityGroups.join();
+    }
 
     logger.debug(`target${target}`);
     const currentDate = new Date();
@@ -110,11 +117,10 @@ class BroadcastService {
     // TODO is is necessary to do this.user.
     const messageID = `${updateLastID()}`;
     console.log({ messageID });
-    let uMessage;
+    var uMessage;
     const reply = {};
     if (target === 'USERS') {
-      logger.debug(`broadcasting to users=${this.user.users}`);
-      uMessage = APIService.send1to1Message(
+      uMessage = APIService.send1to1MessageLowPriority(
         this.user.users,
         messageToSend,
         this.user.ttl,
@@ -198,6 +204,14 @@ class BroadcastService {
     if (this.user.vGroupID !== '' && this.user.vGroupID !== undefined) {
       StatusService.asyncStatus(messageID, this.user.vGroupID);
     }
+    logger.debug(`Broadcast uMessage=${uMessage}`);
+    reply.message_id = messageID;
+    if (target === 'USERS') {
+      reply.users = this.user.users;
+    } else {
+      reply.securityGroups = this.user.securityGroups;
+    }
+
     this.user.file = '';
     this.user.message = '';
     this.user.userEmail = '';
@@ -212,13 +226,7 @@ class BroadcastService {
     this.user.users = [];
     this.user.ttl = '';
     this.user.bor = '';
-    logger.debug(`Broadcast uMessage=${uMessage}`);
-    reply.message_id = messageID;
-    if (target === 'USERS') {
-      reply.users = this.user.users;
-    } else {
-      reply.securityGroups = this.user.securityGroups;
-    }
+
     return reply;
   }
 
