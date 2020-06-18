@@ -54,7 +54,7 @@ const startServer = () => {
     app.options("/*", (req, res, next) => {
       res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization, Content-Length, X-Requested-With');
       res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-      // res.header('Access-Control-Allow-Origin', `${host}:9000`); // use for debuggging
+      // res.header('Access-Control-Allow-Origin', `${host}:8000`); // use for debuggging
       res.header('Access-Control-Allow-Origin', `${host}:${WEBAPP_PORT.value}`);
 
       res.sendStatus(200)
@@ -63,7 +63,7 @@ const startServer = () => {
     app.all("/*", (req, res, next) => {
       res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization, Content-Length, X-Requested-With');
       res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-      // res.header('Access-Control-Allow-Origin', `${host}:9000`); // use for debuggging
+      // res.header('Access-Control-Allow-Origin', `${host}:8000`); // use for debuggging
       res.header('Access-Control-Allow-Origin', `${host}:${WEBAPP_PORT.value}`);
 
       next()
@@ -83,7 +83,7 @@ const startServer = () => {
     console.log('***********');
     return res.type('txt').status(404).send('Endpoint ' + req.url + ' not found');
   });
-
+  return app
 }
 
 
