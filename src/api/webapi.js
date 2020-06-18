@@ -6,6 +6,7 @@ import {
   bot,
   client_auth_codes,
   BOT_AUTH_TOKEN,
+  BOT_PORT,
   logger,
   WickrUser,
   // cronJob
@@ -113,19 +114,22 @@ const useWebAndRoutes = (app) => {
 
 
         var random = generateRandomString(24);
-        client_auth_codes[wickrUser] = random;
+        client_auth_codes[userEmail] = random;
         // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
-
-        var token = jwt.sign({
-          'email': wickrUser,
-          'session': random,
+        // send token in url, used for calls to receive data, send messages
+        const token = jwt.sign({
+          email: userEmail,
+          session: random,
+          host: host,
+          port: BOT_PORT.value
         }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
+
 
         // send token in url, used for authorization to use routes
         // what will the deploy env be
         let reply = {}
-        // reply.token = token  
-        res.cookie('token', token, { httpOnly: true });
+        reply.token = token
+        // res.cookie('token', token, { httpOnly: true });
         return res.send(reply);
       }
     } catch (err) {
