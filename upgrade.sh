@@ -1,3 +1,4 @@
+
 #!/bin/sh
 
 #
@@ -31,6 +32,11 @@ fi
 export OLD_BOT_LOCATION=$1
 export NEW_BOT_LOCATION=$2
 cd $OLD_BOT_LOCATION
+
+#
+# Modifies the script value in processes.json
+#
+node upgrade.js
 
 #
 # Copy the json data files to the new software location
