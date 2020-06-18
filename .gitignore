@@ -19,3 +19,4 @@ sync.sh
 software
 .DS_Store
 software.tar.gz
+coverage/
