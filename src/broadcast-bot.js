@@ -419,7 +419,7 @@ async function listen(message) {
         port: BOT_PORT.value
       }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
 
-      var reply = encodeURI(`${host}:${BOT_PORT.value}/?token=${token}`)
+      var reply = encodeURI(`${host}:${WEBAPP_PORT.value}/?token=${token}`)
       APIService.sendRoomMessage(vGroupID, reply);
       return
     }

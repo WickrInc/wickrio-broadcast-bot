@@ -100,7 +100,14 @@ class BroadcastService {
       }
     }
     // TODO what is users vs network?
-    const target = (this.user.users !== undefined && this.user.users.length > 0) ? 'USERS' : ((this.user.securityGroups.length < 1 || this.user.securityGroups === undefined) ? 'NETWORK' : this.user.securityGroups.join());
+    var target;
+    if (this.user.users !== undefined && this.user.users.length > 0) {
+      target = 'USERS';
+    } else if (this.user.securityGroups === undefined || this.user.securityGroups.length < 1) {
+      target = 'NETWORK';
+    } else {
+      target = this.user.securityGroups.join();
+    }
 
     logger.debug(`target${target}`);
     const currentDate = new Date();
@@ -110,11 +117,10 @@ class BroadcastService {
     // TODO is is necessary to do this.user.
     const messageID = `${updateLastID()}`;
     console.log({ messageID });
-    let uMessage;
+    var uMessage;
     const reply = {};
     if (target === 'USERS') {
-      logger.debug(`broadcasting to users=${this.user.users}`);
-      uMessage = APIService.send1to1Message(
+      uMessage = APIService.send1to1MessageLowPriority(
         this.user.users,
         messageToSend,
         this.user.ttl,
@@ -123,6 +129,7 @@ class BroadcastService {
       );
       logger.debug(`send1to1Messge returns=${uMessage}`);
       reply.pending = 'Broadcast message in process of being sent to list of users';
+      reply.rawMessage = this.user.message;
       reply.message = messageToSend;
     } else if (target === 'NETWORK') {
       if (this.user.voiceMemo !== undefined && this.user.voiceMemo !== '') {
@@ -135,6 +142,7 @@ class BroadcastService {
           messageToSend,
         );
         reply.pending = 'Voice Memo broadcast in process of being sent';
+        reply.rawMessage = this.user.message;
         reply.message = messageToSend;
       } else if (this.user.file !== undefined && this.user.file !== '') {
         uMessage = APIService.sendNetworkAttachment(
@@ -146,10 +154,12 @@ class BroadcastService {
           messageToSend,
         );
         reply.pending = 'File broadcast in process of being sent';
+        reply.rawMessage = this.user.message;
         reply.message = messageToSend;
       } else {
         uMessage = APIService.sendNetworkMessage(messageToSend, this.user.ttl, this.user.bor, messageID);
         reply.pending = 'Broadcast message in process of being sent';
+        reply.rawMessage = this.user.message;
         reply.message = messageToSend;
       }
     } else if (this.user.voiceMemo !== undefined && this.user.voiceMemo !== '') {
@@ -163,6 +173,7 @@ class BroadcastService {
         messageToSend,
       );
       reply.pending = 'Voice Memo broadcast in process of being sent to security group';
+      reply.rawMessage = this.user.message;
       reply.message = messageToSend;
     } else if (this.user.file !== undefined && this.user.file !== '') {
       uMessage = APIService.sendSecurityGroupAttachment(
@@ -175,6 +186,7 @@ class BroadcastService {
         messageToSend,
       );
       reply.pending = 'File broadcast in process of being sent to security group';
+      reply.rawMessage = this.user.message;
       reply.message = messageToSend;
     } else {
       uMessage = APIService.sendSecurityGroupMessage(
@@ -185,6 +197,7 @@ class BroadcastService {
         messageID,
       );
       reply.pending = 'Broadcast message in process of being sent to security group';
+      reply.rawMessage = this.user.message;
       reply.message = messageToSend;
     }
     if (this.user.file !== undefined && this.user.file !== '') {
@@ -198,6 +211,14 @@ class BroadcastService {
     if (this.user.vGroupID !== '' && this.user.vGroupID !== undefined) {
       StatusService.asyncStatus(messageID, this.user.vGroupID);
     }
+    logger.debug(`Broadcast uMessage=${uMessage}`);
+    reply.message_id = messageID;
+    if (target === 'USERS') {
+      reply.users = this.user.users;
+    } else {
+      reply.securityGroups = this.user.securityGroups;
+    }
+
     this.user.file = '';
     this.user.message = '';
     this.user.userEmail = '';
@@ -212,13 +233,7 @@ class BroadcastService {
     this.user.users = [];
     this.user.ttl = '';
     this.user.bor = '';
-    logger.debug(`Broadcast uMessage=${uMessage}`);
-    reply.message_id = messageID;
-    if (target === 'USERS') {
-      reply.users = this.user.users;
-    } else {
-      reply.securityGroups = this.user.securityGroups;
-    }
+
     return reply;
   }
 

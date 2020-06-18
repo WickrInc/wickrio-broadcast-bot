@@ -6,7 +6,9 @@ import {
   bot,
   client_auth_codes,
   BOT_AUTH_TOKEN,
+  BOT_PORT,
   logger,
+  WickrUser,
   // cronJob
 } from '../helpers/constants';
 import APIService from '../services/api-service'
@@ -73,7 +75,7 @@ const useWebAndRoutes = (app) => {
       if (dictAuthCode === undefined || user.session != dictAuthCode) {
         return res.status(401).send('Access denied: invalid user authentication code.');
       }
-      // logger.debug({ user })
+      logger.debug({ user })
       req.user = user
       next()
     })
@@ -112,19 +114,22 @@ const useWebAndRoutes = (app) => {
 
 
         var random = generateRandomString(24);
-        client_auth_codes[wickrUser] = random;
+        client_auth_codes[userEmail] = random;
         // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk 
-
-        var token = jwt.sign({
-          'email': wickrUser,
-          'session': random,
+        // send token in url, used for calls to receive data, send messages
+        const token = jwt.sign({
+          email: userEmail,
+          session: random,
+          host: host,
+          port: BOT_PORT.value
         }, BOT_AUTH_TOKEN.value, { expiresIn: '1800s' });
+
 
         // send token in url, used for authorization to use routes
         // what will the deploy env be
         let reply = {}
-        // reply.token = token  
-        res.cookie('token', token, { httpOnly: true });
+        reply.token = token
+        // res.cookie('token', token, { httpOnly: true });
         return res.send(reply);
       }
     } catch (err) {
@@ -149,15 +154,32 @@ const useWebAndRoutes = (app) => {
     // typecheck and validate parameters
     let { message, acknowledge = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '', sent_by } = req.body
 
-
     let user = bot.getUser(req.user.email); // Look up user by their wickr email
     if (user === undefined) { // Check if a user exists in the database
-      wickrUser = new WickrUser(req.user.email);
-      user = bot.addUser(wickrUser); // Add a new user to the database
+      // let wickrUser = new WickrUser(req.user.email);
+      // console.log({ newWickrUser: wickrUser })
+      user = {
+        userEmail: req.user.email,
+        message: '',
+        vGroupID: '',
+        personalVGroupID: '',
+        command: '',
+        argument: '',
+        currentState: undefined,
+        fileServiceFile: '',
+        fileServiceFilename: '',
+        startIndex: 0,
+        endIndex: 10,
+        defaultEndIndex: 10
+      }
+
+      user.userEmail = bot.addUser(req.user.email); // Add a new user to the database
+      console.log({ newUser: user })
+    } else {
+      console.log({ oldwickruser: user })
     }
 
     const newBroadcast = new BroadcastService(user)
-
 
     if (!message) return res.send("Broadcast message missing from request.");
 
@@ -243,11 +265,11 @@ const useWebAndRoutes = (app) => {
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
 
-    let user = bot.getUser(userEmail); // Look up user by their wickr email
-    if (user === undefined) { // Check if a user exists in the database
-      wickrUser = new WickrUser(userEmail);
-      user = bot.addUser(wickrUser); // Add a new user to the database
-    }
+    // let user = bot.getUser(userEmail); // Look up user by their wickr email
+    // if (user === undefined) { // Check if a user exists in the database
+    //   let wickrUser = new WickrUser(userEmail);
+    //   user = bot.addUser(wickrUser); // Add a new user to the database
+    // }
     const newBroadcast = new BroadcastService()
     newBroadcast.setUsers(userList);
 
@@ -325,7 +347,7 @@ const useWebAndRoutes = (app) => {
 
   const getStatus = async (page, size, email) => {
     // if user hasn't sent a message in the last 'size' messages, will it show zero messages unless we search a larger index that captures the user's message?
-    var tableDataRaw = APIService.getMessageIDTable(String(page), String(size), String(email));
+    var tableDataRaw = APIService.getMessageIDTable(String(page), String(size), String(email)); // unordered .list
     // console.log({ tableDataRaw: JSON.parse(tableDataRaw) })
     // don't need this with the email  in getMessageIDTable
     // var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
@@ -333,6 +355,7 @@ const useWebAndRoutes = (app) => {
     // });
     let reply = {}
     let broadcastTable = JSON.parse(tableDataRaw)
+    console.log({ list: broadcastTable.list }) //unordered 
     if (broadcastTable.max_entries === 0) {
       reply.list = []
       reply.max_entries = broadcastTable.max_entries
@@ -341,7 +364,7 @@ const useWebAndRoutes = (app) => {
     } else {
       try {
         const builtStatus = await mapEntries(broadcastTable.list, 'full', page, size)
-        reply.list = builtStatus.reverse()
+        reply.list = builtStatus
       } catch (e) {
         console.log(e)
         return e
