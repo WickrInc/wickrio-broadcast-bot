@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken"
 import fs from 'fs'
 import {
   bot,
+  WickrUser,
   client_auth_codes,
   logger,
   BOT_KEY,
@@ -118,7 +119,14 @@ const useRESTRoutes = (app) => {
       }
     }
 
-    const newBroadcast = new BroadcastService(WICKRIO_BOT_NAME.value)
+    // look up the user for the bot. Create a user record if not found
+    let user = bot.getUser(WICKRIO_BOT_NAME.value);
+    if (user === undefined) {
+      let wickrUser = new WickrUser(WICKRIO_BOT_NAME.value, {});
+      user = bot.addUser(wickrUser);
+    }
+
+    const newBroadcast = new BroadcastService(user)
     newBroadcast.setMessage(message)
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
@@ -196,7 +204,14 @@ const useRESTRoutes = (app) => {
 
     console.log('message: ', message);
 
-    const newBroadcast = new BroadcastService(WICKRIO_BOT_NAME.value)
+    // look up the user for the bot. Create a user record if not found
+    let user = bot.getUser(WICKRIO_BOT_NAME.value);
+    if (user === undefined) {
+      let wickrUser = new WickrUser(WICKRIO_BOT_NAME.value, {});
+      user = bot.addUser(wickrUser);
+    }
+
+    const newBroadcast = new BroadcastService(user)
     newBroadcast.setMessage(message)
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
@@ -249,13 +264,14 @@ const useRESTRoutes = (app) => {
       return res.status(400).send('Bad request: message missing from request.');
     }
 
-    let user = bot.getUser(userEmail); // Look up user by their wickr email
-    if (user === undefined) { // Check if a user exists in the database
-      wickrUser = new WickrUser(userEmail);
-      user = bot.addUser(wickrUser); // Add a new user to the database
+    // look up the user for the bot. Create a user record if not found
+    let user = bot.getUser(WICKRIO_BOT_NAME.value);
+    if (user === undefined) {
+      let wickrUser = new WickrUser(WICKRIO_BOT_NAME.value, {});
+      user = bot.addUser(wickrUser);
     }
 
-    const newBroadcast = new BroadcastService(WICKRIO_BOT_NAME.value)
+    const newBroadcast = new BroadcastService(user)
     newBroadcast.setMessage(message)
     newBroadcast.setUsers(userList);
     newBroadcast.setTTL(ttl)
