@@ -2,14 +2,22 @@ import State from '../state';
 
 
 class Cancel {
-  static shouldExecute(messageService) {
-    if (messageService.getCommand() === '/cancel') {
+  constructor(broadcastService, sendService) {
+    this.broadcastService = broadcastService;
+    this.sendService = sendService;
+    this.commandString = '/cancel';
+  }
+
+  shouldExecute(messageService) {
+    if (messageService.getCommand() === this.commandString) {
       return true;
     }
     return false;
   }
 
-  static execute() {
+  execute() {
+    this.broadcastService.clearValues();
+    this.sendService.clearValues();
     const reply = 'Previous command canceled, send a new command or enter /help for a list of commands.';
     const obj = {
       reply,

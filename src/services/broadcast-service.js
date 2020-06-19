@@ -86,21 +86,22 @@ class BroadcastService {
 
   broadcastMessage() {
     let messageToSend;
+    const sentBy = `Broadcast message sent by: ${this.user.userEmail}`;
     if (this.user.sentByFlag) {
-      messageToSend = `${this.user.message}\n\nBroadcast message sent by: ${this.user.userEmail}`;
+      messageToSend = `${this.user.message}\n\n${sentBy}`;
     } else {
       messageToSend = this.user.message;
     }
 
     if (this.user.ackFlag) {
       if (this.user.sentByFlag) {
-        messageToSend = `${messageToSend}\nPlease acknowledge this.user.message by replying with /ack`;
+        messageToSend = `${messageToSend}\nPlease acknowledge message by replying with /ack`;
       } else {
-        messageToSend = `${messageToSend}\n\nPlease acknowledge this.user.message by replying with /ack`;
+        messageToSend = `${messageToSend}\n\nPlease acknowledge message by replying with /ack`;
       }
     }
     // TODO what is users vs network?
-    var target;
+    let target;
     if (this.user.users !== undefined && this.user.users.length > 0) {
       target = 'USERS';
     } else if (this.user.securityGroups === undefined || this.user.securityGroups.length < 1) {
@@ -117,7 +118,7 @@ class BroadcastService {
     // TODO is is necessary to do this.user.
     const messageID = `${updateLastID()}`;
     console.log({ messageID });
-    var uMessage;
+    let uMessage;
     const reply = {};
     if (target === 'USERS') {
       uMessage = APIService.send1to1MessageLowPriority(
@@ -139,7 +140,7 @@ class BroadcastService {
           this.user.ttl,
           this.user.bor,
           messageID,
-          messageToSend,
+          sentBy,
         );
         reply.pending = 'Voice Memo broadcast in process of being sent';
         reply.rawMessage = this.user.message;
@@ -151,7 +152,7 @@ class BroadcastService {
           this.user.ttl,
           this.user.bor,
           messageID,
-          messageToSend,
+          sentBy,
         );
         reply.pending = 'File broadcast in process of being sent';
         reply.rawMessage = this.user.message;
@@ -170,7 +171,7 @@ class BroadcastService {
         this.user.ttl,
         this.user.bor,
         messageID,
-        messageToSend,
+        sentBy,
       );
       reply.pending = 'Voice Memo broadcast in process of being sent to security group';
       reply.rawMessage = this.user.message;
@@ -183,7 +184,7 @@ class BroadcastService {
         this.user.ttl,
         this.user.bor,
         messageID,
-        messageToSend,
+        sentBy,
       );
       reply.pending = 'File broadcast in process of being sent to security group';
       reply.rawMessage = this.user.message;
@@ -219,6 +220,17 @@ class BroadcastService {
       reply.securityGroups = this.user.securityGroups;
     }
 
+    this.clearValues();
+
+    return reply;
+  }
+
+  // TODO check if this.user.works as expected
+  static isInt(value) {
+    return !(Number.isNaN(value));
+  }
+
+  clearValues() {
     this.user.file = '';
     this.user.message = '';
     this.user.userEmail = '';
@@ -233,13 +245,6 @@ class BroadcastService {
     this.user.users = [];
     this.user.ttl = '';
     this.user.bor = '';
-
-    return reply;
-  }
-
-  // TODO check if this.user.works as expected
-  static isInt(value) {
-    return !(Number.isNaN(value));
   }
 }
 

@@ -1,6 +1,7 @@
 import logger from '../logger';
 import State from '../state';
 
+// TODO combine which report and which status
 class WhichReport {
   constructor(genericService, reportService) {
     this.genericService = genericService;
@@ -26,13 +27,12 @@ class WhichReport {
       this.genericService.incrementIndexes();
       reply = this.genericService.getEntriesString(userEmail);
       state = this.state;
-    }
-    if (!messageService.isInt() || index < 1 || index > endIndex) {
+    } else if (!messageService.isInt() || index < 1 || index > endIndex) {
       reply = `Index: ${index} is out of range. Please enter a number between 1 and ${endIndex}`;
       state = this.state;
     } else {
+      // Subtract one to account for 0 based indexes
       const messageID = `${currentEntries[parseInt(index, 10) - 1].message_id}`;
-      // reply = .getReport(messageID, 'summary', false);
       this.reportService.getReport(messageID, messageService.getVGroupID());
       state = State.NONE;
     }
