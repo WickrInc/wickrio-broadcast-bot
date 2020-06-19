@@ -1,4 +1,5 @@
 import State from '../state';
+import { logger } from '../helpers/constants';
 
 class InitializeBroadcast {
   constructor(broadcastService) {
@@ -20,13 +21,14 @@ class InitializeBroadcast {
     this.broadcastService.setTTL('');
     this.broadcastService.setBOR('');
     this.broadcastService.setSentByFlag(true);
+    logger.debug(`Here are all the things: ${messageService.getArgument()}`);
     let reply = 'Would you like to ask the recipients for an acknowledgement?';
     let state = State.ASK_FOR_ACK;
     // TODO check for undefined??
     if (
-      (!messageService.getArgument() || messageService.getArgument().length === 0)
-      && (messageService.getFile().length === 0 || messageService.getFile === '')
-      && (messageService.getVoiceMemo().length === 0 || messageService.getVoiceMemo === '')
+      messageService.getArgument() === undefined
+      || messageService.getArgument() === ''
+      || messageService.getArgument().length === 0
     ) {
       reply = 'Must have a message or file to broadcast, Usage: /broadcast <message>';
       state = State.NONE;
