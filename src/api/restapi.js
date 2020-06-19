@@ -451,8 +451,10 @@ const useRESTRoutes = (app) => {
     var reportEntries = [];
 
     var statusData;
-    if (req.query.filter) {
-      statusData = APIService.getMessageStatusFiltered(messageID, "full", page, limit, req.query.filter);
+    if (req.query.filter || req.query.users) {
+      const filter = (req.query.filter) ? req.query.filter : "";
+      const users = (req.query.users) ? req.query.users : "";
+      statusData = APIService.getMessageStatusFiltered(messageID, "full", page, limit, filter, users);
     } else {
       statusData = APIService.getMessageStatus(messageID, "full", page, limit);
     }
