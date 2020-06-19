@@ -23,6 +23,7 @@ class InitializeSend {
     this.sendService.setBOR('');
     // this.broadcastService.setSentByFlag(true);
     const fileArr = this.sendService.getFiles();
+    // TODO add more command to getting files
     const length = Math.min(fileArr.length, 10);
     let reply;
     let state = State.NONE;

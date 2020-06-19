@@ -31,7 +31,7 @@ class SendService {
   }
 
   getFileArr() {
-    return this.user.getFiles();
+    return this.getFiles();
   }
 
   setFile(file) {
@@ -54,6 +54,14 @@ class SendService {
     this.user.vGroupID = vGroupID;
   }
 
+  setBOR(bor) {
+    this.user.bor = bor;
+  }
+
+  setTTL(ttl) {
+    this.user.ttl = ttl;
+  }
+
   sendToFile(fileName) {
     const sentBy = `\n\nBroadcast message sent by: ${this.user.userEmail}`;
     const messageToSend = this.user.message + sentBy;
@@ -65,11 +73,11 @@ class SendService {
     const filePath = dir + fileName;
     let uMessage;
     const messageID = updateLastID();
-    if (this.user.file !== '') {
+    if (this.user.file !== undefined && this.user.file !== '') {
       if (fileName.endsWith('hash')) {
-        uMessage = APIService.sendAttachmentUserHashFile(filePath, this.user.file, this.user.display, '', '', messageID);
+        uMessage = APIService.sendAttachmentUserHashFile(filePath, this.user.file, this.user.display, this.user.ttl, this.user.bor, messageID);
       } else if (fileName.endsWith('user')) {
-        uMessage = APIService.sendAttachmentUserNameFile(filePath, this.user.file, this.user.display, '', '', messageID);
+        uMessage = APIService.sendAttachmentUserNameFile(filePath, this.user.file, this.user.display, this.user.ttl, this.user.bor, messageID);
       }
       APIService.writeMessageIDDB(
         messageID,
@@ -80,9 +88,9 @@ class SendService {
       );
     } else {
       if (fileName.endsWith('hash')) {
-        uMessage = APIService.sendMessageUserHashFile(filePath, messageToSend, '', '', messageID);
+        uMessage = APIService.sendMessageUserHashFile(filePath, messageToSend, this.user.ttl, this.user.bor, messageID);
       } else if (fileName.endsWith('user')) {
-        uMessage = APIService.sendMessageUserNameFile(filePath, messageToSend, '', '', messageID);
+        uMessage = APIService.sendMessageUserNameFile(filePath, messageToSend, this.user.ttl, this.user.bor, messageID);
       }
       APIService.writeMessageIDDB(
         messageID,
@@ -105,6 +113,8 @@ class SendService {
     this.user.userEmail = '';
     this.user.display = '';
     this.user.vGroupID = '';
+    this.user.ttl = '';
+    this.user.bor = '';
   }
 }
 
