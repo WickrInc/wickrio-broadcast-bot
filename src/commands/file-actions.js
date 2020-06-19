@@ -36,8 +36,12 @@ class FileActions {
       this.sendService.setVGroupID(messageService.getVGroupID());
       this.sendService.setTTL('');
       this.sendService.setBOR('');
-      this.sendService.setSentByFlag(true);
       reply = 'To which list would you like to send your message:\n';
+      const fileArr = this.sendService.getFiles();
+      const length = Math.min(fileArr.length, 10);
+      for (let index = 0; index < length; index += 1) {
+        reply += `(${index + 1}) ${fileArr[index]}\n`;
+      }
       state = State.CHOOSE_FILE;
     } else if (type === 'b' || type === 'broadcast') {
       this.broadcastService.setFile(file);
