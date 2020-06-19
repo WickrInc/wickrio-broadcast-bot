@@ -1,26 +1,31 @@
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import express from 'express';
+import https from 'https'
 import helmet from 'helmet';
+import fs from 'fs'
 import {
   BOT_PORT,
   WEB_APPLICATION,
   REST_APPLICATION,
   HTTPS_CHOICE,
   WEBAPP_PORT,
-  WEBAPP_HOST
+  WEBAPP_HOST,
+  SSL_CRT_LOCATION,
+  SSL_KEY_LOCATION
 } from '../helpers/constants'
 import useWebAndRoutes from './webapi';
 import useRESTRoutes from './restapi';
 
 // set upload destination for attachments sent to broadcast with multer 
 const startServer = () => {
+
+
   const app = express();
   app.use(helmet()); //security http headers
 
-  app.listen(BOT_PORT.value, () => {
-    console.log('We are live on ' + BOT_PORT.value);
-  });
+
+
 
   // parse application/x-www-form-urlencoded
   app.use(bodyParser.urlencoded({ extended: false }));
@@ -43,14 +48,28 @@ const startServer = () => {
   // add cors for development
   // TODO: set conditional for NODE_ENV to match and set the right origin host header - 8000 for dev, 4545 for prod
 
+
+
   if (WEB_APPLICATION.value != 'false' && WEB_APPLICATION.value != 'no') {
     let host
+
     if (HTTPS_CHOICE.value == 'yes') {
       host = `https://${WEBAPP_HOST.value}`
+      const httpsServer = https.createServer({
+        key: fs.readFileSync(SSL_KEY_LOCATION.value),
+        cert: fs.readFileSync(SSL_CRT_LOCATION.value),
+      }, app)
+        .listen(BOT_PORT.value, () => {
+          console.log('https')
+          console.log('We are live on ' + BOT_PORT.value);
+        });
     } else {
       host = `http://${WEBAPP_HOST.value}`
+      app.listen(BOT_PORT.value, () => {
+        console.log('http')
+        console.log('We are live on ' + BOT_PORT.value);
+      });
     }
-
     app.options("/*", (req, res, next) => {
       res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization, Content-Length, X-Requested-With');
       res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
