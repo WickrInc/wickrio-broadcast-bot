@@ -16,11 +16,6 @@ const dir = `${process.cwd()}/files/`;
 class SendService {
   constructor(user) {
     this.user = user;
-    // this.user.file = '';
-    // this.user.message = '';
-    // this.user.userEmail = '';
-    // this.user.display = '';
-    // this.user.vGroupID = '';
   }
 
   // TODO what happens if someone is adding a file at the same time as someone is sending a message?
@@ -100,7 +95,16 @@ class SendService {
     if (this.user.vGroupID !== '' && this.user.vGroupID !== undefined) {
       StatusService.asyncStatus(messageID, this.user.vGroupID);
     }
+    this.clearValues();
     logger.debug(`Broadcast uMessage${uMessage}`);
+  }
+
+  clearValues() {
+    this.user.file = '';
+    this.user.message = '';
+    this.user.userEmail = '';
+    this.user.display = '';
+    this.user.vGroupID = '';
   }
 }
 
