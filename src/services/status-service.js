@@ -4,7 +4,6 @@ import { logger } from '../helpers/constants';
 
 class StatusService {
   static getStatus(messageID, asyncStatus) {
-    // TODO Here we need which Message??
     let statusData;
     try {
       statusData = status(messageID);
@@ -30,6 +29,7 @@ class StatusService {
     if (messageStatus.ignored !== undefined) {
       statusString = `${statusString}Messages Ignored: ${messageStatus.ignored}`;
     }
+    // TODO what do we do when no Records are found? is this because of sending to empty security group??
     let complete = messageStatus.pending === 0;
     const preparing = messageStatus.status === 'Preparing';
     logger.debug(`messageStatus.status is: ${messageStatus.status}`);

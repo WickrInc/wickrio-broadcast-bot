@@ -2,10 +2,9 @@ import logger from '../logger';
 import State from '../state';
 
 class WhichStatus {
-  constructor(genericService, statusService, moreService) {
+  constructor(genericService, statusService) {
     this.genericService = genericService;
     this.statusService = statusService;
-    this.moreService = moreService;
     this.state = State.WHICH_STATUS;
   }
 
