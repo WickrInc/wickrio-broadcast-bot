@@ -1,6 +1,7 @@
 import logger from '../logger';
 import State from '../state';
 
+// TODO combine which report and which status
 class WhichStatus {
   constructor(genericService, statusService) {
     this.genericService = genericService;
