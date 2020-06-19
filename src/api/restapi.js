@@ -458,65 +458,67 @@ const useRESTRoutes = (app) => {
     } else {
       statusData = APIService.getMessageStatus(messageID, "full", page, limit);
     }
-    var messageStatus = JSON.parse(statusData);
-    for (let entry of messageStatus) {
-      var statusMessageString = "";
-      var statusString = "";
-      var sentDateString = "";
-      var readDateString = "";
-      if (entry.sent_datetime !== undefined)
-        sentDateString = entry.sent_datetime;
-      if (entry.read_datetime !== undefined)
-        readDateString = entry.read_datetime;
-      switch (entry.status) {
-        case 0:
-          statusString = "pending";
-          break;
-        case 1:
-          statusString = "sent";
-          break;
-        case 2:
-          statusString = "failed";
-          statusMessageString = entry.status_message;
-          break;
-        case 3:
-          statusString = "acked";
-          if (entry.status_message !== undefined) {
-            var obj = JSON.parse(entry.status_message);
-            if (obj['location'] !== undefined) {
-              var latitude = obj['location'].latitude;
-              var longitude = obj['location'].longitude;
-              statusMessageString = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
-            } else {
-              statusMessageString = entry.status_message;
+    if (statusData) {
+      var messageStatus = JSON.parse(statusData);
+      for (let entry of messageStatus) {
+        var statusMessageString = "";
+        var statusString = "";
+        var sentDateString = "";
+        var readDateString = "";
+        if (entry.sent_datetime !== undefined)
+          sentDateString = entry.sent_datetime;
+        if (entry.read_datetime !== undefined)
+          readDateString = entry.read_datetime;
+        switch (entry.status) {
+          case 0:
+            statusString = "pending";
+            break;
+          case 1:
+            statusString = "sent";
+            break;
+          case 2:
+            statusString = "failed";
+            statusMessageString = entry.status_message;
+            break;
+          case 3:
+            statusString = "acked";
+            if (entry.status_message !== undefined) {
+              var obj = JSON.parse(entry.status_message);
+              if (obj['location'] !== undefined) {
+                var latitude = obj['location'].latitude;
+                var longitude = obj['location'].longitude;
+                statusMessageString = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
+              } else {
+                statusMessageString = entry.status_message;
+              }
             }
-          }
-          break;
-        case 4:
-          statusString = "ignored";
-          statusMessageString = entry.status_message;
-          break;
-        case 5:
-          statusString = "aborted";
-          statusMessageString = entry.status_message;
-          break;
-        case 6:
-          statusString = "read";
-          statusMessageString = entry.status_message;
-          break;
-        case 7: // NOT SUPPORTED YET
-          statusString = "delivered";
-          statusMessageString = entry.status_message;
-          break;
+            break;
+          case 4:
+            statusString = "ignored";
+            statusMessageString = entry.status_message;
+            break;
+          case 5:
+            statusString = "aborted";
+            statusMessageString = entry.status_message;
+            break;
+          case 6:
+            statusString = "read";
+            statusMessageString = entry.status_message;
+            break;
+          case 7: // NOT SUPPORTED YET
+            statusString = "delivered";
+            statusMessageString = entry.status_message;
+            break;
+        }
+        reportEntries.push(
+          {
+            user: entry.user,
+            status: statusString,
+            statusMessage: statusMessageString,
+            sentDate: sentDateString,
+            readDate: readDateString
+          });
       }
-      reportEntries.push(
-        {
-          user: entry.user,
-          status: statusString,
-          statusMessage: statusMessageString,
-          sentDate: sentDateString,
-          readDate: readDateString
-        });
     }
     var reply = JSON.stringify(reportEntries);
     res.set('Content-Type', 'application/json');
