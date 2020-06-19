@@ -355,7 +355,6 @@ const useWebAndRoutes = (app) => {
     // });
     let reply = {}
     let broadcastTable = JSON.parse(tableDataRaw)
-    console.log({ list: broadcastTable.list }) //unordered 
     if (broadcastTable.max_entries === 0) {
       reply.list = []
       reply.max_entries = broadcastTable.max_entries
@@ -394,6 +393,8 @@ const useWebAndRoutes = (app) => {
   app.get(endpoint + "/Report/:messageID/:page/:size", checkAuth, (req, res) => {
     res.set('Content-Type', 'application/json');
     res.set('Authorization', 'Basic base64_auth_token');
+
+    if (!req.params.messageID) { res.send("need a message id") }
 
 
     const broadcast = JSON.parse(APIService.getMessageIDEntry(req.params.messageID))
