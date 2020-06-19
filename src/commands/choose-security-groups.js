@@ -34,10 +34,11 @@ class ChooseSecurityGroups {
     let badInput = '';
     groups.forEach((group) => {
       // TODO check for NaN
-      const index = parseInt(group, 10);
+      // Subtract one for zero based indexing
+      const index = parseInt(group, 10) - 1;
       if (index >= 0 && index < securityGroupList.length) {
         groupsToSend.push(securityGroupList[index].id);
-        groupsString += securityGroupList[index].name;
+        groupsString += `${securityGroupList[index].name}\n`;
       } else {
         validInput = false;
         badInput = index;
@@ -45,7 +46,7 @@ class ChooseSecurityGroups {
     });
     if (validInput) {
       state = State.CONFIRM_GROUPS;
-      reply = `Your message will send to the following security group(s):\n${groupsString}\nContinue?`;
+      reply = `Your message will send to the following security group(s):\n${groupsString}Continue?`;
       this.broadcastService.setSecurityGroups(groupsToSend);
     } else {
       state = State.WHICH_GROUPS;

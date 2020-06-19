@@ -2,13 +2,12 @@ import APIService from './api-service';
 import { logger } from '../helpers/constants';
 
 const maxStringLength = 50;
+// TODO put this in the constructor??
 const inc = 10;
 
 class GenericService {
   constructor(endIndex, user) {
     this.user = user;
-    this.user.startIndex = 0;
-    this.user.endIndex = endIndex;
     this.user.defaultEndIndex = endIndex;
   }
 
@@ -27,7 +26,7 @@ class GenericService {
     const currentEntries = this.getMessageEntries(userEmail);
     let reply;
     logger.debug(`startIndex${this.user.startIndex}`);
-    if (currentEntries.length < 1 || this.user.startIndex > this.user.endIndex) {
+    if (currentEntries.length < 1 || this.user.startIndex >= this.user.endIndex) {
       reply = 'There are no previous messages to display';
     } else {
       let contentData;
@@ -70,6 +69,7 @@ class GenericService {
     return APIService.getMessageIDEntry(messageID);
   }
 
+  // TODO should we trim white space too?
   truncate(str, n) {
     return (str.length > n) ? `${str.substr(0, n - 1)}...` : str;
   }

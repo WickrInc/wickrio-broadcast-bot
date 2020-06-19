@@ -1,8 +1,8 @@
 class FileService {
   constructor(user) {
     this.user = user;
-    this.user.fileServiceFile = '';
-    this.user.fileServiceFilename = '';
+    // this.user.fileServiceFile = '';
+    // this.user.fileServiceFilename = '';
   }
 
   getFile() {

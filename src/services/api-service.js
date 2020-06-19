@@ -41,11 +41,19 @@ class APIService {
   }
 
   static getMessageStatus(messageID, type, page, pageSize) {
-    return WickrIOAPI.cmdGetMessageStatus(messageID, type, page, pageSize);
+    try {
+      return WickrIOAPI.cmdGetMessageStatus(messageID, type, page, pageSize);
+    } catch (err) {
+      return undefined;
+    }
   }
 
-  static getMessageStatusFiltered(messageID, type, page, pageSize, filter) {
-    return WickrIOAPI.cmdGetMessageStatus(messageID, type, page, pageSize, filter);
+  static getMessageStatusFiltered(messageID, type, page, pageSize, filter, users) {
+    try {
+      return WickrIOAPI.cmdGetMessageStatus(messageID, type, page, pageSize, filter, users);
+    } catch (err) {
+      return undefined;
+    }
   }
 
   static getMessageIDEntry(messageID) {

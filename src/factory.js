@@ -51,6 +51,7 @@ class Factory {
     // These are the /commands
     this.ack = new Ack(this.genericService);
     this.abort = new Abort(this.genericService);
+    this.cancel = new Cancel(this.broadcastService, this.sendService);
     this.filesCommand = new FilesCommand(this.sendService);
     this.fileReceived = new FileReceived(this.fileService);
     this.initializeBroadcast = new InitializeBroadcast(this.broadcastService);
@@ -78,7 +79,7 @@ class Factory {
       // These are the /commands and must go first
       this.ack,
       this.abort,
-      Cancel,
+      this.cancel,
       Help,
       this.filesCommand,
       this.initializeSend,
