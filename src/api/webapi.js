@@ -313,14 +313,20 @@ const useWebAndRoutes = (app) => {
     entry.message = contentData.message
     try {
 
-      let statusdata = await JSON.parse(APIService.getMessageStatus(entry.message_id, 'full', page, size))
-      let statusSummary = JSON.parse(APIService.getMessageStatus(String(entry.message_id), 'summary', '', ''))
-      entry.summary = statusSummary
-      entry.status = statusdata
+      let statusdata = await APIService.getMessageStatus(entry.message_id, 'full', page, size)
+      if (statusdata) {
+
+        let statusJson = JSON.parse(statusdata)
+        let statusSummary = JSON.parse(APIService.getMessageStatus(String(entry.message_id), 'summary', '', ''))
+
+        entry.summary = statusSummary
+        entry.status = statusJson
+      }
 
     } catch (e) {
       console.log({ err: e })
       entry.status = 'error'
+      // return false
       // entry.err = e
     }
 
@@ -386,8 +392,10 @@ const useWebAndRoutes = (app) => {
     }
     // user.status = parsedBroadcastStatus
     parsedBroadcastStatus?.map(user => {
-
-      if (user.status == 3) {
+      if (user.status == 1) { user.status = "sent" }
+      else if (user.status == 2) { user.status = "failed" }
+      else if (user.status == 3) {
+        user.status = "acknowledged"
         if (user.status_message !== undefined) {
           var obj = JSON.parse(user.status_message);
           if (obj['location'] !== undefined) {
@@ -397,6 +405,10 @@ const useWebAndRoutes = (app) => {
           }
         }
       }
+      else if (user.status == 4) { user.status = "ignored" }
+      else if (user.status == 5) { user.status = "aborted" }
+      else if (user.status == 6) { user.status = "read" }
+      else if (user.status == 7) { user.status = "delivered" }
 
     })
 
