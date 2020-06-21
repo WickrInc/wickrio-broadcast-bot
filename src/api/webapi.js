@@ -307,69 +307,54 @@ const useWebAndRoutes = (app) => {
     }
   });
 
-  const mapEntries = (messageIdEntries, type, page, size) => {
-    messageIdEntries?.map(async entry => {
-      // console.log({ entry })
-      let contentData = JSON.parse(APIService.getMessageIDEntry(entry.message_id));
-      entry.message = contentData.message
-      entry.summary = {}
-      entry.test = "test"
-      entry.summary.pending = 0
-      entry.summary.sent = 0
-      entry.summary.failed = 0
-      entry.summary.ack = 0
-      entry.summary.ignored = 0
-      entry.summary.aborted = 0
-      entry.summary.read = 0
-      try {
+  const buildEntry = async (entry, page, size) => {
+    // console.log({ entry })
+    let contentData = JSON.parse(APIService.getMessageIDEntry(entry.message_id));
+    entry.message = contentData.message
+    try {
 
-        let statusdata = await APIService.getMessageStatus(entry.message_id, type, page, size)
-        const parsedstatus = JSON.parse(statusdata)
+      let statusdata = await JSON.parse(APIService.getMessageStatus(entry.message_id, 'full', page, size))
+      let statusSummary = JSON.parse(APIService.getMessageStatus(String(entry.message_id), 'summary', '', ''))
+      entry.summary = statusSummary
+      entry.status = statusdata
 
-        // console.log({ statusdata })
-        entry.status = parsedstatus
+    } catch (e) {
+      console.log({ err: e })
+      entry.status = 'error'
+      // entry.err = e
+    }
 
-        parsedstatus?.map(user => {
-          if (user.status == 0) { entry.summary.pending += 1 }
-          else if (user.status == 1) { entry.summary.sent += 1 }
-          else if (user.status == 2) { entry.summary.failed += 1 }
-          else if (user.status == 3) { entry.summary.ack += 1 }
-        })
-      } catch (e) {
-        console.log({ err: e })
-        entry.status = e
-        entry.err = e
-      }
-
-    })
-    return messageIdEntries
+    return entry
   }
 
   const getStatus = async (page, size, email) => {
     // if user hasn't sent a message in the last 'size' messages, will it show zero messages unless we search a larger index that captures the user's message?
-    var tableDataRaw = APIService.getMessageIDTable(String(page), String(size), String(email)); // unordered .list
+    let tableDataRaw = APIService.getMessageIDTable(String(page), String(size), String(email)); // unordered .list
     // console.log({ tableDataRaw: JSON.parse(tableDataRaw) })
     // don't need this with the email  in getMessageIDTable
     // var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
     //   return entry.sender == email
     // });
-    let reply = {}
     let broadcastTable = JSON.parse(tableDataRaw)
+    let reply = {}
+
+    reply.max_entries = broadcastTable.max_entries
+    reply.source = broadcastTable.source
+
     if (broadcastTable.max_entries === 0) {
       reply.list = []
-      reply.max_entries = broadcastTable.max_entries
-      reply.source = broadcastTable.source
       reply.error = "no broadcasts yet"
     } else {
-      try {
-        const builtStatus = await mapEntries(broadcastTable.list, 'full', page, size)
-        reply.list = builtStatus
-      } catch (e) {
-        console.log(e)
-        return e
-      }
-      reply.max_entries = broadcastTable.max_entries
-      reply.source = broadcastTable.source
+      broadcastTable.list?.map(async entry => {
+        try {
+          entry = await buildEntry(entry, page, size)
+        } catch (e) {
+          console.log(e)
+          return e
+        }
+      })
+      console.log({ list: broadcastTable.list })
+      reply.list = broadcastTable.list
     }
     return reply
 
@@ -379,15 +364,8 @@ const useWebAndRoutes = (app) => {
     // too many calls, wickrio api should support a single status call for x records including sender and message content
     // console.log({ email: req.user.email })
     const status = await getStatus(req.params.page, req.params.size, req.user.email)
-    res.json(status)
-  });
 
-  // need page or size? 
-  app.get(endpoint + "/Status/:messageID", checkAuth, (req, res) => {
-    // validate message id
-    var statusData = APIService.getMessageStatus(String(req.params.messageID), 'summary', '0', '25');
-    var reply = statusData;
-    return res.send(reply);
+    res.json(status)
   });
 
   app.get(endpoint + "/Report/:messageID/:page/:size", checkAuth, (req, res) => {
@@ -400,33 +378,16 @@ const useWebAndRoutes = (app) => {
     const broadcast = JSON.parse(APIService.getMessageIDEntry(req.params.messageID))
     const parsedBroadcastStatus = JSON.parse(APIService.getMessageStatus(req.params.messageID, "full", req.params.page, req.params.size));
 
+    var statusData = JSON.parse(APIService.getMessageStatus(String(req.params.messageID), 'summary', '', ''))
     let broadcastReport = {
       ...broadcast,
       report: parsedBroadcastStatus,
-      summary: {}
+      summary: statusData
     }
-    let { summary } = broadcastReport
-
-
-    summary.pending = 0
-    summary.sent = 0
-    summary.failed = 0
-    summary.ack = 0
-    summary.ignored = 0
-    summary.aborted = 0
-    summary.read = 0
     // user.status = parsedBroadcastStatus
     parsedBroadcastStatus?.map(user => {
-      if (user.status == 0) {
-        summary.pending += 1
-      }
-      else if (user.status == 1) {
-        summary.sent += 1
-      }
-      else if (user.status == 2) {
-        summary.failed += 1
-      }
-      else if (user.status == 3) {
+
+      if (user.status == 3) {
         if (user.status_message !== undefined) {
           var obj = JSON.parse(user.status_message);
           if (obj['location'] !== undefined) {
@@ -435,20 +396,8 @@ const useWebAndRoutes = (app) => {
             user.status_message = 'http://www.google.com/maps/place/' + latitude + ',' + longitude;
           }
         }
-        summary.ack += 1
       }
-      else if (user.status == 4) {
-        summary.ignored += 1
-      }
-      else if (user.status == 5) {
-        summary.aborted += 1
-      }
-      else if (user.status == 6) {
-        summary.read += 1
-      }
-      else if (user.status == 7) {
-        summary.read += 1
-      }
+
     })
 
     return res.json(broadcastReport);
