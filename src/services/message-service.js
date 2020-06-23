@@ -58,12 +58,15 @@ class MessageService {
     return this.message.toLowerCase() === 'no' || this.message.toLowerCase() === 'n';
   }
 
-  // TODO check if this works as expected
+  // Checks to see if its NaN and then to see if it is a whole number
   isInt() {
-    // The + is required to makes sure the string only contains numeric characters
-    return !(Number.isNaN(+this.message));
+    if (Number.isNaN (+this.message)) {
+      return false;
+    } else if (!Number.isInteger (+this.message)) {
+      return false;
+    }
+    return true;
   }
-
 
   static replyWithButtons(message) {
     const button1 = {
