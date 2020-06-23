@@ -31,7 +31,7 @@ class StatusService {
     }
     // TODO what do we do when no Records are found? is this because of sending to empty security group??
     let complete = messageStatus.pending === 0;
-    const preparing = messageStatus.status === 'Preparing';
+    const preparing = messageStatus.status === 'preparing';
     logger.debug(`messageStatus.status is: ${messageStatus.status}`);
     if (preparing) {
       complete = false;
