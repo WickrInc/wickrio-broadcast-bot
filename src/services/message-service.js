@@ -58,11 +58,8 @@ class MessageService {
     return this.message.toLowerCase() === 'no' || this.message.toLowerCase() === 'n';
   }
 
-  // Checks to see if its NaN and then to see if it is a whole number
   isInt() {
-    if (Number.isNaN (+this.message)) {
-      return false;
-    } else if (!Number.isInteger (+this.message)) {
+    if (!Number.isInteger(+this.message)) {
       return false;
     }
     return true;
