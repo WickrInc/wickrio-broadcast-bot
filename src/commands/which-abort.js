@@ -22,7 +22,7 @@ class WhichAbort {
     let obj;
     const index = messageService.getMessage();
     if (!messageService.isInt() || index < 1 || index > currentEntries.length) {
-      reply = `Index: ${index} is out of range. Please enter a number between 1 and ${currentEntries.length}`;
+      reply = `Index: ${index} is out of range. Please enter a whole number between 1 and ${currentEntries.length}`;
       obj = {
         reply,
         state: State.WHICH_ABORT,

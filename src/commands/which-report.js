@@ -28,7 +28,7 @@ class WhichReport {
       reply = this.genericService.getEntriesString(userEmail);
       state = this.state;
     } else if (!messageService.isInt() || index < 1 || index > endIndex) {
-      reply = `Index: ${index} is out of range. Please enter a number between 1 and ${endIndex}`;
+      reply = `Index: ${index} is out of range. Please enter a whole number between 1 and ${endIndex}`;
       state = this.state;
     } else {
       // Subtract one to account for 0 based indexes
