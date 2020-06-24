@@ -18,7 +18,6 @@ import BroadcastService from '../services/broadcast-service';
 const useWebAndRoutes = (app) => {
 
   app.use(express.static('public'))
-
   const endpoint = "/WickrIO/V2/Apps/Web/Broadcast"
 
   function checkCreds(authToken) {
