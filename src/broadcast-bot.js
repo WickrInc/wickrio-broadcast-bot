@@ -229,6 +229,10 @@ async function listen(message) {
       user = bot.addUser(wickrUser); // Add a new user to the database
     }
     logger.debug('user:', user);
+    
+    if (!fs.existsSync(`${process.cwd()}/files/${userEmail}`)) {
+      fs.mkdirSync(`${process.cwd()}/files/${userEmail}`);
+    }
 
     const broadcastService = new BroadcastService(user);
     const repeatService = new RepeatService(broadcastService, user);
@@ -297,7 +301,7 @@ async function listen(message) {
         + '/report : To get a CSV file with the status of each user for a broadcast message\n'
         + '/abort : To abort a broadcast or send that is currently in progress\n'
         + `\n${webAppString}`
-        + '\n*Admin Commands*\n'
+        + '\n*Admin Commands*\n\n'
         + '%{adminHelp}\n'
         + '*Other Commands*\n'
         + '/help : Show help information\n'

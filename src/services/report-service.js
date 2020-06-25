@@ -1,14 +1,21 @@
 import { createObjectCsvWriter as createCsvWriter } from 'csv-writer';
 import APIService from './api-service';
 import { logger } from '../helpers/constants';
+import StatusService from './status-service';
 
 class ReportService {
   static getReport(messageID, vGroupID) {
     let inc = 0;
     const csvArray = [];
+    let messageStatus;
+    const statusData = StatusService.getStatus(messageID, true);
+    if (statusData.preparing) {
+      return csvArray;
+    }
     while (true) {
-      const statusData = APIService.getMessageStatus(messageID, 'full', `${inc}`, '1000');
-      const messageStatus = JSON.parse(statusData);
+      const reportData = APIService.getMessageStatus(messageID, 'full', `${inc}`, '1000');
+      // logger.debug(`Here is the reportData: ${reportData}`);
+      messageStatus = JSON.parse(reportData);
       // for (const entry of messageStatus) {
       for (let i = 0; i < messageStatus.length; i += 1) {
         const entry = messageStatus[i];

@@ -19,15 +19,19 @@ class GenericService {
   }
 
   cancelMessageID(messageID) {
-    APIService.cancelMessageID(messageID);
+    return APIService.cancelMessageID(messageID);
   }
 
-  getEntriesString(userEmail) {
-    const currentEntries = this.getMessageEntries(userEmail);
+  getEntriesString(userEmail, abort) {
+    const currentEntries = this.getMessageEntries(userEmail, abort);
     let reply;
     logger.debug(`startIndex${this.user.startIndex}`);
     if (currentEntries.length < 1 || this.user.startIndex >= this.user.endIndex) {
-      reply = 'There are no previous messages to display';
+      if (abort) {
+        reply = 'There are no active messages to display';
+      } else {
+        reply = 'There are no previous messages to display';
+      }
     } else {
       let contentData;
       let index = 1;
@@ -42,39 +46,12 @@ class GenericService {
       }
       reply = `Here are the past ${this.user.endIndex} broadcast message(s):\n`
         + `${messageString}`;
-      // + `Which message would you like to ${commandString}\n`
-      // + 'Or to see more messages reply more';
     }
     return reply;
   }
 
-  getAbortEntriesString(userEmail) {
-    const currentEntries = this.getMessageEntries(userEmail);
-    let reply;
-    logger.debug(`startIndex${this.user.startIndex}`);
-    if (currentEntries.length < 1 || this.user.startIndex >= this.user.endIndex) {
-      reply = 'There are no previous messages to display';
-    } else {
-      let contentData;
-      let index = 1;
-      let messageString = '';
-      // TODO fix extra \n in more functionality
-      for (let i = this.user.startIndex; i < this.user.endIndex; i += 1) {
-        contentData = this.getMessageEntry(currentEntries[i].message_id);
-        const contentParsed = JSON.parse(contentData);
-        const messageDisplayed = this.truncate(contentParsed.message, maxStringLength);
-        messageString += `(${this.user.startIndex + index}) ${messageDisplayed}\n`;
-        index += 1;
-      }
-      reply = `Here are the past ${this.user.endIndex} broadcast message(s):\n`
-        + `${messageString}`;
-      // + `Which message would you like to ${commandString}\n`
-      // + 'Or to see more messages reply more';
-    }
-    return reply;
-  }
 
-  getMessageEntries(userEmail) {
+  getMessageEntries(userEmail, abort) {
     const messageEntries = [];
     const tableDataRaw = APIService.getMessageIDTable('0', '1000', userEmail);
     const messageIDData = JSON.parse(tableDataRaw);
@@ -84,7 +61,19 @@ class GenericService {
     for (let i = 0; i < tableData.length; i += 1) {
       const entry = tableData[i];
       if (entry.sender === userEmail) {
-        messageEntries.push(entry);
+        logger.debug(`Here is the entry: ${entry.status}`);
+        if (abort) {
+          // TODO find out what the statuses should be
+          if (
+            entry.status === 'sending'
+            || entry.status === 'created'
+            || entry.status === 'preparing'
+          ) {
+            messageEntries.push(entry);
+          }
+        } else {
+          messageEntries.push(entry);
+        }
       }
     }
     this.user.endIndex = Math.min(this.user.endIndex, messageEntries.length);

@@ -22,9 +22,8 @@ class Abort {
     // args = argument.split(' ');
     // if (messageService.getArgument() === '') {
     // TODO put if statement in to allow for argument to this command
-    const entries = this.genericService.getMessageEntries(userEmail);
-    // const messageIdEntries = this.genericService.getMessageEntries(userEmail);
-    const entriesString = this.genericService.getAbortEntriesString(userEmail);
+    const entries = this.genericService.getMessageEntries(userEmail, true);
+    const entriesString = this.genericService.getEntriesString(userEmail, true);
     let reply;
     if (!entries || entries.length < 1) {
       reply = entriesString;

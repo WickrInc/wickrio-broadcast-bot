@@ -21,6 +21,7 @@ class FileActions {
     const file = this.fileService.getFile();
     const filename = this.fileService.getFilename();
     const type = messageService.getMessage().toLowerCase();
+    const userEmail = messageService.getUserEmail();
     let fileAppend = '';
     let state = State.NONE;
     let reply;
@@ -37,7 +38,7 @@ class FileActions {
       this.sendService.setTTL('');
       this.sendService.setBOR('');
       reply = 'To which list would you like to send your message:\n';
-      const fileArr = this.sendService.getFiles();
+      const fileArr = this.sendService.getFiles(userEmail);
       const length = Math.min(fileArr.length, 10);
       for (let index = 0; index < length; index += 1) {
         reply += `(${index + 1}) ${fileArr[index]}\n`;
@@ -61,7 +62,7 @@ class FileActions {
     logger.debug(`fileAppend:${fileAppend}`);
     if (fileAppend === '.user' || fileAppend === '.hash') {
       logger.debug(`Here is file info${file}`);
-      const cp = FileHandler.copyFile(file, `${process.cwd()}/files/${filename.toString()}${fileAppend}`);
+      const cp = FileHandler.copyFile(file, `${process.cwd()}/files/${userEmail}/${filename.toString()}${fileAppend}`);
       logger.debug(`Here is cp:${cp}`);
       if (cp) {
         reply = `File named: ${filename} successfully saved to directory.`;

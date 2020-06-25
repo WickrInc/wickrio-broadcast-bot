@@ -17,8 +17,8 @@ class Status {
     const userEmail = messageService.getUserEmail();
     this.genericService.resetIndexes();
     // TODO add a string of status as the second parameter to this command
-    const entries = this.genericService.getMessageEntries(userEmail);
-    const entriesString = this.genericService.getEntriesString(userEmail);
+    const entries = this.genericService.getMessageEntries(userEmail, false);
+    const entriesString = this.genericService.getEntriesString(userEmail, false);
     let reply;
     if (!entries || entries.length === 0) {
       reply = entriesString;

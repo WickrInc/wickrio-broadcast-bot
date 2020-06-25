@@ -19,19 +19,16 @@ class SendService {
   }
 
   // TODO what happens if someone is adding a file at the same time as someone is sending a message?
-  getFiles() {
+  getFiles(userEmail) {
     try {
-      this.user.fileArr = FileHandler.listFiles(dir);
+      const userDir = `${dir}/${userEmail}/`;
+      this.user.fileArr = FileHandler.listFiles(userDir);
       return this.user.fileArr;
     } catch (err) {
       // TODO fix this.user.!! gracefully >:)
       logger.error(err);
       return null;
     }
-  }
-
-  getFileArr() {
-    return this.getFiles();
   }
 
   setFile(file) {

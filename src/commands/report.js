@@ -17,7 +17,7 @@ class Report {
     const userEmail = messageService.getUserEmail();
     this.genericService.resetIndexes();
     const entriesString = this.genericService.getEntriesString(userEmail);
-    const entries = this.genericService.getMessageEntries(userEmail);
+    const entries = this.genericService.getMessageEntries(userEmail, false);
     let reply;
     if (!entries || entries.length === 0) {
       reply = entriesString;
