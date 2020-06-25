@@ -33,6 +33,15 @@ class FileHandler {
     }
     return false;
   }
+
+  // Funtion to delete a user or hash file.
+  static deleteFile(filePath) {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      return true;
+    }
+    return false;
+  }
 }
 
 export default FileHandler;

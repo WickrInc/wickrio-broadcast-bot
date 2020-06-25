@@ -8,6 +8,7 @@ import Cancel from './commands/cancel';
 import Help from './commands/help';
 import FilesCommand from './commands/files-command';
 import FileReceived from './commands/file-received';
+import DeleteFileCommand from './commands/delete-file';
 import InitializeBroadcast from './commands/initialize-broadcast';
 import InitializeSend from './commands/initialize-send';
 import Report from './commands/report';
@@ -26,6 +27,8 @@ import TimesRepeat from './commands/times-repeat';
 import WhichAbort from './commands/which-abort';
 import WhichStatus from './commands/which-status';
 import WhichReport from './commands/which-report';
+import WhichDelete from './commands/which-delete';
+
 
 // TODO how can we use a new Broadcast service each time???
 class Factory {
@@ -58,6 +61,7 @@ class Factory {
     this.initializeSend = new InitializeSend(this.sendService);
     this.report = new Report(this.genericService);
     this.statusCommand = new Status(this.genericService);
+    this.deleteFile = new DeleteFileCommand(this.sendService);
 
     // These are the options
     this.activeRepeat = new ActiveRepeat(this.repeatService);
@@ -72,6 +76,7 @@ class Factory {
     this.whichStatus = new WhichStatus(this.genericService, this.statusService);
     this.whichAbort = new WhichAbort(this.genericService);
     this.whichReport = new WhichReport(this.genericService, this.reportService);
+    this.whichdelete = new WhichDelete(this.sendService);
 
     // Order matters here /commands must go first
     // TODO make it so that the order doesn' matter?
@@ -83,6 +88,7 @@ class Factory {
       Help,
       this.filesCommand,
       this.fileReceived,
+      this.deleteFile,
       this.initializeSend,
       this.initializeBroadcast,
       this.report,
@@ -101,6 +107,7 @@ class Factory {
       this.whichStatus,
       this.whichReport,
       this.whichAbort,
+      this.whichdelete,
     ];
   }
 
