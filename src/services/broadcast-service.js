@@ -162,7 +162,7 @@ class BroadcastService {
         reply.rawMessage = this.user.message;
         reply.message = messageToSend;
         if (this.user.webapp && this.user.message) {
-          uMessage = APIService.sendNetworkMessage(messageToSend, this.user.ttl, this.user.bor, messageID);
+          uMessage = APIService.sendNetworkMessage(this.user.message, this.user.ttl, this.user.bor, messageID);
         }
       } else {
         uMessage = APIService.sendNetworkMessage(messageToSend, this.user.ttl, this.user.bor, messageID);
@@ -197,7 +197,7 @@ class BroadcastService {
       reply.rawMessage = this.user.message;
       reply.message = messageToSend;
       if (this.user.webapp && this.user.message) {
-        uMessage = APIService.sendSecurityGroupMessage(this.user.securityGroups, messageToSend, this.user.ttl, this.user.bor, messageID);
+        uMessage = APIService.sendSecurityGroupMessage(this.user.securityGroups, this.user.message, this.user.ttl, this.user.bor, messageID);
       }
     } else {
       uMessage = APIService.sendSecurityGroupMessage(
