@@ -18,6 +18,8 @@ import {
   VERIFY_USERS,
   WickrIOAPI,
   getLastID,
+  WEB_APPLICATION,
+  REST_APPLICATION,
 } from './helpers/constants';
 
 // const pkgjson = require('./package.json');
@@ -42,7 +44,7 @@ import FileService from './services/file-service'
 let currentState;
 let job;
 let verifyUsersMode
-let webAppEnabled;
+let webAppEnabled = WEB_APPLICATION.value == "yes";
 let webAppString = '';
 
 // need to be able to debug and lint for syntax errors
@@ -152,14 +154,9 @@ async function main() {
     bot.startListening(listen);
 
 
-    if (
-      BOT_AUTH_TOKEN.value != 'false' &&
-      BOT_KEY.value != 'false' &&
-      BOT_PORT.value != 'false'
-    ) {
+    if (WEB_APPLICATION.value == "yes" || REST_APPLICATION.value == "yes") {
       // run server
       startServer()
-      webAppEnabled = true;
     } else {
       console.log('If you wanted a web or rest interface, the env variables not set properly. Check BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT')
     }

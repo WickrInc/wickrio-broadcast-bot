@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack:///./src/pages/messages.js"],"names":["Report"],"mappings":"6FAAA,uBAEeA,YAAf","file":"component---src-pages-messages-js-0ddc8532d9f1c8dad65a.js","sourcesContent":["import Report from \"../components/message/report\";\n\nexport default Report"],"sourceRoot":""}

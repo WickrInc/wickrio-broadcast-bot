@@ -24,6 +24,17 @@ class FileHandler {
       return false;
     }
   }
+
+  // Function that checks if a file is blank.
+  static checkFileBlank(fName) {
+    const dir = `${process.cwd()}/files/`;
+    const fPath = dir + fName;
+    const theFile = fs.readFileSync(fPath, 'utf-8').trim();
+    if (theFile.length === 0) {
+      return true;
+    }
+    return false;
+  }
 }
 
 export default FileHandler;
