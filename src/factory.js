@@ -82,6 +82,7 @@ class Factory {
       this.cancel,
       Help,
       this.filesCommand,
+      this.fileReceived,
       this.initializeSend,
       this.initializeBroadcast,
       this.report,
@@ -100,7 +101,6 @@ class Factory {
       this.whichStatus,
       this.whichReport,
       this.whichAbort,
-      this.fileReceived,
     ];
   }
 

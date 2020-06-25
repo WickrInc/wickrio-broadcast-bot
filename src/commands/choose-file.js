@@ -1,6 +1,5 @@
 import logger from '../logger';
 import State from '../state';
-import FileHandler from '../helpers/file-handler';
 
 class ChooseFile {
   constructor(sendService) {
@@ -20,35 +19,24 @@ class ChooseFile {
     const userEmail = messageService.getUserEmail();
     const index = messageService.getMessage();
     let reply = null;
-    let obj;
+    let state = State.NONE;
     const fileArr = this.sendService.getFiles(userEmail);
     // const length = Math.min(fileArr.length, 5);
     if (!messageService.isInt() || index < 1 || index > fileArr.length) {
       reply = `Index: ${index} is out of range. Please enter an integer between 1 and ${fileArr.length}`;
-      return {
-        reply,
-        state: State.CHOOSE_FILE,
-      };
-    }
-    // Subtract one to account for 0 based indexing
-    const fileName = fileArr[parseInt(index, 10) - 1];
-    if (FileHandler.checkFileBlank(fileName)) {
-      reply = 'File selected is empty.';
-      obj = {
-        reply,
-        state: State.CHOOSE_FILE,
-      };
+      state = State.CHOOSE_FILE;
     } else {
+      // Subtract one to account for 0 based indexing
+      const fileName = fileArr[parseInt(index, 10) - 1];
       // TODO check for errors first!! return from send
       // TODO should the fileName be a variable of sendService??
       this.sendService.sendToFile(fileName);
       reply = `Message sent to users from the file: ${fileName}`;
-      obj = {
-        reply,
-        state: State.NONE,
-      };
     }
-    return obj;
+    return {
+      reply,
+      state,
+    };
   }
 }
 
