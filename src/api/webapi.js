@@ -301,9 +301,17 @@ const useWebAndRoutes = (app) => {
     try {
 
       let statusdata = await APIService.getMessageStatus(entry.message_id, 'full', page, size)
+
       if (statusdata) {
 
         let statusJson = JSON.parse(statusdata)
+        let date = new Date(statusJson.sent_datetime).toLocaleString('en-US')
+
+        statusJson.sent_time = new Date(statusJson.sent_datetime).toLocaleTimeString('en-US')
+        statusJson.sent_date = new Date(statusJson.sent_datetime).toLocaleDateString('en-US')
+        statusJson.read_time = new Date(statusJson.sent_datetime).toLocaleTimeString('en-US')
+        statusJson.read_date = new Date(statusJson.read_datetime).toLocaleDateString('en-US')
+
         let statusSummary = JSON.parse(APIService.getMessageStatus(String(entry.message_id), 'summary', '', ''))
 
         entry.summary = statusSummary
@@ -366,11 +374,10 @@ const useWebAndRoutes = (app) => {
 
     if (!req.params.messageID) { res.send("need a message id") }
 
-
     const broadcast = JSON.parse(APIService.getMessageIDEntry(req.params.messageID))
     const parsedBroadcastStatus = JSON.parse(APIService.getMessageStatus(req.params.messageID, "full", req.params.page, req.params.size));
+    const statusData = JSON.parse(APIService.getMessageStatus(String(req.params.messageID), 'summary', '', ''))
 
-    var statusData = JSON.parse(APIService.getMessageStatus(String(req.params.messageID), 'summary', '', ''))
     let broadcastReport = {
       ...broadcast,
       report: parsedBroadcastStatus,
@@ -378,6 +385,14 @@ const useWebAndRoutes = (app) => {
     }
     // user.status = parsedBroadcastStatus
     parsedBroadcastStatus?.map(user => {
+      if (user.sent_datetime) {
+        user.sent_time = new Date(user.sent_datetime).toLocaleTimeString('en-US')
+        user.sent_date = new Date(user.sent_datetime).toLocaleDateString()
+      }
+      if (user.read_datetime) {
+        user.read_time = new Date(user.read_datetime).toLocaleTimeString('en-US')
+        user.read_date = new Date(user.read_datetime).toLocaleDateString()
+      }
       if (user.status == 1) { user.status = "sent" }
       else if (user.status == 2) { user.status = "failed" }
       else if (user.status == 3) {
