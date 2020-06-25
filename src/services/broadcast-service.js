@@ -84,6 +84,10 @@ class BroadcastService {
     this.user.ttl = ttl;
   }
 
+  setWebApp() {
+    this.user.webapp = true;
+  }
+
   broadcastMessage() {
     let messageToSend;
     const sentBy = `Broadcast message sent by: ${this.user.userEmail}`;
@@ -157,6 +161,9 @@ class BroadcastService {
         reply.pending = 'File broadcast in process of being sent';
         reply.rawMessage = this.user.message;
         reply.message = messageToSend;
+        if (this.user.webapp && this.user.message) {
+          uMessage = APIService.sendNetworkMessage(messageToSend, this.user.ttl, this.user.bor, messageID);
+        }
       } else {
         uMessage = APIService.sendNetworkMessage(messageToSend, this.user.ttl, this.user.bor, messageID);
         reply.pending = 'Broadcast message in process of being sent';
@@ -189,6 +196,9 @@ class BroadcastService {
       reply.pending = 'File broadcast in process of being sent to security group';
       reply.rawMessage = this.user.message;
       reply.message = messageToSend;
+      if (this.user.webapp && this.user.message) {
+        uMessage = APIService.sendSecurityGroupMessage(this.user.securityGroups, messageToSend, this.user.ttl, this.user.bor, messageID);
+      }
     } else {
       uMessage = APIService.sendSecurityGroupMessage(
         this.user.securityGroups,

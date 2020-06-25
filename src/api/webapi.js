@@ -181,7 +181,7 @@ const useWebAndRoutes = (app) => {
     const newBroadcast = new BroadcastService(user)
 
     if (!message) return res.send("Broadcast message missing from request.");
-
+    newBroadcast.setWebApp()
     newBroadcast.setMessage(message)
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
@@ -199,11 +199,6 @@ const useWebAndRoutes = (app) => {
     if (fileData === undefined) {
       console.log('attachment is not defined!')
     } else {
-      console.log('originalname: ', fileData.originalname);
-      console.log('size: ', fileData.size);
-      console.log('destination: ', fileData.destination);
-      console.log('filename: ', fileData.filename);
-
       userAttachments = process.cwd() + '/attachments/' + req.user.email;
       userNewFile = userAttachments + '/' + fileData.originalname;
       inFile = process.cwd() + '/attachments/' + fileData.filename;
@@ -219,13 +214,6 @@ const useWebAndRoutes = (app) => {
       newBroadcast.setDisplay(fileData.originalname)
     }
 
-    // console.log({ file: req.file })
-    // if (req.file === undefined) {
-    //   newBroadcast.setFile('')
-    // } else {
-    //   newBroadcast.setFile(req.file.filename)
-    //   newBroadcast.setDisplay(req.file.originalname)
-    // }
     // set repeats and durations
     if (security_group) {
 
@@ -407,7 +395,6 @@ const useWebAndRoutes = (app) => {
       else if (user.status == 5) { user.status = "aborted" }
       else if (user.status == 6) { user.status = "read" }
       else if (user.status == 7) { user.status = "delivered" }
-
     })
 
     return res.json(broadcastReport);
