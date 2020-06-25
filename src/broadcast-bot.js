@@ -280,8 +280,8 @@ async function listen(message) {
     }
 
     if (webAppEnabled) {
-      webAppString = '\n*Web App Commands*\n'
-        + '/panel : displays the link and token to the web user interface\n';
+      webAppString = '*Web App Commands*\n'
+        + '/panel : displays the link and token to the web user interface\n\n';
     }
 
     // TODO  put this in it's own command
