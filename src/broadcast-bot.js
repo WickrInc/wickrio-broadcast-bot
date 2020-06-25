@@ -281,7 +281,7 @@ async function listen(message) {
 
     if (webAppEnabled) {
       webAppString = '*Web App Commands*\n'
-        + '/panel : displays the link and token to the web user interface';
+        + '/panel : displays the link and token to the web user interface\n\n';
     }
 
     // TODO  put this in it's own command
@@ -296,9 +296,9 @@ async function listen(message) {
         + '/messages : To get a text file of all the messages sent to the bot\n'
         + '/status : To get the status of a broadcast message\n'
         + '/report : To get a CSV file with the status of each user for a broadcast message\n'
-        + '/abort : To abort a broadcast or send that is currently in progress\n'
-        + `\n${webAppString}`
-        + '\n*Admin Commands*\n\n'
+        + '/abort : To abort a broadcast or send that is currently in progress\n\n'
+        + `${webAppString}`
+        + '*Admin Commands*\n'
         + '%{adminHelp}\n'
         + '*Other Commands*\n'
         + '/help : Show help information\n'
