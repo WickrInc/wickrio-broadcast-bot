@@ -20,7 +20,7 @@ class WhichReport {
     let reply;
     let state;
     const userEmail = messageService.getUserEmail();
-    const currentEntries = this.genericService.getMessageEntries(userEmail);
+    const currentEntries = this.genericService.getMessageEntries(userEmail, false);
     const index = messageService.getMessage();
     const endIndex = this.genericService.getEndIndex();
     if (index === 'more') {
@@ -33,8 +33,11 @@ class WhichReport {
     } else {
       // Subtract one to account for 0 based indexes
       const messageID = `${currentEntries[parseInt(index, 10) - 1].message_id}`;
-      this.reportService.getReport(messageID, messageService.getVGroupID());
+      const csvArray = this.reportService.getReport(messageID, messageService.getVGroupID());
       state = State.NONE;
+      if (!csvArray || csvArray.length === 0) {
+        reply = 'Message is still preparing to send please try the report command again later';
+      }
     }
     return {
       reply,

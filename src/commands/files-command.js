@@ -3,11 +3,9 @@ import { logger } from '../helpers/constants';
 
 // TODO add a delete file command??
 // TODO add the ability to preview the contents of the file/ length of file??
-// TODO this command should return the files that are saved
 class FileCommand {
-  // TODO is this the proper way? or should should execute be static?
-  constructor(broadcastService) {
-    this.broadcastService = broadcastService;
+  constructor(sendService) {
+    this.sendService = sendService;
     this.commandString = '/files';
   }
 
@@ -18,18 +16,23 @@ class FileCommand {
     return false;
   }
 
-  execute() {
+  execute(messageService) {
     let reply = 'Here is a list of the files to which you can send a message:\n';
-    const fileArr = this.broadcastService.getFiles();
-    const length = Math.min(fileArr.length, 5);
-    for (let index = 0; index < length; index += 1) {
-      reply += `(${index + 1}) ${fileArr[index]}\n`;
+    const userEmail = messageService.getUserEmail();
+    // TODO add a more function to this
+    const fileArr = this.sendService.getFiles(userEmail);
+    if (!fileArr || fileArr.length === 0) {
+      reply = 'There aren\'t any files available for sending, please upload a file of usernames or hashes first.';
+    } else {
+      const length = Math.min(fileArr.length, 10);
+      for (let index = 0; index < length; index += 1) {
+        reply += `(${index + 1}) ${fileArr[index]}\n`;
+      }
     }
-    const obj = {
+    return {
       reply,
       state: State.NONE,
     };
-    return obj;
   }
 }
 

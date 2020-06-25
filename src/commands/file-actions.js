@@ -19,8 +19,10 @@ class FileActions {
 
   execute(messageService) {
     const file = this.fileService.getFile();
+    logger.debug(`Here is the file${file}`);
     const filename = this.fileService.getFilename();
     const type = messageService.getMessage().toLowerCase();
+    const userEmail = messageService.getUserEmail();
     let fileAppend = '';
     let state = State.NONE;
     let reply;
@@ -37,7 +39,7 @@ class FileActions {
       this.sendService.setTTL('');
       this.sendService.setBOR('');
       reply = 'To which list would you like to send your message:\n';
-      const fileArr = this.sendService.getFiles();
+      const fileArr = this.sendService.getFiles(userEmail);
       const length = Math.min(fileArr.length, 10);
       for (let index = 0; index < length; index += 1) {
         reply += `(${index + 1}) ${fileArr[index]}\n`;
@@ -60,13 +62,18 @@ class FileActions {
     }
     logger.debug(`fileAppend:${fileAppend}`);
     if (fileAppend === '.user' || fileAppend === '.hash') {
-      logger.debug(`Here is file info${file}`);
-      const cp = FileHandler.copyFile(file, `${process.cwd()}/files/${filename.toString()}${fileAppend}`);
-      logger.debug(`Here is cp:${cp}`);
-      if (cp) {
-        reply = `File named: ${filename} successfully saved to directory.`;
+      const newFilePath = `${process.cwd()}/files/${userEmail}/${filename.toString()}${fileAppend}`;
+      if (FileHandler.checkFileBlank(file)) {
+        reply = `File: ${filename} is empty. Please send a list of usernames or hashes`;
       } else {
-        reply = `Error: File named: ${filename} not saved to directory.`;
+        logger.debug(`Here is file info${file}`);
+        const cp = FileHandler.copyFile(file, newFilePath);
+        logger.debug(`Here is cp:${cp}`);
+        if (cp) {
+          reply = `File named: ${filename} successfully saved to directory.`;
+        } else {
+          reply = `Error: File named: ${filename} not saved to directory.`;
+        }
       }
     }
     return {

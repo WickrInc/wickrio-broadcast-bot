@@ -17,7 +17,7 @@ class WhichAbort {
   execute(messageService) {
     let reply;
     const userEmail = messageService.getUserEmail();
-    const currentEntries = this.genericService.getMessageEntries(userEmail, 0, 10);
+    const currentEntries = this.genericService.getMessageEntries(userEmail, true);
     // TODO do we need an object here or can we just return inside the if/else?
     let obj;
     const index = messageService.getMessage();

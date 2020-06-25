@@ -16,34 +16,21 @@ class Abort {
 
   execute(messageService) {
     logger.debug(`:${messageService.getArgument()}:`);
+    this.genericService.resetIndexes();
+    const userEmail = messageService.getUserEmail();
     // check argument here!
     // args = argument.split(' ');
     // if (messageService.getArgument() === '') {
     // TODO put if statement in to allow for argument to this command
-    const messageIdEntries = this.genericService.getMessageEntries(messageService.getUserEmail());
+    const entries = this.genericService.getMessageEntries(userEmail, true);
+    const entriesString = this.genericService.getEntriesString(userEmail, true);
     let reply;
-    if (messageIdEntries.length < 1) {
-      reply = 'There are no previous messages to display';
-      return {
-        reply,
-        state: State.NONE,
-      };
+    if (!entries || entries.length < 1) {
+      reply = entriesString;
+    } else {
+      reply = `${entriesString}Which message would you like to abort?`
+      + '\nOr to see more messages reply more';
     }
-    const length = Math.min(messageIdEntries.length, 5);
-    let contentData;
-    let index = 1;
-    const messageList = [];
-    let messageString = '';
-    for (let i = 0; i < messageIdEntries.length; i += 1) {
-      contentData = this.genericService.getMessageEntry(messageIdEntries[i].message_id);
-      const contentParsed = JSON.parse(contentData);
-      messageList.push(contentParsed.message);
-      messageString += `(${index}) ${contentParsed.message}\n`;
-      index += 1;
-    }
-    reply = `Here are the past ${length} broadcast message(s):\n`
-      + `${messageString}`
-      + 'Which message would you like to abort?';
     return {
       reply,
       state: State.WHICH_ABORT,

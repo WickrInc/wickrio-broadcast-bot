@@ -19,19 +19,16 @@ class SendService {
   }
 
   // TODO what happens if someone is adding a file at the same time as someone is sending a message?
-  getFiles() {
+  getFiles(userEmail) {
     try {
-      this.user.fileArr = FileHandler.listFiles(dir);
+      this.user.userDir = `${dir}/${userEmail}/`;
+      this.user.fileArr = FileHandler.listFiles(this.user.userDir);
       return this.user.fileArr;
     } catch (err) {
       // TODO fix this.user.!! gracefully >:)
       logger.error(err);
       return null;
     }
-  }
-
-  getFileArr() {
-    return this.getFiles();
   }
 
   setFile(file) {
@@ -70,7 +67,7 @@ class SendService {
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
     const jsonDateTime = currentDate.toJSON();
     // TODO move filePathcreation?
-    const filePath = dir + fileName;
+    const filePath = this.user.userDir + fileName;
     let uMessage;
     const messageID = updateLastID();
     if (this.user.file !== undefined && this.user.file !== '') {
