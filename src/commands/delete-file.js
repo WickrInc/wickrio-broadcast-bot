@@ -3,7 +3,7 @@ import { logger } from '../helpers/constants';
 
 // This class is used to select which file the user wants to delete.
 
-class DeleteFileCommand {
+class DeleteFile {
   constructor(sendService) {
     this.sendService = sendService;
     this.commandString = '/delete';
@@ -38,4 +38,4 @@ class DeleteFileCommand {
   }
 }
 
-export default DeleteFileCommand;
+export default DeleteFile;
