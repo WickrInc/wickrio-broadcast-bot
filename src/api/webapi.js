@@ -358,7 +358,6 @@ const useWebAndRoutes = (app) => {
           return e
         }
       })
-      console.log({ list: broadcastTable.list })
       reply.list = broadcastTable.list
     }
     return reply
