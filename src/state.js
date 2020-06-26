@@ -13,4 +13,5 @@ export default Object.freeze({
   WHICH_REPORT: 11,
   WHICH_ABORT: 12,
   DELETE_FILE: 13,
+  SEND_USER_FILE: 14,
 });

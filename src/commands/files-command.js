@@ -18,6 +18,7 @@ class FileCommand {
 
   execute(messageService) {
     let reply = 'Here is a list of the files to which you can send a message:\n';
+    let state = State.NONE;
     const userEmail = messageService.getUserEmail();
     // TODO add a more function to this
     const fileArr = this.sendService.getFiles(userEmail);
@@ -28,10 +29,11 @@ class FileCommand {
       for (let index = 0; index < length; index += 1) {
         reply += `(${index + 1}) ${fileArr[index]}\n`;
       }
+      state = State.SEND_USER_FILE;
     }
     return {
       reply,
-      state: State.NONE,
+      state,
     };
   }
 }

@@ -23,6 +23,7 @@ import ChooseSecurityGroups from './commands/choose-security-groups';
 import ConfirmSecurityGroups from './commands/confirm-security-groups';
 import FileActions from './commands/file-actions';
 import RepeatFrequency from './commands/repeat-frequency';
+import SendUserFile from './commands/send-user-file';
 import TimesRepeat from './commands/times-repeat';
 import WhichAbort from './commands/which-abort';
 import WhichDelete from './commands/which-delete';
@@ -71,6 +72,7 @@ class Factory {
     this.confirmSecurityGroups = new ConfirmSecurityGroups(this.broadcastService);
     this.fileActions = new FileActions(this.fileService, this.broadcastService, this.sendService);
     this.repeatFrequency = new RepeatFrequency(this.repeatService);
+    this.sendUserFile = new SendUserFile(this.sendService);
     this.timesRepeat = new TimesRepeat(this.repeatService);
     this.whichAbort = new WhichAbort(this.genericService);
     this.whichDelete = new WhichDelete(this.sendService);
@@ -102,6 +104,7 @@ class Factory {
       this.confirmSecurityGroups,
       this.fileActions,
       this.repeatFrequency,
+      this.sendUserFile,
       this.timesRepeat,
       this.whichAbort,
       this.whichDelete,

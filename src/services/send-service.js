@@ -113,6 +113,11 @@ class SendService {
     this.user.ttl = '';
     this.user.bor = '';
   }
+
+  // This function is used to send a file to a room.
+  retrieveFile(filePath, id) {
+    APIService.sendRoomAttachment(id, filePath, filePath);
+  }
 }
 
 export default SendService;
