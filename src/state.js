@@ -12,4 +12,5 @@ export default Object.freeze({
   REPEAT_FREQUENCY: 10,
   WHICH_REPORT: 11,
   WHICH_ABORT: 12,
+  DELETE_FILE: 13,
 });

@@ -5,6 +5,7 @@ import State from './state';
 import Ack from './commands/ack';
 import Abort from './commands/abort';
 import Cancel from './commands/cancel';
+import DeleteFile from './commands/delete-file';
 import Help from './commands/help';
 import FilesCommand from './commands/files-command';
 import FileReceived from './commands/file-received';
@@ -24,8 +25,9 @@ import FileActions from './commands/file-actions';
 import RepeatFrequency from './commands/repeat-frequency';
 import TimesRepeat from './commands/times-repeat';
 import WhichAbort from './commands/which-abort';
-import WhichStatus from './commands/which-status';
+import WhichDelete from './commands/which-delete';
 import WhichReport from './commands/which-report';
+import WhichStatus from './commands/which-status';
 
 // TODO how can we use a new Broadcast service each time???
 class Factory {
@@ -52,6 +54,7 @@ class Factory {
     this.ack = new Ack(this.genericService);
     this.abort = new Abort(this.genericService);
     this.cancel = new Cancel(this.broadcastService, this.sendService);
+    this.deleteFile = new DeleteFile(this.sendService);
     this.filesCommand = new FilesCommand(this.sendService);
     this.fileReceived = new FileReceived(this.fileService);
     this.initializeBroadcast = new InitializeBroadcast(this.broadcastService);
@@ -69,9 +72,10 @@ class Factory {
     this.fileActions = new FileActions(this.fileService, this.broadcastService, this.sendService);
     this.repeatFrequency = new RepeatFrequency(this.repeatService);
     this.timesRepeat = new TimesRepeat(this.repeatService);
-    this.whichStatus = new WhichStatus(this.genericService, this.statusService);
     this.whichAbort = new WhichAbort(this.genericService);
+    this.whichDelete = new WhichDelete(this.sendService);
     this.whichReport = new WhichReport(this.genericService, this.reportService);
+    this.whichStatus = new WhichStatus(this.genericService, this.statusService);
 
     // Order matters here /commands must go first
     // TODO make it so that the order doesn' matter?
@@ -80,6 +84,7 @@ class Factory {
       this.ack,
       this.abort,
       this.cancel,
+      this.deleteFile,
       Help,
       this.filesCommand,
       this.fileReceived,
@@ -98,9 +103,10 @@ class Factory {
       this.fileActions,
       this.repeatFrequency,
       this.timesRepeat,
-      this.whichStatus,
-      this.whichReport,
       this.whichAbort,
+      this.whichDelete,
+      this.whichReport,
+      this.whichStatus,
     ];
   }
 
