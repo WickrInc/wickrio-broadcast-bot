@@ -28,8 +28,10 @@ class Abort {
     if (!entries || entries.length < 1) {
       reply = entriesString;
     } else {
-      reply = `${entriesString}Which message would you like to abort?`
-      + '\nOr to see more messages reply more';
+      reply = `${entriesString}Which message would you like to abort?`;
+    }
+    if (entries.length > 10) {
+      reply += '\nOr to see more messages reply more';
     }
     return {
       reply,
