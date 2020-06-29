@@ -61,30 +61,24 @@ class FileActions {
       state = State.FILE_TYPE;
     }
     logger.debug(`fileAppend:${fileAppend}`);
+    // Make sure the file is not blank.
+    if (FileHandler.checkFileBlank(file)) {
+      reply = `File: ${filename} is empty. Please send a list of usernames or hashes`;
     // If file already exists go to the overwrite check state
-    if (fileArr.includes(`${filename}${fileAppend}`)) {
+    } else if (fileArr.includes(`${filename}${fileAppend}`)) {
       this.fileService.setOverwriteFileType(fileAppend);
       reply = 'Warning : File already exists in user directory.\nIf you continue you will overwrite the file.\nReply (yes/no) to continue or cancel.';
       state = State.OVERWRITE_CHECK;
-      return {
-        reply,
-        state,
-      };
-    }
     // Upload new file to the user directory
-    if (fileAppend === '.user' || fileAppend === '.hash') {
+    } else if (fileAppend === '.user' || fileAppend === '.hash') {
       const newFilePath = `${process.cwd()}/files/${userEmail}/${filename.toString()}${fileAppend}`;
-      if (FileHandler.checkFileBlank(file)) {
-        reply = `File: ${filename} is empty. Please send a list of usernames or hashes`;
+      logger.debug(`Here is file info${file}`);
+      const cp = FileHandler.copyFile(file, newFilePath);
+      logger.debug(`Here is cp:${cp}`);
+      if (cp) {
+        reply = `File named: ${filename} successfully saved to directory.`;
       } else {
-        logger.debug(`Here is file info${file}`);
-        const cp = FileHandler.copyFile(file, newFilePath);
-        logger.debug(`Here is cp:${cp}`);
-        if (cp) {
-          reply = `File named: ${filename} successfully saved to directory.`;
-        } else {
-          reply = `Error: File named: ${filename} not saved to directory.`;
-        }
+        reply = `Error: File named: ${filename} not saved to directory.`;
       }
     }
     return {

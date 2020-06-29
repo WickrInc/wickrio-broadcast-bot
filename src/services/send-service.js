@@ -115,8 +115,8 @@ class SendService {
   }
 
   // This function is used to send a file to a room.
-  retrieveFile(filePath, id) {
-    APIService.sendRoomAttachment(id, filePath, filePath);
+  retrieveFile(filePath, vGroupID) {
+    APIService.sendRoomAttachment(vGroupID, filePath, filePath);
   }
 }
 

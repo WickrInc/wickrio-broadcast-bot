@@ -32,17 +32,13 @@ class OverwriteCheck {
     // Overwrite file.
     if (type === 'yes' || type === 'y') {
       const newFilePath = `${process.cwd()}/files/${userEmail}/${filename.toString()}${fileAppend}`;
-      if (FileHandler.checkFileBlank(file)) {
-        reply = `File: ${filename} is empty. Please send a list of usernames or hashes`;
+      logger.debug(`Here is file info${file}`);
+      const cp = FileHandler.copyFile(file, newFilePath);
+      logger.debug(`Here is cp:${cp}`);
+      if (cp) {
+        reply = `File named: ${filename} successfully saved to directory.`;
       } else {
-        logger.debug(`Here is file info${file}`);
-        const cp = FileHandler.copyFile(file, newFilePath);
-        logger.debug(`Here is cp:${cp}`);
-        if (cp) {
-          reply = `File named: ${filename} successfully saved to directory.`;
-        } else {
-          reply = `Error: File named: ${filename} not saved to directory.`;
-        }
+        reply = `Error: File named: ${filename} not saved to directory.`;
       }
     // Cancel Overwriting file.
     } else if (type === 'no' || type === 'n') {
