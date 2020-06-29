@@ -23,6 +23,7 @@ class FileActions {
     const filename = this.fileService.getFilename();
     const type = messageService.getMessage().toLowerCase();
     const userEmail = messageService.getUserEmail();
+    const fileArr = this.sendService.getFiles(userEmail);
     let fileAppend = '';
     let state = State.NONE;
     let reply;
@@ -39,7 +40,6 @@ class FileActions {
       this.sendService.setTTL('');
       this.sendService.setBOR('');
       reply = 'To which list would you like to send your message:\n';
-      const fileArr = this.sendService.getFiles(userEmail);
       const length = Math.min(fileArr.length, 10);
       for (let index = 0; index < length; index += 1) {
         reply += `(${index + 1}) ${fileArr[index]}\n`;
@@ -61,6 +61,17 @@ class FileActions {
       state = State.FILE_TYPE;
     }
     logger.debug(`fileAppend:${fileAppend}`);
+    // If file already exists go to the overwrite check state
+    if (fileArr.includes(`${filename}${fileAppend}`)) {
+      this.fileService.setOverwriteFileType(fileAppend);
+      reply = 'Warning : File already exists in user directory.\nIf you continue you will overwrite the file.\nReply (yes/no) to continue or cancel.';
+      state = State.OVERWRITE_CHECK;
+      return {
+        reply,
+        state,
+      };
+    }
+    // Upload new file to the user directory
     if (fileAppend === '.user' || fileAppend === '.hash') {
       const newFilePath = `${process.cwd()}/files/${userEmail}/${filename.toString()}${fileAppend}`;
       if (FileHandler.checkFileBlank(file)) {

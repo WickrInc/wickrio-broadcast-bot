@@ -1,7 +1,7 @@
 import logger from '../logger';
 import State from '../state';
 
-// This class is used to delete the selected file.
+// This class is used to send the user their selected file.
 
 class SendUserFile {
   constructor(sendService) {
