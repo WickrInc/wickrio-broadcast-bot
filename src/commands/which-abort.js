@@ -22,7 +22,7 @@ class WhichAbort {
     const index = messageService.getMessage();
     if (index === 'more') {
       this.genericService.incrementIndexes();
-      reply = this.genericService.getEntriesString(userEmail);
+      reply = this.genericService.getEntriesString(userEmail, true);
       state = this.state;
     } else if (!messageService.isInt() || index < 1 || index > currentEntries.length) {
       reply = `Index: ${index} is out of range. Please enter a whole number between 1 and ${currentEntries.length}`;
