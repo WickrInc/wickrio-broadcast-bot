@@ -22,8 +22,10 @@ class Report {
     if (!entries || entries.length === 0) {
       reply = entriesString;
     } else {
-      reply = `${entriesString}Which message would you like to see the report of?`
-      + '\nOr to see more messages reply more';
+      reply = `${entriesString}Which message would you like to abort?`;
+    }
+    if (entries.length > 10) {
+      reply += '\nOr to see more messages reply more';
     }
     return {
       reply,
