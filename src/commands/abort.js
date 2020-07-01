@@ -30,7 +30,7 @@ class Abort {
     } else {
       reply = `${entriesString}Which message would you like to abort?`;
     }
-    if (entries.length > 10) {
+    if (entries.length > this.genericService.getEndIndex()) {
       reply += '\nOr to see more messages reply more';
     }
     return {

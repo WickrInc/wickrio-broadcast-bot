@@ -24,9 +24,9 @@ class Status {
     if (!entries || entries.length === 0) {
       reply = entriesString;
     } else {
-      reply = `${entriesString}Which message would you like to abort?`;
+      reply = `${entriesString}Which message would you like to see the status of?`;
     }
-    if (entries.length > 10) {
+    if (entries.length > this.genericService.getEndIndex()) {
       reply += '\nOr to see more messages reply more';
     }
     return {
