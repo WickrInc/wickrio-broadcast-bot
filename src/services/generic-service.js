@@ -52,29 +52,36 @@ class GenericService {
 
 
   getMessageEntries(userEmail, abort) {
+    let pageNum = 0;
+    const pageSize = 1000;
     const messageEntries = [];
-    const tableDataRaw = APIService.getMessageIDTable('0', '1000', userEmail);
-    const messageIDData = JSON.parse(tableDataRaw);
-
-    const tableData = messageIDData.list;
-    // for (let i = tableData.length - 1; i >= 0; i -= 1) {
-    for (let i = 0; i < tableData.length; i += 1) {
-      const entry = tableData[i];
-      if (entry.sender === userEmail) {
-        logger.debug(`Here is the entry: ${entry.status}`);
-        if (abort) {
+    while (true) {
+      const tableDataRaw = APIService.getMessageIDTable(`${pageNum}`, `${pageSize}`, userEmail);
+      const messageIDData = JSON.parse(tableDataRaw);
+      const tableData = messageIDData.list;
+      // for (let i = tableData.length - 1; i >= 0; i -= 1) {
+      for (let i = 0; i < tableData.length; i += 1) {
+        const entry = tableData[i];
+        if (entry.sender === userEmail) {
+          logger.debug(`Here is the entry: ${entry.status}`);
+          if (abort) {
           // TODO find out what the statuses should be
-          if (
-            entry.status === 'sending'
+            if (
+              entry.status === 'sending'
             || entry.status === 'created'
             || entry.status === 'preparing'
-          ) {
+            ) {
+              messageEntries.push(entry);
+            }
+          } else {
             messageEntries.push(entry);
           }
-        } else {
-          messageEntries.push(entry);
         }
       }
+      if (tableData.length < pageSize) {
+        break;
+      }
+      pageNum += 1;
     }
     this.user.endIndex = Math.min(this.user.endIndex, messageEntries.length);
     return messageEntries;
