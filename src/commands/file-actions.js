@@ -23,6 +23,7 @@ class FileActions {
     const filename = this.fileService.getFilename();
     const type = messageService.getMessage().toLowerCase();
     const userEmail = messageService.getUserEmail();
+    const fileArr = this.sendService.getFiles(userEmail);
     let fileAppend = '';
     let state = State.NONE;
     let reply;
@@ -39,7 +40,6 @@ class FileActions {
       this.sendService.setTTL('');
       this.sendService.setBOR('');
       reply = 'To which list would you like to send your message:\n';
-      const fileArr = this.sendService.getFiles(userEmail);
       const length = Math.min(fileArr.length, 10);
       for (let index = 0; index < length; index += 1) {
         reply += `(${index + 1}) ${fileArr[index]}\n`;
@@ -61,19 +61,24 @@ class FileActions {
       state = State.FILE_TYPE;
     }
     logger.debug(`fileAppend:${fileAppend}`);
-    if (fileAppend === '.user' || fileAppend === '.hash') {
+    // Make sure the file is not blank.
+    if (FileHandler.checkFileBlank(file)) {
+      reply = `File: ${filename} is empty. Please send a list of usernames or hashes`;
+    // If file already exists go to the overwrite check state
+    } else if (fileArr.includes(`${filename}${fileAppend}`)) {
+      this.fileService.setOverwriteFileType(fileAppend);
+      reply = 'Warning : File already exists in user directory.\nIf you continue you will overwrite the file.\nReply (yes/no) to continue or cancel.';
+      state = State.OVERWRITE_CHECK;
+    // Upload new file to the user directory
+    } else if (fileAppend === '.user' || fileAppend === '.hash') {
       const newFilePath = `${process.cwd()}/files/${userEmail}/${filename.toString()}${fileAppend}`;
-      if (FileHandler.checkFileBlank(file)) {
-        reply = `File: ${filename} is empty. Please send a list of usernames or hashes`;
+      logger.debug(`Here is file info${file}`);
+      const cp = FileHandler.copyFile(file, newFilePath);
+      logger.debug(`Here is cp:${cp}`);
+      if (cp) {
+        reply = `File named: ${filename} successfully saved to directory.`;
       } else {
-        logger.debug(`Here is file info${file}`);
-        const cp = FileHandler.copyFile(file, newFilePath);
-        logger.debug(`Here is cp:${cp}`);
-        if (cp) {
-          reply = `File named: ${filename} successfully saved to directory.`;
-        } else {
-          reply = `Error: File named: ${filename} not saved to directory.`;
-        }
+        reply = `Error: File named: ${filename} not saved to directory.`;
       }
     }
     return {
