@@ -385,15 +385,17 @@ const useWebAndRoutes = (app) => {
     }
     // user.status = parsedBroadcastStatus
     parsedBroadcastStatus?.map(user => {
+      console.log({ user })
       if (user.sent_datetime) {
         user.sent_time = new Date(user.sent_datetime).toLocaleTimeString('en-US')
-        user.sent_date = new Date(user.sent_datetime).toLocaleDateString()
+        user.sent_date = new Date(user.sent_datetime).toLocaleDateString().replace(/\//g, '-');
       }
       if (user.read_datetime) {
         user.read_time = new Date(user.read_datetime).toLocaleTimeString('en-US')
-        user.read_date = new Date(user.read_datetime).toLocaleDateString()
+        user.read_date = new Date(user.read_datetime).toLocaleDateString().replace(/\//g, '-');
       }
-      if (user.status == 1) { user.status = "sent" }
+      if (user.status == 0) { user.status = "pending" }
+      else if (user.status == 1) { user.status = "sent" }
       else if (user.status == 2) { user.status = "failed" }
       else if (user.status == 3) {
         user.status = "acknowledged"
