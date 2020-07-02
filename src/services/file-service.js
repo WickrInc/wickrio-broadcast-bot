@@ -13,12 +13,21 @@ class FileService {
     return this.user.fileServiceFilename;
   }
 
+  getOverwriteFileType() {
+    return this.user.fileServiceFileType;
+  }
+
   setFile(file) {
     this.user.fileServiceFile = file;
   }
 
   setFilename(filename) {
     this.user.fileServiceFilename = filename;
+  }
+
+  // .user or .hash
+  setOverwriteFileType(fileType) {
+    this.user.fileServiceFileType = fileType;
   }
 }
 
