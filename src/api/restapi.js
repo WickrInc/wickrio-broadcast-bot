@@ -524,6 +524,44 @@ const useRESTRoutes = (app) => {
     res.set('Content-Type', 'application/json');
     return res.send(reply);
   });
+
+  app.post(endpoint + "/EventRecvCallback", checkBasicAuth, function(req, res) {
+    var callbackUrl = req.query.callbackurl;
+    console.log('callbackUrl:', callbackUrl)
+    try {
+      var csmc = APIService.setEventCallback(callbackUrl);
+      console.log(csmc);
+      res.type('txt').send(csmc);
+    } catch (err) {
+      console.log(err);
+      res.statusCode = 400;
+      res.type('txt').send(err.toString());
+    }
+  });
+
+  app.get(endpoint + "/EventRecvCallback", checkBasicAuth, function(req, res) {
+    try {
+      var cgmc = APIService.getEventCallback();
+      res.type('txt').send(cgmc);
+    } catch (err) {
+      console.log(err);
+      res.statusCode = 400;
+      res.type('txt').send(err.toString());
+    }
+  });
+
+  app.delete(endpoint + "/EventRecvCallback", checkBasicAuth, function(req, res) {
+    try {
+      var cdmc = APIService.deleteEventCallback();
+      console.log(cdmc);
+      res.type('txt').send(cdmc);
+    } catch (err) {
+      console.log(err);
+      res.statusCode = 400;
+      res.type('txt').send(err.toString());
+    }
+  });
+
 }
 
 
