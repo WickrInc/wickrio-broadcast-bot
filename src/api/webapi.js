@@ -385,6 +385,7 @@ const useWebAndRoutes = (app) => {
     }
     // user.status = parsedBroadcastStatus
     parsedBroadcastStatus?.map(user => {
+<<<<<<< HEAD
       if (user.sent_datetime) {
         user.sent_time = new Date(user.sent_datetime).toLocaleTimeString('en-US')
         user.sent_date = new Date(user.sent_datetime).toLocaleDateString()
@@ -394,6 +395,19 @@ const useWebAndRoutes = (app) => {
         user.read_date = new Date(user.read_datetime).toLocaleDateString()
       }
       if (user.status == 1) { user.status = "sent" }
+=======
+      console.log({ user })
+      if (user.sent_datetime) {
+        user.sent_time = new Date(user.sent_datetime).toLocaleTimeString('en-US')
+        user.sent_date = new Date(user.sent_datetime).toLocaleDateString().replace(/\//g, '-');
+      }
+      if (user.read_datetime) {
+        user.read_time = new Date(user.read_datetime).toLocaleTimeString('en-US')
+        user.read_date = new Date(user.read_datetime).toLocaleDateString().replace(/\//g, '-');
+      }
+      if (user.status == 0) { user.status = "pending" }
+      else if (user.status == 1) { user.status = "sent" }
+>>>>>>> fix-556-bugs
       else if (user.status == 2) { user.status = "failed" }
       else if (user.status == 3) {
         user.status = "acknowledged"

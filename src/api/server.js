@@ -49,16 +49,16 @@ const startServer = () => {
     app.options("/*", (req, res, next) => {
       res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization, Content-Length, X-Requested-With');
       res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-      // res.header('Access-Control-Allow-Origin', `${host}:8000`); // use for debuggging
-      res.header('Access-Control-Allow-Origin', `${host}:${WEBAPP_PORT.value}`);
+      res.header('Access-Control-Allow-Origin', `${host}:8000`); // use for debuggging
+      // res.header('Access-Control-Allow-Origin', `${host}:${WEBAPP_PORT.value}`);
       res.sendStatus(200)
     });
 
     app.all("/*", (req, res, next) => {
       res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Authorization, Content-Length, X-Requested-With');
       res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
-      // res.header('Access-Control-Allow-Origin', `${host}:8000`); // use for debuggging
-      res.header('Access-Control-Allow-Origin', `${host}:${WEBAPP_PORT.value}`);
+      res.header('Access-Control-Allow-Origin', `${host}:8000`); // use for debuggging
+      // res.header('Access-Control-Allow-Origin', `${host}:${WEBAPP_PORT.value}`);
       next()
     });
 

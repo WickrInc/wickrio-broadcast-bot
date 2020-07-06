@@ -1,35 +1,6 @@
 import request from 'supertest'
 import startServer from '../src/api/server'
 
-beforeAll((done) => {
-  // const token
-  request(startServer)
-    .post('/Authenticate')
-    .set('Authorization', `Bearer YmFzaWN1dGh0b2tlbg==`) // base64 BOT_AUTH_TOKEN 
-    .send()
-    .end((err, response) => {
-      token = response.body.token; // save the token!
-      console.log({ token })
-      console.log({ err })
-      done();
-    });
-  console.log({ token })
-
-  request(startServer)
-    .post('/Authorize')
-    .set('Authorization', `Bearer ${token}`)
-    .end((err, authResponse) => {
-      console.log({ authResponse })
-      console.log({ err })
-      done();
-    });
-})
-
-// {
-//   email: user,
-//   BOT_AUTH_TOKEN: pw,
-// }
-
 describe('GET /', () => {
   // token not being sent - should respond with a 401
   test('It should require authorization', async () => {
