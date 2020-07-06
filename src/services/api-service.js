@@ -109,6 +109,18 @@ class APIService {
   static cancelMessageID(messageID) {
     return WickrIOAPI.cmdCancelMessageID(messageID);
   }
+
+  static setEventCallback(callbackUrl) {
+      return WickrIOAPI.cmdSetEventCallback(callbackUrl);
+  }
+
+  static getEventCallback() {
+      return WickrIOAPI.cmdGetEventCallback();
+  }
+
+  static deleteEventCallback() {
+      return WickrIOAPI.cmdDeleteEventCallback();
+  }
 }
 
 export default APIService;
