@@ -22,7 +22,6 @@ class OverwriteCheck {
 
   execute(messageService) {
     const userEmail = messageService.getUserEmail();
-    const type = messageService.getMessage().toLowerCase();
     const file = this.fileService.getFile();
     logger.debug(`Here is the file${file}`);
     const filename = this.fileService.getFilename();
@@ -30,7 +29,7 @@ class OverwriteCheck {
     let state = State.NONE;
     let reply;
     // Overwrite file.
-    if (type === 'yes' || type === 'y') {
+    if (messageService.affirmativeReply()) {
       const newFilePath = `${process.cwd()}/files/${userEmail}/${filename.toString()}${fileAppend}`;
       logger.debug(`Here is file info${file}`);
       const cp = FileHandler.copyFile(file, newFilePath);
@@ -41,18 +40,17 @@ class OverwriteCheck {
         reply = `Error: File named: ${filename} not saved to directory.`;
       }
     // Cancel Overwriting file.
-    } else if (type === 'no' || type === 'n') {
+    } else if (messageService.negativeReply()) {
       reply = 'File upload cancelled.';
     // Invalid response. Return to beginning of this execute function.
     } else {
       reply = 'Invalid response.\nReply (yes/no) to continue or cancel.';
       state = State.OVERWRITE_CHECK;
     }
-    const obj = {
+    return {
       reply,
       state,
     };
-    return obj;
   }
 }
 

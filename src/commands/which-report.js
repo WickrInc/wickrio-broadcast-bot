@@ -26,6 +26,9 @@ class WhichReport {
     if (index === 'more') {
       this.genericService.incrementIndexes();
       reply = this.genericService.getEntriesString(userEmail);
+      if (currentEntries.length > this.genericService.getEndIndex()) {
+        reply += 'Or to see more messages reply more';
+      }
       state = this.state;
     } else if (!messageService.isInt() || index < 1 || index > endIndex) {
       reply = `Index: ${index} is out of range. Please enter a whole number between 1 and ${endIndex}`;

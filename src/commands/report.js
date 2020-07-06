@@ -1,4 +1,5 @@
 import State from '../state';
+import { logger } from '../helpers/constants';
 
 class Report {
   constructor(genericService) {
@@ -22,8 +23,10 @@ class Report {
     if (!entries || entries.length === 0) {
       reply = entriesString;
     } else {
-      reply = `${entriesString}Which message would you like to see the report of?`
-      + '\nOr to see more messages reply more';
+      reply = `${entriesString}Which message would you like to see the report of?`;
+    }
+    if (entries.length > this.genericService.getEndIndex()) {
+      reply += '\nOr to see more messages reply more';
     }
     return {
       reply,
