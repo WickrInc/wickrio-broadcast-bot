@@ -3,7 +3,6 @@ const WickrIOBotAPI = require('wickrio-bot-api');
 const util = require('util');
 const Proc = require('./processes.json');
 
-
 require("dotenv").config({
   path: `.env.configure`
 })
@@ -198,7 +197,7 @@ async function main() {
     tokenToAdd.push(newToken);
   }
   // 3.
-  const alt = new WickrIOBotAPI.WickrIOConfigure(tokenToAdd,fullName,false,false, true);
+  const alt = new WickrIOBotAPI.WickrIOConfigure(tokenToAdd, fullName, false, false, true);
   await alt.configureYourBot('WickrIO-Broadcast-Bot');
   process.exit();
 }
