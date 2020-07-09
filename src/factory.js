@@ -6,6 +6,7 @@ import Ack from './commands/ack';
 import Abort from './commands/abort';
 import Cancel from './commands/cancel';
 import DeleteFile from './commands/delete-file';
+import Groups from './commands/groups';
 import Help from './commands/help';
 import FilesCommand from './commands/files-command';
 import FileReceived from './commands/file-received';
@@ -89,6 +90,7 @@ class Factory {
       this.abort,
       this.cancel,
       this.deleteFile,
+      Groups,
       Help,
       this.filesCommand,
       this.fileReceived,

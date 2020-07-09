@@ -1,5 +1,6 @@
 import logger from '../logger';
 import State from '../state';
+import Groups from './groups';
 
 class ChooseSecurityGroups {
   constructor(broadcastService) {
@@ -17,8 +18,21 @@ class ChooseSecurityGroups {
   execute(messageService) {
     let reply;
     let state;
+    let groupsToSend = [];
+    const securityGroupList = Groups.getSGs(messageService.userEmail, this.broadcastService.getAPISecurityGroups());
     if (messageService.getMessage() === 'all') {
-      this.broadcastService.setSecurityGroups([]);
+      if (securityGroupList.length === 0) {
+        reply = 'You do not have access to any security groups and cannot broadcast a message.';
+        state = State.NONE;
+        return {
+          reply,
+          state,
+        };
+      }
+      for (let i = 0; i < securityGroupList.length; i += 1) {
+        groupsToSend.push(securityGroupList[i].id);
+      }
+      this.broadcastService.setSecurityGroups(groupsToSend);
       reply = 'Would you like to repeat this broadcast message?';
       state = State.ASK_REPEAT;
       return {
@@ -27,8 +41,6 @@ class ChooseSecurityGroups {
       };
     }
     const groups = messageService.getMessage().split(/[^0-9]/);
-    const securityGroupList = this.broadcastService.getAPISecurityGroups();
-    let groupsToSend = [];
     let groupsString = '';
     let validInput = true;
     let badInput = '';

@@ -296,6 +296,7 @@ async function listen(message) {
         + '/messages : To get a text file of all the messages sent to the bot\n'
         + '/status : To get the status of a broadcast message\n'
         + '/report : To get a CSV file with the status of each user for a broadcast message\n'
+        + '/groups : To get a list of security groups you can broadcast a message to\n'
         + '/abort : To abort a broadcast or send that is currently in progress\n\n'
         + `${webAppString}`
         + '*Admin Commands*\n'
