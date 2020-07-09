@@ -3,7 +3,6 @@ import StatusService from './status-service';
 // TODO proper form??
 import updateLastID from '../helpers/message-id-helper';
 import { logger } from '../helpers/constants';
-import Groups from '../commands/groups';
 
 class BroadcastService {
   constructor(user) {
