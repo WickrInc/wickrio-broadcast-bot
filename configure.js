@@ -179,7 +179,7 @@ async function main() {
   */
   // 1.
   const fullName = `${process.cwd()}/processes.json`;
-  wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure(tokenConfig, fullName, true, true, false);
+  wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure(tokenConfig, fullName, true, true, false, false);
   await wickrIOConfigure.configureYourBot('WickrIO-Broadcast-Bot');
   // 2.
   const adminArray = wickrIOConfigure.getCurrentValues().ADMINISTRATORS.split(',');
@@ -197,7 +197,7 @@ async function main() {
     tokenToAdd.push(newToken);
   }
   // 3.
-  const alt = new WickrIOBotAPI.WickrIOConfigure(tokenToAdd, fullName, false, false, true);
+  const alt = new WickrIOBotAPI.WickrIOConfigure(tokenToAdd, fullName, false, false, false, true);
   await alt.configureYourBot('WickrIO-Broadcast-Bot');
   process.exit();
 }
