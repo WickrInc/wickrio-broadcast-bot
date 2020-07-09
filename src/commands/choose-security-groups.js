@@ -21,14 +21,6 @@ class ChooseSecurityGroups {
     let groupsToSend = [];
     const securityGroupList = Groups.getSGs(messageService.userEmail, this.broadcastService.getAPISecurityGroups());
     if (messageService.getMessage() === 'all') {
-      if (securityGroupList.length === 0) {
-        reply = 'You do not have access to any security groups and cannot broadcast a message.';
-        state = State.NONE;
-        return {
-          reply,
-          state,
-        };
-      }
       for (let i = 0; i < securityGroupList.length; i += 1) {
         groupsToSend.push(securityGroupList[i].id);
       }
