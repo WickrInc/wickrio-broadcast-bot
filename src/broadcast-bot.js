@@ -304,7 +304,8 @@ async function listen(message) {
         + '/help : Show help information\n'
         + '/version : Get the version of the integration\n'
         + '/cancel : To cancel the last operation and enter a new command\n'
-        + '/files : To get a list of saved files available for the /send command';
+        + '/files : To get a list of saved files available for the /send command\n'
+        + '/delete : To delete a file that was previously made available for the /send command\n';		
       const reply = bot.getAdminHelp(helpString);
       logger.debug(`vgroupID in help:${vGroupID}`);
       // const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, reply);
