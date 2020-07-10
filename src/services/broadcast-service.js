@@ -27,6 +27,10 @@ class BroadcastService {
     this.user.repeatFlag = repeatFlag;
   }
 
+  setFlags(flags) {
+    this.user.flags = flags;
+  }
+
   setFile(file) {
     this.user.file = file;
   }
@@ -125,12 +129,16 @@ class BroadcastService {
     let uMessage;
     const reply = {};
     if (target === 'USERS') {
+      if (this.user.flags === undefined)
+        this.user.flags = [];
+
       uMessage = APIService.send1to1MessageLowPriority(
         this.user.users,
         messageToSend,
         this.user.ttl,
         this.user.bor,
         messageID,
+        this.user.flags,
       );
       logger.debug(`send1to1Messge returns=${uMessage}`);
       reply.pending = 'Broadcast message in process of being sent to list of users';
@@ -162,7 +170,7 @@ class BroadcastService {
         reply.rawMessage = this.user.message;
         reply.message = messageToSend;
         if (this.user.webapp && this.user.message) {
-          uMessage = APIService.sendNetworkMessage(this.user.message, this.user.ttl, this.user.bor, messageID);
+          uMessage = APIService.sendNetworkMessage(messageToSend, this.user.ttl, this.user.bor, messageID);
         }
       } else {
         uMessage = APIService.sendNetworkMessage(messageToSend, this.user.ttl, this.user.bor, messageID);
@@ -197,7 +205,7 @@ class BroadcastService {
       reply.rawMessage = this.user.message;
       reply.message = messageToSend;
       if (this.user.webapp && this.user.message) {
-        uMessage = APIService.sendSecurityGroupMessage(this.user.securityGroups, this.user.message, this.user.ttl, this.user.bor, messageID);
+        uMessage = APIService.sendSecurityGroupMessage(this.user.securityGroups, messageToSend, this.user.ttl, this.user.bor, messageID);
       }
     } else {
       uMessage = APIService.sendSecurityGroupMessage(
@@ -255,6 +263,7 @@ class BroadcastService {
     this.user.users = [];
     this.user.ttl = '';
     this.user.bor = '';
+    this.user.flags = [];
   }
 }
 
