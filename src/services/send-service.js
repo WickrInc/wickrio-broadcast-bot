@@ -114,9 +114,9 @@ class SendService {
     this.user.bor = '';
   }
 
-  // This function is used to send a file to a room.		
-  retrieveFile(filePath, vGroupID) {		
-    APIService.sendRoomAttachment(vGroupID, filePath, filePath);		
+  // This function is used to send a file to a room.
+  retrieveFile(filePath, vGroupID) {
+    APIService.sendRoomAttachment(vGroupID, filePath, filePath);
   }
 }
 
