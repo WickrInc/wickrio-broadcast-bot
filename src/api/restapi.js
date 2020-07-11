@@ -106,7 +106,7 @@ const useRESTRoutes = (app) => {
     } else {
       obj = req.body;
     }
-    let { message, acknowledge = false, users = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = obj;
+    let { message, acknowledge = false, users = false, user_meta = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = obj;
 
     if (!message) {
       return res.status(400).send('Bad request: message missing from request.');
@@ -115,7 +115,11 @@ const useRESTRoutes = (app) => {
     var userList = [];
     if (users) {
       for (var i in users) {
-        userList.push(users[i].name);
+        if (user_meta) {
+          userList.push(JSON.stringify(users[i]));
+        } else {
+          userList.push(users[i].name);
+        }
       }
     }
 
@@ -156,6 +160,10 @@ const useRESTRoutes = (app) => {
       newBroadcast.setSecurityGroups(securityGroupTable)
     } else if (users) {
       newBroadcast.setUsers(userList);
+      if (user_meta) {
+        const flags = [ "user_meta" ];
+        newBroadcast.setFlags(flags);
+      }
     }
 
     if (acknowledge) {
@@ -196,7 +204,7 @@ const useRESTRoutes = (app) => {
     }
 
     const obj = JSON.parse(formData.body);
-    let { message, acknowledge = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = obj;
+    let { message, acknowledge = false, users, user_meta = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = obj;
 
     if (!message) {
       return res.status(400).send('Bad request: message missing from request.');
@@ -235,6 +243,20 @@ const useRESTRoutes = (app) => {
         securityGroupTable.push(security_group);
       }
       newBroadcast.setSecurityGroups(securityGroupTable)
+    } else if (users) {
+      var userList = [];
+      for (var i in users) {
+        if (user_meta) {
+          userList.push(JSON.stringify(users[i]));
+        } else {
+          userList.push(users[i].name);
+        }
+      }
+      newBroadcast.setUsers(userList);
+      if (user_meta) {
+        const flags = [ "user_meta" ];
+        newBroadcast.setFlags(flags);
+      }
     }
 
     if (acknowledge) {
@@ -249,11 +271,15 @@ const useRESTRoutes = (app) => {
 
   app.post(endpoint + "/Messages", checkBasicAuth, (req, res) => {
     // typecheck and validate parameters
-    let { message, acknowledge = false, users, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = req.body
+    let { message, acknowledge = false, users, user_meta = false, security_group = false, repeat_num = false, freq_num = false, ttl = '', bor = '' } = req.body
 
     var userList = [];
     for (var i in users) {
-      userList.push(users[i].name);
+      if (user_meta) {
+        userList.push(JSON.stringify(users[i]));
+      } else {
+        userList.push(users[i].name);
+      }
     }
 
     // validate arguments, append message.
@@ -274,6 +300,10 @@ const useRESTRoutes = (app) => {
     const newBroadcast = new BroadcastService(user)
     newBroadcast.setMessage(message)
     newBroadcast.setUsers(userList);
+    if (user_meta) {
+      const flags = [ "user_meta" ];
+      newBroadcast.setFlags(flags);
+    }
     newBroadcast.setTTL(ttl)
     newBroadcast.setBOR(bor)
     newBroadcast.setSentByFlag(false)
@@ -465,10 +495,13 @@ const useRESTRoutes = (app) => {
         var statusString = "";
         var sentDateString = "";
         var readDateString = "";
+        var metaString = "";
         if (entry.sent_datetime !== undefined)
           sentDateString = entry.sent_datetime;
         if (entry.read_datetime !== undefined)
           readDateString = entry.read_datetime;
+        if (entry.meta !== undefined)
+          metaString = entry.meta;
         switch (entry.status) {
           case 0:
             statusString = "pending";
@@ -516,7 +549,8 @@ const useRESTRoutes = (app) => {
             status: statusString,
             statusMessage: statusMessageString,
             sentDate: sentDateString,
-            readDate: readDateString
+            readDate: readDateString,
+            meta: metaString
           });
       }
     }

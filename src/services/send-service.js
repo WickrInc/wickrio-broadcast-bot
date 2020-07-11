@@ -71,11 +71,6 @@ class SendService {
     let uMessage;
     const messageID = updateLastID();
     if (this.user.file !== undefined && this.user.file !== '') {
-      if (fileName.endsWith('hash')) {
-        uMessage = APIService.sendAttachmentUserHashFile(filePath, this.user.file, this.user.display, this.user.ttl, this.user.bor, messageID);
-      } else if (fileName.endsWith('user')) {
-        uMessage = APIService.sendAttachmentUserNameFile(filePath, this.user.file, this.user.display, this.user.ttl, this.user.bor, messageID);
-      }
       APIService.writeMessageIDDB(
         messageID,
         this.user.userEmail,
@@ -83,12 +78,12 @@ class SendService {
         jsonDateTime,
         this.user.display,
       );
-    } else {
       if (fileName.endsWith('hash')) {
-        uMessage = APIService.sendMessageUserHashFile(filePath, messageToSend, this.user.ttl, this.user.bor, messageID);
+        uMessage = APIService.sendAttachmentUserHashFile(filePath, this.user.file, this.user.display, this.user.ttl, this.user.bor, messageID);
       } else if (fileName.endsWith('user')) {
-        uMessage = APIService.sendMessageUserNameFile(filePath, messageToSend, this.user.ttl, this.user.bor, messageID);
+        uMessage = APIService.sendAttachmentUserNameFile(filePath, this.user.file, this.user.display, this.user.ttl, this.user.bor, messageID);
       }
+    } else {
       APIService.writeMessageIDDB(
         messageID,
         this.user.userEmail,
@@ -96,6 +91,11 @@ class SendService {
         jsonDateTime,
         this.user.message,
       );
+      if (fileName.endsWith('hash')) {
+        uMessage = APIService.sendMessageUserHashFile(filePath, messageToSend, this.user.ttl, this.user.bor, messageID);
+      } else if (fileName.endsWith('user')) {
+        uMessage = APIService.sendMessageUserNameFile(filePath, messageToSend, this.user.ttl, this.user.bor, messageID);
+      }
     }
     if (this.user.vGroupID !== '' && this.user.vGroupID !== undefined) {
       StatusService.asyncStatus(messageID, this.user.vGroupID);

@@ -27,6 +27,10 @@ class BroadcastService {
     this.user.repeatFlag = repeatFlag;
   }
 
+  setFlags(flags) {
+    this.user.flags = flags;
+  }
+
   setFile(file) {
     this.user.file = file;
   }
@@ -125,12 +129,16 @@ class BroadcastService {
     let uMessage;
     const reply = {};
     if (target === 'USERS') {
+      if (this.user.flags === undefined)
+        this.user.flags = [];
+
       uMessage = APIService.send1to1MessageLowPriority(
         this.user.users,
         messageToSend,
         this.user.ttl,
         this.user.bor,
         messageID,
+        this.user.flags,
       );
       logger.debug(`send1to1Messge returns=${uMessage}`);
       reply.pending = 'Broadcast message in process of being sent to list of users';
@@ -255,6 +263,7 @@ class BroadcastService {
     this.user.users = [];
     this.user.ttl = '';
     this.user.bor = '';
+    this.user.flags = [];
   }
 }
 

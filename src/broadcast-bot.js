@@ -436,7 +436,6 @@ async function listen(message) {
     let obj;
     obj = factory.execute(messageService);
     logger.debug(`obj${obj}`);
-    // }
     if (obj.reply) {
       logger.debug('Object has a reply');
       const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply);
