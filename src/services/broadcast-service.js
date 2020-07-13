@@ -124,6 +124,16 @@ class BroadcastService {
     console.log({ messageID });
     let uMessage;
     const reply = {};
+
+    if (this.user.file !== undefined && this.user.file !== '') {`
+      logger.debug(`display:${this.user.display}:`);
+      APIService.writeMessageIDDB(messageID, this.user.userEmail, target, jsonDateTime, this.user.display);
+    } else if (this.user.voiceMemo !== undefined && this.user.voiceMemo !== '') {
+      APIService.writeMessageIDDB(messageID, this.user.userEmail, target, jsonDateTime, `VoiceMemo-${jsonDateTime}`);
+    } else {
+      APIService.writeMessageIDDB(messageID, this.user.userEmail, target, jsonDateTime, this.user.message);
+    }
+
     if (target === 'USERS') {
       uMessage = APIService.send1to1MessageLowPriority(
         this.user.users,
@@ -211,14 +221,7 @@ class BroadcastService {
       reply.rawMessage = this.user.message;
       reply.message = messageToSend;
     }
-    if (this.user.file !== undefined && this.user.file !== '') {
-      logger.debug(`display:${this.user.display}:`);
-      APIService.writeMessageIDDB(messageID, this.user.userEmail, target, jsonDateTime, this.user.display);
-    } else if (this.user.voiceMemo !== undefined && this.user.voiceMemo !== '') {
-      APIService.writeMessageIDDB(messageID, this.user.userEmail, target, jsonDateTime, `VoiceMemo-${jsonDateTime}`);
-    } else {
-      APIService.writeMessageIDDB(messageID, this.user.userEmail, target, jsonDateTime, this.user.message);
-    }
+
     if (this.user.vGroupID !== '' && this.user.vGroupID !== undefined) {
       StatusService.asyncStatus(messageID, this.user.vGroupID);
     }
