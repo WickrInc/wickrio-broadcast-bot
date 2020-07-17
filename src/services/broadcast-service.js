@@ -125,7 +125,7 @@ class BroadcastService {
     let uMessage;
     const reply = {};
 
-    if (this.user.file !== undefined && this.user.file !== '') {`
+    if (this.user.file !== undefined && this.user.file !== '') {
       logger.debug(`display:${this.user.display}:`);
       APIService.writeMessageIDDB(messageID, this.user.userEmail, target, jsonDateTime, this.user.display);
     } else if (this.user.voiceMemo !== undefined && this.user.voiceMemo !== '') {
