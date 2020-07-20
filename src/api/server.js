@@ -43,7 +43,8 @@ const startServer = () => {
 	// TODO: set conditional for NODE_ENV to match and set the right origin host header - 8000 for dev, 4545 for prod
 
 	// if webapplication or rest
-	if (WEB_APPLICATION.value == "yes" || REST_APPLICATION.value == "yes") {
+
+	if (WEB_INTERFACE.value == "yes") {
 		let host
 		app.options("/*", (req, res, next) => {
 			res.header(
