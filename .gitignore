@@ -4,7 +4,6 @@ package-lock.json
 *.cert
 *.output
 build/
-.vscode
 last_id.json
 processes.json
 processes_backup.json
