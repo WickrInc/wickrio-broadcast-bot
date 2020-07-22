@@ -92,7 +92,8 @@
       "new-cap": "off",
       "prettier/prettier": "error",
       "no-var": "error",
-      "prefer-const": "error"
+      "prefer-const": "error",
+      "camelcase": "off"
     }
   },
   "babel": {

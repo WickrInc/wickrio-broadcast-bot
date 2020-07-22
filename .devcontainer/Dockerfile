@@ -1,4 +1,4 @@
-FROM wickr/bot-cloud-alpha:5.59.02.02
+FROM wickr/bot-cloud-alpha:5.59.07.01
 
 LABEL maintainer="wickr <info@wickr.com>"
 # Variables

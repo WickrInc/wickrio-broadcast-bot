@@ -7,16 +7,13 @@ import {
   client_auth_codes,
   logger,
   BOT_AUTH_TOKEN,
-  BOT_KEY,
   WEBAPP_HOST,
   WEBAPP_PORT,
   HTTPS_CHOICE,
   BOT_PORT,
-  BOT_GOOGLE_MAPS,
   WICKRIO_BOT_NAME,
   VERIFY_USERS,
   WickrIOAPI,
-  getLastID,
   WEB_APPLICATION,
   REST_APPLICATION,
 } from './helpers/constants'
@@ -24,7 +21,6 @@ import {
 // const pkgjson = require('./package.json');
 import writer from './helpers/message-writer.js'
 import Version from './commands/version'
-import FileHandler from './helpers/file-handler'
 import Factory from './factory'
 import State from './state'
 import APIService from './services/api-service'
@@ -35,11 +31,9 @@ import StatusService from './services/status-service'
 import RepeatService from './services/repeat-service'
 import ReportService from './services/report-service'
 import GenericService from './services/generic-service'
-import { response } from 'express'
 import FileService from './services/file-service'
 
 let currentState
-let job
 let verifyUsersMode
 let webAppString = ''
 const webAppEnabled = WEB_APPLICATION.value === 'yes'
@@ -81,7 +75,7 @@ if (!fs.existsSync(`${process.cwd()}/files`)) {
 
 async function exitHandler(options, err) {
   try {
-    const closed = await bot.close()
+    await bot.close()
     if (err || options.exit) {
       logger.error('Exit reason:', err)
       process.exit()
@@ -102,16 +96,7 @@ process.on('SIGUSR2', exitHandler.bind(null, { pid: true }))
 
 // TODO clear these values!
 // TODO make these user variables??
-const securityGroupFlag = false
-const securityGroupsToSend = []
-const securityGroups = []
-const repeatFlag = false
-const voiceMemoFlag = false
-const fileFlag = false
-let cronInterval
-let displayName
-const askForAckFlag = false
-const messagesForReport = [] // unused
+
 // catches uncaught exceptions
 // TODO make this more robust of a catch
 
@@ -148,7 +133,7 @@ async function main() {
     // Passes a callback function that will receive incoming messages into the bot client
     bot.startListening(listen)
 
-    if (WEB_APPLICATION.value == 'yes' || REST_APPLICATION.value == 'yes') {
+    if (WEB_APPLICATION.value === 'yes' || REST_APPLICATION.value === 'yes') {
       // run server
       startServer()
     } else {
@@ -175,8 +160,16 @@ async function listen(message) {
 
     logger.debug('New incoming Message:', parsedMessage)
     let wickrUser
-    const fullMessage = parsedMessage.message
-    let { command } = parsedMessage
+    let {
+      command,
+      argument,
+      userEmail,
+      vgroupid,
+      convotype,
+      msgtype,
+      file,
+      filename,
+    } = parsedMessage
     if (command !== undefined) {
       command = command.toLowerCase().trim()
     }
@@ -186,15 +179,13 @@ async function listen(message) {
     }
     // TODO what's the difference between full message and message
     const messageReceived = parsedMessage.message
-    const { argument } = parsedMessage
-    const { userEmail } = parsedMessage
-    const vGroupID = parsedMessage.vgroupid
-    const convoType = parsedMessage.convotype
-    const messageType = parsedMessage.msgtype
+    const vGroupID = vgroupid
+    const convoType = convotype
+    const messageType = msgtype
     const personalVGroupID = ''
 
-    const file = '' + parsedMessage.file
-    const filename = '' + parsedMessage.filename
+    file = '' + file
+    filename = '' + filename
 
     logger.debug('FILENAME bcast' + filename)
     logger.debug('FILE bcast' + file)
@@ -265,7 +256,7 @@ async function listen(message) {
 
     if (command === '/version') {
       const obj = Version.execute()
-      const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply)
+      WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply)
       user.currentState = State.NONE
       return
     }
@@ -326,7 +317,7 @@ async function listen(message) {
     // TODO move this elsewhere?
     if (command === '/messages') {
       const path = `${process.cwd()}/attachments/messages.txt`
-      const uMessage = WickrIOAPI.cmdSendRoomAttachment(vGroupID, path, path)
+      WickrIOAPI.cmdSendRoomAttachment(vGroupID, path, path)
       user.currentState = State.NONE
       return
     }
@@ -342,7 +333,7 @@ async function listen(message) {
       //   return
       // }
       let host
-      if (HTTPS_CHOICE.value == 'yes') {
+      if (HTTPS_CHOICE.value === 'yes') {
         host = `https://${WEBAPP_HOST.value}`
       } else {
         host = `http://${WEBAPP_HOST.value}`
@@ -386,12 +377,12 @@ async function listen(message) {
     // How to deal with duplicate files??
 
     // TODO parse argument better??
-    let obj
-    obj = factory.execute(messageService)
+
+    const obj = factory.execute(messageService)
     logger.debug(`obj${obj}`)
     if (obj.reply) {
       logger.debug('Object has a reply')
-      const sMessage = WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply)
+      WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply)
     }
     user.currentState = obj.state
   } catch (err) {

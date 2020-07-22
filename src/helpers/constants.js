@@ -1,6 +1,7 @@
 import { getLogger } from 'log4js'
 import * as WickrIOBotAPI from 'wickrio-bot-api'
 import fs from 'fs'
+// import { cronJob } from 'cron'
 
 const WickrUser = WickrIOBotAPI.WickrUser
 const bot = new WickrIOBotAPI.WickrIOBot()
@@ -73,78 +74,78 @@ function getLastID() {
   }
 }
 
-const cronJob = (
-  job,
-  cronInterval,
-  user,
-  broadcast,
-  sgFlag,
-  ackFlag,
-  securityGroupsToSend,
-  userEmail,
-  target
-) => {
-  const cronjob = new CronJob(cronInterval, () => {
-    const currentDate = new Date()
-    const jsonDateTime = currentDate.toJSON()
-    let bMessage
-    let messageId = updateLastID()
-    logger.debug('CronJob', sgFlag)
-    let broadcastMsgToSend = broadcast
-    if (ackFlag) {
-      broadcastMsgToSend =
-        broadcastMsgToSend +
-        '\nPlease acknowledge this message by replying with /ack'
-    }
-    broadcastMsgToSend =
-      broadcastMsgToSend + '\n\nBroadcast message sent by: ' + userEmail
-    if (sgFlag) {
-      bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(
-        broadcastMsgToSend,
-        securityGroupsToSend,
-        '',
-        '',
-        messageId
-      )
-      messageId = '' + messageId
-      writeToMessageIdDB(messageId, userEmail, target, jsonDateTime, broadcast)
-      asyncStatus(messageId, user.vGroupID)
-    } else {
-      messageId = '' + messageId
-      bMessage = WickrIOAPI.cmdSendNetworkMessage(
-        broadcastMsgToSend,
-        '',
-        '',
-        messageId
-      )
-      logger.debug(
-        'messageId: ' +
-          messageId +
-          'userEmail' +
-          userEmail +
-          'target' +
-          target +
-          'dt' +
-          jsonDateTime +
-          'bcast' +
-          broadcast
-      )
-      writeToMessageIdDB(messageId, userEmail, target, jsonDateTime, broadcast)
-      asyncStatus(messageId, user.vGroupID)
-    }
-    logger.debug(bMessage)
-    const reply = strings.repeatMessageSent.replace('%{count}', user.count + 1)
-    const uMessage = WickrIOAPI.cmdSendRoomMessage(user.vGroupID, reply)
-    // Will this stay the same or could user be reset?? I believe only can send one repeat message
-    user.count += 1
-    if (user.count > user.repeat) {
-      user.cronJobActive = false
-      return job.stop()
-    }
-  })
-  cronjob.start()
-  user.cronJobActive = true
-}
+// let cronJob = (
+//   job,
+//   cronInterval,
+//   user,
+//   broadcast,
+//   sgFlag,
+//   ackFlag,
+//   securityGroupsToSend,
+//   userEmail,
+//   target
+// ) => {
+//   const cronjob = new CronJob(cronInterval, () => {
+//     const currentDate = new Date()
+//     const jsonDateTime = currentDate.toJSON()
+//     let bMessage
+//     let messageId = updateLastID()
+//     logger.debug('CronJob', sgFlag)
+//     let broadcastMsgToSend = broadcast
+//     if (ackFlag) {
+//       broadcastMsgToSend =
+//         broadcastMsgToSend +
+//         '\nPlease acknowledge this message by replying with /ack'
+//     }
+//     broadcastMsgToSend =
+//       broadcastMsgToSend + '\n\nBroadcast message sent by: ' + userEmail
+//     if (sgFlag) {
+//       bMessage = WickrIOAPI.cmdSendSecurityGroupMessage(
+//         broadcastMsgToSend,
+//         securityGroupsToSend,
+//         '',
+//         '',
+//         messageId
+//       )
+//       messageId = '' + messageId
+//       writeToMessageIdDB(messageId, userEmail, target, jsonDateTime, broadcast)
+//       asyncStatus(messageId, user.vGroupID)
+//     } else {
+//       messageId = '' + messageId
+//       bMessage = WickrIOAPI.cmdSendNetworkMessage(
+//         broadcastMsgToSend,
+//         '',
+//         '',
+//         messageId
+//       )
+//       logger.debug(
+//         'messageId: ' +
+//           messageId +
+//           'userEmail' +
+//           userEmail +
+//           'target' +
+//           target +
+//           'dt' +
+//           jsonDateTime +
+//           'bcast' +
+//           broadcast
+//       )
+//       writeToMessageIdDB(messageId, userEmail, target, jsonDateTime, broadcast)
+//       asyncStatus(messageId, user.vGroupID)
+//     }
+//     logger.debug(bMessage)
+//     const reply = strings.repeatMessageSent.replace('%{count}', user.count + 1)
+//     const uMessage = WickrIOAPI.cmdSendRoomMessage(user.vGroupID, reply)
+//     // Will this stay the same or could user be reset?? I believe only can send one repeat message
+//     user.count += 1
+//     if (user.count > user.repeat) {
+//       user.cronJobActive = false
+//       return job.stop()
+//     }
+//   })
+//   cronjob.start()
+//   user.cronJobActive = true
+// }
 
 export {
   bot,
@@ -168,5 +169,5 @@ export {
   VERIFY_USERS,
   updateLastID,
   getLastID,
-  cronJob,
+  // cronJob,
 }

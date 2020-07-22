@@ -1,5 +1,4 @@
 import State from '../state'
-import { logger } from '../helpers/constants'
 
 class Map {
   constructor(genericService) {

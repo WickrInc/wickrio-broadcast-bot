@@ -1,41 +1,40 @@
-import State from '../state';
-import { logger } from '../helpers/constants';
+import State from '../state'
 
 // This class is used to select which file the user wants to delete.
 
 class DeleteFile {
   constructor(sendService) {
-    this.sendService = sendService;
-    this.commandString = '/delete';
+    this.sendService = sendService
+    this.commandString = '/delete'
   }
 
   shouldExecute(messageService) {
     if (messageService.getCommand() === this.commandString) {
-      return true;
+      return true
     }
-    return false;
+    return false
   }
 
   execute(messageService) {
-    let reply = 'Here is a list of the files that you can delete:\n';
-    let state = State.NONE;
-    const userEmail = messageService.getUserEmail();
+    let reply = 'Here is a list of the files that you can delete:\n'
+    let state = State.NONE
+    const userEmail = messageService.getUserEmail()
     // TODO add a more function to this
-    const fileArr = this.sendService.getFiles(userEmail);
+    const fileArr = this.sendService.getFiles(userEmail)
     if (!fileArr || fileArr.length === 0) {
-      reply = 'There are no files to delete.';
+      reply = 'There are no files to delete.'
     } else {
-      const length = Math.min(fileArr.length, 10);
+      const length = Math.min(fileArr.length, 10)
       for (let index = 0; index < length; index += 1) {
-        reply += `(${index + 1}) ${fileArr[index]}\n`;
+        reply += `(${index + 1}) ${fileArr[index]}\n`
       }
-      state = State.DELETE_FILE;
+      state = State.DELETE_FILE
     }
     return {
       reply,
       state,
-    };
+    }
   }
 }
 
-export default DeleteFile;
+export default DeleteFile

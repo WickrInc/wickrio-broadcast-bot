@@ -45,7 +45,7 @@ const startServer = () => {
 
   // if webapplication or rest
 
-  if (WEB_INTERFACE.value == 'yes') {
+  if (WEB_INTERFACE.value === 'yes') {
     let host
     app.options('/*', (req, res, next) => {
       res.header(
@@ -75,13 +75,13 @@ const startServer = () => {
       next()
     })
 
-    if (HTTPS_CHOICE.value == 'yes') {
+    if (HTTPS_CHOICE.value === 'yes') {
       host = `https://${WEBAPP_HOST.value}`
       https
         .createServer(
           {
             key: fs.readFileSync(SSL_KEY_LOCATION.value, 'utf8'),
-            ca: fs.readFileSync(SSL_CA_LOCATION.value, 'utf8'),
+            // ca: fs.readFileSync(SSL_CA_LOCATION.value, 'utf8'),
             cert: fs.readFileSync(SSL_CRT_LOCATION.value, 'utf8'),
           },
           app
@@ -97,10 +97,10 @@ const startServer = () => {
         console.log('We are live on ' + BOT_PORT.value)
       })
     }
-    if (WEB_APPLICATION.value == 'yes') {
+    if (WEB_APPLICATION.value === 'yes') {
       useWebAndRoutes(app)
     }
-    if (REST_APPLICATION.value == 'yes') {
+    if (REST_APPLICATION.value === 'yes') {
       useRESTRoutes(app)
     }
   }
