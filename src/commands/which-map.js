@@ -1,9 +1,11 @@
 import State from '../state'
 
-class WhichAbort {
-  constructor(genericService) {
+// TODO combine which report and which map
+class WhichMap {
+  constructor(genericService, statusService) {
     this.genericService = genericService
-    this.state = State.WHICH_ABORT
+    this.statusService = statusService
+    this.state = State.WHICH_MAP
   }
 
   shouldExecute(messageService) {
@@ -17,28 +19,23 @@ class WhichAbort {
     let reply
     let state
     const userEmail = messageService.getUserEmail()
-    const currentEntries = this.genericService.getMessageEntries(
-      userEmail,
-      true
-    )
+    const currentEntries = this.genericService.getMessageEntries(userEmail)
     const index = messageService.getMessage()
+    const endIndex = this.genericService.getEndIndex()
     if (index === 'more') {
       this.genericService.incrementIndexes()
-      reply = this.genericService.getEntriesString(userEmail, true)
+      reply = this.genericService.getEntriesString(userEmail)
       if (currentEntries.length > this.genericService.getEndIndex()) {
         reply += 'Or to see more messages reply more'
       }
       state = this.state
-    } else if (
-      !messageService.isInt() ||
-      index < 1 ||
-      index > currentEntries.length
-    ) {
-      reply = `Index: ${index} is out of range. Please enter a whole number between 1 and ${currentEntries.length}`
+    } else if (!messageService.isInt() || index < 1 || index > endIndex) {
+      reply = `Index: ${index} is out of range. Please enter a whole number between 1 and ${endIndex}`
       state = this.state
     } else {
+      // Subtract one to account for 0 based indexes
       const messageID = `${currentEntries[parseInt(index, 10) - 1].message_id}`
-      reply = this.genericService.cancelMessageID(messageID)
+      reply = this.statusService.getMap(messageID, false)
       state = State.NONE
     }
     return {
@@ -48,4 +45,4 @@ class WhichAbort {
   }
 }
 
-export default WhichAbort
+export default WhichMap

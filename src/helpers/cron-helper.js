@@ -1,18 +1,18 @@
-const cron = require('node-cron');
+const cron = require('node-cron')
 
-let cronJob;
+let cronJob
 
 class CronHelper {
   static schedule(waitTime, callback) {
-    const timeString = `*/${waitTime} * * * * *`;
+    const timeString = `*/${waitTime} * * * * *`
     cronJob = cron.schedule(timeString, () => {
-      callback();
-    });
+      callback()
+    })
   }
 
   static cancel() {
-    cronJob.stop();
+    cronJob.stop()
   }
 }
 
-export default CronHelper;
+export default CronHelper

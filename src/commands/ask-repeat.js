@@ -1,45 +1,46 @@
-import State from '../state';
+import State from '../state'
 
 class AskRepeat {
   constructor(repeatService, broadcastService) {
-    this.repeatService = repeatService;
-    this.broadcastService = broadcastService;
-    this.state = State.ASK_REPEAT;
+    this.repeatService = repeatService
+    this.broadcastService = broadcastService
+    this.state = State.ASK_REPEAT
   }
 
   shouldExecute(messageService) {
     if (messageService.getCurrentState() === this.state) {
-      return true;
+      return true
     }
-    return false;
+    return false
   }
 
   execute(messageService) {
-    let state;
-    let reply;
+    let state
+    let reply
     if (messageService.affirmativeReply()) {
       if (this.repeatService.getActiveRepeat()) {
-        reply = 'There is already a repeating broadcast active, would you like to cancel it?';
-        state = State.ACTIVE_REPEAT;
+        reply =
+          'There is already a repeating broadcast active, would you like to cancel it?'
+        state = State.ACTIVE_REPEAT
       } else {
-        this.repeatService.setActiveRepeat(true);
-        reply = 'How many times would you like to repeat this message?';
-        state = State.TIMES_REPEAT;
+        this.repeatService.setActiveRepeat(true)
+        reply = 'How many times would you like to repeat this message?'
+        state = State.TIMES_REPEAT
       }
     } else if (messageService.negativeReply()) {
-      this.repeatService.setActiveRepeat(false);
-      reply = this.broadcastService.broadcastMessage().pending;
+      this.repeatService.setActiveRepeat(false)
+      reply = this.broadcastService.broadcastMessage().pending
       // TODO fix this!
-      state = State.NONE;
+      state = State.NONE
     } else {
-      reply = 'Invalid input, please reply with (y)es or (n)o';
-      state = State.ASK_REPEAT;
+      reply = 'Invalid input, please reply with (y)es or (n)o'
+      state = State.ASK_REPEAT
     }
     return {
       reply,
       state,
-    };
+    }
   }
 }
 
-export default AskRepeat;
+export default AskRepeat

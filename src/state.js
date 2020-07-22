@@ -15,4 +15,5 @@ export default Object.freeze({
   DELETE_FILE: 13,
   SEND_USER_FILE: 14,
   OVERWRITE_CHECK: 15,
-});
+  WHICH_MAP: 16,
+})

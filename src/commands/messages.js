@@ -1,31 +1,26 @@
-import State from '../state';
+import State from '../state'
 
-import {
-  WickrIOAPI
-} from './helpers/constants';
+import { WickrIOAPI } from './helpers/constants'
 
 // TODO use this instead of putting it in main!
 class Messages {
-  constructor() {
-
-  }
   static shouldExecute(messageService) {
     if (messageService.getCommand() === '/messages') {
-      return true;
+      return true
     }
-    return false;
+    return false
   }
 
-  static execute() {
-    const reply = '';
-    const path = `${process.cwd()}/attachments/messages.txt`;
-    const uMessage = WickrIOAPI.cmdSendRoomAttachment(vGroupID, path, path);
+  static execute(messageService) {
+    const reply = ''
+    const path = `${process.cwd()}/attachments/messages.txt`
+    WickrIOAPI.cmdSendRoomAttachment(messageService.vGroupID, path, path)
     const obj = {
       reply,
       state: State.NONE,
-    };
-    return obj;
+    }
+    return obj
   }
 }
 
-module.exports = Messages;
+module.exports = Messages
