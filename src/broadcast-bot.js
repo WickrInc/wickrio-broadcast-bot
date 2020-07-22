@@ -18,7 +18,7 @@ import {
   WickrIOAPI,
   getLastID,
   WEB_APPLICATION,
-  REST_APPLICATION
+  REST_APPLICATION,
 } from './helpers/constants'
 
 // const pkgjson = require('./package.json');
@@ -41,8 +41,8 @@ import FileService from './services/file-service'
 let currentState
 let job
 let verifyUsersMode
-const webAppEnabled = WEB_APPLICATION.value == 'yes'
 let webAppString = ''
+const webAppEnabled = WEB_APPLICATION.value === 'yes'
 
 // need to be able to debug and lint for syntax errors
 //
@@ -114,6 +114,7 @@ const askForAckFlag = false
 const messagesForReport = [] // unused
 // catches uncaught exceptions
 // TODO make this more robust of a catch
+
 process.on('uncaughtException', exitHandler.bind(null, { exit: true }))
 
 async function main() {
@@ -123,7 +124,7 @@ async function main() {
     if (!status) {
       exitHandler(null, {
         exit: true,
-        reason: 'Client not able to start'
+        reason: 'Client not able to start',
       })
     }
 
@@ -218,7 +219,7 @@ async function listen(message) {
         personalVGroupID,
         command: '',
         argument: '',
-        currentState
+        currentState,
       })
       user = bot.addUser(wickrUser) // Add a new user to the database
     }
@@ -253,7 +254,7 @@ async function listen(message) {
       const obj = {}
       obj.location = {
         latitude: parsedMessage.latitude,
-        longitude: parsedMessage.longitude
+        longitude: parsedMessage.longitude,
       }
       const statusMessage = JSON.stringify(obj)
       logger.debug(`location statusMessage=${statusMessage}`)
@@ -330,72 +331,75 @@ async function listen(message) {
       return
     }
 
-    if (command === '/map' && webAppEnabled) {
-      const last_id = getLastID()
-      let locatedusers = false
-      // request last broadcast requested with location
-      // or
-
-      // request last broadcast status with X number of user responses
+    if (command === '/map') {
+      // & MAP.value === 'yes'
       if (!argument) {
-        reply = 'need /map <number to retrieve>'
+        const reply = 'need /map <number to retrieve>'
         return APIService.sendRoomMessage(vGroupID, reply)
       }
-      // get message status with locations
+
+      // get ID of last message
+      const last_id = getLastID().toString()
+      // set initial value false
+      let locatedusers = false
+      // unordered .list
+      // console.log({ tableDataRaw: JSON.parse(tableDataRaw) })
+      // don't need this with the email  in getMessageIDTable
+      // var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
+      //   return entry.sender == email
+      // });
+
+      // get status to check if acknowledged messages exists, and then, if they include the status_message that is added to the repo
       const messageStatus = JSON.parse(
-        APIService.getMessageStatus(
-          last_id.toString(),
-          'full',
-          String(0),
-          String(argument)
-        )
+        APIService.getMessageStatus(last_id, 'full', String(0), '2000')
       )
-      // create a simple object to store data
-      console.log({ messageStatus })
-      const locations = []
-      locations[messageStatus.messageID] = {}
-      let link = `https://maps.googleapis.com/maps/api/staticmap?key=${BOT_GOOGLE_MAPS.value}&size=700x400&markers=color:blue`
-      if (messageStatus.length > 0) {
-        // only get status' with location acked
-        // display map of all users who have acknowledged with location
-        messageStatus.map(user => {
-          if (user?.statusMessage?.location) {
+
+      if (messageStatus) {
+        let link = `https://maps.googleapis.com/maps/api/staticmap?key=${BOT_GOOGLE_MAPS.value}&size=700x400&markers=color:blue`
+        const locations = {}
+        console.log({ messageStatus })
+        // for (let i = 0; i < argument - 1; i++) {
+        for (const userReply of messageStatus) {
+          // const userReply = messageStatus[i]
+          console.log({ userReply })
+          if (userReply.status_message) {
             console.log('located a user')
             locatedusers = true
-            const { latitude, longitude } = user?.status_message?.location
-            locations[messageStatus.messageID][user.user] = {}
-            locations[messageStatus.messageID][user.user].location =
+            const { location } = JSON.parse(userReply.status_message)
+
+            console.log({ location })
+            const { latitude, longitude } = location
+            console.log({ latitude, longitude })
+
+            locations[userReply.user] = {}
+            locations[userReply.user].location =
               'http://www.google.com/maps/place/' + latitude + ',' + longitude
-            locations[messageStatus.messageID][user.user].latitude = latitude
-            locations[messageStatus.messageID][user.user].longitude = longitude
-            link += `|label:${user.user}|${latitude},${longitude}`
+            locations[userReply.user].latitude = latitude
+            locations[userReply.user].longitude = longitude
+            link += `|label:${userReply.user}|${latitude},${longitude}`
+            console.log({ link })
+            console.log({
+              length: Object.keys(locations).length,
+              int: parseInt(argument),
+            })
+            if (Object.keys(locations).length === parseInt(argument)) {
+              break
+            }
           }
-        })
-        locations[messageStatus.messageID] = link
-        // console.log({ link })
+        }
+        locations.link = link
+        console.log({ locations, link })
+
         if (locatedusers) {
-          var sMessage = APIService.sendRoomMessage(vGroupID, link)
+          APIService.sendRoomMessage(vGroupID, link)
         } else {
-          var sMessage = APIService.sendRoomMessage(
+          APIService.sendRoomMessage(
             vGroupID,
             'no location for the replied users'
           )
         }
-      } else {
-        if (statusMessage.location) {
-          locatedusers = true
-          const { latitude, longitude } = user?.status_message?.location
-          locations[messageStatus.messageID][user.user] = {}
-          locations[messageStatus.messageID][user.user].location =
-            'http://www.google.com/maps/place/' + latitude + ',' + longitude
-          locations[messageStatus.messageID][user.user].latitude = latitude
-          locations[messageStatus.messageID][user.user].longitude = longitude
-          link += `|label:${user.user}|${latitude},${longitude}`
-          return messageStatus
-        } else {
-          return 'no location for the replied user'
-        }
       }
+
       return
     }
 
@@ -427,13 +431,13 @@ async function listen(message) {
           email: userEmail,
           session: random,
           host: host,
-          port: BOT_PORT.value
+          port: BOT_PORT.value,
         },
         BOT_AUTH_TOKEN.value,
         { expiresIn: '1800s' }
       )
 
-      var reply = encodeURI(`${host}:${WEBAPP_PORT.value}/?token=${token}`)
+      const reply = encodeURI(`${host}:${WEBAPP_PORT.value}/?token=${token}`)
       APIService.sendRoomMessage(vGroupID, reply)
       return
     }
