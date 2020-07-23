@@ -8,5 +8,5 @@ const Proc = require('./processes.json');
 const fs = require('fs');
 
 var dataToChange = JSON.parse(fs.readFileSync('./processes.json', 'utf-8'));
-dataToChange.apps[0].script = "node ./build/broadcast-bot.js";
+dataToChange.apps[0].script = "./build/broadcast-bot.js";
 fs.writeFileSync('./processes.json', JSON.stringify(dataToChange, null, 2));
