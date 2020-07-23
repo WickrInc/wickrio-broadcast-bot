@@ -1,106 +1,114 @@
-import { createObjectCsvWriter as createCsvWriter } from 'csv-writer';
-import APIService from './api-service';
-import { logger } from '../helpers/constants';
-import StatusService from './status-service';
+import { createObjectCsvWriter as createCsvWriter } from 'csv-writer'
+import APIService from './api-service'
+import { logger } from '../helpers/constants'
+import StatusService from './status-service'
 
 class ReportService {
   static getReport(messageID, vGroupID) {
-    let inc = 0;
-    const csvArray = [];
-    let messageStatus;
-    const statusData = StatusService.getStatus(messageID, true);
+    let inc = 0
+    const csvArray = []
+    let messageStatus
+    const statusData = StatusService.getStatus(messageID, true)
     if (statusData.preparing) {
-      return csvArray;
+      return csvArray
     }
     while (true) {
-      const reportData = APIService.getMessageStatus(messageID, 'full', `${inc}`, '1000');
+      const reportData = APIService.getMessageStatus(
+        messageID,
+        'full',
+        `${inc}`,
+        '1000'
+      )
       // logger.debug(`Here is the reportData: ${reportData}`);
-      messageStatus = JSON.parse(reportData);
+      messageStatus = JSON.parse(reportData)
       // for (const entry of messageStatus) {
       for (let i = 0; i < messageStatus.length; i += 1) {
-        const entry = messageStatus[i];
-        const sentDateString = (entry.sent_datetime !== undefined) ? entry.sent_datetime : '';
-        const readDateString = (entry.read_datetime !== undefined) ? entry.read_datetime : '';
-        const ackDateString = (entry.ack_datetime !== undefined) ? entry.ack_datetime : '';
-        const reportEntry = ReportService.getReportEntry(entry);
-        csvArray.push(
-          {
-            user: entry.user,
-            status: reportEntry.statusString,
-            statusMessage: reportEntry.statusMessageString,
-            sentDate: sentDateString,
-            readDate: readDateString,
-            ackDate: ackDateString,
-          },
-        );
+        const entry = messageStatus[i]
+        const sentDateString =
+          entry.sent_datetime !== undefined ? entry.sent_datetime : ''
+        const readDateString =
+          entry.read_datetime !== undefined ? entry.read_datetime : ''
+        const ackDateString =
+          entry.ack_datetime !== undefined ? entry.ack_datetime : ''
+        const reportEntry = ReportService.getReportEntry(entry)
+        csvArray.push({
+          user: entry.user,
+          status: reportEntry.statusString,
+          statusMessage: reportEntry.statusMessageString,
+          sentDate: sentDateString,
+          readDate: readDateString,
+          ackDate: ackDateString,
+        })
       }
       if (messageStatus.length < 1000) {
-        break;
+        break
       }
-      inc += 1;
+      inc += 1
     }
-    const now = new Date();
-    const dateString = `${now.getDate()}-${now.getMonth() + 1}-${now.getFullYear()}_${now.getHours()}_${now.getMinutes()}_${now.getSeconds()}`;
-    const path = `${process.cwd()}/attachments/report-${dateString}.csv`;
-    ReportService.writeCSVReport(path, csvArray);
-    APIService.sendRoomAttachment(vGroupID, path, path);
+    const now = new Date()
+    const dateString = `${now.getDate()}-${
+      now.getMonth() + 1
+    }-${now.getFullYear()}_${now.getHours()}_${now.getMinutes()}_${now.getSeconds()}`
+    const path = `${process.cwd()}/attachments/report-${dateString}.csv`
+    ReportService.writeCSVReport(path, csvArray)
+    APIService.sendRoomAttachment(vGroupID, path, path)
     // TODO make a reply like here is the attachment
     // TODO can replies just be empty?
-    return csvArray;
+    return csvArray
   }
 
   static getReportEntry(entry) {
-    let statusMessageString = '';
-    let statusString = '';
+    let statusMessageString = ''
+    let statusString = ''
     switch (entry.status) {
       case 0:
-        statusString = 'pending';
-        break;
+        statusString = 'pending'
+        break
       case 1:
-        statusString = 'sent';
-        break;
+        statusString = 'sent'
+        break
       case 2:
-        statusString = 'failed';
-        statusMessageString = entry.status_message;
-        break;
+        statusString = 'failed'
+        statusMessageString = entry.status_message
+        break
       case 3:
-        statusString = 'acked';
+        statusString = 'acked'
         if (entry.status_message !== undefined) {
-          const obj = JSON.parse(entry.status_message);
+          const obj = JSON.parse(entry.status_message)
           if (obj.location !== undefined) {
-            const { latitude } = obj.location;
-            const { longitude } = obj.location;
-            statusMessageString = `http://www.google.com/maps/place/${latitude},${longitude}`;
+            const { latitude } = obj.location
+            const { longitude } = obj.location
+            statusMessageString = `http://www.google.com/maps/place/${latitude},${longitude}`
           } else {
-            statusMessageString = entry.status_message;
+            statusMessageString = entry.status_message
           }
         }
-        break;
+        break
       case 4:
-        statusString = 'ignored';
-        statusMessageString = entry.status_message;
-        break;
+        statusString = 'ignored'
+        statusMessageString = entry.status_message
+        break
       case 5:
-        statusString = 'aborted';
-        statusMessageString = entry.status_message;
-        break;
+        statusString = 'aborted'
+        statusMessageString = entry.status_message
+        break
       case 6:
-        statusString = 'read';
-        statusMessageString = entry.status_message;
-        break;
+        statusString = 'read'
+        statusMessageString = entry.status_message
+        break
       case 7: // NOT SUPPORTED YET
-        statusString = 'delivered';
-        statusMessageString = entry.status_message;
-        break;
+        statusString = 'delivered'
+        statusMessageString = entry.status_message
+        break
       default:
         // TODO figure out what should be
-        statusString = 'N/A';
-        break;
+        statusString = 'N/A'
+        break
     }
     return {
       statusMessageString,
       statusString,
-    };
+    }
   }
 
   static writeCSVReport(path, csvArray) {
@@ -114,12 +122,11 @@ class ReportService {
         { id: 'readDate', title: 'READ' },
         { id: 'ackDate', title: 'ACKed' },
       ],
-    });
-    csvWriter.writeRecords(csvArray)
-      .then(() => {
-        logger.debug('...Done');
-      });
+    })
+    csvWriter.writeRecords(csvArray).then(() => {
+      logger.debug('...Done')
+    })
   }
 }
 
-export default ReportService;
+export default ReportService

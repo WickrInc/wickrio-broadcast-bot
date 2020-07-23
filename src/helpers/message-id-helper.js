@@ -1,31 +1,30 @@
-
-import fs from 'fs';
-import { logger } from './constants';
+import fs from 'fs'
+import { logger } from './constants'
 
 function updateLastID() {
   try {
-    let id;
+    let id
     // TODO user file-handler instead??
     if (fs.existsSync('last_id.json')) {
-      const data = fs.readFileSync('last_id.json');
-      logger.debug(`is the data okay: ${data}`);
-      const lastID = JSON.parse(data);
-      id = Number(lastID) + 1;
+      const data = fs.readFileSync('last_id.json')
+      logger.debug(`is the data okay: ${data}`)
+      const lastID = JSON.parse(data)
+      id = Number(lastID) + 1
     } else {
-      id = '1';
+      id = '1'
     }
-    logger.debug(`This is the id: ${id}`);
-    const idToWrite = JSON.stringify(id, null, 2);
-    fs.writeFileSync('last_id.json', idToWrite, (err) => {
+    logger.debug(`This is the id: ${id}`)
+    const idToWrite = JSON.stringify(id, null, 2)
+    fs.writeFileSync('last_id.json', idToWrite, err => {
       // Fix this
-      if (err) throw err;
-      logger.debug('Current Message ID saved in file');
-    });
-    return id.toString();
+      if (err) throw err
+      logger.debug('Current Message ID saved in file')
+    })
+    return id.toString()
   } catch (err) {
-    logger.error(err);
-    return null;
+    logger.error(err)
+    return null
   }
 }
 
-export default updateLastID;
+export default updateLastID
