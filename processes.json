@@ -3,15 +3,11 @@
     {
       "name": "WickrIO-Broadcast-Bot",
       "args": [],
-      "script": "node ./build/broadcast-bot.js",
-      "exec_interpreter": "none",
+      "script": "/build/broadcast-bot.js",
+      "exec_interpreter": "node",
       "autorestart": false,
-      "watch": [
-        "package.json"
-      ],
-      "ignore_watch": [
-        ".git"
-      ],
+      "watch": ["package.json"],
+      "ignore_watch": [".git"],
       "env": {
         "tokens": {}
       },
