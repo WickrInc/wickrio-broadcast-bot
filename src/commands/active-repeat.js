@@ -1,38 +1,38 @@
-import State from '../state';
+import State from '../state'
 
 class ActiveRepeat {
   constructor(repeatService) {
-    this.repeatService = repeatService;
-    this.state = State.ACTIVE_REPEAT;
+    this.repeatService = repeatService
+    this.state = State.ACTIVE_REPEAT
   }
 
   shouldExecute(messageService) {
     if (messageService.getCurrentState() === this.state) {
-      return true;
+      return true
     }
-    return false;
+    return false
   }
 
   execute(messageService) {
-    let state;
-    let reply;
+    let state
+    let reply
     if (messageService.affirmativeReply()) {
-      reply = 'How many times would you like to repeat this message?';
-      state = State.TIMES_REPEAT;
-      this.repeatService.setActiveRepeat(false);
+      reply = 'How many times would you like to repeat this message?'
+      state = State.TIMES_REPEAT
+      this.repeatService.setActiveRepeat(false)
     } else if (messageService.negativeReply()) {
       // TODO what if they don't want to cancel?
-      reply = 'Please send a new broadcast';
-      state = State.NONE;
+      reply = 'Please send a new broadcast'
+      state = State.NONE
     } else {
-      reply = 'Invalid input, please reply with (y)es or (n)o';
-      state = State.ASK_REPEAT;
+      reply = 'Invalid input, please reply with (y)es or (n)o'
+      state = State.ASK_REPEAT
     }
     return {
       reply,
       state,
-    };
+    }
   }
 }
 
-export default ActiveRepeat;
+export default ActiveRepeat

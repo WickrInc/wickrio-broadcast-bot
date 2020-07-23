@@ -1,27 +1,32 @@
-import State from '../state';
+import State from '../state'
 
 class Ack {
   constructor(genericService) {
-    this.genericService = genericService;
-    this.commandString = '/ack';
+    this.genericService = genericService
+    this.commandString = '/ack'
   }
 
   shouldExecute(messageService) {
     if (messageService.getCommand() === this.commandString) {
-      return true;
+      return true
     }
-    return false;
+    return false
   }
 
   execute(messageService) {
-    this.genericService.setMessageStatus('', messageService.getUserEmail(), '3', '');
-    const reply = '';
+    this.genericService.setMessageStatus(
+      '',
+      messageService.getUserEmail(),
+      '3',
+      ''
+    )
+    const reply = ''
     const obj = {
       reply,
       state: State.NONE,
-    };
-    return obj;
+    }
+    return obj
   }
 }
 
-export default Ack;
+export default Ack
