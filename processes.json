@@ -3,7 +3,7 @@
     {
       "name": "WickrIO-Broadcast-Bot",
       "args": [],
-      "script": "/build/broadcast-bot.js",
+      "script": "./build/broadcast-bot.js",
       "exec_interpreter": "node",
       "autorestart": false,
       "watch": ["package.json"],
