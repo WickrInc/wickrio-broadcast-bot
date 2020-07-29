@@ -26,7 +26,8 @@ class StatusService {
       for (const userReply of messageStatus) {
         // const userReply = messageStatus[i]
         console.log({ userReply })
-        if (userReply.status_message) {
+        // Only use acked and read state to show the map location. Others will be errors.
+        if ((userReply.status === 3 || userReply.status === 6) && userReply.status_message) {
           console.log('located a user')
           locatedusers = true
           const { location } = JSON.parse(userReply.status_message)
