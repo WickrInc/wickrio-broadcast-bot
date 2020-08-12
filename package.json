@@ -20,7 +20,7 @@
     "pino": "^5.15.0",
     "pm2": "^3.5.2",
     "prompt": "^1.0.0",
-    "wickrio-bot-api": "^5.59.x"
+    "wickrio-bot-api": "5.59.x"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.4",
