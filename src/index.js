@@ -359,6 +359,11 @@ async function listen(message) {
       const reply = encodeURI(`${host}:${WEBAPP_PORT.value}/?token=${token}`)
       APIService.sendRoomMessage(vGroupID, reply)
       return
+    } else if (!webAppEnabled && command === '/panel') {
+      APIService.sendRoomMessage(
+        vGroupID,
+        'panel disabled, to use panel, run /configure to enable web and app interfaces!'
+      )
     }
 
     // const messageService = new MessageService(messageReceived, userEmail, argument, command, currentState, vGroupID, file, filename);

@@ -268,59 +268,6 @@ const useWebAndRoutes = app => {
     }
   )
 
-  // app.post(endpoint + '/Messages', checkAuth, (req, res) => {
-  //   // typecheck and validate parameters
-  //   const {
-  //     message,
-  //     // acknowledge = false,
-  //     // security_group = false,
-  //     // repeat_num = false,
-  //     // freq_num = false,
-  //     ttl = '',
-  //     bor = '',
-  //   } = req.body
-
-  //   const userList = []
-  //   for (const i in users) {
-  //     userList.push(users[i].name)
-  //   }
-
-  //   if (userList.length < 1) return res.send('Users missing from request.')
-
-  //   // validate arguments, append message.
-  //   if (!message) return res.send('Broadcast message missing from request.')
-
-  //   newBroadcast.setTTL(ttl)
-  //   newBroadcast.setBOR(bor)
-
-  //   // let user = bot.getUser(userEmail); // Look up user by their wickr email
-  //   // if (user === undefined) { // Check if a user exists in the database
-  //   //   let wickrUser = new WickrUser(userEmail);
-  //   //   user = bot.addUser(wickrUser); // Add a new user to the database
-  //   // }
-  //   const newBroadcast = new BroadcastService()
-  //   newBroadcast.setUsers(userList)
-
-  //   // let broadcast = {}
-  //   // set user email without plus
-  //   newBroadcast.setUserEmail(req.user.email)
-  //   // set repeats and durations
-  //   // console.log(req.file)
-  //   // if (!req.file) {
-  //   //   newBroadcast.setFile('')
-  //   // } else {
-  //   //   let userAttachments = process.cwd() + '/attachments/' + req.user.email;
-  //   //   let userNewFile = userAttachments + '/' + fileData.originalname;
-  //   //   newBroadcast.setFile(userNewFile)
-  //   //   newBroadcast.setDisplay(fileData.originalname)
-  //   // }
-
-  //   const response = newBroadcast.broadcastMessage()
-
-  //   // todo: send status on error
-  //   res.send(response)
-  // })
-
   app.get(endpoint + '/SecGroups', checkAuth, (req, res) => {
     try {
       // how does cmdGetSecurityGroups know what user to get security groups for?
