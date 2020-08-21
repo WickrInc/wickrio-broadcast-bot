@@ -3,38 +3,22 @@ import APIService from './api-service'
 import { logger, BOT_GOOGLE_MAPS } from '../helpers/constants'
 
 class StatusService {
-  static getMap(messageID, maxUsers) {
-    // set initial value false
+  buildMapLink = ({ messageStatus, maxUsers }) => {
     let locatedusers = false
-    // unordered .list
-    // console.log({ tableDataRaw: JSON.parse(tableDataRaw) })
-    // don't need this with the email  in getMessageIDTable
-    // var messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
-    //   return entry.sender == email
-    // });
-
-    // get status to check if acknowledged messages exists, and then, if they include the status_message that is added to the repo
-    const messageStatus = JSON.parse(
-      APIService.getMessageStatus(String(messageID), 'full', String(0), '2000') // get all dynamically
-    )
 
     if (messageStatus) {
+      // build google map link
       let link = `https://maps.googleapis.com/maps/api/staticmap?key=${BOT_GOOGLE_MAPS.value}&size=700x400&markers=color:blue`
       const locations = {}
-      console.log({ messageStatus })
-      // for (let i = 0; i < argument - 1; i++) {
       for (const userReply of messageStatus) {
-        // const userReply = messageStatus[i]
-        console.log({ userReply })
         // Only use acked and read state to show the map location. Others will be errors.
-        if ((userReply.status === 3 || userReply.status === 6) && userReply.status_message) {
-          console.log('located a user')
+        if (
+          (userReply.status === 3 || userReply.status === 6) &&
+          userReply.status_message
+        ) {
           locatedusers = true
           const { location } = JSON.parse(userReply.status_message)
-
-          console.log({ location })
           const { latitude, longitude } = location
-          console.log({ latitude, longitude })
 
           locations[userReply.user] = {}
           locations[userReply.user].location =
@@ -42,19 +26,13 @@ class StatusService {
           locations[userReply.user].latitude = latitude
           locations[userReply.user].longitude = longitude
           link += `|label:${userReply.user}|${latitude},${longitude}`
-          console.log({ link })
-          console.log({
-            length: Object.keys(locations).length,
-            int: parseInt(maxUsers),
-          })
+
           if (Object.keys(locations).length === parseInt(maxUsers)) {
             break
           }
         }
       }
       locations.link = link
-      console.log({ locations, link })
-
       if (locatedusers) {
         // APIService.sendRoomMessage(vGroupID, link)
         return link
@@ -66,6 +44,16 @@ class StatusService {
         // )
       }
     }
+  }
+
+  static getMap(messageID, maxUsers) {
+    // get status to check if acknowledged messages exists, and then, if they include the status_message that is added to the repo
+    const messageStatus = JSON.parse(
+      APIService.getMessageStatus(String(messageID), 'full', String(0), '2000') // get all dynamically
+    )
+
+    const link = this.buildMapLink({ messageStatus, maxUsers })
+    return link
   }
 
   static getStatus(messageID, asyncStatus) {
@@ -85,6 +73,7 @@ class StatusService {
     logger.debug({ messageStatus })
     // TODO what do we do when no Records are found?
     // is this because of sending to empty security group??
+
     let statusString = StatusService.getStatusString(messageStatus)
     let complete = messageStatus.pending === 0
     const preparing =
@@ -141,14 +130,7 @@ class StatusService {
   }
 }
 
-const status = messageID => {
-  const statuscall = APIService.getMessageStatus(
-    messageID,
-    'summary',
-    '0',
-    '1000'
-  )
-  return statuscall
-}
+const status = messageID =>
+  APIService.getMessageStatus(messageID, 'summary', '0', '1000')
 
 export default StatusService

@@ -1,5 +1,5 @@
-import logger from './logger'
-import State from './state'
+// import logger from './logger'
+// import State from './state'
 
 // These are the /commands and must go first to cancel any other existing commands
 import Ack from './commands/ack'
@@ -32,27 +32,27 @@ import WhichDelete from './commands/which-delete'
 import WhichReport from './commands/which-report'
 import WhichStatus from './commands/which-status'
 import WhichMap from './commands/which-map'
+import BroadcastService from './services/broadcast-service'
+import RepeatService from './services/repeat-service'
+import SendService from './services/send-service'
+import FileService from './services/file-service'
+import GenericService from './services/generic-service'
+import StatusService from './services/status-service'
+import ReportService from './services/report-service'
 
 // TODO how can we use a new Broadcast service each time???
 class Factory {
   // TODO add send service
-  constructor(
-    broadcastService,
-    sendService,
-    statusService,
-    repeatService,
-    reportService,
-    genericService,
-    fileService
-  ) {
+  constructor(user) {
     // These are the services that will be passed to the commands
-    this.broadcastService = broadcastService
-    this.sendService = sendService
-    this.statusService = statusService
-    this.repeatService = repeatService
-    this.reportService = reportService
-    this.genericService = genericService
-    this.fileService = fileService
+
+    this.broadcastService = new BroadcastService(user)
+    this.sendService = new SendService(user)
+    this.statusService = new StatusService()
+    this.repeatService = new RepeatService(this.broadcastService, user)
+    this.reportService = new ReportService()
+    this.genericService = new GenericService(10, user)
+    this.fileService = new FileService(user)
 
     // These are the /commands
     this.ack = new Ack(this.genericService)
@@ -66,6 +66,7 @@ class Factory {
     this.report = new Report(this.genericService)
     this.statusCommand = new Status(this.genericService)
     this.map = new Map(this.genericService)
+    this.help = new Help(this.genericService)
 
     // These are the options
     this.activeRepeat = new ActiveRepeat(this.repeatService)
@@ -99,7 +100,7 @@ class Factory {
       this.abort,
       this.cancel,
       this.deleteFile,
-      Help,
+      this.help,
       this.filesCommand,
       this.fileReceived,
       this.initializeSend,
@@ -107,6 +108,7 @@ class Factory {
       this.report,
       this.statusCommand,
       this.map,
+      this.panel,
 
       // Here are the options that rely on the current state
       this.askForAck,

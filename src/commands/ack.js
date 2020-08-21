@@ -27,6 +27,13 @@ class Ack {
     }
     return obj
   }
+
+  // if (command === '/ack') {
+  //   const userEmailString = `${userEmail}`
+  //   genericService.setMessageStatus('', userEmailString, '3', '')
+  //   user.currentState = State.NONE
+  //   return
+  // }
 }
 
 export default Ack

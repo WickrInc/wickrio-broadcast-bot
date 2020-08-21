@@ -2,7 +2,7 @@
   "name": "wickrio-broadcast-bot",
   "version": "5.62.4",
   "description": "WickrIO Broadcast Bot",
-  "main": "./build/index.js",
+  "main": "./build/broadcast-bot.js",
   "author": "Paul Cushman",
   "license": "ISC",
   "dependencies": {

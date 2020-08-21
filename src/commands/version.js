@@ -24,4 +24,11 @@ class Version {
   }
 }
 
+// if (command === '/version') {
+//   const obj = Version.execute()
+//   WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply)
+//   user.currentState = State.NONE
+//   return
+// }
+
 export default Version
