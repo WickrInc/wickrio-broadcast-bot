@@ -1,20 +1,24 @@
 import State from '../state'
 
-import { WickrIOAPI } from './helpers/constants'
+import { WickrIOAPI } from '../helpers/constants'
 
 // TODO use this instead of putting it in main!
 class Messages {
-  static shouldExecute(messageService) {
-    if (messageService.getCommand() === '/messages') {
+  constructor({ messageService }) {
+    this.messageService = messageService
+  }
+
+  static shouldExecute() {
+    if (this.messageService.getCommand() === '/messages') {
       return true
     }
     return false
   }
 
-  static execute(messageService) {
+  static execute() {
     const reply = ''
     const path = `${process.cwd()}/attachments/messages.txt`
-    WickrIOAPI.cmdSendRoomAttachment(messageService.vGroupID, path, path)
+    WickrIOAPI.cmdSendRoomAttachment(this.messageService.vGroupID, path, path)
     const obj = {
       reply,
       state: State.NONE,

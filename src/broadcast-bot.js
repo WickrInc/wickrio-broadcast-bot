@@ -123,11 +123,9 @@ async function main() {
 }
 
 async function listen(rawMessage) {
-  logger.debug('New incoming Message:', rawMessage)
-
   try {
     const messageService = bot.messageService({ rawMessage })
-    let {
+    const {
       // time,
       // botName,
       // messageID,
@@ -138,13 +136,13 @@ async function listen(rawMessage) {
       // msgTS,
       // receiver,
       // filepath,
-      file,
-      filename,
+      // file,
+      // filename,
       message,
       command,
       argument,
       vGroupID,
-      convoType,
+      // convoType,
       msgType,
       userEmail,
       isAdmin,
@@ -159,27 +157,7 @@ async function listen(rawMessage) {
     //   await writer.writeFile(rawMessage)
     //   return
     // }
-
-    console.log({
-      file,
-      filename,
-      message,
-      command,
-      argument,
-      vGroupID,
-      convoType,
-      msgType,
-      userEmail,
-      isAdmin,
-      latitude,
-      longitude,
-    })
-
     let wickrUser
-    if (command !== undefined) {
-      command = command.toLowerCase().trim()
-    }
-
     const personalVGroupID = ''
 
     // file = '' + file
@@ -195,6 +173,7 @@ async function listen(rawMessage) {
     }
     */
 
+    // create files for the user using their email as the directory
     let user = bot.getUser(userEmail) // Look up user by their wickr email
 
     if (user === undefined) {
@@ -204,20 +183,26 @@ async function listen(rawMessage) {
         message,
         vGroupID,
         personalVGroupID,
-        command: '',
-        argument: '',
+        command,
+        argument,
         currentState, // undefined
       })
       user = bot.addUser(wickrUser) // Add a new user to the database
     }
-    logger.debug('user:', user)
+    // else {
+    // user = {
+    //   ...user,
+    //   command,
+    //   argument,
+    // }
+    // }
+    // console.log({ user })
 
     if (!fs.existsSync(`${process.cwd()}/files/${userEmail}`)) {
       fs.mkdirSync(`${process.cwd()}/files/${userEmail}`)
     }
 
-    const genericService = new GenericService(10, user)
-    const factory = new Factory(user)
+    const factory = new Factory({ messageService })
 
     // Send the location as an acknowledgement
     // TODO create a pre-admin factory method with all the commands that are pre-admin
@@ -230,6 +215,7 @@ async function listen(rawMessage) {
         },
       }
       const statusMessage = JSON.stringify(obj)
+      const genericService = new GenericService(10, user)
       genericService.setMessageStatus('', `${userEmail}`, '3', statusMessage)
       user.currentState = State.NONE
       return
@@ -365,13 +351,13 @@ async function listen(rawMessage) {
 
     // TODO parse argument better??
 
-    const obj = factory.execute(messageService)
-    logger.debug(`obj${obj}`)
-    if (obj.reply) {
+    const obj = factory.execute()
+    console.log({ obj })
+    if (obj?.reply) {
       logger.debug('Object has a reply')
       WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply)
     }
-    user.currentState = obj.state
+    user.currentState = obj?.state
   } catch (err) {
     logger.error(err)
     logger.error('Got an error')

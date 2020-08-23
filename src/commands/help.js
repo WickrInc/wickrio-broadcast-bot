@@ -1,19 +1,23 @@
 import State from '../state'
-import { bot, logger } from '../helpers/constants'
-import { WEB_APPLICATION } from './helpers/constants'
+import { bot, logger, WEB_APPLICATION } from '../helpers/constants'
 const webAppEnabled = WEB_APPLICATION.value === 'yes'
 
 class Help {
-  static shouldExecute(messageService) {
+  constructor(apiService) {
+    this.apiService = apiService
+    this.commandString = '/help'
+  }
+
+  shouldExecute() {
     logger.trace('Inside should execute')
-    if (messageService.getCommand() === '/help') {
+    if (this.messageService.getCommand() === this.commandString) {
       return true
     }
     return false
   }
 
-  static execute(messageService) {
-    const { isAdmin, vGroupID } = messageService.getMessageData()
+  execute() {
+    const { isAdmin, vGroupID } = this.messageService.getMessageData()
 
     let webAppString
     if (webAppEnabled) {
@@ -45,7 +49,7 @@ class Help {
 
     if (isAdmin) {
       helpString = bot.getAdminHelp(helpString)
-      const sMessage = this.genericService.sendRoomMessage(vGroupID, helpString)
+      const sMessage = this.apiService.sendRoomMessage(vGroupID, helpString)
       logger.debug(sMessage)
       // user.currentState = State.NONE
       return

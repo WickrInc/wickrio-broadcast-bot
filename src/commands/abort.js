@@ -2,22 +2,23 @@ import State from '../state'
 import { logger } from '../helpers/constants'
 
 class Abort {
-  constructor(genericService) {
+  constructor({ genericService, messageService }) {
     this.genericService = genericService
+    this.messageService = messageService
     this.commandString = '/abort'
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCommand() === this.commandString) {
+  shouldExecute() {
+    if (this.messageService.getCommand() === this.commandString) {
       return true
     }
     return false
   }
 
-  execute(messageService) {
-    logger.debug(`:${messageService.getArgument()}:`)
+  execute() {
+    logger.debug(`:${this.messageService.getArgument()}:`)
     this.genericService.resetIndexes()
-    const userEmail = messageService.getUserEmail()
+    const userEmail = this.messageService.getUserEmail()
     // check argument here!
     // args = argument.split(' ');
     // if (messageService.getArgument() === '') {

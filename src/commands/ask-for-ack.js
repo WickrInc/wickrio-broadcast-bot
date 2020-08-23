@@ -1,25 +1,26 @@
 import State from '../state'
 
 class AskForAck {
-  constructor(broadcastService) {
+  constructor({ broadcastService, messageService }) {
     this.broadcastService = broadcastService
+    this.messageService = messageService
     this.state = State.ASK_FOR_ACK
   }
 
-  shouldExecute(messageService) {
+  shouldExecute() {
     // TODO could remove the /broadcast check if done right
-    if (messageService.getCurrentState() === this.state) {
+    if (this.messageService.getCurrentState() === this.state) {
       return true
     }
     return false
   }
 
-  execute(messageService) {
+  execute() {
     let state
     let reply
-    if (messageService.affirmativeReply()) {
+    if (this.messageService.affirmativeReply()) {
       this.broadcastService.setAckFlag(true)
-    } else if (messageService.negativeReply()) {
+    } else if (this.messageService.negativeReply()) {
       this.broadcastService.setAckFlag(false)
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'

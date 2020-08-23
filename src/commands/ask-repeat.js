@@ -1,23 +1,24 @@
 import State from '../state'
 
 class AskRepeat {
-  constructor(repeatService, broadcastService) {
+  constructor({ repeatService, broadcastService, messageService }) {
     this.repeatService = repeatService
     this.broadcastService = broadcastService
+    this.messageService = messageService
     this.state = State.ASK_REPEAT
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCurrentState() === this.state) {
+  shouldExecute() {
+    if (this.messageService.getCurrentState() === this.state) {
       return true
     }
     return false
   }
 
-  execute(messageService) {
+  execute() {
     let state
     let reply
-    if (messageService.affirmativeReply()) {
+    if (this.messageService.affirmativeReply()) {
       if (this.repeatService.getActiveRepeat()) {
         reply =
           'There is already a repeating broadcast active, would you like to cancel it?'
@@ -27,7 +28,7 @@ class AskRepeat {
         reply = 'How many times would you like to repeat this message?'
         state = State.TIMES_REPEAT
       }
-    } else if (messageService.negativeReply()) {
+    } else if (this.messageService.negativeReply()) {
       this.repeatService.setActiveRepeat(false)
       reply = this.broadcastService.broadcastMessage().pending
       // TODO fix this!

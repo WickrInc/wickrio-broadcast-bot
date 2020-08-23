@@ -3,22 +3,23 @@ import State from '../state'
 // TODO add a delete file command??
 // TODO add the ability to preview the contents of the file/ length of file??
 class FileCommand {
-  constructor(sendService) {
+  constructor({ sendService, messageService }) {
     this.sendService = sendService
+    this.messageService = messageService
     this.commandString = '/files'
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCommand() === this.commandString) {
+  shouldExecute() {
+    if (this.messageService.getCommand() === this.commandString) {
       return true
     }
     return false
   }
 
-  execute(messageService) {
+  execute() {
     let reply = 'Here is a list of the files to which you can send a message:\n'
     let state = State.NONE
-    const userEmail = messageService.getUserEmail()
+    const userEmail = this.messageService.getUserEmail()
     // TODO add a more function to this
     const fileArr = this.sendService.getFiles(userEmail)
     if (!fileArr || fileArr.length === 0) {

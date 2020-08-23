@@ -1,13 +1,14 @@
 import State from '../state'
 
 class Ack {
-  constructor(genericService) {
+  constructor({ genericService, messageService }) {
+    this.messageService = messageService
     this.genericService = genericService
     this.commandString = '/ack'
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCommand() === this.commandString) {
+  shouldExecute() {
+    if (this.messageService.getCommand() === this.commandString) {
       return true
     }
     return false

@@ -160,7 +160,7 @@ class APIService {
     return WickrIOAPI.cmdGetMessageIDTable(page, size, sender)
   }
 
-  static sendRoomMessage(vGroupID, message) {
+  sendRoomMessage(vGroupID, message) {
     return WickrIOAPI.cmdSendRoomMessage(vGroupID, message)
   }
 

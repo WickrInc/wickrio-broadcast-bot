@@ -34,7 +34,12 @@
   "runArgs": ["-v", "/var/run/docker.sock:/var/run/docker.sock"],
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [8000, 4545, 9229],
+  // "forwardPorts": [8000, 4545, 9229],
+  "appPort": [
+    4545
+    // "8921:5000"
+  ],
+
   // Specifies a command that should be run after the container has been created.
   "postCreateCommand": "npm install"
   // Comment out the next line to run as root instead.

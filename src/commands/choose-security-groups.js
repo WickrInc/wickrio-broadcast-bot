@@ -1,22 +1,23 @@
 import State from '../state'
 
 class ChooseSecurityGroups {
-  constructor(broadcastService) {
+  constructor({ broadcastService, messageService }) {
     this.broadcastService = broadcastService
+    this.messageService = messageService
     this.state = State.WHICH_GROUPS
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCurrentState() === this.state) {
+  shouldExecute() {
+    if (this.messageService.getCurrentState() === this.state) {
       return true
     }
     return false
   }
 
-  execute(messageService) {
+  execute() {
     let reply
     let state
-    if (messageService.getMessage() === 'all') {
+    if (this.messageService.getMessage() === 'all') {
       this.broadcastService.setSecurityGroups([])
       reply = 'Would you like to repeat this broadcast message?'
       state = State.ASK_REPEAT
@@ -25,7 +26,7 @@ class ChooseSecurityGroups {
         state,
       }
     }
-    const groups = messageService.getMessage().split(/[^0-9]/)
+    const groups = this.messageService.getMessage().split(/[^0-9]/)
     const securityGroupList = this.broadcastService.getAPISecurityGroups()
     let groupsToSend = []
     let groupsString = ''

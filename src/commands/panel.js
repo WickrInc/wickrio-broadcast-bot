@@ -14,17 +14,18 @@ import {
   // WickrIOAPI,
   WEB_APPLICATION,
   // REST_APPLICATION,
-} from './helpers/constants'
+} from '../helpers/constants'
 const webAppEnabled = WEB_APPLICATION.value === 'yes'
 
 class Panel {
-  constructor(genericService) {
-    this.genericService = genericService
+  constructor({ apiService, messageService }) {
+    this.apiService = apiService
+    this.messageService = messageService
     this.commandString = '/panel'
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCommand() === this.commandString) {
+  shouldExecute() {
+    if (this.messageService.getCommand() === this.commandString) {
       return true
     }
     return false
@@ -66,9 +67,9 @@ class Panel {
       )
 
       const reply = encodeURI(`${host}:${WEBAPP_PORT.value}/?token=${token}`)
-      this.genericService.sendRoomMessage(messageService.vGroupID, reply)
+      this.apiService.sendRoomMessage(messageService.vGroupID, reply)
     } else if (!webAppEnabled) {
-      this.genericService.sendRoomMessage(
+      this.apiService.sendRoomMessage(
         messageService.vGroupID,
         'panel disabled, to use panel, run /configure to enable web and app interfaces!'
       )

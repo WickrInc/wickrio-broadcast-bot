@@ -1,8 +1,8 @@
 import State from '../state'
 
 class Version {
-  static shouldExecute(messageService) {
-    if (messageService.getCommand() === '/version') {
+  static shouldExecute({ messageService }) {
+    if (this.messageService.getCommand() === '/version') {
       return true
     }
     return false

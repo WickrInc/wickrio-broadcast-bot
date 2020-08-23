@@ -4,7 +4,7 @@ import {
   client_auth_codes,
   logger,
   BOT_AUTH_TOKEN,
-} from './helpers/constants'
+} from '../helpers/constants'
 
 const checkAuth = (req, res, next) => {
   res.set('Authorization', 'Basic base64_auth_token')

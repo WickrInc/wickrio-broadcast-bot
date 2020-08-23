@@ -1,24 +1,25 @@
 import State from '../state'
 
 class RepeatFrequency {
-  constructor(repeatService) {
+  constructor({ repeatService, messageService }) {
     this.repeatService = repeatService
+    this.messageService = messageService
     this.state = State.REPEAT_FREQUENCY
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCurrentState() === this.state) {
+  shouldExecute() {
+    if (this.messageService.getCurrentState() === this.state) {
       return true
     }
     return false
   }
 
-  execute(messageService) {
+  execute() {
     let state
     let reply
     // TODO more checks required
-    if (messageService.isInt()) {
-      this.repeatService.setFrequency(messageService.getMessage())
+    if (this.messageService.isInt()) {
+      this.repeatService.setFrequency(this.messageService.getMessage())
       this.repeatService.repeatMessage()
       reply = 'Broadcast message #1 in the process of being sent...'
       state = State.NONE

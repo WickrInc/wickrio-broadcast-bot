@@ -1,14 +1,15 @@
 import State from '../state'
 
 class Cancel {
-  constructor(broadcastService, sendService) {
+  constructor({ broadcastService, sendService, messageService }) {
     this.broadcastService = broadcastService
     this.sendService = sendService
+    this.messageService = messageService
     this.commandString = '/cancel'
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCommand() === this.commandString) {
+  shouldExecute() {
+    if (this.messageService.getCommand() === this.commandString) {
       return true
     }
     return false

@@ -1,27 +1,28 @@
 import State from '../state'
 
 class ChooseFile {
-  constructor(sendService) {
+  constructor({ sendService, messageService }) {
     this.sendService = sendService
+    this.messageService = messageService
     this.state = State.CHOOSE_FILE
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCurrentState() === this.state) {
+  shouldExecute() {
+    if (this.messageService.getCurrentState() === this.state) {
       return true
     }
     return false
   }
 
   // TODO add more function here as well
-  execute(messageService) {
-    const userEmail = messageService.getUserEmail()
-    const index = messageService.getMessage()
+  execute() {
+    const userEmail = this.messageService.getUserEmail()
+    const index = this.messageService.getMessage()
     let reply = null
     let state = State.NONE
     const fileArr = this.sendService.getFiles(userEmail)
     // const length = Math.min(fileArr.length, 5);
-    if (!messageService.isInt() || index < 1 || index > fileArr.length) {
+    if (!this.messageService.isInt() || index < 1 || index > fileArr.length) {
       reply = `Index: ${index} is out of range. Please enter an integer between 1 and ${fileArr.length}`
       state = State.CHOOSE_FILE
     } else {

@@ -7,18 +7,18 @@ class InitializeSend {
     this.commandString = '/send'
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCommand() === this.commandString) {
+  shouldExecute() {
+    if (this.messageService.getCommand() === this.commandString) {
       return true
     }
     return false
   }
 
-  execute(messageService) {
-    const userEmail = messageService.getUserEmail()
-    this.sendService.setMessage(messageService.getArgument())
+  execute() {
+    const userEmail = this.messageService.getUserEmail()
+    this.sendService.setMessage(this.messageService.getArgument())
     this.sendService.setUserEmail(userEmail)
-    this.sendService.setVGroupID(messageService.getVGroupID())
+    this.sendService.setVGroupID(this.messageService.getVGroupID())
     this.sendService.setTTL('')
     this.sendService.setBOR('')
     // this.broadcastService.setSentByFlag(true);
@@ -27,12 +27,12 @@ class InitializeSend {
     let reply
     let state = State.NONE
     logger.debug(
-      `message:${messageService.getMessage()}userEmail:${messageService.getUserEmail()}`
+      `message:${this.messageService.getMessage()}userEmail:${this.messageService.getUserEmail()}`
     )
     if (
-      messageService.getArgument() === undefined ||
-      messageService.getArgument() === '' ||
-      messageService.getArgument().length === 0
+      this.messageService.getArgument() === undefined ||
+      this.messageService.getArgument() === '' ||
+      this.messageService.getArgument().length === 0
     ) {
       reply = 'Must have a message or file to send, Usage: /send <message>'
     } else if (!fileArr || fileArr.length === 0) {

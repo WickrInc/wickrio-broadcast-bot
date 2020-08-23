@@ -20,6 +20,7 @@ import ActiveRepeat from './commands/active-repeat'
 import AskRepeat from './commands/ask-repeat'
 import AskForAck from './commands/ask-for-ack'
 import ChooseFile from './commands/choose-file'
+import Panel from './commands/panel'
 import ChooseSecurityGroups from './commands/choose-security-groups'
 import ConfirmSecurityGroups from './commands/confirm-security-groups'
 import FileActions from './commands/file-actions'
@@ -37,60 +38,147 @@ import RepeatService from './services/repeat-service'
 import SendService from './services/send-service'
 import FileService from './services/file-service'
 import GenericService from './services/generic-service'
+import APIService from './services/api-service'
 import StatusService from './services/status-service'
 import ReportService from './services/report-service'
 
 // TODO how can we use a new Broadcast service each time???
 class Factory {
   // TODO add send service
-  constructor(user) {
+  constructor({ messageService }) {
     // These are the services that will be passed to the commands
-
-    this.broadcastService = new BroadcastService(user)
-    this.sendService = new SendService(user)
+    this.messageService = messageService
+    this.broadcastService = new BroadcastService({
+      messageService: this.messageService,
+    })
+    this.sendService = new SendService(this.messageService)
     this.statusService = new StatusService()
-    this.repeatService = new RepeatService(this.broadcastService, user)
+    this.repeatService = new RepeatService({
+      broadcastService: this.broadcastService,
+      // user: user,
+      messageServive: this.messageService,
+    })
     this.reportService = new ReportService()
-    this.genericService = new GenericService(10, user)
-    this.fileService = new FileService(user)
+    this.genericService = new GenericService(10, this.messageService)
+    this.fileService = new FileService(this.messageService)
+    this.apiService = new APIService()
 
     // These are the /commands
-    this.ack = new Ack(this.genericService)
-    this.abort = new Abort(this.genericService)
-    this.cancel = new Cancel(this.broadcastService, this.sendService)
-    this.deleteFile = new DeleteFile(this.sendService)
-    this.filesCommand = new FilesCommand(this.sendService)
-    this.fileReceived = new FileReceived(this.fileService)
-    this.initializeBroadcast = new InitializeBroadcast(this.broadcastService)
+    this.ack = new Ack({
+      genericService: this.genericService,
+      messageService: this.messageService,
+    })
+    this.abort = new Abort({
+      genericeService: this.genericService,
+      messageService: this.messageService,
+    })
+    this.cancel = new Cancel({
+      broadcastService: this.broadcastService,
+      sendService: this.sendService,
+      messageService: this.messageService,
+    })
+    this.deleteFile = new DeleteFile({
+      sendService: this.sendService,
+      messageService: this.messageService,
+    })
+    this.filesCommand = new FilesCommand({
+      sendService: this.sendService,
+      messageService: this.messageService,
+    })
+    this.fileReceived = new FileReceived({
+      fileService: this.fileService,
+      messageService: this.messageService,
+    })
+    this.initializeBroadcast = new InitializeBroadcast({
+      broadcastService: this.broadcastService,
+      messageService: this.messageService,
+    })
     this.initializeSend = new InitializeSend(this.sendService)
-    this.report = new Report(this.genericService)
-    this.statusCommand = new Status(this.genericService)
-    this.map = new Map(this.genericService)
-    this.help = new Help(this.genericService)
+    this.report = new Report({
+      genericeService: this.genericService,
+      messageService: this.messageService,
+    })
+    this.statusCommand = new Status({
+      genericeService: this.genericService,
+      messageService: this.messageService,
+    })
+    this.map = new Map({
+      genericeService: this.genericService,
+      messageService: this.messageService,
+    })
+    this.panel = new Panel({
+      apiService: this.apiService,
+      messageService: this.messageService,
+    })
+    this.help = new Help({ apiService: this.apiService })
 
     // These are the options
-    this.activeRepeat = new ActiveRepeat(this.repeatService)
-    this.askForAck = new AskForAck(this.broadcastService)
-    this.askRepeat = new AskRepeat(this.repeatService, this.broadcastService)
-    this.chooseFile = new ChooseFile(this.sendService)
-    this.chooseSecurityGroups = new ChooseSecurityGroups(this.broadcastService)
-    this.confirmSecurityGroups = new ConfirmSecurityGroups(
-      this.broadcastService
-    )
-    this.fileActions = new FileActions(
-      this.fileService,
-      this.broadcastService,
-      this.sendService
-    )
+    this.activeRepeat = new ActiveRepeat({
+      repeatService: this.repeatService,
+      messageService: this.messageService,
+    })
+    this.askForAck = new AskForAck({
+      broadcastService: this.broadcastService,
+      messageService: this.messageService,
+    })
+    this.askRepeat = new AskRepeat({
+      repeatService: this.repeatService,
+      broadcastService: this.broadcastService,
+      messageService: this.messageService,
+    })
+    this.chooseFile = new ChooseFile({
+      sendService: this.sendService,
+      messageService: this.messageService,
+    })
+    this.chooseSecurityGroups = new ChooseSecurityGroups({
+      broadcastService: this.broadcastService,
+      messageService: this.messageService,
+    })
+    this.confirmSecurityGroups = new ConfirmSecurityGroups({
+      broadcastService: this.broadcastService,
+      messageService: this.messageService,
+    })
+    this.fileActions = new FileActions({
+      fileService: this.fileService,
+      broadcastService: this.broadcastService,
+      sendService: this.sendService,
+    })
     this.overwriteCheck = new OverwriteCheck(this.fileService)
-    this.repeatFrequency = new RepeatFrequency(this.repeatService)
-    this.sendUserFile = new SendUserFile(this.sendService)
-    this.timesRepeat = new TimesRepeat(this.repeatService)
-    this.whichAbort = new WhichAbort(this.genericService)
-    this.whichDelete = new WhichDelete(this.sendService)
-    this.whichReport = new WhichReport(this.genericService, this.reportService)
-    this.whichStatus = new WhichStatus(this.genericService, this.statusService)
-    this.whichMap = new WhichMap(this.genericService, this.statusService)
+    this.repeatFrequency = new RepeatFrequency({
+      repeatService: this.repeatService,
+      messageService: this.messageService,
+    })
+    this.sendUserFile = new SendUserFile({
+      sendService: this.sendService,
+      messageService: this.messageService,
+    })
+    this.timesRepeat = new TimesRepeat({
+      repeatService: this.repeatService,
+      messageService: this.messageService,
+    })
+    this.whichAbort = new WhichAbort({
+      genericeService: this.genericService,
+      messageService: this.messageService,
+    })
+    this.whichDelete = new WhichDelete({
+      sendService: this.sendService,
+      messageService: this.messageService,
+    })
+    this.whichReport = new WhichReport({
+      genericService: this.genericService,
+      reportService: this.reportService,
+      messageService: this.messageService,
+    })
+    this.whichStatus = new WhichStatus({
+      genericService: this.genericService,
+      statusService: this.statusService,
+      messageService: this.messageService,
+    })
+    this.whichMap = new WhichMap({
+      genericService: this.genericService,
+      statusService: this.statusService,
+      messageService: this.messageService,
+    })
 
     // Order matters here /commands must go first
     // TODO make it so that the order doesn' matter?
@@ -130,10 +218,10 @@ class Factory {
     ]
   }
 
-  execute(messageService) {
+  execute() {
     for (const command of this.commandList) {
-      if (command.shouldExecute(messageService)) {
-        return command.execute(messageService)
+      if (command.shouldExecute()) {
+        return command.execute()
       }
     }
     // TODO fix the admin command returning this then add it back

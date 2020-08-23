@@ -1,24 +1,27 @@
 import State from '../state'
 
 class TimesRepeat {
-  constructor(repeatService) {
+  constructor({ repeatService, messageService }) {
     this.repeatService = repeatService
+    this.messageService = messageService
     this.state = State.TIMES_REPEAT
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCurrentState() === this.state) {
+  shouldExecute() {
+    if (this.messageService.getCurrentState() === this.state) {
       return true
     }
     return false
   }
 
-  execute(messageService) {
+  execute() {
     let state
     let reply
-    if (messageService.isInt()) {
-      this.repeatService.setRepeats(parseInt(messageService.getMessage(), 10))
-      this.repeatService.setVGroupID(messageService.getVGroupID())
+    if (this.messageService.isInt()) {
+      this.repeatService.setRepeats(
+        parseInt(this.messageService.getMessage(), 10)
+      )
+      this.repeatService.setVGroupID(this.messageService.getVGroupID())
       reply =
         'How often would you like to repeat this message?(every 5, 10 or 15 minutes)'
       state = State.REPEAT_FREQUENCY

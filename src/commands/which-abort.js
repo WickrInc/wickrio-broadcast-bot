@@ -1,27 +1,28 @@
 import State from '../state'
 
 class WhichAbort {
-  constructor(genericService) {
+  constructor({ genericService, messageService }) {
     this.genericService = genericService
+    this.messageService = messageService
     this.state = State.WHICH_ABORT
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCurrentState() === this.state) {
+  shouldExecute() {
+    if (this.messageService.getCurrentState() === this.state) {
       return true
     }
     return false
   }
 
-  execute(messageService) {
+  execute() {
     let reply
     let state
-    const userEmail = messageService.getUserEmail()
+    const userEmail = this.messageService.getUserEmail()
     const currentEntries = this.genericService.getMessageEntries(
       userEmail,
       true
     )
-    const index = messageService.getMessage()
+    const index = this.messageService.getMessage()
     if (index === 'more') {
       this.genericService.incrementIndexes()
       reply = this.genericService.getEntriesString(userEmail, true)
@@ -30,7 +31,7 @@ class WhichAbort {
       }
       state = this.state
     } else if (
-      !messageService.isInt() ||
+      !this.messageService.isInt() ||
       index < 1 ||
       index > currentEntries.length
     ) {
