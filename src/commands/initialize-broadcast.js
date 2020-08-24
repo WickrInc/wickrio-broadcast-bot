@@ -1,5 +1,5 @@
 import State from '../state'
-import { logger } from '../helpers/constants'
+// import { logger } from '../helpers/constants'
 
 class InitializeBroadcast {
   constructor({ broadcastService, messageService }) {
@@ -16,30 +16,34 @@ class InitializeBroadcast {
   }
 
   execute() {
-    this.broadcastService.setMessage(this.messageService.getArgument())
-    this.broadcastService.setUserEmail(this.messageService.getUserEmail())
-    this.broadcastService.setVGroupID(this.messageService.getVGroupID())
+    const {
+      argument,
+      message,
+      userEmail,
+      vGroupID,
+    } = this.messageService.getMessageData()
+    console.log({ argument, message })
+
+    this.broadcastService.setMessage(argument)
+    this.broadcastService.setUserEmail(userEmail)
+    this.broadcastService.setVGroupID(vGroupID)
     this.broadcastService.setTTL('')
     this.broadcastService.setBOR('')
     this.broadcastService.setSentByFlag(true)
-    logger.debug(
-      `Here are all the things: ${this.messageService.getArgument()}`
-    )
+    this.messageService.setUserCurrentState({ currentState: State.ASK_FOR_ACK }) // change to broacastservice?
+
+    console.log('initbroadcast')
+    console.log(this.broadcastService)
     let reply = 'Would you like to ask the recipients for an acknowledgement?'
-    let state = State.ASK_FOR_ACK
     // TODO check for undefined??
-    if (
-      this.messageService.getArgument() === undefined ||
-      this.messageService.getArgument() === '' ||
-      this.messageService.getArgument().length === 0
-    ) {
+    if (!argument) {
       reply =
         'Must have a message or file to broadcast, Usage: /broadcast <message>'
-      state = State.NONE
+      this.messageService.setUserCurrentState({ currentState: State.NONE })
     }
     return {
       reply,
-      state,
+      state: State.ASK_FOR_ACK,
     }
   }
 }

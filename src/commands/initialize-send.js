@@ -2,8 +2,9 @@ import State from '../state'
 import { logger } from '../helpers/constants'
 
 class InitializeSend {
-  constructor(sendService) {
+  constructor({ sendService, messageService }) {
     this.sendService = sendService
+    this.messageService = messageService
     this.commandString = '/send'
   }
 
@@ -15,7 +16,7 @@ class InitializeSend {
   }
 
   execute() {
-    const userEmail = this.messageService.getUserEmail()
+    const { userEmail } = this.messageService.getMessageData()
     this.sendService.setMessage(this.messageService.getArgument())
     this.sendService.setUserEmail(userEmail)
     this.sendService.setVGroupID(this.messageService.getVGroupID())

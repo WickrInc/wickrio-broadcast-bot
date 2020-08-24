@@ -3,7 +3,7 @@ import fs from 'fs'
 import startServer from './api'
 import {
   bot,
-  WickrUser,
+  // WickrUser,
   // client_auth_codes,
   logger,
   // BOT_AUTH_TOKEN,
@@ -31,9 +31,11 @@ import State from './state'
 // import RepeatService from './services/repeat-service'
 // import ReportService from './services/report-service'
 import GenericService from './services/generic-service'
+// import BroadcastService from './services/broadcast-service'
+// import APIService from './services/api-service'
 // import FileService from './services/file-service'
 
-let currentState
+// let currentState
 let verifyUsersMode
 // const webAppString = ''
 // const webAppEnabled = WEB_APPLICATION.value === 'yes'
@@ -41,9 +43,12 @@ let verifyUsersMode
 process.stdin.resume() // so the program will not close instantly
 
 process.stdin.resume() // so the program will not close instantly
+// why
 if (!fs.existsSync(`${process.cwd()}/attachments`)) {
   fs.mkdirSync(`${process.cwd()}/attachments`)
 }
+
+// why
 if (!fs.existsSync(`${process.cwd()}/files`)) {
   fs.mkdirSync(`${process.cwd()}/files`)
 }
@@ -139,11 +144,12 @@ async function listen(rawMessage) {
       // file,
       // filename,
       message,
-      command,
-      argument,
+      // command,
+      // argument,
       vGroupID,
       // convoType,
       msgType,
+      user,
       userEmail,
       isAdmin,
       latitude,
@@ -152,13 +158,18 @@ async function listen(rawMessage) {
       // isVoiceMemo,
       // voiceMemoDuration,
     } = messageService.getMessageData()
+
+    // what is this for
+    if (!fs.existsSync(`${process.cwd()}/files/${userEmail}`)) {
+      fs.mkdirSync(`${process.cwd()}/files/${userEmail}`)
+    }
     // if (!parsedMessage) {
     //   // why are we writing?
     //   await writer.writeFile(rawMessage)
     //   return
     // }
-    let wickrUser
-    const personalVGroupID = ''
+    // let wickrUser
+    // const personalVGroupID = ''
 
     // file = '' + file
     // filename = '' + filename
@@ -172,36 +183,28 @@ async function listen(rawMessage) {
       return;
     }
     */
+    //  const broadcastService = new BroadcastService(user)
+    //  const repeatService = new RepeatService(broadcastService, user)
+    //  const sendService = new SendService(user)
+    //  const fileService = new FileService(user)
+    //  const genericService = new GenericService(10, user)
 
-    // create files for the user using their email as the directory
-    let user = bot.getUser(userEmail) // Look up user by their wickr email
+    //  const factory = new Factory(
+    //    broadcastService,
+    //    sendService,
+    //    StatusService,
+    //    repeatService,
+    //    ReportService,
+    //    genericService,
+    //    fileService
+    //  )
 
-    if (user === undefined) {
-      // Check if a user exists in the database
-      // whats with the second obj arg??
-      wickrUser = new WickrUser(userEmail, {
-        message,
-        vGroupID,
-        personalVGroupID,
-        command,
-        argument,
-        currentState, // undefined
-      })
-      user = bot.addUser(wickrUser) // Add a new user to the database
-    }
-    // else {
-    // user = {
-    //   ...user,
-    //   command,
-    //   argument,
-    // }
-    // }
-    // console.log({ user })
-
-    if (!fs.existsSync(`${process.cwd()}/files/${userEmail}`)) {
-      fs.mkdirSync(`${process.cwd()}/files/${userEmail}`)
-    }
-
+    // const apiService = new APIService()
+    // const broadcastService = new BroadcastService({
+    //   messageService,
+    //   apiService,
+    // })
+    // const factory = new Factory({ messageService, broadcastService })
     const factory = new Factory({ messageService })
 
     // Send the location as an acknowledgement
@@ -351,13 +354,16 @@ async function listen(rawMessage) {
 
     // TODO parse argument better??
 
-    const obj = factory.execute()
-    console.log({ obj })
-    if (obj?.reply) {
-      logger.debug('Object has a reply')
-      WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply)
-    }
-    user.currentState = obj?.state
+    const cmdResult = factory.execute()
+    // console.log({ cmdResult })
+    if (cmdResult?.reply)
+      WickrIOAPI.cmdSendRoomMessage(vGroupID, cmdResult.reply)
+
+    // if (cmdResult?.state)
+    // messageService.updateUserStateInDB({ currentState: cmdResult.state })
+
+    // console.log({ obj })
+    // console.log({ state: cmdResult?.state })
   } catch (err) {
     logger.error(err)
     logger.error('Got an error')

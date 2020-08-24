@@ -3,12 +3,17 @@ import State from '../state'
 class ActiveRepeat {
   constructor({ repeatService, messageService }) {
     this.repeatService = repeatService
-    this.repeatService = messageService
+    this.messageService = messageService
     this.state = State.ACTIVE_REPEAT
   }
 
   shouldExecute() {
-    if (this.messageService.getCurrentState() === this.state) {
+    const { userEmail } = this.messageService.getMessageData()
+
+    const userCurrentState = this.messageService.getUserCurrentState({
+      userEmail,
+    })
+    if (userCurrentState === this.state) {
       return true
     }
     return false

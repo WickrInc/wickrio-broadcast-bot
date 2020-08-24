@@ -46,6 +46,11 @@ class MessageService {
     return this.currentState
   }
 
+  setCurrentState({ state }) {
+    this.currentState = state
+    return this.currentState
+  }
+
   getFile() {
     return this.file
   }

@@ -1,125 +1,146 @@
-import APIService from './api-service'
+// import APIService from './api-service'
 import StatusService from './status-service'
 // TODO proper form??
 import updateLastID from '../helpers/message-id-helper'
 import { logger } from '../helpers/constants'
 
 class BroadcastService {
-  constructor({ messageService }) {
+  constructor({ messageService, apiService }) {
     this.messageService = messageService
-    this.broadcast = this.messageService
-    // this.file = '';
-    // this.message = '';
-    // this.mail = '';
-    // this.display = '';
-    // this.ackFlag = false;
-    // this.securityGroups = [];
-    // this.duration = 0;
-    // this.voiceMemo = '';
-    // this.repeatFlag = false;
-    // this.vGroupID = '';
-    // this.APISecurityGroups = [];
-    // this.messageServices = [];
-    // this.ttl = '';
-    // this.bor = '';
+    this.apiService = apiService
+
+    this.file = null
+    this.message = null
+    this.mail = null
+    this.display = null
+    this.ackFlag = false
+    this.securityGroups = []
+    this.duration = 0
+    this.voiceMemo = null
+    this.repeatFlag = false
+    this.vGroupID = null
+    this.APISecurityGroups = []
+    this.messageServices = []
+    this.ttl = null
+    this.bor = null
   }
 
   setRepeatFlag(repeatFlag) {
-    this.broadcast.repeatFlag = repeatFlag
+    this.repeatFlag = repeatFlag
   }
 
   setFlags(flags) {
-    this.broadcast.flags = flags
+    this.flags = flags
   }
 
   setFile(file) {
-    this.broadcast.file = file
+    this.file = file
   }
 
   setVoiceMemo(voiceMemo) {
-    this.broadcast.voiceMemo = voiceMemo
+    this.voiceMemo = voiceMemo
   }
 
   setDuration(duration) {
-    this.broadcast.duration = duration
+    this.duration = duration
   }
 
   setMessage(message) {
-    this.broadcast.message = message
+    this.message = message
+    console.log({ setMessage: this.message })
   }
 
   setDisplay(display) {
-    this.broadcast.display = display
+    this.display = display
   }
 
   setUserEmail(email) {
-    this.broadcast.userEmail = email
+    this.userEmail = email
   }
 
   setSecurityGroups(securityGroups) {
-    this.broadcast.securityGroups = securityGroups
+    this.securityGroups = securityGroups
   }
 
   setUsers(users) {
-    this.broadcast.users = users
+    this.users = users
   }
 
   getAPISecurityGroups() {
-    this.broadcast.APISecurityGroups = APIService.getSecurityGroups()
-    return this.broadcast.APISecurityGroups
+    this.APISecurityGroups = this.apiService.getSecurityGroups()
+    return this.APISecurityGroups
   }
 
   setAckFlag(ackFlag) {
-    this.broadcast.ackFlag = ackFlag
+    this.ackFlag = ackFlag
   }
 
   setSentByFlag(sentByFlag) {
-    this.broadcast.sentByFlag = sentByFlag
+    this.sentByFlag = sentByFlag
   }
 
   setVGroupID(vGroupID) {
-    this.broadcast.vGroupID = vGroupID
+    this.vGroupID = vGroupID
   }
 
   setBOR(bor) {
-    this.broadcast.bor = bor
+    this.bor = bor
   }
 
   setTTL(ttl) {
-    this.broadcast.ttl = ttl
+    this.ttl = ttl
   }
 
   setWebApp() {
-    this.broadcast.webapp = true
+    this.webapp = true
   }
 
+  recallBroadcast() {}
+
   broadcastMessage() {
+    // console.log({
+    //   file: this.file,
+    //   message: this.message,
+    //   mail: this.mail,
+    //   display: this.display,
+    //   ackFlag: this.ackFlag,
+    //   securityGroups: this.securityGroups,
+    //   duration: this.duration,
+    //   voiceMemo: this.voiceMemo,
+    //   repeatFlag: this.repeatFlag,
+    //   vGroupID: this.vGroupID,
+    //   APISecurityGroups: this.APISecurityGroups,
+    //   messageServices: this.messageServices,
+    //   ttl: this.ttl,
+    //   bor: this.bor,
+    // })
     let messageToSend
-    const sentBy = `Broadcast message sent by: ${this.broadcast.userEmail}`
-    if (this.broadcast.sentByFlag) {
-      messageToSend = `${this.broadcast.message}\n\n${sentBy}`
+    const sentBy = `Broadcast message sent by: ${this.userEmail}`
+    if (this.sentByFlag) {
+      messageToSend = `${this.message}\n\n${sentBy}`
     } else {
-      messageToSend = this.broadcast.message
+      messageToSend = this.message
     }
 
-    if (this.broadcast.ackFlag) {
-      if (this.broadcast.sentByFlag) {
+    if (this.ackFlag) {
+      if (this.sentByFlag) {
         messageToSend = `${messageToSend}\nPlease acknowledge message by replying with /ack`
       } else {
         messageToSend = `${messageToSend}\n\nPlease acknowledge message by replying with /ack`
       }
     }
-    // TODO what is users vs network?
+
     let target
-    if (this.broadcast.users !== undefined && this.broadcast.users.length > 0) {
+    // if (this.users !== undefined && this.users.length > 0) {
+    if (this.users) {
       target = 'USERS'
     } else if (
-      this.broadcast.securityGroups === undefined ||
-      this.broadcast.securityGroups.length < 1
+      this.securityGroups === undefined ||
+      this.securityGroups.length < 1
     ) {
       target = 'NETWORK'
     } else {
-      target = this.broadcast.securityGroups.join()
+      target = this.securityGroups.join()
     }
 
     logger.debug(`target${target}`)
@@ -127,174 +148,167 @@ class BroadcastService {
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
     const jsonDateTime = currentDate.toJSON()
     // messageID must be a string
-    // TODO is is necessary to do this.broadcast.
+    // TODO is is necessary to do this.
     const messageID = `${updateLastID()}`
     console.log({ messageID })
     let uMessage
     const reply = {}
+    console.log({ messageToSend })
     if (target === 'USERS') {
-      if (this.broadcast.flags === undefined) this.broadcast.flags = []
+      if (this.flags === undefined) this.flags = []
 
-      uMessage = APIService.send1to1MessageLowPriority(
-        this.broadcast.users,
+      uMessage = this.apiService.send1to1MessageLowPriority(
+        this.users,
         messageToSend,
-        this.broadcast.ttl,
-        this.broadcast.bor,
+        this.ttl,
+        this.bor,
         messageID,
-        this.broadcast.flags
+        this.flags
       )
       logger.debug(`send1to1Messge returns=${uMessage}`)
       reply.pending =
         'Broadcast message in process of being sent to list of users'
-      reply.rawMessage = this.broadcast.message
+      reply.rawMessage = this.message
       reply.message = messageToSend
     } else if (target === 'NETWORK') {
-      if (
-        this.broadcast.voiceMemo !== undefined &&
-        this.broadcast.voiceMemo !== ''
-      ) {
-        uMessage = APIService.sendNetworkVoiceMemo(
-          this.broadcast.voiceMemo,
-          this.broadcast.duration,
-          this.broadcast.ttl,
-          this.broadcast.bor,
+      if (this.voiceMemo) {
+        // if (this.voiceMemo !== undefined && this.voiceMemo !== '') {
+        uMessage = this.apiService.sendNetworkVoiceMemo(
+          this.voiceMemo,
+          this.duration,
+          this.ttl,
+          this.bor,
           messageID,
           sentBy
         )
         reply.pending = 'Voice Memo broadcast in process of being sent'
-        reply.rawMessage = this.broadcast.message
+        reply.rawMessage = this.message
         reply.message = messageToSend
-      } else if (
-        this.broadcast.file !== undefined &&
-        this.broadcast.file !== ''
-      ) {
-        uMessage = APIService.sendNetworkAttachment(
-          this.broadcast.file,
-          this.broadcast.display,
-          this.broadcast.ttl,
-          this.broadcast.bor,
+        // } else if (this.file !== undefined && this.file !== '') {
+      } else if (this.file) {
+        uMessage = this.apiService.sendNetworkAttachment(
+          this.file,
+          this.display,
+          this.ttl,
+          this.bor,
           messageID,
           sentBy
         )
         reply.pending = 'File broadcast in process of being sent'
-        reply.rawMessage = this.broadcast.message
+        reply.rawMessage = this.message
         reply.message = messageToSend
-        if (this.broadcast.webapp && this.broadcast.message) {
-          uMessage = APIService.sendNetworkMessage(
-            this.broadcast.message,
-            this.broadcast.ttl,
-            this.broadcast.bor,
+        //
+        // what is this? why webappp?
+        //
+        if (this.webapp && this.message) {
+          uMessage = this.apiService.sendNetworkMessage(
+            this.message,
+            this.ttl,
+            this.bor,
             messageID
           )
         }
       } else {
-        uMessage = APIService.sendNetworkMessage(
+        uMessage = this.apiService.sendNetworkMessage(
           messageToSend,
-          this.broadcast.ttl,
-          this.broadcast.bor,
+          this.ttl,
+          this.bor,
           messageID
         )
         reply.pending = 'Broadcast message in process of being sent'
-        reply.rawMessage = this.broadcast.message
+        reply.rawMessage = this.message
         reply.message = messageToSend
       }
-    } else if (
-      this.broadcast.voiceMemo !== undefined &&
-      this.broadcast.voiceMemo !== ''
-    ) {
-      uMessage = APIService.sendSecurityGroupVoiceMemo(
-        this.broadcast.securityGroups,
-        this.broadcast.voiceMemo,
-        this.broadcast.duration,
-        this.broadcast.ttl,
-        this.broadcast.bor,
+      // } else if (this.voiceMemo !== undefined && this.voiceMemo !== '') {
+    } else if (this.voiceMemo) {
+      uMessage = this.apiService.sendSecurityGroupVoiceMemo(
+        this.securityGroups,
+        this.voiceMemo,
+        this.duration,
+        this.ttl,
+        this.bor,
         messageID,
         sentBy
       )
       reply.pending =
         'Voice Memo broadcast in process of being sent to security group'
-      reply.rawMessage = this.broadcast.message
+      reply.rawMessage = this.message
       reply.message = messageToSend
-    } else if (
-      this.broadcast.file !== undefined &&
-      this.broadcast.file !== ''
-    ) {
-      uMessage = APIService.sendSecurityGroupAttachment(
-        this.broadcast.securityGroups,
-        this.broadcast.file,
-        this.broadcast.display,
-        this.broadcast.ttl,
-        this.broadcast.bor,
+      // } else if (this.file !== undefined && this.file !== '') {
+    } else if (this.file) {
+      uMessage = this.apiService.sendSecurityGroupAttachment(
+        this.securityGroups,
+        this.file,
+        this.display,
+        this.ttl,
+        this.bor,
         messageID,
         sentBy
       )
       reply.pending =
         'File broadcast in process of being sent to security group'
-      reply.rawMessage = this.broadcast.message
+      reply.rawMessage = this.message
       reply.message = messageToSend
-      if (this.broadcast.webapp && this.broadcast.message) {
-        uMessage = APIService.sendSecurityGroupMessage(
-          this.broadcast.securityGroups,
-          this.broadcast.message,
-          this.broadcast.ttl,
-          this.broadcast.bor,
+      if (this.webapp && this.message) {
+        uMessage = this.apiService.sendSecurityGroupMessage(
+          this.securityGroups,
+          this.message,
+          this.ttl,
+          this.bor,
           messageID
         )
       }
     } else {
-      uMessage = APIService.sendSecurityGroupMessage(
-        this.broadcast.securityGroups,
+      uMessage = this.apiService.sendSecurityGroupMessage(
+        this.securityGroups,
         messageToSend,
-        this.broadcast.ttl,
-        this.broadcast.bor,
+        this.ttl,
+        this.bor,
         messageID
       )
       reply.pending =
         'Broadcast message in process of being sent to security group'
-      reply.rawMessage = this.broadcast.message
+      reply.rawMessage = this.message
       reply.message = messageToSend
     }
-    if (this.broadcast.file !== undefined && this.broadcast.file !== '') {
-      logger.debug(`display:${this.broadcast.display}:`)
-      APIService.writeMessageIDDB(
+    // if (this.file !== undefined && this.file !== '') {
+    if (this.file) {
+      logger.debug(`display:${this.display}:`)
+      this.apiService.writeMessageIDDB(
         messageID,
-        this.broadcast.userEmail,
+        this.userEmail,
         target,
         jsonDateTime,
-        this.broadcast.display
+        this.display
       )
-    } else if (
-      this.broadcast.voiceMemo !== undefined &&
-      this.broadcast.voiceMemo !== ''
-    ) {
-      APIService.writeMessageIDDB(
+      // } else if (this.voiceMemo !== undefined && this.voiceMemo !== '') {
+    } else if (this.voiceMemo) {
+      this.apiService.writeMessageIDDB(
         messageID,
-        this.broadcast.userEmail,
+        this.userEmail,
         target,
         jsonDateTime,
         `VoiceMemo-${jsonDateTime}`
       )
     } else {
-      APIService.writeMessageIDDB(
+      this.apiService.writeMessageIDDB(
         messageID,
-        this.broadcast.userEmail,
+        this.userEmail,
         target,
         jsonDateTime,
-        this.broadcast.message
+        this.message
       )
     }
-    if (
-      this.broadcast.vGroupID !== '' &&
-      this.broadcast.vGroupID !== undefined
-    ) {
-      StatusService.asyncStatus(messageID, this.broadcast.vGroupID)
+    // if (this.vGroupID !== '' && this.vGroupID !== undefined) {
+    if (this.vGroupID) {
+      StatusService.asyncStatus(messageID, this.vGroupID)
     }
     logger.debug(`Broadcast uMessage=${uMessage}`)
     reply.message_id = messageID
     if (target === 'USERS') {
-      reply.users = this.broadcast.users
+      reply.users = this.users
     } else {
-      reply.securityGroups = this.broadcast.securityGroups
+      reply.securityGroups = this.securityGroups
     }
 
     this.clearValues()
@@ -302,27 +316,27 @@ class BroadcastService {
     return reply
   }
 
-  // TODO check if this.broadcast.works as expected
+  // TODO check if this.works as expected
   static isInt(value) {
     return !Number.isNaN(value)
   }
 
   clearValues() {
-    this.broadcast.file = ''
-    this.broadcast.message = ''
-    this.broadcast.userEmail = ''
-    this.broadcast.display = ''
-    this.broadcast.ackFlag = false
-    this.broadcast.securityGroups = []
-    this.broadcast.duration = 0
-    this.broadcast.voiceMemo = ''
-    this.broadcast.repeatFlag = false
-    this.broadcast.vGroupID = ''
-    this.broadcast.APISecurityGroups = []
-    this.broadcast.users = []
-    this.broadcast.ttl = ''
-    this.broadcast.bor = ''
-    this.broadcast.flags = []
+    this.file = ''
+    this.message = ''
+    this.userEmail = ''
+    this.display = ''
+    this.ackFlag = false
+    this.securityGroups = []
+    this.duration = 0
+    this.voiceMemo = ''
+    this.repeatFlag = false
+    this.vGroupID = ''
+    this.APISecurityGroups = []
+    this.users = []
+    this.ttl = ''
+    this.bor = ''
+    this.flags = []
   }
 }
 

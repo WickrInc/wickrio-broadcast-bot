@@ -2,14 +2,14 @@
 import { WickrIOAPI } from '../helpers/constants'
 
 class APIService {
-  static getSecurityGroups() {
+  getSecurityGroups() {
     const groupData = WickrIOAPI.cmdGetSecurityGroups()
     const temp = JSON.parse(groupData)
     // return JSON.parse(groupData);
     return temp
   }
 
-  static sendSecurityGroupVoiceMemo(
+  sendSecurityGroupVoiceMemo(
     securityGroups,
     voiceMemo,
     duration,
@@ -31,7 +31,7 @@ class APIService {
     )
   }
 
-  static sendSecurityGroupAttachment(
+  sendSecurityGroupAttachment(
     securityGroups,
     filename,
     displayName,
@@ -51,13 +51,7 @@ class APIService {
     )
   }
 
-  static sendSecurityGroupMessage(
-    securityGroups,
-    message,
-    ttl,
-    bor,
-    messageID
-  ) {
+  sendSecurityGroupMessage(securityGroups, message, ttl, bor, messageID) {
     return WickrIOAPI.cmdSendSecurityGroupMessage(
       message,
       securityGroups,
@@ -67,14 +61,7 @@ class APIService {
     )
   }
 
-  static sendNetworkVoiceMemo(
-    voiceMemo,
-    duration,
-    ttl,
-    bor,
-    messageID,
-    sentBy
-  ) {
+  sendNetworkVoiceMemo(voiceMemo, duration, ttl, bor, messageID, sentBy) {
     return WickrIOAPI.cmdSendNetworkVoiceMemo(
       voiceMemo,
       'VoiceMemo',
@@ -86,14 +73,7 @@ class APIService {
     )
   }
 
-  static sendNetworkAttachment(
-    filename,
-    displayName,
-    ttl,
-    bor,
-    messageID,
-    sentBy
-  ) {
+  sendNetworkAttachment(filename, displayName, ttl, bor, messageID, sentBy) {
     return WickrIOAPI.cmdSendNetworkAttachment(
       filename,
       displayName,
@@ -104,11 +84,11 @@ class APIService {
     )
   }
 
-  static sendNetworkMessage(message, ttl, bor, messageID) {
+  sendNetworkMessage(message, ttl, bor, messageID) {
     return WickrIOAPI.cmdSendNetworkMessage(message, ttl, bor, messageID)
   }
 
-  static writeMessageIDDB(messageId, sender, target, dateSent, messageContent) {
+  writeMessageIDDB(messageId, sender, target, dateSent, messageContent) {
     return WickrIOAPI.cmdAddMessageID(
       messageId,
       sender,
@@ -118,7 +98,7 @@ class APIService {
     )
   }
 
-  static getMessageStatus(messageID, type, page, pageSize) {
+  getMessageStatus(messageID, type, page, pageSize) {
     try {
       return WickrIOAPI.cmdGetMessageStatus(messageID, type, page, pageSize)
     } catch (err) {
@@ -126,14 +106,7 @@ class APIService {
     }
   }
 
-  static getMessageStatusFiltered(
-    messageID,
-    type,
-    page,
-    pageSize,
-    filter,
-    users
-  ) {
+  getMessageStatusFiltered(messageID, type, page, pageSize, filter, users) {
     try {
       return WickrIOAPI.cmdGetMessageStatus(
         messageID,
@@ -148,7 +121,7 @@ class APIService {
     }
   }
 
-  static getMessageIDEntry(messageID) {
+  getMessageIDEntry(messageID) {
     try {
       return WickrIOAPI.cmdGetMessageIDEntry(messageID)
     } catch (err) {
@@ -156,7 +129,7 @@ class APIService {
     }
   }
 
-  static getMessageIDTable(page, size, sender) {
+  getMessageIDTable(page, size, sender) {
     return WickrIOAPI.cmdGetMessageIDTable(page, size, sender)
   }
 
@@ -164,11 +137,11 @@ class APIService {
     return WickrIOAPI.cmdSendRoomMessage(vGroupID, message)
   }
 
-  static sendRoomAttachment(vGroupID, attachment, display) {
+  sendRoomAttachment(vGroupID, attachment, display) {
     return WickrIOAPI.cmdSendRoomAttachment(vGroupID, attachment, display)
   }
 
-  static sendMessageUserHashFile(filePath, message, ttl, bor, messageID) {
+  sendMessageUserHashFile(filePath, message, ttl, bor, messageID) {
     return WickrIOAPI.cmdSendMessageUserHashFile(
       filePath,
       message,
@@ -178,7 +151,7 @@ class APIService {
     )
   }
 
-  static sendMessageUserNameFile(filePath, message, ttl, bor, messageID) {
+  sendMessageUserNameFile(filePath, message, ttl, bor, messageID) {
     return WickrIOAPI.cmdSendMessageUserNameFile(
       filePath,
       message,
@@ -188,7 +161,7 @@ class APIService {
     )
   }
 
-  static sendAttachmentUserHashFile(
+  sendAttachmentUserHashFile(
     filePath,
     attachment,
     display,
@@ -206,7 +179,7 @@ class APIService {
     )
   }
 
-  static sendAttachmentUserNameFile(
+  sendAttachmentUserNameFile(
     filePath,
     attachment,
     display,
@@ -224,7 +197,7 @@ class APIService {
     )
   }
 
-  static setMessageStatus(messageID, userID, statusNumber, statusMessage) {
+  setMessageStatus(messageID, userID, statusNumber, statusMessage) {
     return WickrIOAPI.cmdSetMessageStatus(
       messageID,
       userID,
@@ -233,18 +206,11 @@ class APIService {
     )
   }
 
-  static send1to1Message(userArray, reply, ttl, bor, messageID) {
+  send1to1Message(userArray, reply, ttl, bor, messageID) {
     return WickrIOAPI.cmdSend1to1Message(userArray, reply, ttl, bor, messageID)
   }
 
-  static send1to1MessageLowPriority(
-    userArray,
-    reply,
-    ttl,
-    bor,
-    messageID,
-    flags
-  ) {
+  send1to1MessageLowPriority(userArray, reply, ttl, bor, messageID, flags) {
     const buttons = []
     return WickrIOAPI.cmdSend1to1Message(
       userArray,
@@ -258,19 +224,19 @@ class APIService {
     )
   }
 
-  static cancelMessageID(messageID) {
+  cancelMessageID(messageID) {
     return WickrIOAPI.cmdCancelMessageID(messageID)
   }
 
-  static setEventCallback(callbackUrl) {
+  setEventCallback(callbackUrl) {
     return WickrIOAPI.cmdSetEventCallback(callbackUrl)
   }
 
-  static getEventCallback() {
+  getEventCallback() {
     return WickrIOAPI.cmdGetEventCallback()
   }
 
-  static deleteEventCallback() {
+  deleteEventCallback() {
     return WickrIOAPI.cmdDeleteEventCallback()
   }
 }

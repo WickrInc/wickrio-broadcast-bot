@@ -3,8 +3,9 @@ import { bot, logger, WEB_APPLICATION } from '../helpers/constants'
 const webAppEnabled = WEB_APPLICATION.value === 'yes'
 
 class Help {
-  constructor(apiService) {
+  constructor({ apiService, messageService }) {
     this.apiService = apiService
+    this.messageService = messageService
     this.commandString = '/help'
   }
 

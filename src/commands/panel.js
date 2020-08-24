@@ -31,7 +31,7 @@ class Panel {
     return false
   }
 
-  execute(messageService) {
+  execute() {
     if (webAppEnabled) {
       // Check if this user is an administrator
       // var adminUser = bot.myAdmins.getAdmin(userEmail);
@@ -52,12 +52,12 @@ class Panel {
       // store it in a globally accessable store
 
       const random = this.generateRandomString(24)
-      client_auth_codes[messageService.userEmail] = random
+      client_auth_codes[this.messageService.userEmail] = random
       // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk
       // send token in url, used for calls to receive data, send messages
       const token = jsonwebtoken.sign(
         {
-          email: messageService.userEmail,
+          email: this.messageService.userEmail,
           session: random,
           host: host,
           port: BOT_PORT.value,
@@ -67,10 +67,10 @@ class Panel {
       )
 
       const reply = encodeURI(`${host}:${WEBAPP_PORT.value}/?token=${token}`)
-      this.apiService.sendRoomMessage(messageService.vGroupID, reply)
+      this.apiService.sendRoomMessage(this.messageService.vGroupID, reply)
     } else if (!webAppEnabled) {
       this.apiService.sendRoomMessage(
-        messageService.vGroupID,
+        this.messageService.vGroupID,
         'panel disabled, to use panel, run /configure to enable web and app interfaces!'
       )
     }

@@ -9,7 +9,13 @@ class AskForAck {
 
   shouldExecute() {
     // TODO could remove the /broadcast check if done right
-    if (this.messageService.getCurrentState() === this.state) {
+    const { userEmail } = this.messageService.getMessageData()
+
+    const userCurrentState = this.messageService.getUserCurrentState({
+      userEmail,
+    })
+
+    if (userCurrentState === this.state) {
       return true
     }
     return false
@@ -18,6 +24,7 @@ class AskForAck {
   execute() {
     let state
     let reply
+
     if (this.messageService.affirmativeReply()) {
       this.broadcastService.setAckFlag(true)
     } else if (this.messageService.negativeReply()) {
@@ -25,11 +32,16 @@ class AskForAck {
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'
       state = State.ASK_FOR_ACK
+      this.messageService.setUserCurrentState({
+        currentState: State.ASK_FOR_ACK,
+      })
+
       return {
         reply,
         state,
       }
     }
+
     const securityGroupList = this.broadcastService.getAPISecurityGroups()
     let groupsString = ''
     for (let i = 0; i < securityGroupList.length; i += 1) {
@@ -44,6 +56,10 @@ class AskForAck {
         } (users: ${securityGroupList[i].size})\n`
       }
     }
+    this.messageService.setUserCurrentState({
+      currentState: State.WHICH_GROUPS,
+    })
+
     reply = `${
       'Who would you like to receive this message?\n\n' +
       'Here is a list of the security groups:\n'

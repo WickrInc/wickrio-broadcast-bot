@@ -8,7 +8,12 @@ class ConfirmSecurityGroups {
   }
 
   shouldExecute() {
-    if (this.messageService.getCurrentState() === this.state) {
+    const { userEmail } = this.messageService.getMessageData()
+
+    const userCurrentState = this.messageService.getUserCurrentState({
+      userEmail,
+    })
+    if (userCurrentState === this.state) {
       return true
     }
     return false
@@ -21,12 +26,22 @@ class ConfirmSecurityGroups {
     if (this.messageService.affirmativeReply()) {
       reply = 'Would you like to repeat this broadcast message?'
       state = State.ASK_REPEAT
+      this.messageService.setUserCurrentState({
+        currentState: State.ASK_REPEAT,
+      })
     } else if (this.messageService.negativeReply()) {
       reply =
         'Please enter the number(s) of the security group(s) or reply all to send the message to everyone in the network.'
       state = State.WHICH_GROUPS
+      this.messageService.setUserCurrentState({
+        currentState: State.WHICH_GROUPS,
+      })
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'
+      this.messageService.setUserCurrentState({
+        currentState: State.WHICH_GROUPS,
+      })
+
       state = this.state
     }
     const obj = {

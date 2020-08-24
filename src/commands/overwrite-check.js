@@ -8,13 +8,19 @@ import FileHandler from '../helpers/file-handler'
   process is cancelled.
 */
 class OverwriteCheck {
-  constructor(fileService) {
+  constructor({ fileService, messageService }) {
     this.fileService = fileService
+    this.messageService = messageService
     this.state = State.OVERWRITE_CHECK
   }
 
   shouldExecute() {
-    if (this.messageService.getCurrentState() === this.state) {
+    const { userEmail } = this.messageService.getMessageData()
+
+    const userCurrentState = this.messageService.getUserCurrentState({
+      userEmail,
+    })
+    if (userCurrentState === this.state) {
       return true
     }
     return false

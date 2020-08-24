@@ -8,7 +8,12 @@ class TimesRepeat {
   }
 
   shouldExecute() {
-    if (this.messageService.getCurrentState() === this.state) {
+    const { userEmail } = this.messageService.getMessageData()
+
+    const userCurrentState = this.messageService.getUserCurrentState({
+      userEmail,
+    })
+    if (userCurrentState === this.state) {
       return true
     }
     return false

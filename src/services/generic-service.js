@@ -1,4 +1,4 @@
-import APIService from './api-service'
+// import APIfrom './api-service'
 import { logger } from '../helpers/constants'
 
 const maxStringLength = 50
@@ -6,34 +6,36 @@ const maxStringLength = 50
 const inc = 10
 
 class GenericService {
-  constructor(endIndex, user) {
-    this.user = user
-    this.user.defaultEndIndex = endIndex
+  constructor({ endIndex, messageService, apiService }) {
+    // this.user = user
+    this.messageService = messageService
+    this.apiService = apiService
+    this.messageService.defaultEndIndex = endIndex
   }
 
   setMessageStatus(messageID, userID, statusNumber, statusMessage) {
-    const reply = APIService.setMessageStatus(
+    const reply = this.apiService.setMessageStatus(
       messageID,
       userID,
       statusNumber,
       statusMessage
     )
     const userArray = [userID]
-    APIService.send1to1Message(userArray, reply, '', '', '')
+    this.apiService.send1to1Message(userArray, reply, '', '', '')
     return reply
   }
 
   cancelMessageID(messageID) {
-    return APIService.cancelMessageID(messageID)
+    return this.apiService.cancelMessageID(messageID)
   }
 
   getEntriesString(userEmail, abort) {
     const currentEntries = this.getMessageEntries(userEmail, abort)
     let reply
-    logger.debug(`startIndex${this.user.startIndex}`)
+    logger.debug(`startIndex${this.messageService.startIndex}`)
     if (
       currentEntries.length < 1 ||
-      this.user.startIndex >= this.user.endIndex
+      this.messageService.startIndex >= this.messageService.endIndex
     ) {
       if (abort) {
         reply = 'There are no active messages to display'
@@ -45,7 +47,11 @@ class GenericService {
       let index = 1
       let messageString = ''
       // TODO fix extra \n in more functionality
-      for (let i = this.user.startIndex; i < this.user.endIndex; i += 1) {
+      for (
+        let i = this.messageService.startIndex;
+        i < this.messageService.endIndex;
+        i += 1
+      ) {
         contentData = this.getMessageEntry(currentEntries[i].message_id)
         const contentParsed = JSON.parse(contentData)
         const messageDisplayed = this.truncate(
@@ -53,12 +59,12 @@ class GenericService {
           maxStringLength
         )
         messageString += `(${
-          this.user.startIndex + index
+          this.messageService.startIndex + index
         }) ${messageDisplayed}\n`
         index += 1
       }
       reply =
-        `Here are the past ${this.user.endIndex} broadcast message(s):\n` +
+        `Here are the past ${this.messageService.endIndex} broadcast message(s):\n` +
         `${messageString}`
     }
     return reply
@@ -69,7 +75,7 @@ class GenericService {
     const pageSize = 1000
     const messageEntries = []
     while (true) {
-      const tableDataRaw = APIService.getMessageIDTable(
+      const tableDataRaw = this.apiService.getMessageIDTable(
         `${pageNum}`,
         `${pageSize}`,
         userEmail
@@ -100,12 +106,15 @@ class GenericService {
       }
       pageNum += 1
     }
-    this.user.endIndex = Math.min(this.user.endIndex, messageEntries.length)
+    this.messageService.endIndex = Math.min(
+      this.messageService.endIndex,
+      messageEntries.length
+    )
     return messageEntries
   }
 
   getMessageEntry(messageID) {
-    return APIService.getMessageIDEntry(messageID)
+    return this.apiService.getMessageIDEntry(messageID)
   }
 
   // TODO should we trim white space too?
@@ -114,17 +123,17 @@ class GenericService {
   }
 
   getEndIndex() {
-    return this.user.endIndex
+    return this.messageService.endIndex
   }
 
   incrementIndexes() {
-    this.user.startIndex += inc
-    this.user.endIndex += inc
+    this.messageService.startIndex += inc
+    this.messageService.endIndex += inc
   }
 
   resetIndexes() {
-    this.user.startIndex = 0
-    this.user.endIndex = this.user.defaultEndIndex
+    this.messageService.startIndex = 0
+    this.messageService.endIndex = this.messageService.defaultEndIndex
   }
 }
 

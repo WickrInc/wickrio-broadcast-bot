@@ -46,22 +46,33 @@ import ReportService from './services/report-service'
 class Factory {
   // TODO add send service
   constructor({ messageService }) {
+    // constructor({ messageService, broadcastService }) {
     // These are the services that will be passed to the commands
     this.messageService = messageService
+    // this.broadcastService = broadcastService
+    this.apiService = new APIService()
+    this.reportService = new ReportService()
+
+    const userState = messageService.getUserCurrentState({
+      userEmail: this.messageService.userEmail,
+    })
+    console.log({ userState })
     this.broadcastService = new BroadcastService({
+      messageService: this.messageService,
+      apiService: this.apiService,
+    })
+    this.repeatService = new RepeatService({
+      broadcastService: this.broadcastService,
       messageService: this.messageService,
     })
     this.sendService = new SendService(this.messageService)
-    this.statusService = new StatusService()
-    this.repeatService = new RepeatService({
-      broadcastService: this.broadcastService,
-      // user: user,
-      messageServive: this.messageService,
-    })
-    this.reportService = new ReportService()
-    this.genericService = new GenericService(10, this.messageService)
     this.fileService = new FileService(this.messageService)
-    this.apiService = new APIService()
+    this.genericService = new GenericService({
+      endIndex: 10,
+      messageService: this.messageService,
+      apiService: this.apiService,
+    })
+    this.statusService = new StatusService()
 
     // These are the /commands
     this.ack = new Ack({
@@ -93,13 +104,16 @@ class Factory {
       broadcastService: this.broadcastService,
       messageService: this.messageService,
     })
-    this.initializeSend = new InitializeSend(this.sendService)
+    this.initializeSend = new InitializeSend({
+      sendService: this.sendService,
+      messageService: this.messageService,
+    })
     this.report = new Report({
       genericeService: this.genericService,
       messageService: this.messageService,
     })
     this.statusCommand = new Status({
-      genericeService: this.genericService,
+      genericService: this.genericService,
       messageService: this.messageService,
     })
     this.map = new Map({
@@ -110,7 +124,10 @@ class Factory {
       apiService: this.apiService,
       messageService: this.messageService,
     })
-    this.help = new Help({ apiService: this.apiService })
+    this.help = new Help({
+      apiService: this.apiService,
+      messageService: this.messageService,
+    })
 
     // These are the options
     this.activeRepeat = new ActiveRepeat({
@@ -142,8 +159,12 @@ class Factory {
       fileService: this.fileService,
       broadcastService: this.broadcastService,
       sendService: this.sendService,
+      messageService: this.messageService,
     })
-    this.overwriteCheck = new OverwriteCheck(this.fileService)
+    this.overwriteCheck = new OverwriteCheck({
+      fileService: this.fileService,
+      messageService: this.messageService,
+    })
     this.repeatFrequency = new RepeatFrequency({
       repeatService: this.repeatService,
       messageService: this.messageService,
