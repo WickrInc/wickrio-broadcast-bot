@@ -41,6 +41,7 @@ import GenericService from './services/generic-service'
 import APIService from './services/api-service'
 import StatusService from './services/status-service'
 import ReportService from './services/report-service'
+import Version from './commands/version'
 
 // TODO how can we use a new Broadcast service each time???
 class Factory {
@@ -75,6 +76,9 @@ class Factory {
     this.statusService = new StatusService()
 
     // These are the /commands
+    this.version = new Version({
+      messageService: this.messageService,
+    })
     this.ack = new Ack({
       genericService: this.genericService,
       messageService: this.messageService,
@@ -205,6 +209,7 @@ class Factory {
     // TODO make it so that the order doesn' matter?
     this.commandList = [
       // These are the /commands and must go first
+      this.version,
       this.ack,
       this.abort,
       this.cancel,

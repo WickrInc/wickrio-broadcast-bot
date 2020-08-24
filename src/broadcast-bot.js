@@ -163,6 +163,22 @@ async function listen(rawMessage) {
     if (!fs.existsSync(`${process.cwd()}/files/${userEmail}`)) {
       fs.mkdirSync(`${process.cwd()}/files/${userEmail}`)
     }
+
+    if (msgType === 'location') {
+      // acknowledges all messages sent to user
+      const obj = {
+        location: {
+          latitude: latitude,
+          longitude: longitude,
+        },
+      }
+      const statusMessage = JSON.stringify(obj)
+      const genericService = new GenericService(10, user)
+      genericService.setMessageStatus('', `${userEmail}`, '3', statusMessage)
+      user.currentState = State.NONE
+      return
+    }
+
     // if (!parsedMessage) {
     //   // why are we writing?
     //   await writer.writeFile(rawMessage)
@@ -209,20 +225,6 @@ async function listen(rawMessage) {
 
     // Send the location as an acknowledgement
     // TODO create a pre-admin factory method with all the commands that are pre-admin
-    if (msgType === 'location') {
-      // acknowledges all messages sent to user
-      const obj = {
-        location: {
-          latitude: latitude,
-          longitude: longitude,
-        },
-      }
-      const statusMessage = JSON.stringify(obj)
-      const genericService = new GenericService(10, user)
-      genericService.setMessageStatus('', `${userEmail}`, '3', statusMessage)
-      user.currentState = State.NONE
-      return
-    }
 
     // if (command === '/version') {
     //   const obj = Version.execute()
@@ -284,86 +286,17 @@ async function listen(rawMessage) {
       return
     }
 
-    // TODO move this elsewhere?
-    // delete this?
-    // if (command === '/messages') {
-    //   const path = `${process.cwd()}/attachments/messages.txt`
-    //   WickrIOAPI.cmdSendRoomAttachment(vGroupID, path, path)
-    //   user.currentState = State.NONE
-    //   return
-    // }
-
-    // if (webAppEnabled && command === '/panel') {
-    //   // Check if this user is an administrator
-    //   // var adminUser = bot.myAdmins.getAdmin(userEmail);
-    //   // scope this conditional down further
-
-    //   // if (adminUser === undefined) {
-    //   //   let reply = 'Access denied: ' + userEmail + ' is not authorized to broadcast!'
-    //   //   var sMessage = APIService.sendRoomMessage(vGroupID, reply);
-    //   //   return
-    //   // }
-    //   let host
-    //   if (HTTPS_CHOICE.value === 'yes') {
-    //     host = `https://${WEBAPP_HOST.value}`
-    //   } else {
-    //     host = `http://${WEBAPP_HOST.value}`
-    //   }
-    //   // generate a random auth code for the session
-    //   // store it in a globally accessable store
-
-    //   const random = generateRandomString(24)
-    //   client_auth_codes[userEmail] = random
-    //   // bot rest requests need basic base64 auth header - broadcast web needs the token from this bot. token is provided through URL - security risk
-    //   // send token in url, used for calls to receive data, send messages
-    //   const token = jwt.sign(
-    //     {
-    //       email: userEmail,
-    //       session: random,
-    //       host: host,
-    //       port: BOT_PORT.value,
-    //     },
-    //     BOT_AUTH_TOKEN.value,
-    //     { expiresIn: '1800s' }
-    //   )
-
-    //   const reply = encodeURI(`${host}:${WEBAPP_PORT.value}/?token=${token}`)
-    //   APIService.sendRoomMessage(vGroupID, reply)
-    //   return
-    // } else if (!webAppEnabled && command === '/panel') {
-    //   APIService.sendRoomMessage(
-    //     vGroupID,
-    //     'panel disabled, to use panel, run /configure to enable web and app interfaces!'
-    //   )
-    // }
-
-    // const messageService = new MessageService(messageReceived, userEmail, argument, command, currentState, vGroupID, file, filename);
-    // const messageService = new MessageService(
-    //   message,
-    //   userEmail,
-    //   argument,
-    //   command,
-    //   user.currentState,
-    //   vGroupID,
-    //   file,
-    //   filename,
-    //   user
-    // )
     // TODO is this JSON.stringify necessary??
     // How to deal with duplicate files??
-
     // TODO parse argument better??
-
     const cmdResult = factory.execute()
-    // console.log({ cmdResult })
+    console.log({ cmdResult })
+
     if (cmdResult?.reply)
       WickrIOAPI.cmdSendRoomMessage(vGroupID, cmdResult.reply)
 
     // if (cmdResult?.state)
     // messageService.updateUserStateInDB({ currentState: cmdResult.state })
-
-    // console.log({ obj })
-    // console.log({ state: cmdResult?.state })
   } catch (err) {
     logger.error(err)
     logger.error('Got an error')

@@ -18,11 +18,10 @@ class InitializeBroadcast {
   execute() {
     const {
       argument,
-      message,
+      // message,
       userEmail,
       vGroupID,
     } = this.messageService.getMessageData()
-    console.log({ argument, message })
 
     this.broadcastService.setMessage(argument)
     this.broadcastService.setUserEmail(userEmail)

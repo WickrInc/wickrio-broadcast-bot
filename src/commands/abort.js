@@ -16,7 +16,7 @@ class Abort {
   }
 
   execute() {
-    logger.debug(`:${this.messageService.getArgument()}:`)
+    logger.debug(`:${this.messageService.getArguments()}:`)
     this.genericService.resetIndexes()
     const userEmail = this.messageService.getUserEmail()
     // check argument here!
