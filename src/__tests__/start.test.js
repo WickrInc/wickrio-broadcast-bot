@@ -1,6 +1,9 @@
 import * as WickrIOBotAPI from 'wickrio-bot-api'
 import BroadcastService from '../services/broadcast-service'
 import { APIService, StatusService } from '../services'
+import dotenv from 'dotenv'
+
+dotenv.config()
 // import path from 'path'
 
 describe('Connecting', () => {

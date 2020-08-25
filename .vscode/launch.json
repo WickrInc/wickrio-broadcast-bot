@@ -35,8 +35,8 @@
         "${workspaceRoot}/node_modules/.bin/jest",
         "--runInBand"
       ],
-      "console": "integratedTerminal",
-      // "console": "internalConsole",
+      // "console": "integratedTerminal",
+      "console": "internalConsole",
       "internalConsoleOptions": "neverOpen",
       "port": 9229
     }
