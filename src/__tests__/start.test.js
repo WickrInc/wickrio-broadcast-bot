@@ -1,9 +1,6 @@
 import * as WickrIOBotAPI from 'wickrio-bot-api'
-import dotenv from 'dotenv'
 import BroadcastService from '../services/broadcast-service'
-import APIService from '../services/api-service'
-dotenv.config()
-
+import { APIService, StatusService } from '../services'
 // import path from 'path'
 
 describe('Connecting', () => {
@@ -15,7 +12,7 @@ describe('Connecting', () => {
     console.log({ status })
     expect(status).toEqual(true)
   })
-  it('should send a successful broadcast', async () => {
+  it('should send a successful broadcast 1 to 1', async () => {
     // const bot = new WickrIOBotAPI.WickrIOBot()
 
     const apiService = new APIService()
@@ -38,6 +35,76 @@ describe('Connecting', () => {
     console.log({ reply })
     expect(reply.pending).toEqual('Broadcast message in process of being sent')
   })
+  it('should send a successful broadcast to a single Security Group ', async () => {
+    const apiService = new APIService()
+    const statusService = new StatusService()
+    const broadcastService = new BroadcastService({
+      messageService: { user: {} },
+      apiService,
+      statusService,
+    })
+    broadcastService.setMessage(
+      'broadcast from jest test for the broadcast bot!'
+    )
+    broadcastService.setUserEmail('jest test')
+    broadcastService.setUsers(
+      ['alane+largeroom@wickr.com'] // security group 6
+    )
+    broadcastService.setTTL('')
+    broadcastService.setBOR('')
+    broadcastService.setSentByFlag(true)
+    const reply = broadcastService.broadcastMessage()
+    expect(reply.pending).toEqual(
+      'Broadcast message in process of being sent to list of users'
+    )
+  })
+  // it('should send a successful broadcast to multiple Security Groups ', async () => {
+  //   const apiService = new APIService()
+  //   const statusService = new StatusService()
+  //   const broadcastService = new BroadcastService({
+  //     messageService: { user: {} },
+  //     apiService,
+  //     statusService,
+  //   })
+  //   broadcastService.setMessage(
+  //     'broadcast from jest test for the broadcast bot!'
+  //   )
+  //   broadcastService.setUserEmail('jest test')
+  //   broadcastService.setUsers(
+  //     ['alane+largeroom@wickr.com'] // security group 6
+  //   )
+  //   broadcastService.setTTL('')
+  //   broadcastService.setBOR('')
+  //   broadcastService.setSentByFlag(true)
+  //   const reply = broadcastService.broadcastMessage()
+  //   expect(reply.pending).toEqual(
+  //     'Broadcast message in process of being sent to list of users'
+  //   )
+  // })
+  // it('should send a successful broadcast to the whole network', async () => {
+  //   const apiService = new APIService()
+  //   const statusService = new StatusService()
+  //   const broadcastService = new BroadcastService({
+  //     messageService: { user: {} },
+  //     apiService,
+  //     statusService,
+  //   })
+  //   broadcastService.setMessage(
+  //     'broadcast from jest test for the broadcast bot!'
+  //   )
+  //   broadcastService.setUserEmail('jest test')
+  //   broadcastService.setUsers(
+  //     ['alane+largeroom@wickr.com'] // security group 6
+  //   )
+  //   broadcastService.setTTL('')
+  //   broadcastService.setBOR('')
+  //   broadcastService.setSentByFlag(true)
+  //   const reply = broadcastService.broadcastMessage()
+  //   expect(reply.pending).toEqual(
+  //     'Broadcast message in process of being sent to list of users'
+  //   )
+  // })
+
   // get rid of .env if this is built
   // it('should test configuration', async () => {
   //   // set tokens needed for the app
