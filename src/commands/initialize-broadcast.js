@@ -22,7 +22,7 @@ class InitializeBroadcast {
       userEmail,
       vGroupID,
     } = this.messageService.getMessageData()
-
+    console.log({ vGroupID })
     this.broadcastService.setMessage(argument)
     this.broadcastService.setUserEmail(userEmail)
     this.broadcastService.setVGroupID(vGroupID)

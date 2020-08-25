@@ -106,7 +106,24 @@
   },
   "babel": {
     "env": {
-      "test": {
+      "production": {
+        "ignore": [
+          "**/__tests__"
+        ],
+        "presets": [
+          "@babel/preset-env"
+        ],
+        "plugins": [
+          "@babel/plugin-proposal-optional-chaining",
+          "@babel/plugin-transform-runtime",
+          "@babel/plugin-transform-modules-commonjs",
+          "@babel/plugin-proposal-class-properties"
+        ]
+      },
+      "development": {
+        "ignore": [
+          "**/__tests__"
+        ],
         "presets": [
           "@babel/preset-env"
         ],
@@ -119,18 +136,7 @@
         "sourceMaps": "inline",
         "retainLines": true
       },
-      "production": {
-        "presets": [
-          "@babel/preset-env"
-        ],
-        "plugins": [
-          "@babel/plugin-proposal-optional-chaining",
-          "@babel/plugin-transform-runtime",
-          "@babel/plugin-transform-modules-commonjs",
-          "@babel/plugin-proposal-class-properties"
-        ]
-      },
-      "development": {
+      "test": {
         "presets": [
           "@babel/preset-env"
         ],
