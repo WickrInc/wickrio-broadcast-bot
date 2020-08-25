@@ -32,7 +32,7 @@
     "robbowen.synthwave-vscode",
     "rust-lang.rust"
   ],
-  "overrideCommand": false,
+  // "overrideCommand": false,
   "runArgs": ["-v", "/var/run/docker.sock:/var/run/docker.sock"],
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.

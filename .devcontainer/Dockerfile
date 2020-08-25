@@ -147,6 +147,6 @@ RUN echo '. /usr/local/nvm/nvm.sh' >> /home/ubuntu/.zshrc
 
 
 # Start the processes
-CMD "/home/ubuntu/start.sh"
+CMD [ "/home/ubuntu/start.sh" ]
 
 ENV DEBIAN_FRONTEND=dialog
