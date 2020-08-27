@@ -8,15 +8,7 @@ class ActiveRepeat {
   }
 
   shouldExecute() {
-    const { userEmail } = this.messageService.getMessageData()
-
-    const userCurrentState = this.messageService.getUserCurrentState({
-      userEmail,
-    })
-    if (userCurrentState === this.state) {
-      return true
-    }
-    return false
+    return this.checkState()
   }
 
   execute() {
@@ -38,6 +30,18 @@ class ActiveRepeat {
       reply,
       state,
     }
+  }
+
+  checkState() {
+    const { userEmail } = this.messageService.getMessageData()
+
+    const userCurrentState = this.messageService.getUserCurrentState({
+      userEmail,
+    })
+    if (userCurrentState === this.state) {
+      return true
+    }
+    return false
   }
 }
 
