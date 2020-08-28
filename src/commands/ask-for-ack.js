@@ -1,4 +1,5 @@
 import State from '../state'
+import Groups from './groups'
 
 class AskForAck {
   constructor(broadcastService) {
@@ -29,7 +30,10 @@ class AskForAck {
         state,
       }
     }
-    const securityGroupList = this.broadcastService.getAPISecurityGroups()
+    const securityGroupList = Groups.getSGs(
+      messageService.userEmail,
+      this.broadcastService.getAPISecurityGroups()
+    )
     let groupsString = ''
     for (let i = 0; i < securityGroupList.length; i += 1) {
       // Check if the securityGroup has a size

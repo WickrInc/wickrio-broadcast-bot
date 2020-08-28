@@ -1,5 +1,6 @@
 import State from '../state'
 import { logger } from '../helpers/constants'
+import Groups from './groups'
 
 class InitializeBroadcast {
   constructor(broadcastService) {
@@ -22,17 +23,29 @@ class InitializeBroadcast {
     this.broadcastService.setBOR('')
     this.broadcastService.setSentByFlag(true)
     logger.debug(`Here are all the things: ${messageService.getArgument()}`)
-    let reply = 'Would you like to ask the recipients for an acknowledgement?'
-    let state = State.ASK_FOR_ACK
-    // TODO check for undefined??
-    if (
-      messageService.getArgument() === undefined ||
-      messageService.getArgument() === '' ||
-      messageService.getArgument().length === 0
-    ) {
+    const securityGroupList = Groups.getSGs(
+      messageService.userEmail,
+      this.broadcastService.getAPISecurityGroups()
+    )
+    let reply
+    let state
+    if (securityGroupList.length === 0) {
       reply =
-        'Must have a message or file to broadcast, Usage: /broadcast <message>'
+        'You have no access to any security groups and cannot broadcast a message.'
       state = State.NONE
+    } else {
+      reply = 'Would you like to ask the recipients for an acknowledgement?'
+      state = State.ASK_FOR_ACK
+      // TODO check for undefined??
+      if (
+        messageService.getArgument() === undefined ||
+        messageService.getArgument() === '' ||
+        messageService.getArgument().length === 0
+      ) {
+        reply =
+          'Must have a message or file to broadcast, Usage: /broadcast <message>'
+        state = State.NONE
+      }
     }
     return {
       reply,

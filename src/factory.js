@@ -9,6 +9,7 @@ import DeleteFile from './commands/delete-file'
 import Help from './commands/help'
 import FilesCommand from './commands/files-command'
 import FileReceived from './commands/file-received'
+import Groups from './commands/groups'
 import InitializeBroadcast from './commands/initialize-broadcast'
 import InitializeSend from './commands/initialize-send'
 import Report from './commands/report'
@@ -99,6 +100,7 @@ class Factory {
       this.abort,
       this.cancel,
       this.deleteFile,
+      Groups,
       Help,
       this.filesCommand,
       this.fileReceived,
