@@ -1,5 +1,7 @@
-const WickrIOBotAPI = require('wickrio-bot-api');
+const WickrIOBotAPI = require('wickrio-bot-api')
 const util = require('util')
+const fs = require('fs')
+const Proc = require('./processes.json')
 
 
 require("dotenv").config({
@@ -8,7 +10,7 @@ require("dotenv").config({
 
 var wickrIOConfigure;
 
-process.stdin.resume(); //so the program will not close instantly
+process.stdin.resume(); // so the program will not close instantly
 
 function exitHandler(options, err) {
   try {
@@ -172,10 +174,48 @@ async function main() {
   ];
 
 
-  var fullName = process.cwd() + "/processes.json";
-  wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure(tokenConfig, fullName, true, true);
-
-  await wickrIOConfigure.configureYourBot("WickrIO-Broadcast-Bot");
-  process.exit();
+  /*
+     1.  Configure all regular tokens the first time.
+     2.  Generate tokens for each administrator's security group access.
+     3.  Configure 2nd time with only the added tokens.
+   */
+  // 1.
+  const fullName = `${process.cwd()}/processes.json`
+  wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure(
+    tokenConfig,
+    fullName,
+    true,
+    true,
+    false,
+    false
+  )
+  await wickrIOConfigure.configureYourBot('WickrIO-Broadcast-Bot')
+  // 2.
+  const adminArray = wickrIOConfigure
+    .getCurrentValues()
+    .ADMINISTRATORS.split(',')
+  const tokenToAdd = []
+  let i
+  for (i = 0; i < adminArray.length; i += 1) {
+    const newToken = {
+      token: adminArray[i],
+      pattern: '',
+      type: 'string',
+      description: `Please enter a list of security groups (ID Numbers or ALL) ${adminArray[i]} has access to.`,
+      message: 'Cannot leave empty! Please enter a value',
+      required: false,
+    }
+    tokenToAdd.push(newToken)
+  }
+  // 3.
+  const alt = new WickrIOBotAPI.WickrIOConfigure(
+    tokenToAdd,
+    fullName,
+    false,
+    false,
+    false,
+    true
+  )
+  await alt.configureYourBot('WickrIO-Broadcast-Bot')
+  process.exit()
 }
-
