@@ -93,7 +93,6 @@ const startServer = () => {
     } else {
       host = `http://${WEBAPP_HOST.value}`
       app.listen(BOT_PORT.value, () => {
-        console.log('http')
         console.log('We are live on ' + BOT_PORT.value)
       })
     }

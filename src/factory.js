@@ -51,13 +51,10 @@ class Factory {
     // These are the services that will be passed to the commands
     this.messageService = messageService
     // this.broadcastService = broadcastService
-    this.apiService = new APIService()
-    this.reportService = new ReportService()
+    this.apiService = APIService
+    this.reportService = ReportService
+    this.statusService = StatusService
 
-    const userState = messageService.getUserCurrentState({
-      userEmail: this.messageService.userEmail,
-    })
-    console.log({ userState })
     this.broadcastService = new BroadcastService({
       messageService: this.messageService,
       apiService: this.apiService,
@@ -73,7 +70,6 @@ class Factory {
       messageService: this.messageService,
       apiService: this.apiService,
     })
-    this.statusService = new StatusService()
 
     // These are the /commands
     this.version = new Version({

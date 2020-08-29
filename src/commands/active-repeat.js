@@ -8,7 +8,9 @@ class ActiveRepeat {
   }
 
   shouldExecute() {
-    return this.checkState()
+    return this.messageService.matchUserCommandCurrentState({
+      commandState: this.state,
+    })
   }
 
   execute() {
@@ -30,18 +32,6 @@ class ActiveRepeat {
       reply,
       state,
     }
-  }
-
-  checkState() {
-    const { userEmail } = this.messageService.getMessageData()
-
-    const userCurrentState = this.messageService.getUserCurrentState({
-      userEmail,
-    })
-    if (userCurrentState === this.state) {
-      return true
-    }
-    return false
   }
 }
 

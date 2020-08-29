@@ -10,7 +10,6 @@ class Help {
   }
 
   shouldExecute() {
-    logger.trace('Inside should execute')
     if (this.messageService.getCommand() === this.commandString) {
       return true
     }
@@ -49,6 +48,7 @@ class Help {
       '/delete : To delete a file that was previously made available for the /send command\n'
 
     if (isAdmin) {
+      // console.log({ helpString, vGroupID })
       helpString = bot.getAdminHelp(helpString)
       const sMessage = this.apiService.sendRoomMessage(vGroupID, helpString)
       logger.debug(sMessage)

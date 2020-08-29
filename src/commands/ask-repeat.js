@@ -6,25 +6,18 @@ class AskRepeat {
     this.broadcastService = broadcastService
     this.messageService = messageService
     this.state = State.ASK_REPEAT
-    console.log('ask repeat')
-    console.log({ broadcastService })
   }
 
   shouldExecute() {
-    const { userEmail } = this.messageService.getMessageData()
-
-    const userCurrentState = this.messageService.getUserCurrentState({
-      userEmail,
+    return this.messageService.matchUserCommandCurrentState({
+      commandState: this.state,
     })
-    if (userCurrentState === this.state) {
-      return true
-    }
-    return false
   }
 
   execute() {
     let state
     let reply
+
     if (this.messageService.affirmativeReply()) {
       if (this.repeatService.getActiveRepeat()) {
         reply =
@@ -43,6 +36,10 @@ class AskRepeat {
       }
     } else if (this.messageService.negativeReply()) {
       this.repeatService.setActiveRepeat(false)
+
+      // console.log(this.broadcastService)
+      // console.log(this.broadcastService)
+      console.log({ broadcastserviceuser: this.broadcastService.user })
       reply = this.broadcastService.broadcastMessage().pending // pending?? what this
       // TODO fix this! ? whats the issue
       state = State.NONE

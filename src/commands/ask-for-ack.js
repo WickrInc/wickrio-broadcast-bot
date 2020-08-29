@@ -9,21 +9,19 @@ class AskForAck {
 
   shouldExecute() {
     // TODO could remove the /broadcast check if done right
-    const { userEmail } = this.messageService.getMessageData()
-
-    const userCurrentState = this.messageService.getUserCurrentState({
-      userEmail,
-    })
-
-    if (userCurrentState === this.state) {
-      return true
-    }
-    return false
+    const commandStatusMatches = this.messageService.matchUserCommandCurrentState(
+      {
+        commandState: this.state,
+      }
+    )
+    console.log({ commandStatusMatches })
+    return commandStatusMatches
   }
 
   execute() {
     let state
     let reply
+    console.log({ 'ask for ack': State.WHICH_GROUPS })
 
     if (this.messageService.affirmativeReply()) {
       this.broadcastService.setAckFlag(true)

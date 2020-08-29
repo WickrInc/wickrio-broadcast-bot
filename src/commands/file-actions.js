@@ -12,15 +12,9 @@ class FileActions {
   }
 
   shouldExecute() {
-    const { userEmail } = this.messageService.getMessageData()
-
-    const userCurrentState = this.messageService.getUserCurrentState({
-      userEmail,
+    return this.messageService.matchUserCommandCurrentState({
+      commandState: this.state,
     })
-    if (userCurrentState === this.state) {
-      return true
-    }
-    return false
   }
 
   execute() {

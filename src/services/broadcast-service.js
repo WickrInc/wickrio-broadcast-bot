@@ -5,7 +5,7 @@ import updateLastID from '../helpers/message-id-helper'
 import { logger } from '../helpers/constants'
 
 class BroadcastService {
-  constructor({ messageService, apiService, user }) {
+  constructor({ messageService, apiService }) {
     this.messageService = messageService
     this.apiService = apiService
     this.user = messageService.user
@@ -47,7 +47,7 @@ class BroadcastService {
 
   setMessage(message) {
     this.user.message = message
-    console.log({ setMessage: this.user.message })
+    // console.log({ setMessage: this.user.message })
   }
 
   setDisplay(display) {
@@ -131,7 +131,6 @@ class BroadcastService {
     }
 
     let target
-    // if (this.user.users !== undefined && this.user.users.length > 0) {
     if (this.user.users) {
       target = 'USERS'
     } else if (
@@ -145,18 +144,14 @@ class BroadcastService {
 
     logger.debug(`target${target}`)
     const currentDate = new Date()
-    // "YYYY-MM-DDTHH:MM:SS.sssZ"
     const jsonDateTime = currentDate.toJSON()
     // messageID must be a string
     // TODO is is necessary to do this.user.
     const messageID = `${updateLastID()}`
-    console.log({ messageID })
     let uMessage
     const reply = {}
-    console.log({ messageToSend })
     if (target === 'USERS') {
       if (this.user.flags === undefined) this.user.flags = []
-
       uMessage = this.apiService.send1to1MessageLowPriority(
         this.user.users,
         messageToSend,
@@ -201,6 +196,7 @@ class BroadcastService {
         // what is this? why webappp?
         //
         if (this.user.webapp && this.user.message) {
+          console.log('from webapp')
           uMessage = this.apiService.sendNetworkMessage(
             this.user.message,
             this.user.ttl,
@@ -250,6 +246,7 @@ class BroadcastService {
       reply.rawMessage = this.user.message
       reply.message = messageToSend
       if (this.user.webapp && this.user.message) {
+        console.log('webapp sec group')
         uMessage = this.apiService.sendSecurityGroupMessage(
           this.user.securityGroups,
           this.user.message,

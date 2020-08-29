@@ -39,11 +39,10 @@ describe('Connecting', () => {
     expect(reply.pending).toEqual('Broadcast message in process of being sent')
   })
   it('should send a successful broadcast to a single Security Group ', async () => {
-    const apiService = new APIService()
     const statusService = new StatusService()
     const broadcastService = new BroadcastService({
       messageService: { user: {} },
-      apiService,
+      apiService: APIService,
       statusService,
     })
     broadcastService.setMessage(
@@ -51,7 +50,8 @@ describe('Connecting', () => {
     )
     broadcastService.setUserEmail('jest test')
     broadcastService.setUsers(
-      ['alane+largeroom@wickr.com'] // security group 6
+      // security group 6
+      ['alane+largeroom@wickr.com']
     )
     broadcastService.setTTL('')
     broadcastService.setBOR('')

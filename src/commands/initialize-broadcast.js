@@ -22,7 +22,7 @@ class InitializeBroadcast {
       userEmail,
       vGroupID,
     } = this.messageService.getMessageData()
-    console.log({ vGroupID })
+
     this.broadcastService.setMessage(argument)
     this.broadcastService.setUserEmail(userEmail)
     this.broadcastService.setVGroupID(vGroupID)
@@ -31,8 +31,6 @@ class InitializeBroadcast {
     this.broadcastService.setSentByFlag(true)
     this.messageService.setUserCurrentState({ currentState: State.ASK_FOR_ACK }) // change to broacastservice?
 
-    console.log('initbroadcast')
-    console.log(this.broadcastService)
     let reply = 'Would you like to ask the recipients for an acknowledgement?'
     // TODO check for undefined??
     if (!argument) {

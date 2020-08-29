@@ -9,7 +9,8 @@ class FileReceived {
 
   shouldExecute() {
     const file = this.messageService.getFile()
-    if (file && file !== 'undefined' && file.length !== 0 && file !== '') {
+    // if (file && file !== 'undefined' && file.length !== 0 && file !== '') {
+    if (file) {
       return true
     }
     return false
