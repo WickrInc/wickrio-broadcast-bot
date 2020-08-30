@@ -9,10 +9,8 @@ import {
   WEB_APPLICATION,
   REST_APPLICATION,
 } from './helpers/constants'
-
 import writer from './helpers/message-writer.js'
 import Factory from './factory'
-import State from './state'
 import GenericService from './services/generic-service'
 
 let verifyUsersMode
@@ -154,7 +152,8 @@ async function listen(rawMessage) {
       const statusMessage = JSON.stringify(obj)
       const genericService = new GenericService(10, user)
       genericService.setMessageStatus('', `${userEmail}`, '3', statusMessage)
-      user.currentState = State.NONE
+      // user.currentState = State.NONE
+
       return
     }
 
@@ -202,7 +201,7 @@ async function listen(rawMessage) {
       console.log({ vGroupID, reply: cmdResult.reply })
       WickrIOAPI.cmdSendRoomMessage(vGroupID, cmdResult.reply)
     }
-    // if (cmdResult?.state)
+    if (cmdResult?.state) user.currentState = cmdResult.state
     // messageService.updateUserStateInDB({ currentState: cmdResult.state })
   } catch (err) {
     logger.error(err)
