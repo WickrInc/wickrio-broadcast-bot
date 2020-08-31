@@ -42,6 +42,9 @@ import APIService from './services/api-service'
 import StatusService from './services/status-service'
 import ReportService from './services/report-service'
 import Version from './commands/version'
+import MapService from './services/map-service'
+import { WickrIOAPI } from './helpers/constants'
+import writer from './helpers/message-writer.js'
 
 // TODO how can we use a new Broadcast service each time???
 class Factory {
@@ -52,6 +55,58 @@ class Factory {
     this.messageService = messageService
     // this.broadcastService = broadcastService
     this.apiService = APIService
+    this.genericService = new GenericService({
+      endIndex: 10,
+      messageService: this.messageService,
+      apiService: this.apiService,
+    })
+
+    // acknowledges all messages sent to user
+    // move to factory?
+    if (this.messageService.msgType === 'location') {
+      const obj = {
+        location: {
+          latitude: this.messageService.latitude,
+          longitude: this.messageService.longitude,
+        },
+      }
+      const statusMessage = JSON.stringify(obj)
+
+      this.genericService.setMessageStatus(
+        '',
+        `${this.messageService.userEmail}`,
+        '3',
+        statusMessage
+      )
+      // user.currentState = State.NONE
+      return
+    }
+
+    // Go back to dev toolkit and fix
+    /*
+      if (!parsedMessage) {
+        // why are we writing?
+        await writer.writeFile(rawMessage)
+        return
+      }
+    if(convoType === 'personal') {
+      personalVGroupID = vGroupID;
+    } else {
+      writer.writeFile(message);
+      return;
+    }
+    */
+    if (
+      !this.messageService.isAdmin &&
+      this.messageService.command !== '/ack'
+    ) {
+      const reply = `Hey this bot is just for announcements and can't respond to you personally, or ${this.messageService.userEmail} is not authorized to use this bot. If you have a question, please get a hold of us a support@wickr.com or visit us a support.wickr.com. Thanks, Team Wickr`
+      WickrIOAPI.cmdSendRoomMessage(this.messageService.vGroupID, reply)
+      // logger.debug({ sMessage })
+      writer.writeFile(this.messageService.message)
+      return
+    }
+
     this.reportService = ReportService
     this.statusService = StatusService
 
@@ -65,9 +120,7 @@ class Factory {
     })
     this.sendService = new SendService(this.messageService)
     this.fileService = new FileService(this.messageService)
-    this.genericService = new GenericService({
-      endIndex: 10,
-      messageService: this.messageService,
+    this.mapService = new MapService({
       apiService: this.apiService,
     })
 
@@ -117,7 +170,7 @@ class Factory {
       messageService: this.messageService,
     })
     this.map = new Map({
-      genericeService: this.genericService,
+      genericService: this.genericService,
       messageService: this.messageService,
     })
     this.panel = new Panel({
@@ -197,7 +250,7 @@ class Factory {
     })
     this.whichMap = new WhichMap({
       genericService: this.genericService,
-      statusService: this.statusService,
+      mapService: this.mapService,
       messageService: this.messageService,
     })
 

@@ -10,14 +10,14 @@ class Help {
   }
 
   shouldExecute() {
-    if (this.messageService.getCommand() === this.commandString) {
+    if (this.messageService.command === this.commandString) {
       return true
     }
     return false
   }
 
   execute() {
-    const { isAdmin, vGroupID } = this.messageService.getMessageData()
+    const { isAdmin, vGroupID } = this.messageService
 
     let webAppString
     if (webAppEnabled) {

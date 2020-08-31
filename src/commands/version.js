@@ -6,7 +6,7 @@ class Version {
   }
 
   shouldExecute() {
-    if (this.messageService.getCommand() === '/version') {
+    if (this.messageService.command === '/version') {
       return true
     }
     return false

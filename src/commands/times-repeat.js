@@ -20,7 +20,7 @@ class TimesRepeat {
       this.repeatService.setRepeats(
         parseInt(this.messageService.getMessage(), 10)
       )
-      this.repeatService.setVGroupID(this.messageService.getVGroupID())
+      this.repeatService.setVGroupID(this.messageService.vGroupID)
       reply =
         'How often would you like to repeat this message?(every 5, 10 or 15 minutes)'
       state = State.REPEAT_FREQUENCY

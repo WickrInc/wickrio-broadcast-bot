@@ -8,14 +8,14 @@ class Report {
   }
 
   shouldExecute() {
-    if (this.messageService.getCommand() === this.commandString) {
+    if (this.messageService.command === this.commandString) {
       return true
     }
     return false
   }
 
   execute() {
-    const userEmail = this.messageService.getUserEmail()
+    const userEmail = this.messageService.userEmail
     this.genericService.resetIndexes()
     const entriesString = this.genericService.getEntriesString(userEmail)
     const entries = this.genericService.getMessageEntries(userEmail, false)

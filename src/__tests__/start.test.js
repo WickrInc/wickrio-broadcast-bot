@@ -12,13 +12,12 @@ describe('Connecting', () => {
     const status = await bot.start(
       JSON.parse(process.env.tokens).WICKRIO_BOT_NAME.value
     )
-    console.log({ status })
     expect(status).toEqual(true)
   })
   it('should send a successful broadcast 1 to 1', async () => {
     // const bot = new WickrIOBotAPI.WickrIOBot()
 
-    const apiService = new APIService()
+    const apiService = APIService
     const broadcastService = new BroadcastService({
       messageService: { user: {} },
       apiService,
@@ -35,7 +34,6 @@ describe('Connecting', () => {
     broadcastService.setSentByFlag(true)
 
     const reply = broadcastService.broadcastMessage()
-    console.log({ reply })
     expect(reply.pending).toEqual('Broadcast message in process of being sent')
   })
   it('should send a successful broadcast to a single Security Group ', async () => {

@@ -18,7 +18,7 @@ class RepeatFrequency {
     let reply
     // TODO more checks required
     if (this.messageService.isInt()) {
-      this.repeatService.setFrequency(this.messageService.getMessage())
+      this.repeatService.setFrequency(this.messageService.message)
       this.repeatService.repeatMessage()
       reply = 'Broadcast message #1 in the process of being sent...'
       state = State.NONE

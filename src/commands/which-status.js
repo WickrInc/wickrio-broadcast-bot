@@ -18,9 +18,9 @@ class WhichStatus {
   execute() {
     let reply
     let state
-    const userEmail = this.messageService.getUserEmail()
+    const userEmail = this.messageService.userEmail
     const currentEntries = this.genericService.getMessageEntries(userEmail)
-    const index = this.messageService.getMessage()
+    const index = this.messageService.message
     const endIndex = this.genericService.getEndIndex()
     if (index === 'more') {
       this.genericService.incrementIndexes()

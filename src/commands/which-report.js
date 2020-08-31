@@ -18,7 +18,7 @@ class WhichReport {
   execute() {
     let reply
     let state
-    const userEmail = this.messageService.getUserEmail()
+    const userEmail = this.messageService.userEmail
     const currentEntries = this.genericService.getMessageEntries(
       userEmail,
       false

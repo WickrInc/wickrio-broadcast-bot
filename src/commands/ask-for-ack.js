@@ -14,15 +14,12 @@ class AskForAck {
         commandState: this.state,
       }
     )
-    console.log({ commandStatusMatches })
     return commandStatusMatches
   }
 
   execute() {
     let state
     let reply
-    console.log({ 'ask for ack': State.WHICH_GROUPS })
-
     if (this.messageService.affirmativeReply()) {
       this.broadcastService.setAckFlag(true)
     } else if (this.messageService.negativeReply()) {
@@ -30,9 +27,6 @@ class AskForAck {
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'
       state = State.ASK_FOR_ACK
-      this.messageService.setUserCurrentState({
-        currentState: State.ASK_FOR_ACK,
-      })
 
       return {
         reply,
@@ -54,10 +48,6 @@ class AskForAck {
         } (users: ${securityGroupList[i].size})\n`
       }
     }
-    this.messageService.setUserCurrentState({
-      currentState: State.WHICH_GROUPS,
-    })
-
     reply = `${
       'Who would you like to receive this message?\n\n' +
       'Here is a list of the security groups:\n'

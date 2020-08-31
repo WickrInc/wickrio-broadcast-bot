@@ -47,16 +47,10 @@ class ChooseSecurityGroups {
       state = State.CONFIRM_GROUPS
       reply = `Your message will send to the following security group(s):\n${groupsString}Continue?`
       this.broadcastService.setSecurityGroups(groupsToSend)
-      this.messageService.setUserCurrentState({
-        currentState: State.CONFIRM_GROUPS,
-      })
     } else {
       state = State.WHICH_GROUPS
       reply = `Invalid input: ${badInput} please enter the number(s) of the security group(s) or reply all to send the message to everyone in the network.`
       groupsToSend = []
-      this.messageService.setUserCurrentState({
-        currentState: State.WHICH_GROUPS,
-      })
     }
     return {
       reply,

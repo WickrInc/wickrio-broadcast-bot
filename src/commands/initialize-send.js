@@ -9,19 +9,14 @@ class InitializeSend {
   }
 
   shouldExecute() {
-    if (this.messageService.getCommand() === this.commandString) {
+    if (this.messageService.command === this.commandString) {
       return true
     }
     return false
   }
 
   execute() {
-    const {
-      argument,
-      message,
-      userEmail,
-      vGroupID,
-    } = this.messageService.getMessageData()
+    const { argument, message, userEmail, vGroupID } = this.messageService
     console.log({
       argument,
       message,
@@ -39,8 +34,6 @@ class InitializeSend {
     // TODO add more command to getting files
     let reply
     let state = State.NONE
-    this.messageService.setUserCurrentState({ currentState: State.NONE }) // change to broacastservice?
-
     if (!argument) {
       reply = 'Must have a message or file to send, Usage: /send <message>'
     } else if (!fileArr || fileArr.length === 0) {
@@ -54,9 +47,6 @@ class InitializeSend {
         reply += `(${index + 1}) ${fileArr[index]}\n`
       }
       state = State.CHOOSE_FILE
-      this.messageService.setUserCurrentState({
-        currentState: State.CHOOSE_FILE,
-      }) // change to broacastservice?
     }
     return {
       reply,

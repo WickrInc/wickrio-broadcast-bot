@@ -17,8 +17,8 @@ class WhichDelete {
   }
 
   execute() {
-    const userEmail = this.messageService.getUserEmail()
-    const index = this.messageService.getMessage()
+    const userEmail = this.messageService.userEmail
+    const index = this.messageService.message
     let reply = null
     let state = State.NONE
     const fileArr = this.sendService.getFiles(userEmail)

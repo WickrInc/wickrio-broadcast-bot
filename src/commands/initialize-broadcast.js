@@ -9,7 +9,7 @@ class InitializeBroadcast {
   }
 
   shouldExecute() {
-    if (this.messageService.getCommand() === this.commandString) {
+    if (this.messageService.command === this.commandString) {
       return true
     }
     return false
@@ -21,26 +21,24 @@ class InitializeBroadcast {
       // message,
       userEmail,
       vGroupID,
-    } = this.messageService.getMessageData()
-
+    } = this.messageService
     this.broadcastService.setMessage(argument)
     this.broadcastService.setUserEmail(userEmail)
     this.broadcastService.setVGroupID(vGroupID)
     this.broadcastService.setTTL('')
     this.broadcastService.setBOR('')
     this.broadcastService.setSentByFlag(true)
-    this.messageService.setUserCurrentState({ currentState: State.ASK_FOR_ACK }) // change to broacastservice?
-
+    let state = State.ASK_FOR_ACK
     let reply = 'Would you like to ask the recipients for an acknowledgement?'
     // TODO check for undefined??
     if (!argument) {
       reply =
         'Must have a message or file to broadcast, Usage: /broadcast <message>'
-      this.messageService.setUserCurrentState({ currentState: State.NONE })
+      state = State.NONE
     }
     return {
       reply,
-      state: State.ASK_FOR_ACK,
+      state,
     }
   }
 }

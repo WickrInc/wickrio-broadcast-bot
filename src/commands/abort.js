@@ -1,5 +1,4 @@
 import State from '../state'
-import { logger } from '../helpers/constants'
 
 class Abort {
   constructor({ genericService, messageService }) {
@@ -9,16 +8,16 @@ class Abort {
   }
 
   shouldExecute() {
-    if (this.messageService.getCommand() === this.commandString) {
+    if (this.messageService.command === this.commandString) {
       return true
     }
     return false
   }
 
   execute() {
-    logger.debug(`:${this.messageService.getArguments()}:`)
+    // logger.debug(`:${this.messageService.getArguments()}:`)
     this.genericService.resetIndexes()
-    const userEmail = this.messageService.getUserEmail()
+    const userEmail = this.messageService.userEmail
     // check argument here!
     // args = argument.split(' ');
     // if (messageService.getArgument() === '') {

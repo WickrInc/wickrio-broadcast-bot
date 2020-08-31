@@ -56,7 +56,8 @@
     "lint": "eslint src/**/*.js --fix --color",
     "prettier": "prettier --write ./src",
     "stop": "pm2 delete processes.json",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "watch:test": "jest --watch"
   },
   "husky": {
     "hooks": {
@@ -67,6 +68,7 @@
     "./src/**/*.{js,jsx,ts,tsx}": [
       "npm run prettier",
       "npm run lint",
+      "jest --coverage --findRelatedTests --bail",
       "npm run build"
     ]
   },

@@ -16,12 +16,12 @@ class WhichAbort {
   execute() {
     let reply
     let state
-    const userEmail = this.messageService.getUserEmail()
+    const userEmail = this.messageService.userEmail
     const currentEntries = this.genericService.getMessageEntries(
       userEmail,
       true
     )
-    const index = this.messageService.getMessage()
+    const index = this.messageService.message
     if (index === 'more') {
       this.genericService.incrementIndexes()
       reply = this.genericService.getEntriesString(userEmail, true)

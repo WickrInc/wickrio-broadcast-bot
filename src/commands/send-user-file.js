@@ -16,8 +16,8 @@ class SendUserFile {
   }
 
   execute() {
-    const userEmail = this.messageService.getUserEmail()
-    const index = this.messageService.getMessage()
+    const userEmail = this.messageService.userEmail
+    const index = this.messageService.message
     let reply = null
     let state = State.NONE
     const fileArr = this.sendService.getFiles(userEmail)
@@ -29,7 +29,7 @@ class SendUserFile {
       // Subtract one to account for 0 based indexing
       const fileName = fileArr[parseInt(index, 10) - 1]
       const filePath = `${process.cwd()}/files/${userEmail}/${fileName}`
-      this.sendService.retrieveFile(filePath, this.messageService.getVGroupID())
+      this.sendService.retrieveFile(filePath, this.messageService.vGroupID)
     }
     return {
       reply,

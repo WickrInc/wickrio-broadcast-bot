@@ -8,14 +8,14 @@ class Status {
   }
 
   shouldExecute() {
-    if (this.messageService.getCommand() === this.commandString) {
+    if (this.messageService.command === this.commandString) {
       return true
     }
     return false
   }
 
   execute() {
-    const userEmail = this.messageService.getUserEmail()
+    const userEmail = this.messageService.userEmail
     this.genericService.resetIndexes()
     // TODO add a string of status as the second parameter to this command
     const entries = this.genericService.getMessageEntries(userEmail, false)

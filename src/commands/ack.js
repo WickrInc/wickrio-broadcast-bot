@@ -8,16 +8,16 @@ class Ack {
   }
 
   shouldExecute() {
-    if (this.messageService.getCommand() === this.commandString) {
+    if (this.messageService.command === this.commandString) {
       return true
     }
     return false
   }
 
-  execute(messageService) {
+  execute() {
     this.genericService.setMessageStatus(
       '',
-      messageService.getUserEmail(),
+      this.messageService.userEmail,
       '3',
       ''
     )

@@ -86,7 +86,7 @@ class GenericService {
       for (let i = 0; i < tableData.length; i += 1) {
         const entry = tableData[i]
         if (entry.sender === userEmail) {
-          logger.debug(`Here is the entry: ${entry.status}`)
+          // logger.debug(`Here is the entry: ${entry.status}`)
           if (abort) {
             // TODO find out what the statuses should be
             if (

@@ -2,9 +2,9 @@ import State from '../state'
 
 // TODO combine which report and which map
 class WhichMap {
-  constructor({ genericService, statusService, messageService }) {
+  constructor({ genericService, mapService, messageService }) {
     this.genericService = genericService
-    this.statusService = statusService
+    this.mapService = mapService
     this.messageService = messageService
     this.state = State.WHICH_MAP
   }
@@ -18,9 +18,9 @@ class WhichMap {
   execute() {
     let reply
     let state
-    const userEmail = this.messageService.getUserEmail()
+    const userEmail = this.messageService.userEmail
     const currentEntries = this.genericService.getMessageEntries(userEmail)
-    const index = this.messageService.getMessage()
+    const index = this.messageService.message
     const endIndex = this.genericService.getEndIndex()
     if (index === 'more') {
       this.genericService.incrementIndexes()
@@ -35,7 +35,7 @@ class WhichMap {
     } else {
       // Subtract one to account for 0 based indexes
       const messageID = `${currentEntries[parseInt(index, 10) - 1].message_id}`
-      reply = this.statusService.getMap(messageID, false)
+      reply = this.mapService.getMap(messageID, false)
       state = State.NONE
     }
     return {

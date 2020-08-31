@@ -10,7 +10,7 @@ class FileCommand {
   }
 
   shouldExecute() {
-    if (this.messageService.getCommand() === this.commandString) {
+    if (this.messageService.command === this.commandString) {
       return true
     }
     return false
@@ -19,7 +19,7 @@ class FileCommand {
   execute() {
     let reply = 'Here is a list of the files to which you can send a message:\n'
     let state = State.NONE
-    const userEmail = this.messageService.getUserEmail()
+    const userEmail = this.messageService.userEmail
     // TODO add a more function to this
     const fileArr = this.sendService.getFiles(userEmail)
     if (!fileArr || fileArr.length === 0) {
