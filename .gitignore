@@ -18,4 +18,7 @@ sync.sh
 software
 .DS_Store
 software.tar.gz
-coverage/
+coverage
+mysql_move_data.log
+mysqld.cnf
+.github

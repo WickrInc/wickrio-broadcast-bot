@@ -3,22 +3,23 @@ import State from '../state'
 // This class is used to select which file the user wants to delete.
 
 class DeleteFile {
-  constructor(sendService) {
+  constructor({ sendService, messageService }) {
     this.sendService = sendService
+    this.messageService = messageService
     this.commandString = '/delete'
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCommand() === this.commandString) {
+  shouldExecute() {
+    if (this.messageService.command === this.commandString) {
       return true
     }
     return false
   }
 
-  execute(messageService) {
+  execute() {
     let reply = 'Here is a list of the files that you can delete:\n'
     let state = State.NONE
-    const userEmail = messageService.getUserEmail()
+    const userEmail = this.messageService.userEmail
     // TODO add a more function to this
     const fileArr = this.sendService.getFiles(userEmail)
     if (!fileArr || fileArr.length === 0) {

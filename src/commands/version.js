@@ -1,14 +1,18 @@
 import State from '../state'
 
 class Version {
-  static shouldExecute(messageService) {
-    if (messageService.getCommand() === '/version') {
+  constructor({ messageService }) {
+    this.messageService = messageService
+  }
+
+  shouldExecute() {
+    if (this.messageService.command === '/version') {
       return true
     }
     return false
   }
 
-  static execute() {
+  execute() {
     let json = require('../../node_modules/wickrio_addon/package.json')
     const addonVersion = json.version
     json = require('../../node_modules/wickrio-bot-api/package.json')
@@ -23,5 +27,12 @@ class Version {
     }
   }
 }
+
+// if (command === '/version') {
+//   const obj = Version.execute()
+//   WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply)
+//   user.currentState = State.NONE
+//   return
+// }
 
 export default Version

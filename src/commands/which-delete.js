@@ -4,26 +4,26 @@ import FileHandler from '../helpers/file-handler'
 // This class is used to delete the selected file.
 
 class WhichDelete {
-  constructor(sendService) {
+  constructor({ sendService, messageService }) {
     this.sendService = sendService
+    this.messageService = messageService
     this.state = State.DELETE_FILE
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCurrentState() === this.state) {
-      return true
-    }
-    return false
+  shouldExecute() {
+    return this.messageService.matchUserCommandCurrentState({
+      commandState: this.state,
+    })
   }
 
-  execute(messageService) {
-    const userEmail = messageService.getUserEmail()
-    const index = messageService.getMessage()
+  execute() {
+    const userEmail = this.messageService.userEmail
+    const index = this.messageService.message
     let reply = null
     let state = State.NONE
     const fileArr = this.sendService.getFiles(userEmail)
     // const length = Math.min(fileArr.length, 5);
-    if (!messageService.isInt() || index < 1 || index > fileArr.length) {
+    if (!this.messageService.isInt() || index < 1 || index > fileArr.length) {
       reply = `Index: ${index} is out of range. Please enter an integer between 1 and ${fileArr.length}`
       state = State.DELETE_FILE
     } else {

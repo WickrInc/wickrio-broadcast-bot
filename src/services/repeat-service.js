@@ -1,60 +1,61 @@
 import { schedule } from 'node-cron'
-import APIService from './api-service'
+// import APIService from './api-service'
 import { logger } from '../helpers/constants'
 
 class RepeatService {
-  constructor(broadcastService, user) {
-    this.user = user
+  constructor({ broadcastService, messageService, apiService }) {
     this.broadcastService = broadcastService
-    // this.user.frequency = 0;
-    // this.user.repeats = 0;
-    // this.user.count = 0;
-    // this.user.activeRepeat = false;
-    // this.user.vGroupID = '';
+    this.messageService = messageService
+    this.apiService = apiService
+    // this.broadcastService.frequency = 0;
+    // this.broadcastService.repeats = 0;
+    // this.broadcastService.count = 0;
+    // this.broadcastService.activeRepeat = false;
+    // this.broadcastService.vGroupID = '';
   }
 
   setFrequency(frequency) {
-    this.user.frequency = frequency
+    this.broadcastService.frequency = frequency
   }
 
   setRepeats(repeats) {
-    this.user.repeats = repeats
+    this.broadcastService.repeats = repeats
   }
 
   setActiveRepeat(activeRepeat) {
-    this.user.activeRepeat = activeRepeat
+    this.broadcastService.activeRepeat = activeRepeat
   }
 
   getActiveRepeat() {
-    return this.user.activeRepeat
+    return this.broadcastService.activeRepeat
   }
 
   setVGroupID(vGroupID) {
-    this.user.vGroupID = vGroupID
+    this.broadcastService.vGroupID = vGroupID
   }
 
   repeatMessage() {
     logger.debug('Enter repeatMessage')
     this.broadcastService.broadcastMessage()
-    this.user.count = 1
-    const timeString = `*/${this.user.frequency} * * * *`
+    this.broadcastService.count = 1
+    const timeString = `*/${this.broadcastService.frequency} * * * *`
     const cronJob = schedule(timeString, () => {
       logger.debug('Running repeat cronjob')
       const reply = `Broadcast message #${
-        this.user.count + 1
+        this.broadcastService.count + 1
       } in process of being sent...`
       logger.debug(`reply:${reply}`)
-      logger.debug(`vgroupid:${this.user.vGroupID}`)
-      logger.debug(`count:${this.user.count}`)
-      logger.debug(`repeats:${this.user.repeats}`)
-      APIService.sendRoomMessage(this.user.vGroupID, reply)
+      logger.debug(`vgroupid:${this.broadcastService.vGroupID}`)
+      logger.debug(`count:${this.broadcastService.count}`)
+      logger.debug(`repeats:${this.broadcastService.repeats}`)
+      this.apiService.sendRoomMessage(this.broadcastService.vGroupID, reply)
       this.broadcastService.broadcastMessage()
-      if (this.user.count === this.user.repeats) {
-        this.user.activeRepeat = false
+      if (this.broadcastService.count === this.broadcastService.repeats) {
+        this.broadcastService.activeRepeat = false
         logger.debug('rock the cron job')
         return cronJob.stop()
       }
-      this.user.count += 1
+      this.broadcastService.count += 1
       return false
     })
     cronJob.start()

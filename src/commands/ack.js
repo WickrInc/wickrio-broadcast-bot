@@ -1,22 +1,23 @@
 import State from '../state'
 
 class Ack {
-  constructor(genericService) {
+  constructor({ genericService, messageService }) {
+    this.messageService = messageService
     this.genericService = genericService
     this.commandString = '/ack'
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCommand() === this.commandString) {
+  shouldExecute() {
+    if (this.messageService.command === this.commandString) {
       return true
     }
     return false
   }
 
-  execute(messageService) {
+  execute() {
     this.genericService.setMessageStatus(
       '',
-      messageService.getUserEmail(),
+      this.messageService.userEmail,
       '3',
       ''
     )
@@ -27,6 +28,13 @@ class Ack {
     }
     return obj
   }
+
+  // if (command === '/ack') {
+  //   const userEmailString = `${userEmail}`
+  //   genericService.setMessageStatus('', userEmailString, '3', '')
+  //   user.currentState = State.NONE
+  //   return
+  // }
 }
 
 export default Ack

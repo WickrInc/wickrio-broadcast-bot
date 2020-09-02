@@ -212,7 +212,10 @@ const useWebAndRoutes = app => {
         console.log({ oldwickruser: user })
       }
 
-      const newBroadcast = new BroadcastService(user)
+      const newBroadcast = new BroadcastService({
+        messageService: { user: { ...user, users: null } },
+        apiService: APIService,
+      })
 
       if (!message) return res.send('Broadcast message missing from request.')
       newBroadcast.setWebApp()
@@ -221,31 +224,28 @@ const useWebAndRoutes = app => {
       newBroadcast.setBOR(bor)
       // console.log({ message, acknowledge, security_group, repeat_num, freq_num, ttl, bor })
       // set user email without plus
-      newBroadcast.setUserEmail(req.user.email)
-      newBroadcast.setUsers([])
+      // newBroadcast.setUserEmail(req.user.email)
+      // newBroadcast.setUsers([])
       newBroadcast.setSentByFlag(true)
       // console.log(req.file)
-      const fileData = req.file
-      let userAttachments
-      let userNewFile
-      let inFile
+      if (req.file) {
+        const fileData = req?.file
 
-      if (fileData === undefined) {
-        console.log('attachment is not defined!')
-      } else {
-        userAttachments = process.cwd() + '/attachments/' + req.user.email
-        userNewFile = userAttachments + '/' + fileData.originalname
-        inFile = process.cwd() + '/attachments/' + fileData.filename
+        // merge with /files?
+        const userAttachments = process.cwd() + '/attachments/' + req.user.email
+        const userNewFile = userAttachments + '/' + fileData?.originalname
+        const inFile = process.cwd() + '/attachments/' + fileData?.filename
 
         fs.mkdirSync(userAttachments, { recursive: true })
         if (fs.existsSync(userNewFile)) fs.unlinkSync(userNewFile)
         fs.renameSync(inFile, userNewFile)
-      }
-      if (userNewFile === undefined) {
-        newBroadcast.setFile('')
-      } else {
-        newBroadcast.setFile(userNewFile)
-        newBroadcast.setDisplay(fileData.originalname)
+
+        if (userNewFile === undefined) {
+          newBroadcast.setFile('')
+        } else {
+          newBroadcast.setFile(userNewFile)
+          newBroadcast.setDisplay(fileData.originalname)
+        }
       }
 
       // set repeats and durations
@@ -261,65 +261,13 @@ const useWebAndRoutes = app => {
       }
 
       const response = {}
+      console.log({ newBroadcast })
       response.data = newBroadcast.broadcastMessage()
 
       // todo: send status on error
       res.send(response)
     }
   )
-
-  // app.post(endpoint + '/Messages', checkAuth, (req, res) => {
-  //   // typecheck and validate parameters
-  //   const {
-  //     message,
-  //     // acknowledge = false,
-  //     // security_group = false,
-  //     // repeat_num = false,
-  //     // freq_num = false,
-  //     ttl = '',
-  //     bor = '',
-  //   } = req.body
-
-  //   const userList = []
-  //   for (const i in users) {
-  //     userList.push(users[i].name)
-  //   }
-
-  //   if (userList.length < 1) return res.send('Users missing from request.')
-
-  //   // validate arguments, append message.
-  //   if (!message) return res.send('Broadcast message missing from request.')
-
-  //   newBroadcast.setTTL(ttl)
-  //   newBroadcast.setBOR(bor)
-
-  //   // let user = bot.getUser(userEmail); // Look up user by their wickr email
-  //   // if (user === undefined) { // Check if a user exists in the database
-  //   //   let wickrUser = new WickrUser(userEmail);
-  //   //   user = bot.addUser(wickrUser); // Add a new user to the database
-  //   // }
-  //   const newBroadcast = new BroadcastService()
-  //   newBroadcast.setUsers(userList)
-
-  //   // let broadcast = {}
-  //   // set user email without plus
-  //   newBroadcast.setUserEmail(req.user.email)
-  //   // set repeats and durations
-  //   // console.log(req.file)
-  //   // if (!req.file) {
-  //   //   newBroadcast.setFile('')
-  //   // } else {
-  //   //   let userAttachments = process.cwd() + '/attachments/' + req.user.email;
-  //   //   let userNewFile = userAttachments + '/' + fileData.originalname;
-  //   //   newBroadcast.setFile(userNewFile)
-  //   //   newBroadcast.setDisplay(fileData.originalname)
-  //   // }
-
-  //   const response = newBroadcast.broadcastMessage()
-
-  //   // todo: send status on error
-  //   res.send(response)
-  // })
 
   app.get(endpoint + '/SecGroups', checkAuth, (req, res) => {
     try {

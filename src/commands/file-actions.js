@@ -3,26 +3,26 @@ import logger from '../logger'
 import FileHandler from '../helpers/file-handler'
 
 class FileActions {
-  constructor(fileService, broadcastService, sendService) {
+  constructor({ fileService, broadcastService, sendService, messageService }) {
     this.fileService = fileService
     this.broadcastService = broadcastService
     this.sendService = sendService
+    this.messageService = messageService
     this.state = State.FILE_TYPE
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCurrentState() === this.state) {
-      return true
-    }
-    return false
+  shouldExecute() {
+    return this.messageService.matchUserCommandCurrentState({
+      commandState: this.state,
+    })
   }
 
-  execute(messageService) {
+  execute() {
     const file = this.fileService.getFile()
     logger.debug(`Here is the file${file}`)
     const filename = this.fileService.getFilename()
-    const type = messageService.getMessage().toLowerCase()
-    const userEmail = messageService.getUserEmail()
+    const type = this.messageService.getMessage().toLowerCase()
+    const userEmail = this.messageService.getUserEmail()
     const fileArr = this.sendService.getFiles(userEmail)
     let fileAppend = ''
     let state = State.NONE
@@ -34,9 +34,9 @@ class FileActions {
     } else if (type === 's' || type === 'send') {
       this.sendService.setFile(file)
       this.sendService.setDisplay(filename)
-      this.sendService.setMessage(messageService.getArgument())
-      this.sendService.setUserEmail(messageService.getUserEmail())
-      this.sendService.setVGroupID(messageService.getVGroupID())
+      this.sendService.setMessage(this.messageService.getArgument())
+      this.sendService.setUserEmail(this.messageService.userEmail)
+      this.sendService.setVGroupID(this.messageService.vGroupID)
       this.sendService.setTTL('')
       this.sendService.setBOR('')
       reply = 'To which list would you like to send your message:\n'
@@ -48,9 +48,9 @@ class FileActions {
     } else if (type === 'b' || type === 'broadcast') {
       this.broadcastService.setFile(file)
       this.broadcastService.setDisplay(filename)
-      this.broadcastService.setMessage(messageService.getArgument())
-      this.broadcastService.setUserEmail(messageService.getUserEmail())
-      this.broadcastService.setVGroupID(messageService.getVGroupID())
+      this.broadcastService.setMessage(this.messageService.getArgument())
+      this.broadcastService.setUserEmail(this.messageService.userEmail)
+      this.broadcastService.setVGroupID(this.messageService.vGroupID)
       this.broadcastService.setTTL('')
       this.broadcastService.setBOR('')
       this.broadcastService.setSentByFlag(true)

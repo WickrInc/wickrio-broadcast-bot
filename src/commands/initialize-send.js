@@ -1,24 +1,32 @@
 import State from '../state'
-import { logger } from '../helpers/constants'
+// import { logger } from '../helpers/constants'
 
 class InitializeSend {
-  constructor(sendService) {
+  constructor({ sendService, messageService }) {
     this.sendService = sendService
+    this.messageService = messageService
     this.commandString = '/send'
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCommand() === this.commandString) {
+  shouldExecute() {
+    if (this.messageService.command === this.commandString) {
       return true
     }
     return false
   }
 
-  execute(messageService) {
-    const userEmail = messageService.getUserEmail()
-    this.sendService.setMessage(messageService.getArgument())
+  execute() {
+    const { argument, message, userEmail, vGroupID } = this.messageService
+    console.log({
+      argument,
+      message,
+      userEmail,
+      vGroupID,
+    })
+
+    this.sendService.setMessage(argument)
     this.sendService.setUserEmail(userEmail)
-    this.sendService.setVGroupID(messageService.getVGroupID())
+    this.sendService.setVGroupID(vGroupID)
     this.sendService.setTTL('')
     this.sendService.setBOR('')
     // this.broadcastService.setSentByFlag(true);
@@ -26,14 +34,7 @@ class InitializeSend {
     // TODO add more command to getting files
     let reply
     let state = State.NONE
-    logger.debug(
-      `message:${messageService.getMessage()}userEmail:${messageService.getUserEmail()}`
-    )
-    if (
-      messageService.getArgument() === undefined ||
-      messageService.getArgument() === '' ||
-      messageService.getArgument().length === 0
-    ) {
+    if (!argument) {
       reply = 'Must have a message or file to send, Usage: /send <message>'
     } else if (!fileArr || fileArr.length === 0) {
       reply =

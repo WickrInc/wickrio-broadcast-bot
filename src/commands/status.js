@@ -1,20 +1,21 @@
 import State from '../state'
 
 class Status {
-  constructor(genericService) {
+  constructor({ genericService, messageService }) {
     this.genericService = genericService
+    this.messageService = messageService
     this.commandString = '/status'
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCommand() === this.commandString) {
+  shouldExecute() {
+    if (this.messageService.command === this.commandString) {
       return true
     }
     return false
   }
 
-  execute(messageService) {
-    const userEmail = messageService.getUserEmail()
+  execute() {
+    const userEmail = this.messageService.userEmail
     this.genericService.resetIndexes()
     // TODO add a string of status as the second parameter to this command
     const entries = this.genericService.getMessageEntries(userEmail, false)

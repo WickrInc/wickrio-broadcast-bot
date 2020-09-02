@@ -2,25 +2,23 @@ import State from '../state'
 
 // TODO add a delete file command??
 class FileReceived {
-  constructor(fileService) {
+  constructor({ fileService, messageService }) {
     this.fileService = fileService
+    this.messageService = messageService
   }
 
-  shouldExecute(messageService) {
-    // const file = messageService.getFile();
-    if (
-      messageService.getFile() !== 'undefined' &&
-      messageService.getFile().length !== 0 &&
-      messageService.getFile() !== ''
-    ) {
+  shouldExecute() {
+    const file = this.messageService.getFile()
+    // if (file && file !== 'undefined' && file.length !== 0 && file !== '') {
+    if (file) {
       return true
     }
     return false
   }
 
-  execute(messageService) {
-    this.fileService.setFile(messageService.getFile())
-    this.fileService.setFilename(messageService.getFilename())
+  execute() {
+    this.fileService.setFile(this.messageService.getFile())
+    this.fileService.setFilename(this.messageService.getFilename())
     const reply =
       'Would you like to broadcast this file, send this file to a list, or is it a file of usernames or hashes? Please respond with (b)roadcast, (s)end, (u)ser, or (h)ash'
     const obj = {

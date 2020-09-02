@@ -8,18 +8,19 @@
   // Use 'settings' to set *default* container specific settings.json values on container create.
   "settings": {
     // "terminal.integrated.shell.linux": "/bin/bash"
-    // "terminal.integrated.shell.linux": "/bin/zsh"
+    "terminal.integrated.shell.linux": "/bin/zsh"
   },
-  "mounts": [
-    // "mounts": [
-    //   "source=/local/source/path/goes/here,target=/target/path/in/container/goes/here,type=bind,consistency=cached"
-    // ]
-    // "source=/opt/WickrIO,target=opt/WickrIODebug ,type=bind,consistency=cached"
-    // "source=${localWorkspaceFolder}/app-data,target=/data,type=bind,consistency=cached"
-  ],
+  // "mounts": [
+  //   "source=/local/source/path/goes/here,target=/target/path/in/container/goes/here,type=bind,consistency=cached"
+  // ]
+  // "mounts": [
+  //   "source=/opt/WickrIO,target=opt/WickrIODebug ,type=bind,consistency=cached"
+  // ],
+  // "source=${localWorkspaceFolder}/app-data,target=/data,type=bind,consistency=cached"
   // Add the IDs of extensions you want installed when the container is created in the array below.
   "extensions": [
     "msjsdiag.debugger-for-chrome",
+    "ms-vscode.js-debug-nightly",
     "ldez.ignore-file",
     "ibm.output-colorizer",
     "ms-vscode-remote.vscode-remote-extensionpack",
@@ -31,12 +32,15 @@
     "robbowen.synthwave-vscode",
     "rust-lang.rust"
   ],
+  // "overrideCommand": false,
   "runArgs": ["-v", "/var/run/docker.sock:/var/run/docker.sock"],
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [8000, 4545, 9229],
   // Specifies a command that should be run after the container has been created.
+  "userEnvProbe": "interactiveShell",
   "postCreateCommand": "npm install"
+  // "postAttachCommand": ""
   // Comment out the next line to run as root instead.
   // "remoteUser": "ubuntu"
   // "remoteUser": "node"

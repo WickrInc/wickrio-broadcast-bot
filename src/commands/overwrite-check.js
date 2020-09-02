@@ -8,20 +8,20 @@ import FileHandler from '../helpers/file-handler'
   process is cancelled.
 */
 class OverwriteCheck {
-  constructor(fileService) {
+  constructor({ fileService, messageService }) {
     this.fileService = fileService
+    this.messageService = messageService
     this.state = State.OVERWRITE_CHECK
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCurrentState() === this.state) {
-      return true
-    }
-    return false
+  shouldExecute() {
+    return this.messageService.matchUserCommandCurrentState({
+      commandState: this.state,
+    })
   }
 
-  execute(messageService) {
-    const userEmail = messageService.getUserEmail()
+  execute() {
+    const userEmail = this.messageService.getUserEmail()
     const file = this.fileService.getFile()
     logger.debug(`Here is the file${file}`)
     const filename = this.fileService.getFilename()
@@ -29,7 +29,7 @@ class OverwriteCheck {
     let state = State.NONE
     let reply
     // Overwrite file.
-    if (messageService.affirmativeReply()) {
+    if (this.messageService.affirmativeReply()) {
       const newFilePath = `${process.cwd()}/files/${userEmail}/${filename.toString()}${fileAppend}`
       logger.debug(`Here is file info${file}`)
       const cp = FileHandler.copyFile(file, newFilePath)
@@ -40,7 +40,7 @@ class OverwriteCheck {
         reply = `Error: File named: ${filename} not saved to directory.`
       }
       // Cancel Overwriting file.
-    } else if (messageService.negativeReply()) {
+    } else if (this.messageService.negativeReply()) {
       reply = 'File upload cancelled.'
       // Invalid response. Return to beginning of this execute function.
     } else {

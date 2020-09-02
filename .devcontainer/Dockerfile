@@ -1,4 +1,4 @@
-FROM wickr/bot-cloud-alpha:5.59.07.01
+FROM wickr/bot-cloud-alpha:5.63.01.01
 
 LABEL maintainer="wickr <info@wickr.com>"
 # Variables
@@ -147,6 +147,6 @@ RUN echo '. /usr/local/nvm/nvm.sh' >> /home/ubuntu/.zshrc
 
 
 # Start the processes
-CMD "/home/ubuntu/start.sh"
+CMD [ "/home/ubuntu/start.sh" ]
 
 ENV DEBIAN_FRONTEND=dialog

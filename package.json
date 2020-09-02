@@ -1,8 +1,8 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "5.60.1",
+  "version": "5.63.01",
   "description": "WickrIO Broadcast Bot",
-  "main": "build/broadcast-bot.js",
+  "main": "./build/broadcast-bot.js",
   "author": "Paul Cushman",
   "license": "ISC",
   "dependencies": {
@@ -20,7 +20,7 @@
     "pino": "^5.15.0",
     "pm2": "^3.5.2",
     "prompt": "^1.0.0",
-    "wickrio-bot-api": "5.60.x"
+    "wickrio-bot-api": "5.62.x"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.4",
@@ -55,7 +55,9 @@
     "build": "rm -rf build && babel ./src --out-dir ./build --ignore node_modules",
     "lint": "eslint src/**/*.js --fix --color",
     "prettier": "prettier --write ./src",
-    "stop": "pm2 delete processes.json"
+    "stop": "pm2 delete processes.json",
+    "test": "jest --coverage",
+    "watch:test": "jest --watch"
   },
   "husky": {
     "hooks": {
@@ -66,6 +68,7 @@
     "./src/**/*.{js,jsx,ts,tsx}": [
       "npm run prettier",
       "npm run lint",
+      "jest --coverage --findRelatedTests --bail",
       "npm run build"
     ]
   },
@@ -106,7 +109,24 @@
   },
   "babel": {
     "env": {
-      "test": {
+      "production": {
+        "ignore": [
+          "**/__tests__"
+        ],
+        "presets": [
+          "@babel/preset-env"
+        ],
+        "plugins": [
+          "@babel/plugin-proposal-optional-chaining",
+          "@babel/plugin-transform-runtime",
+          "@babel/plugin-transform-modules-commonjs",
+          "@babel/plugin-proposal-class-properties"
+        ]
+      },
+      "development": {
+        "ignore": [
+          "**/__tests__"
+        ],
         "presets": [
           "@babel/preset-env"
         ],
@@ -119,18 +139,7 @@
         "sourceMaps": "inline",
         "retainLines": true
       },
-      "production": {
-        "presets": [
-          "@babel/preset-env"
-        ],
-        "plugins": [
-          "@babel/plugin-proposal-optional-chaining",
-          "@babel/plugin-transform-runtime",
-          "@babel/plugin-transform-modules-commonjs",
-          "@babel/plugin-proposal-class-properties"
-        ]
-      },
-      "development": {
+      "test": {
         "presets": [
           "@babel/preset-env"
         ],

@@ -2,25 +2,25 @@ import State from '../state'
 
 // TODO combine which report and which map
 class WhichMap {
-  constructor(genericService, statusService) {
+  constructor({ genericService, mapService, messageService }) {
     this.genericService = genericService
-    this.statusService = statusService
+    this.mapService = mapService
+    this.messageService = messageService
     this.state = State.WHICH_MAP
   }
 
-  shouldExecute(messageService) {
-    if (messageService.getCurrentState() === this.state) {
-      return true
-    }
-    return false
+  shouldExecute() {
+    return this.messageService.matchUserCommandCurrentState({
+      commandState: this.state,
+    })
   }
 
-  execute(messageService) {
+  execute() {
     let reply
     let state
-    const userEmail = messageService.getUserEmail()
+    const userEmail = this.messageService.userEmail
     const currentEntries = this.genericService.getMessageEntries(userEmail)
-    const index = messageService.getMessage()
+    const index = this.messageService.message
     const endIndex = this.genericService.getEndIndex()
     if (index === 'more') {
       this.genericService.incrementIndexes()
@@ -29,13 +29,13 @@ class WhichMap {
         reply += 'Or to see more messages reply more'
       }
       state = this.state
-    } else if (!messageService.isInt() || index < 1 || index > endIndex) {
+    } else if (!this.messageService.isInt() || index < 1 || index > endIndex) {
       reply = `Index: ${index} is out of range. Please enter a whole number between 1 and ${endIndex}`
       state = this.state
     } else {
       // Subtract one to account for 0 based indexes
       const messageID = `${currentEntries[parseInt(index, 10) - 1].message_id}`
-      reply = this.statusService.getMap(messageID, false)
+      reply = this.mapService.getMap(messageID, false)
       state = State.NONE
     }
     return {

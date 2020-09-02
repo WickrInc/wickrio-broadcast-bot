@@ -161,6 +161,7 @@ class APIService {
   }
 
   static sendRoomMessage(vGroupID, message) {
+    // console.log({ vGroupID, message })
     return WickrIOAPI.cmdSendRoomMessage(vGroupID, message)
   }
 
