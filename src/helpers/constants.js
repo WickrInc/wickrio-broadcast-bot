@@ -17,6 +17,7 @@ const client_auth_codes = {}
 const {
   BOT_AUTH_TOKEN,
   BOT_KEY,
+  BOT_MAPS,
   BOT_PORT,
   BOT_GOOGLE_MAPS,
   WICKRIO_BOT_NAME,
@@ -165,6 +166,7 @@ export {
   BOT_KEY,
   SSL_KEY_LOCATION,
   HTTPS_CHOICE,
+  BOT_MAPS,
   BOT_PORT,
   BOT_GOOGLE_MAPS,
   WEBAPP_HOST,

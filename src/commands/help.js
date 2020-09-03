@@ -1,6 +1,7 @@
 import State from '../state'
-import { bot, logger, WEB_APPLICATION } from '../helpers/constants'
+import { bot, logger, WEB_APPLICATION, BOT_MAPS } from '../helpers/constants'
 const webAppEnabled = WEB_APPLICATION.value === 'yes'
+const mapEnabled = BOT_MAPS.value === 'yes'
 
 class Help {
   constructor({ apiService, messageService }) {
@@ -25,6 +26,11 @@ class Help {
         '*Web App Commands*\n' +
         '/panel : displays the link and token to the web user interface\n\n'
     }
+    let mapString = ''
+    if (mapEnabled){
+      mapString = '*Map Commands*\n' +
+      '/map : Get a picture of everybody who responded to a broadcast with their location\n\n'
+    }
     let helpString =
       '*Messages Commands*\n' +
       '/send <Message> : To send a broadcast message to a given file of user hashes or usernames\n' +
@@ -37,6 +43,7 @@ class Help {
       '/report : To get a CSV file with the status of each user for a broadcast message\n' +
       '/abort : To abort a broadcast or send that is currently in progress\n\n' +
       `${webAppString}` +
+      `${mapString}` +
       '*Admin Commands*\n' +
       '%{adminHelp}\n' +
       '*Other Commands*\n' +
