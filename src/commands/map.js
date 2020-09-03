@@ -18,7 +18,7 @@ class Map {
   execute() {
     let reply
     let state
-    if (BOT_GOOGLE_MAPS.value) {
+    if (BOT_GOOGLE_MAPS.value === true) {
       const { userEmail } = this.messageService
       this.genericService.resetIndexes()
       const entries = this.genericService.getMessageEntries(userEmail, false)
