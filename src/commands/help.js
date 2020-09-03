@@ -19,7 +19,7 @@ class Help {
   execute() {
     const { isAdmin, vGroupID } = this.messageService
 
-    let webAppString
+    let webAppString = ''
     if (webAppEnabled) {
       webAppString =
         '*Web App Commands*\n' +
@@ -33,7 +33,6 @@ class Help {
       'To broadcast a file - Click the + sign and share the file with the bot\n' +
       'To broadcast a voice memo - Click the microphone button and send a voice memo to the bot\n' +
       '/ack : To acknowledge a broadcast message \n' +
-      '/messages : To get a text file of all the messages sent to the bot\n' +
       '/status : To get the status of a broadcast message\n' +
       '/report : To get a CSV file with the status of each user for a broadcast message\n' +
       '/abort : To abort a broadcast or send that is currently in progress\n\n' +
