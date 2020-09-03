@@ -170,7 +170,7 @@ async function main() {
       ],
     },
     {
-      token: 'BOADCAST_ENABLED',
+      token: 'BROADCAST_ENABLED',
       patter: 'yes|no',
       type: 'string',
       description: 'Do you want to allow broadcasts to be sent to the whole network and security groups?',
