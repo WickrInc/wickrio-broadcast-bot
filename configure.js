@@ -1,14 +1,14 @@
 const WickrIOBotAPI = require('wickrio-bot-api');
-const util = require('util')
+const util = require('util');
 
 
-require("dotenv").config({
-  path: `.env.configure`
-})
+require('dotenv').config({
+  path: '.env.configure',
+});
 
-var wickrIOConfigure;
+let wickrIOConfigure;
 
-process.stdin.resume(); //so the program will not close instantly
+process.stdin.resume(); // so the program will not close instantly
 
 function exitHandler(options, err) {
   try {
@@ -26,17 +26,17 @@ function exitHandler(options, err) {
   }
 }
 
-//catches ctrl+c and stop.sh events
+// catches ctrl+c and stop.sh events
 process.on('SIGINT', exitHandler.bind(null, { exit: true }));
 
-//catches "kill pid" (for example: nodemon restart)
+// catches "kill pid" (for example: nodemon restart)
 process.on('SIGUSR1', exitHandler.bind(null, { pid: true }));
 process.on('SIGUSR2', exitHandler.bind(null, { pid: true }));
 
-//catches uncaught exceptions
+// catches uncaught exceptions
 process.on('uncaughtException', exitHandler.bind(null, {
   exit: true,
-  reason: 'uncaughtException'
+  reason: 'uncaughtException',
 }));
 
 main();
@@ -66,7 +66,7 @@ async function main() {
               token: 'WEBAPP_HOST',
               pattern: '',
               type: 'string',
-              description: "Please enter the host name or ip address to reach the web application",
+              description: 'Please enter the host name or ip address to reach the web application',
               message: 'Cannot leave empty! Please enter a value',
               required: true,
               default: false,
@@ -75,12 +75,12 @@ async function main() {
               token: 'WEBAPP_PORT',
               pattern: '^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$',
               type: 'number',
-              description: "Please enter the host port to use to reach the web application",
+              description: 'Please enter the host port to use to reach the web application',
               message: 'Cannot leave empty! Please enter a value',
               required: true,
               default: false,
-            }
-          ]
+            },
+          ],
         },
         {
           token: 'REST_APPLICATION',
@@ -144,10 +144,10 @@ async function main() {
               message: 'Cannot find file!',
               required: true,
               default: false,
-            }
-          ]
-        }
-      ]
+            },
+          ],
+        },
+      ],
     },
     {
       token: 'BOT_MAPS',
@@ -162,20 +162,28 @@ async function main() {
           token: 'BOT_GOOGLE_MAPS',
           pattern: '',
           type: 'string',
-          description: "Please enter your google maps api key",
+          description: 'Please enter your google maps api key',
           message: 'Cannot leave empty! Please enter a value',
           required: true,
           default: false,
-        }
-      ]
-    }
+        },
+      ],
+    },
+    {
+      token: 'BOADCAST_ENABLED',
+      patter: 'yes|no',
+      type: 'string',
+      description: 'Do you want to allow broadcasts to be sent to the whole network and security groups?',
+      message: 'Please enter either yes or no',
+      required: true,
+      default: 'no',
+    },
   ];
 
 
-  var fullName = process.cwd() + "/processes.json";
+  const fullName = `${process.cwd()}/processes.json`;
   wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure(tokenConfig, fullName, true, true);
 
-  await wickrIOConfigure.configureYourBot("WickrIO-Broadcast-Bot");
+  await wickrIOConfigure.configureYourBot('WickrIO-Broadcast-Bot');
   process.exit();
 }
-

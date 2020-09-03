@@ -156,6 +156,7 @@ class Factory {
     this.initializeBroadcast = new InitializeBroadcast({
       broadcastService: this.broadcastService,
       messageService: this.messageService,
+      broadcastEnabled: ,
     })
     this.initializeSend = new InitializeSend({
       sendService: this.sendService,
