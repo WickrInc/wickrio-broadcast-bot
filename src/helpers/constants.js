@@ -30,6 +30,7 @@ const {
   SSL_KEY_LOCATION,
   WEB_INTERFACE,
   SSL_CRT_LOCATION,
+  BROADCAST_ENABLED,
 } = JSON.parse(process.env.tokens)
 
 const updateLastID = () => {
@@ -175,5 +176,6 @@ export {
   VERIFY_USERS,
   updateLastID,
   getLastID,
+  BROADCAST_ENABLED,
   // cronJob,
 }
