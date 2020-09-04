@@ -1,5 +1,5 @@
 import State from '../state'
-import { bot, logger, WEB_APPLICATION } from '../helpers/constants'
+import { bot, logger, WEB_APPLICATION, BROADCAST_ENABLED } from '../helpers/constants'
 const webAppEnabled = WEB_APPLICATION.value === 'yes'
 
 class Help {
@@ -19,20 +19,26 @@ class Help {
   execute() {
     const { isAdmin, vGroupID } = this.messageService
 
-    let webAppString
+    let webAppString = ''
+    let broadcastString = ''
     if (webAppEnabled) {
       webAppString =
         '*Web App Commands*\n' +
         '/panel : displays the link and token to the web user interface\n\n'
     }
+    if (!BROADCAST_ENABLED || BROADCAST_ENABLED.value === 'yes') {
+      broadcastString =
+        '/broadcast <Message> : To send a broadcast message to the network or security groups\n' +
+        'To broadcast a file - Click the + sign and share the file with the bot\n' +
+        'To broadcast a voice memo - Click the microphone button and send a voice memo to the bot\n'
+    }
+
     let helpString =
       '*Messages Commands*\n' +
       '/send <Message> : To send a broadcast message to a given file of user hashes or usernames\n' +
       'To save a file of usernames or user hashes - Click the + sign and share the file with the bot\n' +
-      '/broadcast <Message> : To send a broadcast message to the network or security groups\n' +
-      'To broadcast a file - Click the + sign and share the file with the bot\n' +
-      'To broadcast a voice memo - Click the microphone button and send a voice memo to the bot\n' +
       '/ack : To acknowledge a broadcast message \n' +
+      `${broadcastString}` +
       '/messages : To get a text file of all the messages sent to the bot\n' +
       '/status : To get the status of a broadcast message\n' +
       '/report : To get a CSV file with the status of each user for a broadcast message\n' +
