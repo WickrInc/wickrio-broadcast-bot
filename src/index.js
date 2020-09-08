@@ -101,6 +101,7 @@ async function main() {
 
 async function listen(rawMessage) {
   try {
+    console.log({ rawMessage })
     const messageService = bot.messageService({ rawMessage })
     const {
       // time,
