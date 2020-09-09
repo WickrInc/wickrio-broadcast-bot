@@ -1,33 +1,41 @@
 class FileService {
-  constructor(user) {
-    this.user = user
-    // this.user.fileServiceFile = '';
-    // this.user.fileServiceFilename = '';
+  constructor({ messageService }) {
+    this.messageService = messageService
+    // this.messageService.user.fileServiceFile = ''
+    // this.messageService.user.fileServiceFilename = ''
   }
 
   getFile() {
-    return this.user.fileServiceFile
+    return this.messageService.user.fileServiceFile
+  }
+
+  getFilePath() {
+    return this.messageService.user.fileServiceFilePath
   }
 
   getFilename() {
-    return this.user.fileServiceFilename
+    return this.messageService.user.fileServiceFilename
   }
 
   getOverwriteFileType() {
-    return this.user.fileServiceFileType
+    return this.messageService.user.fileServiceFileType
   }
 
   setFile(file) {
-    this.user.fileServiceFile = file
+    this.messageService.user.fileServiceFile = file
+  }
+
+  setFilePath(filePath) {
+    this.messageService.user.fileServiceFilePath = filePath
   }
 
   setFilename(filename) {
-    this.user.fileServiceFilename = filename
+    this.messageService.user.fileServiceFilename = filename
   }
 
   // .user or .hash
   setOverwriteFileType(fileType) {
-    this.user.fileServiceFileType = fileType
+    this.messageService.user.fileServiceFileType = fileType
   }
 }
 

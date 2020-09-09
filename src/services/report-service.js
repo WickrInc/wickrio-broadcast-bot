@@ -1,6 +1,5 @@
 import { createObjectCsvWriter as createCsvWriter } from 'csv-writer'
-import APIService from './api-service'
-import { logger } from '../helpers/constants'
+import { logger, apiService } from '../helpers/constants'
 import StatusService from './status-service'
 
 class ReportService {
@@ -13,7 +12,7 @@ class ReportService {
       return csvArray
     }
     while (true) {
-      const reportData = APIService.getMessageStatus(
+      const reportData = apiService.getMessageStatus(
         messageID,
         'full',
         `${inc}`,
@@ -51,7 +50,7 @@ class ReportService {
     }-${now.getFullYear()}_${now.getHours()}_${now.getMinutes()}_${now.getSeconds()}`
     const path = `${process.cwd()}/attachments/report-${dateString}.csv`
     ReportService.writeCSVReport(path, csvArray)
-    APIService.sendRoomAttachment(vGroupID, path, path)
+    apiService.sendRoomAttachment(vGroupID, path, path)
     // TODO make a reply like here is the attachment
     // TODO can replies just be empty?
     return csvArray

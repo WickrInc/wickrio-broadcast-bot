@@ -152,9 +152,10 @@ function getLastID() {
 //   cronjob.start()
 //   user.cronJobActive = true
 // }
-
+const apiService = bot.apiService()
 export {
   bot,
+  apiService,
   WickrIOAPI,
   WickrUser,
   client_auth_codes,

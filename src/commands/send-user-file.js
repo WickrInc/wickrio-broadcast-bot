@@ -17,6 +17,7 @@ class SendUserFile {
 
   execute() {
     const userEmail = this.messageService.userEmail
+    console.log({ userEmail })
     const index = this.messageService.message
     let reply = null
     let state = State.NONE
