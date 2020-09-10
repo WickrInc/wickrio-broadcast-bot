@@ -1,29 +1,30 @@
 import { existsSync, mkdirSync } from 'fs'
 import FileHandler from '../helpers/file-handler'
-import APIService from './api-service'
 import StatusService from './status-service'
 // TODO proper form??
 import updateLastID from '../helpers/message-id-helper'
-import { logger } from '../helpers/constants'
+import { logger, apiService } from '../helpers/constants'
 
 // TODO make fs a variable that is passed into the constructor
 if (!existsSync(`${process.cwd()}/files`)) {
   mkdirSync(`${process.cwd()}/files`)
 }
 
-const dir = `${process.cwd()}/files/`
+const dir = `${process.cwd()}/files`
 
 class SendService {
-  constructor(user) {
-    this.user = user
+  constructor({ messageService }) {
+    this.messageService = messageService
   }
 
   // TODO what happens if someone is adding a file at the same time as someone is sending a message?
   getFiles(userEmail) {
     try {
-      this.user.userDir = `${dir}/${userEmail}/`
-      this.user.fileArr = FileHandler.listFiles(this.user.userDir)
-      return this.user.fileArr
+      this.messageService.user.userDir = `${dir}/${userEmail}/`
+      this.messageService.user.fileArr = FileHandler.listFiles(
+        this.messageService.user.userDir
+      )
+      return this.messageService.user.fileArr
     } catch (err) {
       // TODO fix this.user.!! gracefully >:)
       logger.error(err)
@@ -32,117 +33,123 @@ class SendService {
   }
 
   setFile(file) {
-    this.user.file = file
+    this.messageService.user.file = file
   }
 
   setMessage(message) {
-    this.user.message = message
+    this.messageService.user.message = message
   }
 
   setDisplay(display) {
-    this.user.display = display
+    this.messageService.user.display = display
   }
 
   setUserEmail(email) {
-    this.user.userEmail = email
+    this.messageService.user.userEmail = email
   }
 
   setVGroupID(vGroupID) {
-    this.user.vGroupID = vGroupID
+    this.messageService.user.vGroupID = vGroupID
   }
 
   setBOR(bor) {
-    this.user.bor = bor
+    this.messageService.user.bor = bor
   }
 
   setTTL(ttl) {
-    this.user.ttl = ttl
+    this.messageService.user.ttl = ttl
   }
 
   sendToFile(fileName) {
-    const sentBy = `\n\nBroadcast message sent by: ${this.user.userEmail}`
-    const messageToSend = this.user.message + sentBy
+    const sentBy = `\n\nBroadcast message sent by: ${this.messageService.user.userEmail}`
+    const messageToSend = this.messageService.user.message + sentBy
     logger.debug('Broadcasting to a file')
     const currentDate = new Date()
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
     const jsonDateTime = currentDate.toJSON()
     // TODO move filePathcreation?
-    const filePath = this.user.userDir + fileName
+    const filePath = this.messageService.user.userDir + `/${fileName}`
     let uMessage
     const messageID = updateLastID()
-    if (this.user.file !== undefined && this.user.file !== '') {
-      APIService.writeMessageIDDB(
+    if (
+      this.messageService.user.file !== undefined &&
+      this.messageService.user.file !== ''
+    ) {
+      apiService.writeMessageIDDB(
         messageID,
-        this.user.userEmail,
+        this.messageService.user.userEmail,
         filePath,
         jsonDateTime,
-        this.user.display
+        this.messageService.user.display
       )
       if (fileName.endsWith('hash')) {
-        uMessage = APIService.sendAttachmentUserHashFile(
+        uMessage = apiService.sendAttachmentUserHashFile(
           filePath,
-          this.user.file,
-          this.user.display,
-          this.user.ttl,
-          this.user.bor,
+          this.messageService.user.file,
+          this.messageService.user.display,
+          this.messageService.user.ttl,
+          this.messageService.user.bor,
           messageID
         )
       } else if (fileName.endsWith('user')) {
-        uMessage = APIService.sendAttachmentUserNameFile(
+        uMessage = apiService.sendAttachmentUserNameFile(
           filePath,
-          this.user.file,
-          this.user.display,
-          this.user.ttl,
-          this.user.bor,
+          this.messageService.user.file,
+          this.messageService.user.display,
+          this.messageService.user.ttl,
+          this.messageService.user.bor,
           messageID
         )
       }
     } else {
-      APIService.writeMessageIDDB(
+      apiService.writeMessageIDDB(
         messageID,
-        this.user.userEmail,
+        this.messageService.user.userEmail,
         filePath,
         jsonDateTime,
-        this.user.message
+        this.messageService.user.message
       )
       if (fileName.endsWith('hash')) {
-        uMessage = APIService.sendMessageUserHashFile(
+        uMessage = apiService.sendMessageUserHashFile(
           filePath,
           messageToSend,
-          this.user.ttl,
-          this.user.bor,
+          this.messageService.user.ttl,
+          this.messageService.user.bor,
           messageID
         )
       } else if (fileName.endsWith('user')) {
-        uMessage = APIService.sendMessageUserNameFile(
+        uMessage = apiService.sendMessageUserNameFile(
           filePath,
           messageToSend,
-          this.user.ttl,
-          this.user.bor,
+          this.messageService.user.ttl,
+          this.messageService.user.bor,
           messageID
         )
       }
     }
-    if (this.user.vGroupID !== '' && this.user.vGroupID !== undefined) {
-      StatusService.asyncStatus(messageID, this.user.vGroupID)
+    if (
+      this.messageService.user.vGroupID !== '' &&
+      this.messageService.user.vGroupID !== undefined
+    ) {
+      StatusService.asyncStatus(messageID, this.messageService.user.vGroupID)
     }
     this.clearValues()
     logger.debug(`Broadcast uMessage${uMessage}`)
   }
 
   clearValues() {
-    this.user.file = ''
-    this.user.message = ''
-    this.user.userEmail = ''
-    this.user.display = ''
-    this.user.vGroupID = ''
-    this.user.ttl = ''
-    this.user.bor = ''
+    this.messageService.user.file = ''
+    this.messageService.user.message = ''
+    this.messageService.user.userEmail = ''
+    this.messageService.user.display = ''
+    this.messageService.user.vGroupID = ''
+    this.messageService.user.ttl = ''
+    this.messageService.user.bor = ''
   }
 
   // This function is used to send a file to a room.
   retrieveFile(filePath, vGroupID) {
-    APIService.sendRoomAttachment(vGroupID, filePath, filePath)
+    apiService.sendRoomAttachment(vGroupID, filePath, filePath)
   }
 }
 

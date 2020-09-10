@@ -1,8 +1,9 @@
 import * as WickrIOBotAPI from 'wickrio-bot-api'
 import BroadcastService from '../services/broadcast-service'
-import { APIService, StatusService } from '../services'
+import { StatusService } from '../services'
 import dotenv from 'dotenv'
 import Factory from '../factory'
+import { apiService } from '../helpers/constants'
 // import path from 'path'
 dotenv.config()
 
@@ -53,7 +54,6 @@ describe('Connecting', () => {
   it('should send a successful broadcast 1 to 1', async () => {
     // const bot = new WickrIOBotAPI.WickrIOBot()
 
-    const apiService = APIService
     const broadcastService = new BroadcastService({
       messageService: { user: {} },
       apiService,
@@ -76,7 +76,7 @@ describe('Connecting', () => {
     const statusService = new StatusService()
     const broadcastService = new BroadcastService({
       messageService: { user: {} },
-      apiService: APIService,
+      apiService,
       statusService,
     })
     broadcastService.setMessage(
@@ -98,7 +98,7 @@ describe('Connecting', () => {
     const statusService = new StatusService()
     const broadcastService = new BroadcastService({
       messageService: { user: {} },
-      apiService: APIService,
+      apiService,
       statusService,
     })
     broadcastService.setMessage(

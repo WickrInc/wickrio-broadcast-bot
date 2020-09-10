@@ -17,8 +17,13 @@ class FileReceived {
   }
 
   execute() {
-    this.fileService.setFile(this.messageService.getFile())
-    this.fileService.setFilename(this.messageService.getFilename())
+    // const file = this.messageService.getFile()
+    const filePath = this.messageService.getFilePath()
+    const fileName = this.messageService.getFilename()
+    console.log({ filePath, fileName })
+    // this.fileService.setFile(file)
+    this.fileService.setFilePath(filePath)
+    this.fileService.setFilename(fileName)
     const reply =
       'Would you like to broadcast this file, send this file to a list, or is it a file of usernames or hashes? Please respond with (b)roadcast, (s)end, (u)ser, or (h)ash'
     const obj = {

@@ -1,6 +1,5 @@
 import { schedule } from 'node-cron'
-import APIService from './api-service'
-import { logger } from '../helpers/constants'
+import { logger, apiService } from '../helpers/constants'
 
 class StatusService {
   static getStatus(messageID, asyncStatus) {
@@ -67,7 +66,7 @@ class StatusService {
       const statusObj = StatusService.getStatus(messageID, true)
       const { preparing } = statusObj
       if (!preparing) {
-        APIService.sendRoomMessage(vGroupID, statusObj.statusString)
+        apiService.sendRoomMessage(vGroupID, statusObj.statusString)
       }
       if (statusObj.complete) {
         return cronJob.stop()
@@ -79,6 +78,6 @@ class StatusService {
 }
 
 const status = messageID =>
-  APIService.getMessageStatus(messageID, 'summary', '0', '1000')
+  apiService.getMessageStatus(messageID, 'summary', '0', '1000') // need to make this '1000' value dynamically reference the intended number broadcasts kept in the history
 
 export default StatusService

@@ -4,13 +4,13 @@ import multer from 'multer'
 import fs from 'fs'
 import {
   bot,
+  apiService,
   client_auth_codes,
   BOT_AUTH_TOKEN,
   BOT_PORT,
   logger,
   // cronJob
 } from '../helpers/constants'
-import APIService from '../services/api-service'
 import BroadcastService from '../services/broadcast-service'
 
 // set upload destination for attachments sent to broadcast with multer
@@ -214,7 +214,7 @@ const useWebAndRoutes = app => {
 
       const newBroadcast = new BroadcastService({
         messageService: { user: { ...user, users: null } },
-        apiService: APIService,
+        apiService,
       })
 
       if (!message) return res.send('Broadcast message missing from request.')
@@ -273,7 +273,7 @@ const useWebAndRoutes = app => {
     try {
       // how does cmdGetSecurityGroups know what user to get security groups for?
       // could we get securityg groups for a targeted user?
-      const response = APIService.getSecurityGroups()
+      const response = apiService.getSecurityGroups()
       res.json(response)
     } catch (err) {
       console.log(err)
@@ -285,11 +285,11 @@ const useWebAndRoutes = app => {
   const buildEntry = async (entry, page, size) => {
     // console.log({ entry })
     const contentData = JSON.parse(
-      APIService.getMessageIDEntry(entry.message_id)
+      apiService.getMessageIDEntry(entry.message_id)
     )
     entry.message = contentData.message
     try {
-      const statusdata = await APIService.getMessageStatus(
+      const statusdata = await apiService.getMessageStatus(
         entry.message_id,
         'full',
         page,
@@ -314,7 +314,7 @@ const useWebAndRoutes = app => {
         ).toLocaleDateString('en-US')
 
         const statusSummary = JSON.parse(
-          APIService.getMessageStatus(
+          apiService.getMessageStatus(
             String(entry.message_id),
             'summary',
             '',
@@ -339,7 +339,7 @@ const useWebAndRoutes = app => {
 
   const getStatus = async (page, size, email) => {
     // if user hasn't sent a message in the last 'size' messages, will it show zero messages unless we search a larger index that captures the user's message?
-    const tableDataRaw = APIService.getMessageIDTable(
+    const tableDataRaw = apiService.getMessageIDTable(
       String(page),
       String(size),
       String(email)
@@ -399,10 +399,10 @@ const useWebAndRoutes = app => {
       }
 
       const broadcast = JSON.parse(
-        APIService.getMessageIDEntry(req.params.messageID)
+        apiService.getMessageIDEntry(req.params.messageID)
       )
       const parsedBroadcastStatus = JSON.parse(
-        APIService.getMessageStatus(
+        apiService.getMessageStatus(
           req.params.messageID,
           'full',
           req.params.page,
@@ -410,7 +410,7 @@ const useWebAndRoutes = app => {
         )
       )
       const statusData = JSON.parse(
-        APIService.getMessageStatus(
+        apiService.getMessageStatus(
           String(req.params.messageID),
           'summary',
           '',

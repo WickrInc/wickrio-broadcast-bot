@@ -19,9 +19,7 @@ class InitializeBroadcast {
   execute() {
     let reply
     let state
-    if (BROADCAST_ENABLED.value &&
-        BROADCAST_ENABLED.value !== 'yes'
-    ) {
+    if (BROADCAST_ENABLED.value && BROADCAST_ENABLED.value !== 'yes') {
       reply = 'Broadcast is disabled, try the /send command to send to a file'
       state = State.NONE
     } else {

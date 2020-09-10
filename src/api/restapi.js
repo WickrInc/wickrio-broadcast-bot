@@ -2,13 +2,13 @@ import multer from 'multer'
 import fs from 'fs'
 import {
   bot,
+  apiService,
   WickrUser,
   BOT_KEY,
   BOT_AUTH_TOKEN,
   WICKRIO_BOT_NAME,
   // cronJob
 } from '../helpers/constants'
-import APIService from '../services/api-service'
 import BroadcastService from '../services/broadcast-service'
 
 // set upload destination for attachments sent to broadcast with multer
@@ -390,7 +390,7 @@ const useRESTRoutes = app => {
     const messageID = req.query.messageID
 
     // Make sure the MessageID entry exists
-    const msgIDJSON = APIService.getMessageIDEntry(messageID)
+    const msgIDJSON = apiService.getMessageIDEntry(messageID)
     if (msgIDJSON === undefined) {
       return res.status(404).send('Not Found: Message ID entry does not exist.')
     }
@@ -404,8 +404,8 @@ const useRESTRoutes = app => {
     }
 
     const reply = {}
-    reply.result = APIService.cancelMessageID(messageID)
-    reply.status = APIService.getMessageStatus(messageID, 'summary', '', '')
+    reply.result = apiService.cancelMessageID(messageID)
+    reply.status = apiService.getMessageStatus(messageID, 'summary', '', '')
     res.json(reply)
   })
 
@@ -413,7 +413,7 @@ const useRESTRoutes = app => {
     try {
       // how does cmdGetSecurityGroups know what user to get security groups for?
       // could we get securityg groups for a targeted user?
-      const response = APIService.getSecurityGroups()
+      const response = apiService.getSecurityGroups()
       res.json(response)
     } catch (err) {
       console.log(err)
@@ -431,7 +431,7 @@ const useRESTRoutes = app => {
       return res.status(400).send('Bad request: limit missing from request.')
     const page = req.query.page
     const limit = req.query.limit
-    const tableDataRaw = APIService.getMessageIDTable(
+    const tableDataRaw = apiService.getMessageIDTable(
       page,
       limit,
       WICKRIO_BOT_NAME.value
@@ -447,7 +447,7 @@ const useRESTRoutes = app => {
         .send('Bad request: messageID missing from request.')
     const messageID = req.query.messageID
 
-    const statusdata = await APIService.getMessageStatus(
+    const statusdata = await apiService.getMessageStatus(
       messageID,
       'summary',
       '',
@@ -473,10 +473,10 @@ const useRESTRoutes = app => {
     messageIdEntries?.map(async entry => {
       console.log({ entry })
       const contentData = JSON.parse(
-        APIService.getMessageIDEntry(entry.message_id)
+        apiService.getMessageIDEntry(entry.message_id)
       )
       entry.message = contentData.message
-      const statusdata = await APIService.getMessageStatus(
+      const statusdata = await apiService.getMessageStatus(
         entry.message_id,
         type,
         page,
@@ -512,7 +512,7 @@ const useRESTRoutes = app => {
 
   const getStatus = async (page, size, email) => {
     // if user hasn't sent a message in the last 'size' messages, will it show zero messages unless we search a larger index that captures the user's message?
-    const tableDataRaw = APIService.getMessageIDTable(
+    const tableDataRaw = apiService.getMessageIDTable(
       String(page),
       String(size),
       String(email)
@@ -554,7 +554,7 @@ const useRESTRoutes = app => {
     const limit = req.query.limit
 
     // Make sure the MessageID entry exists
-    const msgIDJSON = APIService.getMessageIDEntry(messageID)
+    const msgIDJSON = apiService.getMessageIDEntry(messageID)
     if (msgIDJSON === undefined) {
       return res.status(404).send('Not Found: Message ID entry does not exist.')
     }
@@ -576,7 +576,7 @@ const useRESTRoutes = app => {
     if (req.query.filter || req.query.users) {
       const filter = req.query.filter ? req.query.filter : ''
       const users = req.query.users ? req.query.users : ''
-      statusData = APIService.getMessageStatusFiltered(
+      statusData = apiService.getMessageStatusFiltered(
         messageID,
         'full',
         page,
@@ -585,7 +585,7 @@ const useRESTRoutes = app => {
         users
       )
     } else {
-      statusData = APIService.getMessageStatus(messageID, 'full', page, limit)
+      statusData = apiService.getMessageStatus(messageID, 'full', page, limit)
     }
     if (statusData) {
       const messageStatus = JSON.parse(statusData)
@@ -667,7 +667,7 @@ const useRESTRoutes = app => {
     const callbackUrl = req.query.callbackurl
     console.log('callbackUrl:', callbackUrl)
     try {
-      const csmc = APIService.setEventCallback(callbackUrl)
+      const csmc = apiService.setEventCallback(callbackUrl)
       console.log(csmc)
       res.type('txt').send(csmc)
     } catch (err) {
@@ -679,7 +679,7 @@ const useRESTRoutes = app => {
 
   app.get(endpoint + '/EventRecvCallback', checkBasicAuth, function (req, res) {
     try {
-      const cgmc = APIService.getEventCallback()
+      const cgmc = apiService.getEventCallback()
       res.type('txt').send(cgmc)
     } catch (err) {
       console.log(err)
@@ -693,7 +693,7 @@ const useRESTRoutes = app => {
     res
   ) {
     try {
-      const cdmc = APIService.deleteEventCallback()
+      const cdmc = apiService.deleteEventCallback()
       console.log(cdmc)
       res.type('txt').send(cdmc)
     } catch (err) {
