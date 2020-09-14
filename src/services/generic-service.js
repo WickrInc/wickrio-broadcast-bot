@@ -1,5 +1,4 @@
 // import APIfrom './api-service'
-import { logger } from '../helpers/constants'
 
 const maxStringLength = 50
 // TODO put this in the constructor??
@@ -32,7 +31,7 @@ class GenericService {
   getEntriesString(userEmail, abort) {
     const currentEntries = this.getMessageEntries(userEmail, abort)
     let reply
-    logger.debug(`startIndex${this.messageService.startIndex}`)
+    console.log({ startIndex: this.messageService.startIndex })
     if (
       currentEntries.length < 1 ||
       this.messageService.startIndex >= this.messageService.endIndex

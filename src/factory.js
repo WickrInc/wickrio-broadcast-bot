@@ -38,13 +38,13 @@ import RepeatService from './services/repeat-service'
 import SendService from './services/send-service'
 import FileService from './services/file-service'
 import GenericService from './services/generic-service'
-import APIService from './services/api-service'
+// import APIService from './services/api-service'
 import StatusService from './services/status-service'
 import ReportService from './services/report-service'
 import Version from './commands/version'
 import MapService from './services/map-service'
-import { WickrIOAPI } from './helpers/constants'
-import writer from './helpers/message-writer.js'
+import { WickrIOAPI, apiService } from './helpers/constants'
+import writeFile from './helpers/message-writer.js'
 
 // TODO how can we use a new Broadcast service each time???
 class Factory {
@@ -54,7 +54,7 @@ class Factory {
     // These are the services that will be passed to the commands
     this.messageService = messageService
     // this.broadcastService = broadcastService
-    this.apiService = APIService
+    this.apiService = apiService
     this.genericService = new GenericService({
       endIndex: 10,
       messageService: this.messageService,
@@ -96,6 +96,7 @@ class Factory {
       return;
     }
     */
+
     if (
       !this.messageService.isAdmin &&
       this.messageService.command !== '/ack'
@@ -103,7 +104,7 @@ class Factory {
       const reply = `Hey this bot is just for announcements and can't respond to you personally, or ${this.messageService.userEmail} is not authorized to use this bot. If you have a question, please get a hold of us a support@wickr.com or visit us a support.wickr.com. Thanks, Team Wickr`
       WickrIOAPI.cmdSendRoomMessage(this.messageService.vGroupID, reply)
       // logger.debug({ sMessage })
-      writer.writeFile(this.messageService.message)
+      writeFile(this.messageService.message)
       return
     }
 
@@ -118,8 +119,8 @@ class Factory {
       broadcastService: this.broadcastService,
       messageService: this.messageService,
     })
-    this.sendService = new SendService(this.messageService)
-    this.fileService = new FileService(this.messageService)
+    this.sendService = new SendService({ messageService: this.messageService })
+    this.fileService = new FileService({ messageService: this.messageService })
     this.mapService = new MapService({
       apiService: this.apiService,
     })
@@ -133,7 +134,7 @@ class Factory {
       messageService: this.messageService,
     })
     this.abort = new Abort({
-      genericeService: this.genericService,
+      genericService: this.genericService,
       messageService: this.messageService,
     })
     this.cancel = new Cancel({
@@ -162,7 +163,7 @@ class Factory {
       messageService: this.messageService,
     })
     this.report = new Report({
-      genericeService: this.genericService,
+      genericService: this.genericService,
       messageService: this.messageService,
     })
     this.statusCommand = new Status({
@@ -231,7 +232,7 @@ class Factory {
       messageService: this.messageService,
     })
     this.whichAbort = new WhichAbort({
-      genericeService: this.genericService,
+      genericService: this.genericService,
       messageService: this.messageService,
     })
     this.whichDelete = new WhichDelete({
@@ -306,6 +307,7 @@ class Factory {
     // };
   }
 
+  // do we need this?
   file(file, display) {
     this.broadcastService.setFile(file)
     this.broadcastService.setDisplay(display)

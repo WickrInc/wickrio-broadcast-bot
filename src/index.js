@@ -101,6 +101,7 @@ async function main() {
 
 async function listen(rawMessage) {
   try {
+    // console.log({ rawMessage })
     const messageService = bot.messageService({ rawMessage })
     const {
       // time,
@@ -135,7 +136,9 @@ async function listen(rawMessage) {
       fs.mkdirSync(`${process.cwd()}/files/${userEmail}`)
     }
 
-    const factory = new Factory({ messageService })
+    const factory = new Factory({
+      messageService,
+    })
     let cmdResult
     if (msgType !== 'location') {
       cmdResult = factory.execute()

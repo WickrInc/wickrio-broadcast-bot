@@ -1,5 +1,5 @@
 import State from '../state'
-import logger from '../logger'
+// import logger from '../logger'
 import FileHandler from '../helpers/file-handler'
 
 class FileActions {
@@ -18,9 +18,10 @@ class FileActions {
   }
 
   execute() {
-    const file = this.fileService.getFile()
-    logger.debug(`Here is the file${file}`)
+    const filePath = this.fileService.getFilePath()
     const filename = this.fileService.getFilename()
+    console.log('file actions file service')
+    console.log({ filePath, filename })
     const type = this.messageService.getMessage().toLowerCase()
     const userEmail = this.messageService.getUserEmail()
     const fileArr = this.sendService.getFiles(userEmail)
@@ -32,7 +33,7 @@ class FileActions {
     } else if (type === 'h' || type === 'hash') {
       fileAppend = '.hash'
     } else if (type === 's' || type === 'send') {
-      this.sendService.setFile(file)
+      this.sendService.setFile(filePath) // set this service to setFilePath?
       this.sendService.setDisplay(filename)
       this.sendService.setMessage(this.messageService.getArgument())
       this.sendService.setUserEmail(this.messageService.userEmail)
@@ -46,7 +47,7 @@ class FileActions {
       }
       state = State.CHOOSE_FILE
     } else if (type === 'b' || type === 'broadcast') {
-      this.broadcastService.setFile(file)
+      this.broadcastService.setFile(filePath)
       this.broadcastService.setDisplay(filename)
       this.broadcastService.setMessage(this.messageService.getArgument())
       this.broadcastService.setUserEmail(this.messageService.userEmail)
@@ -61,9 +62,9 @@ class FileActions {
         'Input not recognized, please reply with (b)roadcast, (s)end, (u)ser, or (h)ash'
       state = State.FILE_TYPE
     }
-    logger.debug(`fileAppend:${fileAppend}`)
+    console.log({ fileAppend })
     // Make sure the file is not blank.
-    if (FileHandler.checkFileBlank(file)) {
+    if (FileHandler.checkFileBlank(filePath)) {
       reply = `File: ${filename} is empty. Please send a list of usernames or hashes`
       // If file already exists go to the overwrite check state
     } else if (fileArr.includes(`${filename}${fileAppend}`)) {
@@ -73,10 +74,20 @@ class FileActions {
       state = State.OVERWRITE_CHECK
       // Upload new file to the user directory
     } else if (fileAppend === '.user' || fileAppend === '.hash') {
+      console.log('file actions user or hash, should copy file')
       const newFilePath = `${process.cwd()}/files/${userEmail}/${filename.toString()}${fileAppend}`
-      logger.debug(`Here is file info${file}`)
-      const cp = FileHandler.copyFile(file, newFilePath)
-      logger.debug(`Here is cp:${cp}`)
+      console.log({
+        filePath,
+        newFilePath,
+        userEmail,
+        fileName: filename.toString(),
+        fileAppend,
+      })
+
+      // logger.debug(`Here is file info${file}`)
+      const cp = FileHandler.copyFile(filePath, newFilePath)
+      console.log({ cp })
+
       if (cp) {
         reply = `File named: ${filename} successfully saved to directory.`
       } else {

@@ -17,6 +17,7 @@ const client_auth_codes = {}
 const {
   BOT_AUTH_TOKEN,
   BOT_KEY,
+  BOT_MAPS,
   BOT_PORT,
   BOT_GOOGLE_MAPS,
   WICKRIO_BOT_NAME,
@@ -151,9 +152,10 @@ function getLastID() {
 //   cronjob.start()
 //   user.cronJobActive = true
 // }
-
+const apiService = bot.apiService()
 export {
   bot,
+  apiService,
   WickrIOAPI,
   WickrUser,
   client_auth_codes,
@@ -166,6 +168,7 @@ export {
   BOT_KEY,
   SSL_KEY_LOCATION,
   HTTPS_CHOICE,
+  BOT_MAPS,
   BOT_PORT,
   BOT_GOOGLE_MAPS,
   WEBAPP_HOST,

@@ -1,23 +1,59 @@
 import * as WickrIOBotAPI from 'wickrio-bot-api'
 import BroadcastService from '../services/broadcast-service'
-import { APIService, StatusService } from '../services'
+import { StatusService } from '../services'
 import dotenv from 'dotenv'
-
-dotenv.config()
+import Factory from '../factory'
+import { apiService } from '../helpers/constants'
 // import path from 'path'
+dotenv.config()
+
+const bot = new WickrIOBotAPI.WickrIOBot()
+let rawMessage = JSON.stringify({
+  message: '',
+  message_id: 'x',
+  // msg_ts: '1599257133.267822',
+  msg_ts: 'x',
+  msgtype: 1000,
+  receiver: 'localbroadcasttestbot',
+  respond_api: 'http:///0/Apps//Messages',
+  sender: 'jesttest',
+  // time: '9/4/20 10:05 PM',
+  // ttl: '9/8/20 10:05 PM',
+  users: [
+    { name: 'alane+largeroom@wickr.com' },
+    { name: 'localbroadcasttestbot' },
+  ],
+  vgroupid: '6bd4fe7088ff7a470b94339fe1eb0d5b18940f6faf30ed3464779daf9eb8f14c',
+})
 
 describe('Connecting', () => {
-  const bot = new WickrIOBotAPI.WickrIOBot()
   it('should test the Bot object, ensuring the bot connects', async () => {
     const status = await bot.start(
       JSON.parse(process.env.tokens).WICKRIO_BOT_NAME.value
     )
     expect(status).toEqual(true)
   })
+  it('should run /abort', async () => {
+    rawMessage = JSON.parse(rawMessage)
+    rawMessage.message = '/abort'
+    rawMessage = JSON.stringify(rawMessage)
+    const messageService = bot.messageService({ rawMessage })
+    const factory = new Factory({ messageService })
+    const { reply } = factory.execute()
+    expect(reply).toEqual('There are no active messages to display')
+  })
+  it('should run /report', async () => {
+    rawMessage = JSON.parse(rawMessage)
+    rawMessage.message = '/report'
+    rawMessage = JSON.stringify(rawMessage)
+    const messageService = bot.messageService({ rawMessage })
+    const factory = new Factory({ messageService })
+    const { reply } = factory.execute()
+    expect(reply).toEqual('There are no previous messages to display')
+  })
   it('should send a successful broadcast 1 to 1', async () => {
     // const bot = new WickrIOBotAPI.WickrIOBot()
 
-    const apiService = APIService
     const broadcastService = new BroadcastService({
       messageService: { user: {} },
       apiService,
@@ -36,11 +72,11 @@ describe('Connecting', () => {
     const reply = broadcastService.broadcastMessage()
     expect(reply.pending).toEqual('Broadcast message in process of being sent')
   })
-  it('should send a successful broadcast to a single Security Group ', async () => {
+  it('should send a sucessful broadcast to a single Security Group ', async () => {
     const statusService = new StatusService()
     const broadcastService = new BroadcastService({
       messageService: { user: {} },
-      apiService: APIService,
+      apiService,
       statusService,
     })
     broadcastService.setMessage(
@@ -48,8 +84,7 @@ describe('Connecting', () => {
     )
     broadcastService.setUserEmail('jest test')
     broadcastService.setUsers(
-      // security group 6
-      ['alane+largeroom@wickr.com']
+      ['alane+largeroom@wickr.com'] // security group 6
     )
     broadcastService.setTTL('')
     broadcastService.setBOR('')
@@ -59,30 +94,30 @@ describe('Connecting', () => {
       'Broadcast message in process of being sent to list of users'
     )
   })
+  it('should send a successful broadcast to the whole network', async () => {
+    const statusService = new StatusService()
+    const broadcastService = new BroadcastService({
+      messageService: { user: {} },
+      apiService,
+      statusService,
+    })
+    broadcastService.setMessage(
+      'broadcast from jest test for the broadcast bot!'
+    )
+    broadcastService.setUserEmail('jest test')
+    broadcastService.setUsers(
+      ['alane+largeroom@wickr.com'] // security group 6
+    )
+    broadcastService.setTTL('')
+    broadcastService.setBOR('')
+    broadcastService.setSentByFlag(true)
+    const reply = broadcastService.broadcastMessage()
+    expect(reply.pending).toEqual(
+      'Broadcast message in process of being sent to list of users'
+    )
+  })
+
   // it('should send a successful broadcast to multiple Security Groups ', async () => {
-  //   const apiService = new APIService()
-  //   const statusService = new StatusService()
-  //   const broadcastService = new BroadcastService({
-  //     messageService: { user: {} },
-  //     apiService,
-  //     statusService,
-  //   })
-  //   broadcastService.setMessage(
-  //     'broadcast from jest test for the broadcast bot!'
-  //   )
-  //   broadcastService.setUserEmail('jest test')
-  //   broadcastService.setUsers(
-  //     ['alane+largeroom@wickr.com'] // security group 6
-  //   )
-  //   broadcastService.setTTL('')
-  //   broadcastService.setBOR('')
-  //   broadcastService.setSentByFlag(true)
-  //   const reply = broadcastService.broadcastMessage()
-  //   expect(reply.pending).toEqual(
-  //     'Broadcast message in process of being sent to list of users'
-  //   )
-  // })
-  // it('should send a successful broadcast to the whole network', async () => {
   //   const apiService = new APIService()
   //   const statusService = new StatusService()
   //   const broadcastService = new BroadcastService({

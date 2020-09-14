@@ -6,6 +6,8 @@ util.promisify(fs.copyFile)
 
 class FileHandler {
   static listFiles(path) {
+    console.log('File Handler list files')
+    console.log({ path })
     console.log({ 'list files': fs.readdirSync(path) })
     return fs.readdirSync(path)
     // return readdir(path);
@@ -27,6 +29,7 @@ class FileHandler {
   // Function that checks if a file is blank.
   static checkFileBlank(filePath) {
     const theFile = fs.readFileSync(filePath, 'utf-8').trim()
+    console.log({ theFile })
     if (theFile.length === 0) {
       return true
     }
