@@ -188,7 +188,7 @@ async function main() {
         'Do you want to allow broadcasts to be sent to the whole network and security groups?',
       message: 'Please enter either yes or no',
       required: true,
-      default: 'no',
+      default: 'yes',
     },
   ]
 
