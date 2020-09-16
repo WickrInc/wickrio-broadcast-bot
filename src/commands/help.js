@@ -3,10 +3,12 @@ import {
   bot,
   logger,
   WEB_APPLICATION,
+  WEB_INTERFACE,
   BOT_MAPS,
   BROADCAST_ENABLED,
 } from '../helpers/constants'
-const webAppEnabled = WEB_APPLICATION.value === 'yes'
+const webAppEnabled =
+  WEB_APPLICATION.value === 'yes' && WEB_INTERFACE.value === 'yes'
 const mapEnabled = BOT_MAPS.value === 'yes'
 
 class Help {
