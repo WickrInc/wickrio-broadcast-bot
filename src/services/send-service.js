@@ -68,13 +68,20 @@ class SendService {
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
     const jsonDateTime = currentDate.toJSON()
     // TODO move filePathcreation?
-    const filePath = this.messageService.user.userDir + `/${fileName}`
+    const filePath = this.messageService.user.userDir + `${fileName}`
     let uMessage
     const messageID = updateLastID()
     if (
       this.messageService.user.file !== undefined &&
       this.messageService.user.file !== ''
     ) {
+      console.log({
+        messageID,
+        email: this.messageService.user.userEmail,
+        filePath,
+        jsonDateTime,
+        disaply: this.messageService.user.display,
+      })
       apiService.writeMessageIDDB(
         messageID,
         this.messageService.user.userEmail,
@@ -102,6 +109,13 @@ class SendService {
         )
       }
     } else {
+      console.log({
+        messageID,
+        email: this.messageService.user.userEmail,
+        filePath,
+        jsonDateTime,
+        message: this.messageService.user.message,
+      })
       apiService.writeMessageIDDB(
         messageID,
         this.messageService.user.userEmail,
