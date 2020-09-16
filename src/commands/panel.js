@@ -13,9 +13,11 @@ import {
   // VERIFY_USERS,
   // WickrIOAPI,
   WEB_APPLICATION,
+  WEB_INTERFACE,
   // REST_APPLICATION,
 } from '../helpers/constants'
-const webAppEnabled = WEB_APPLICATION.value === 'yes'
+const webAppEnabled =
+  WEB_APPLICATION.value === 'yes' && WEB_INTERFACE.value === 'yes'
 
 class Panel {
   constructor({ apiService, messageService }) {
