@@ -31,7 +31,6 @@ class GenericService {
   getEntriesString(userEmail, abort) {
     const currentEntries = this.getMessageEntries(userEmail, abort)
     let reply
-    console.log({ startIndex: this.messageService.startIndex })
     if (
       currentEntries.length < 1 ||
       this.messageService.startIndex >= this.messageService.endIndex

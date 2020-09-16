@@ -23,7 +23,7 @@ let rawMessage = JSON.stringify({
     { name: 'alane+largeroom@wickr.com' },
     { name: 'localbroadcasttestbot' },
   ],
-  vgroupid: '6bd4fe7088ff7a470b94339fe1eb0d5b18940f6faf30ed3464779daf9eb8f14c',
+  vgroupid: '6bd4fe7088ff7a470b94339fe1eb0d5b18940f6faf30ed3464779daf9eb8f14c', // put in env
 })
 
 describe('Connecting', () => {
