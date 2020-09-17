@@ -8,7 +8,7 @@ fi
 
 mkdir -p temp
 
-cp -r src public configure.js upgrade.js configure.sh install.sh package.json processes.json README.md restart.sh start.sh stop.sh upgrade.sh temp configTokens.json
+cp -r src public configure.js upgrade.js configure.sh install.sh package.json processes.json README.md restart.sh start.sh stop.sh upgrade.sh configTokens.json temp 
 
 cd temp
 tar czf $1/software.tar.gz *
