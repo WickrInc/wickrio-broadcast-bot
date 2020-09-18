@@ -21,7 +21,6 @@ class FileActions {
     const filePath = this.fileService.getFilePath()
     const filename = this.fileService.getFilename()
     console.log('file actions file service')
-    console.log({ filePath, filename })
     const type = this.messageService.getMessage().toLowerCase()
     const userEmail = this.messageService.getUserEmail()
     const fileArr = this.sendService.getFiles(userEmail)
@@ -35,7 +34,7 @@ class FileActions {
     } else if (type === 's' || type === 'send') {
       this.sendService.setFile(filePath) // set this service to setFilePath?
       this.sendService.setDisplay(filename)
-      this.sendService.setMessage(this.messageService.getArgument())
+      this.sendService.setMessage(this.messageService.message)
       this.sendService.setUserEmail(this.messageService.userEmail)
       this.sendService.setVGroupID(this.messageService.vGroupID)
       this.sendService.setTTL('')
@@ -49,7 +48,7 @@ class FileActions {
     } else if (type === 'b' || type === 'broadcast') {
       this.broadcastService.setFile(filePath)
       this.broadcastService.setDisplay(filename)
-      this.broadcastService.setMessage(this.messageService.getArgument())
+      this.broadcastService.setMessage(this.messageService.message)
       this.broadcastService.setUserEmail(this.messageService.userEmail)
       this.broadcastService.setVGroupID(this.messageService.vGroupID)
       this.broadcastService.setTTL('')
@@ -62,7 +61,6 @@ class FileActions {
         'Input not recognized, please reply with (b)roadcast, (s)end, (u)ser, or (h)ash'
       state = State.FILE_TYPE
     }
-    console.log({ fileAppend })
     // Make sure the file is not blank.
     if (FileHandler.checkFileBlank(filePath)) {
       reply = `File: ${filename} is empty. Please send a list of usernames or hashes`
