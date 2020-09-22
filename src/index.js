@@ -79,7 +79,7 @@ async function main() {
 
     bot.setVerificationMode(verifyUsersMode)
 
-    WickrIOAPI.cmdSetControl('cleardb', 'true')
+    WickrIOAPI.cmdSetControl('cleardb', 'false')
     WickrIOAPI.cmdSetControl('contactbackup', 'false')
     WickrIOAPI.cmdSetControl('convobackup', 'false')
     WickrIOAPI.cmdSetControl('readreceipt', 'true')
