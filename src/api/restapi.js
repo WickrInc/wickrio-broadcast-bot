@@ -135,7 +135,15 @@ const useRESTRoutes = app => {
         user = bot.addUser(wickrUser)
       }
 
-      const newBroadcast = new BroadcastService(user)
+      // const newBroadcast = new BroadcastService(user)
+      const messageService = bot.messageService({
+        rawMessage: JSON.stringify({
+          user,
+          message,
+        }),
+      })
+      const newBroadcast = new BroadcastService({ messageService, apiService })
+
       newBroadcast.setMessage(message)
       newBroadcast.setTTL(ttl)
       newBroadcast.setBOR(bor)
@@ -249,7 +257,15 @@ const useRESTRoutes = app => {
         user = bot.addUser(wickrUser)
       }
 
-      const newBroadcast = new BroadcastService(user)
+      // const newBroadcast = new BroadcastService(user)
+      const messageService = bot.messageService({
+        rawMessage: JSON.stringify({
+          user,
+          message,
+        }),
+      })
+
+      const newBroadcast = new BroadcastService({ messageService, apiService })
       newBroadcast.setMessage(message)
       newBroadcast.setTTL(ttl)
       newBroadcast.setBOR(bor)
@@ -345,8 +361,15 @@ const useRESTRoutes = app => {
       const wickrUser = new WickrUser(WICKRIO_BOT_NAME.value, {})
       user = bot.addUser(wickrUser)
     }
+    // const newBroadcast = new BroadcastService(user)
+    const messageService = bot.messageService({
+      rawMessage: JSON.stringify({
+        user,
+        message,
+      }),
+    })
+    const newBroadcast = new BroadcastService({ messageService, apiService })
 
-    const newBroadcast = new BroadcastService(user)
     newBroadcast.setMessage(message)
     newBroadcast.setUsers(userList)
     if (user_meta) {
