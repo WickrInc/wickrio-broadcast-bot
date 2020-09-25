@@ -4,10 +4,13 @@ import { StatusService } from '../services'
 import dotenv from 'dotenv'
 import Factory from '../factory'
 import { apiService } from '../helpers/constants'
+import FormData from 'form-data'
+import axios from 'axios'
 // import path from 'path'
 dotenv.config()
 
 const bot = new WickrIOBotAPI.WickrIOBot()
+let token
 let rawMessage = JSON.stringify({
   message: '',
   message_id: 'x',
@@ -26,34 +29,14 @@ let rawMessage = JSON.stringify({
   vgroupid: '6bd4fe7088ff7a470b94339fe1eb0d5b18940f6faf30ed3464779daf9eb8f14c', // put in env
 })
 
-describe('Connecting', () => {
+describe('Connecting and core', () => {
   it('should test the Bot object, ensuring the bot connects', async () => {
     const status = await bot.start(
       JSON.parse(process.env.tokens).WICKRIO_BOT_NAME.value
     )
     expect(status).toEqual(true)
   })
-  it('should run /abort', async () => {
-    rawMessage = JSON.parse(rawMessage)
-    rawMessage.message = '/abort'
-    rawMessage = JSON.stringify(rawMessage)
-    const messageService = bot.messageService({ rawMessage })
-    const factory = new Factory({ messageService })
-    const { reply } = factory.execute()
-    expect(reply).toEqual('There are no active messages to display')
-  })
-  it('should run /report', async () => {
-    rawMessage = JSON.parse(rawMessage)
-    rawMessage.message = '/report'
-    rawMessage = JSON.stringify(rawMessage)
-    const messageService = bot.messageService({ rawMessage })
-    const factory = new Factory({ messageService })
-    const { reply } = factory.execute()
-    expect(reply).toEqual('There are no previous messages to display')
-  })
-  it('should send a successful broadcast 1 to 1', async () => {
-    // const bot = new WickrIOBotAPI.WickrIOBot()
-
+  it('should send a successful broadcast to a security group', async () => {
     const broadcastService = new BroadcastService({
       messageService: { user: {} },
       apiService,
@@ -72,7 +55,7 @@ describe('Connecting', () => {
     const reply = broadcastService.broadcastMessage()
     expect(reply.pending).toEqual('Broadcast message in process of being sent')
   })
-  it('should send a sucessful broadcast to a single Security Group ', async () => {
+  it('should send a sucessful broadcast to a single user ', async () => {
     const statusService = new StatusService()
     const broadcastService = new BroadcastService({
       messageService: { user: {} },
@@ -83,9 +66,7 @@ describe('Connecting', () => {
       'broadcast from jest test for the broadcast bot!'
     )
     broadcastService.setUserEmail('jest test')
-    broadcastService.setUsers(
-      ['alane+largeroom@wickr.com'] // security group 6
-    )
+    broadcastService.setUsers(['alane+largeroom@wickr.com'])
     broadcastService.setTTL('')
     broadcastService.setBOR('')
     broadcastService.setSentByFlag(true)
@@ -102,12 +83,10 @@ describe('Connecting', () => {
       statusService,
     })
     broadcastService.setMessage(
-      'broadcast from jest test for the broadcast bot!'
+      'broadcast from jest test to the whole network!'
     )
     broadcastService.setUserEmail('jest test')
-    broadcastService.setUsers(
-      ['alane+largeroom@wickr.com'] // security group 6
-    )
+    broadcastService.setUsers(['alane+largeroom@wickr.com']) // dev
     broadcastService.setTTL('')
     broadcastService.setBOR('')
     broadcastService.setSentByFlag(true)
@@ -116,7 +95,6 @@ describe('Connecting', () => {
       'Broadcast message in process of being sent to list of users'
     )
   })
-
   // it('should send a successful broadcast to multiple Security Groups ', async () => {
   //   const apiService = new APIService()
   //   const statusService = new StatusService()
@@ -129,9 +107,6 @@ describe('Connecting', () => {
   //     'broadcast from jest test for the broadcast bot!'
   //   )
   //   broadcastService.setUserEmail('jest test')
-  //   broadcastService.setUsers(
-  //     ['alane+largeroom@wickr.com'] // security group 6
-  //   )
   //   broadcastService.setTTL('')
   //   broadcastService.setBOR('')
   //   broadcastService.setSentByFlag(true)
@@ -140,158 +115,126 @@ describe('Connecting', () => {
   //     'Broadcast message in process of being sent to list of users'
   //   )
   // })
+})
+describe('rest api', () => {
+  // it('should successfully Authorize the jest test user', async () => {
+  //   const sendAuthorization = async () => {
+  //     // const authpath = encodeURI(`${baseAPIurl}/Authenticate/${username}`)
+  //     const authpath = encodeURI(`/WickrIO/V2/Apps/Broadcast/Authorize`)
+  //     try {
+  //       const response = await axios.get(authpath, {
+  //         headers: {
+  //           Authorization: `Basic ${token}`,
+  //         },
+  //       })
+  //       console.log({ response })
+  //       // return false or a key to authorize the user
+  //       // localStorage.setItem('token', user?.token)
+  //       // console.log({ response })
+  //       // setUser(response.data.user)
+  //     } catch (err) {
+  //       // alert('Access denied: invalid user authentication code.')
+  //       console.log(err)
+  //     }
+  //   }
 
-  // get rid of .env if this is built
-  // it('should test configuration', async () => {
-  //   // set tokens needed for the app
-  //   const tempbot = new BotAPI({ botName: 'tempbot' })
-  //   const tokenConfig = [
-  //     {
-  //       token: 'WEB_INTERFACE',
-  //       pattern: 'yes|no',
-  //       type: 'string',
-  //       description:
-  //         'Do you want to setup the web interface (REST API or WEB Application) [yes/no]',
-  //       message: 'Please enter either yes or no',
-  //       required: true,
-  //       default: 'no',
-  //       list: [
-  //         {
-  //           token: 'WEB_APPLICATION',
-  //           pattern: 'yes|no',
-  //           type: 'string',
-  //           description: 'Do you want to use the web application [yes/no]',
-  //           message: 'Please enter either yes or no',
-  //           required: true,
-  //           default: 'no',
-  //           list: [
-  //             {
-  //               token: 'WEBAPP_HOST',
-  //               pattern: '',
-  //               type: 'string',
-  //               description:
-  //                 'Please enter the host name or ip address to reach the web application',
-  //               message: 'Cannot leave empty! Please enter a value',
-  //               required: true,
-  //               default: false,
-  //             },
-  //             {
-  //               token: 'WEBAPP_PORT',
-  //               pattern:
-  //                 '^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$',
-  //               type: 'number',
-  //               description:
-  //                 'Please enter the host port to use to reach the web application',
-  //               message: 'Cannot leave empty! Please enter a value',
-  //               required: true,
-  //               default: false,
-  //             },
-  //           ],
-  //         },
-  //         {
-  //           token: 'REST_APPLICATION',
-  //           pattern: 'yes|no',
-  //           type: 'string',
-  //           description: 'Do you want to use the REST application [yes/no]',
-  //           message: 'Please enter either yes or no',
-  //           required: true,
-  //           default: 'no',
-  //         },
-  //         {
-  //           token: 'BOT_PORT',
-  //           pattern:
-  //             '^((6553[0-5])|(655[0-2][0-9])|(65[0-4][0-9]{2})|(6[0-4][0-9]{3})|([1-5][0-9]{4})|([0-5]{0,5})|([0-9]{1,4}))$',
-  //           type: 'number',
-  //           description: "Please enter your client bot's port",
-  //           message: 'Cannot leave empty! Please enter a value',
-  //           required: false,
-  //           default: false,
-  //         },
-  //         {
-  //           token: 'BOT_KEY',
-  //           pattern: '',
-  //           type: 'string',
-  //           description: "Please enter your client bot's API-Key",
-  //           message: 'Cannot leave empty! Please enter a value',
-  //           required: true,
-  //           default: false,
-  //         },
-  //         {
-  //           token: 'BOT_AUTH_TOKEN',
-  //           pattern: '',
-  //           type: 'string',
-  //           description:
-  //             'Please create an Web API Basic Authorization Token, we recommend an alphanumeric string with at least 24 characters',
-  //           message: 'Cannot leave empty! Please enter a value',
-  //           required: true,
-  //           default: false,
-  //         },
-  //         {
-  //           token: 'HTTPS_CHOICE',
-  //           pattern: 'yes|no',
-  //           type: 'string',
-  //           description:
-  //             'Do you want to set up an HTTPS connection with the Web API Interface, highly recommended [yes/no]',
-  //           message: 'Please enter either yes or no',
-  //           required: true,
-  //           default: 'no',
-  //           list: [
-  //             {
-  //               token: 'SSL_KEY_LOCATION',
-  //               pattern: '',
-  //               type: 'file',
-  //               description:
-  //                 'Please enter the name and location of your SSL .key file',
-  //               message: 'Cannot find file!',
-  //               required: true,
-  //               default: false,
-  //             },
-  //             {
-  //               token: 'SSL_CRT_LOCATION',
-  //               pattern: '',
-  //               type: 'file',
-  //               description:
-  //                 'Please enter the name and location of your SSL .crt file',
-  //               message: 'Cannot find file!',
-  //               required: true,
-  //               default: false,
-  //             },
-  //           ],
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       token: 'BOT_MAPS',
-  //       pattern: 'yes|no',
-  //       type: 'string',
-  //       description:
-  //         'Do you want to map users locations when you send broadcasts [yes/no]',
-  //       message: 'Please enter either yes or no',
-  //       required: true,
-  //       default: 'no',
-  //       list: [
-  //         {
-  //           token: 'BOT_GOOGLE_MAPS',
-  //           pattern: '',
-  //           type: 'string',
-  //           description: 'Please enter your google maps api key',
-  //           message: 'Cannot leave empty! Please enter a value',
-  //           required: true,
-  //           default: false,
-  //         },
-  //       ],
-  //     },
-  //   ]
-  //   // set ecosystem file
-  //   const processesFilePath = path.join(__dirname, '../../processes.json')
-  //   // configure (provision, really).
-  //   await tempbot.configure({
-  //     tokenConfig,
-  //     processesFilePath,
-  //     supportAdministrators: true,
-  //     supportVerification: true,
-  //   })
+  //   sendAuthorization()
+  // })
+  it('should successfully use the rest api /Broadcast endpoint', async () => {
+    const reply = await sendBroadcast({
+      message: 'broadcast from rest api from jest test',
+      acknowledge: true,
+      attachment: false,
+      selectedSecGroup:
+        '6bd4fe7088ff7a470b94339fe1eb0d5b18940f6faf30ed3464779daf9eb8f14c',
+    })
+    console.log({ reply })
+    expect(reply.pending).toEqual(
+      'Broadcast message in process of being sent to list of users'
+    )
+  })
+})
+describe('Commands', () => {
+  // it('should run /panel', async () => {
+  //   rawMessage = JSON.parse(rawMessage)
+  //   rawMessage.message = '/panel'
+  //   rawMessage = JSON.stringify(rawMessage)
+  //   const messageService = bot.messageService({ rawMessage })
+  //   const factory = new Factory({ messageService })
+  //   const { reply } = factory.execute()
+  //   console.log({ reply })
+  //   token = reply
+  //   expect(reply).toEqual('There are no previous messages to display')
+  // })
+  it('should run /abort', async () => {
+    rawMessage = JSON.parse(rawMessage)
+    rawMessage.message = '/abort'
+    rawMessage = JSON.stringify(rawMessage)
+    const messageService = bot.messageService({ rawMessage })
+    const factory = new Factory({ messageService })
+    const { reply } = factory.execute()
+    expect(reply).toEqual('There are no active messages to display')
+  })
+  it('should run /report', async () => {
+    rawMessage = JSON.parse(rawMessage)
+    rawMessage.message = '/report'
+    rawMessage = JSON.stringify(rawMessage)
+    const messageService = bot.messageService({ rawMessage })
+    const factory = new Factory({ messageService })
+    const { reply } = factory.execute()
+    expect(reply).toEqual('There are no previous messages to display')
+  })
+})
+const sendBroadcast = async ({
+  message,
+  acknowledge,
+  attachment,
+  selectedSecGroup,
+}) => {
+  // console.log({
+  //   sentBroadcasts,
+  //   message,
+  //   acknowledge,
+  //   repeat,
+  //   selectedSecGroup,
+  //   freq,
+  //   repeatNum,
+  //   attachment,
+  //   userListFile,
   // })
 
-  //
-})
+  if (!message) return console.log('need a message')
+  const broadcastpath = encodeURI(`/WickrIO/V2/Apps/Broadcast/Message`)
+
+  const formdata = new FormData()
+  formdata.append('message', message)
+  formdata.append('acknowledge', acknowledge)
+
+  if (attachment) {
+    formdata.append('attachment', attachment)
+  }
+  if (selectedSecGroup) {
+    formdata.append('security_group', selectedSecGroup)
+  }
+  // if (repeat && repeatNum) {
+  //   formdata.append('repeat_num', repeatNum)
+  // }
+  // if (repeat && freq) {
+  //   formdata.append('freq_num', freq)
+
+  console.log({
+    broadcastpath,
+    formdata,
+  })
+  try {
+    const response = await axios.post(broadcastpath, formdata, {
+      headers: {
+        Authorization: `Basic ${token}`,
+      },
+    })
+    console.log({ response })
+  } catch (err) {
+    console.log({ err })
+    return err
+  }
+}
