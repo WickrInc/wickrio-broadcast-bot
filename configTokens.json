@@ -1,4 +1,6 @@
 [
+  {"supportAdministrators":true},
+  {"supportVerification":true},
   {
     "token": "WEB_INTERFACE",
     "pattern": "yes|no",
