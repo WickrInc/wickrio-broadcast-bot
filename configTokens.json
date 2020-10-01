@@ -1,6 +1,7 @@
 [
   {"supportAdministrators":true},
   {"supportVerification":true},
+  {"integration":"WickrIO-Broadcast-Bot"},
   {
     "token": "WEB_INTERFACE",
     "pattern": "yes|no",
