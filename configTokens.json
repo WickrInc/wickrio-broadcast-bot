@@ -1,8 +1,9 @@
-[
-  {"supportAdministrators":true},
-  {"supportVerification":true},
-  {"integration":"WickrIO-Broadcast-Bot"},
-  {
+{
+  "supportAdministrators":true,
+  "supportVerification":true,
+  "integration":"WickrIO-Broadcast-Bot",
+  "tokens" : [ 
+    {
     "token": "WEB_INTERFACE",
     "pattern": "yes|no",
     "type": "string",
@@ -135,5 +136,6 @@
     "message": "Please enter either yes or no",
     "required": true,
     "default": "yes"
-  }
-]
+   }
+  ]
+}
