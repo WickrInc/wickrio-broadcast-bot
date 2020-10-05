@@ -50,8 +50,8 @@ async function main() {
   wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure(
     token.tokens,
     fullName,
-    true,
-    true
+    token.supportAdministrators,
+    token.supportVerification
   )
 
   await wickrIOConfigure.configureYourBot('WickrIO-Broadcast-Bot')
