@@ -48,7 +48,7 @@ async function main() {
   const token = require('./configTokens.json')
   const fullName = `${process.cwd()}/processes.json`
   wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure(
-    token,
+    token.tokens,
     fullName,
     true,
     true
