@@ -54,7 +54,6 @@ class Help {
       'To save a file of usernames or user hashes - Click the + sign and share the file with the bot\n' +
       '/ack : To acknowledge a broadcast message \n' +
       `${broadcastString}` +
-      '/messages : To get a text file of all the messages sent to the bot\n' +
       '/status : To get the status of a broadcast message\n' +
       '/report : To get a CSV file with the status of each user for a broadcast message\n' +
       '/abort : To abort a broadcast or send that is currently in progress\n\n' +
