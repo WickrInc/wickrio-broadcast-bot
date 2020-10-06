@@ -130,7 +130,7 @@
   },
   {
     "token": "BROADCAST_ENABLED",
-    "patter": "yes|no",
+    "pattern": "yes|no",
     "type": "string",
     "description": "Do you want to allow broadcasts to be sent to the whole network and security groups?",
     "message": "Please enter either yes or no",
