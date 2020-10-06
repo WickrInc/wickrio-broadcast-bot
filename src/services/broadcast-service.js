@@ -115,18 +115,18 @@ class BroadcastService {
     //   bor: this.user.bor,
     // })
     let messageToSend
-    const sentBy = `Broadcast message sent by: ${this.user.userEmail}`
+    let sentBy = `Broadcast message sent by: ${this.user.userEmail}`
+    if (this.user.ackFlag) {
+      sentBy = `${sentBy}\nPlease acknowledge message by replying with /ack`
+    }
+
     if (this.user.sentByFlag) {
       messageToSend = `${this.user.message}\n\n${sentBy}`
     } else {
-      messageToSend = this.user.message
-    }
-
-    if (this.user.ackFlag) {
-      if (this.user.sentByFlag) {
-        messageToSend = `${messageToSend}\nPlease acknowledge message by replying with /ack`
+      if (!this.user.ackFlag) {
+        messageToSend = `${this.user.message}\n\nPlease acknowledge message by replying with /ack`
       } else {
-        messageToSend = `${messageToSend}\n\nPlease acknowledge message by replying with /ack`
+        messageToSend = this.user.message
       }
     }
 
