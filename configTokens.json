@@ -3,9 +3,9 @@
   "supportVerification":true,
   "integration":"WickrIO-Broadcast-Bot",
   "tokens" : [ 
-    {
+  {
     "token": "WEB_INTERFACE",
-    "pattern": "yes|no",
+    "pattern": "^(yes|no)$",
     "type": "string",
     "description": "Do you want to setup the web interface (REST API or WEB Application) [yes/no]",
     "message": "Please enter either yes or no",
@@ -14,7 +14,7 @@
     "list": [
       {
         "token": "WEB_APPLICATION",
-        "pattern": "yes|no",
+        "pattern": "^(yes|no)$",
         "type": "string",
         "description": "Do you want to use the web application [yes/no]",
         "message": "Please enter either yes or no",
@@ -43,7 +43,7 @@
       },
       {
         "token": "REST_APPLICATION",
-        "pattern": "yes|no",
+        "pattern": "^(yes|no)$",
         "type": "string",
         "description": "Do you want to use the REST application [yes/no]",
         "message": "Please enter either yes or no",
@@ -79,7 +79,7 @@
       },
       {
         "token": "HTTPS_CHOICE",
-        "pattern": "yes|no",
+        "pattern": "^(yes|no)$",
         "type": "string",
         "description": "Do you want to set up an HTTPS connection with the Web API Interface, highly recommended [yes/no]",
         "message": "Please enter either yes or no",
@@ -110,7 +110,7 @@
   },
   {
     "token": "BOT_MAPS",
-    "pattern": "yes|no",
+    "pattern": "^(yes|no)$",
     "type": "string",
     "description": "Do you want to map users locations when you send broadcasts [yes/no]",
     "message": "Please enter either yes or no",
@@ -130,7 +130,7 @@
   },
   {
     "token": "BROADCAST_ENABLED",
-    "pattern": "yes|no",
+    "pattern": "^(yes|no)$",
     "type": "string",
     "description": "Do you want to allow broadcasts to be sent to the whole network and security groups?",
     "message": "Please enter either yes or no",
