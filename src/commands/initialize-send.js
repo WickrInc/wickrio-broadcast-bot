@@ -16,15 +16,21 @@ class InitializeSend {
   }
 
   execute() {
-    const { argument, message, userEmail, vGroupID } = this.messageService
-    console.log({
-      argument,
-      message,
-      userEmail,
-      vGroupID,
-    })
+    const { message, userEmail, vGroupID } = this.messageService
 
-    this.sendService.setMessage(argument)
+    var message2send;
+    if (message) {
+      const parsedData = message.match(/(\/[a-zA-Z]+)([\s\S]*)$/)
+
+      if (parsedData !== null) {
+        if (parsedData[2] !== '') {
+          message2send = parsedData[2]
+          message2send = message2send.trim()
+        }
+      }
+    }
+
+    this.sendService.setMessage(message2send)
     this.sendService.setUserEmail(userEmail)
     this.sendService.setVGroupID(vGroupID)
     this.sendService.setTTL('')
@@ -34,7 +40,7 @@ class InitializeSend {
     // TODO add more command to getting files
     let reply
     let state = State.NONE
-    if (!argument) {
+    if (!message2send) {
       reply = 'Must have a message or file to send, Usage: /send <message>'
     } else if (!fileArr || fileArr.length === 0) {
       reply =
