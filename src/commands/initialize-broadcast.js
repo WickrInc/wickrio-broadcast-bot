@@ -24,12 +24,24 @@ class InitializeBroadcast {
       state = State.NONE
     } else {
       const {
-        argument,
-        // message,
+        message,
         userEmail,
         vGroupID,
       } = this.messageService
-      this.broadcastService.setMessage(argument)
+
+      var message2send;
+      if (message) {
+        const parsedData = message.match(/(\/[a-zA-Z]+)([\s\S]*)$/)
+
+        if (parsedData !== null) {
+          if (parsedData[2] !== '') {
+            message2send = parsedData[2]
+            message2send = message2send.trim()
+          }
+        }
+      }
+
+      this.broadcastService.setMessage(message2send)
       this.broadcastService.setUserEmail(userEmail)
       this.broadcastService.setVGroupID(vGroupID)
       this.broadcastService.setTTL('')
@@ -38,7 +50,7 @@ class InitializeBroadcast {
       state = State.ASK_FOR_ACK
       reply = 'Would you like to ask the recipients for an acknowledgement?'
       // TODO check for undefined??
-      if (!argument) {
+      if (!message2send) {
         reply =
           'Must have a message or file to broadcast, Usage: /broadcast <message>'
         state = State.NONE
