@@ -29,7 +29,7 @@ class Help {
     const { isAdmin, vGroupID } = this.messageService
 
     let webAppString = ''
-    let broadcastString = ''
+    let broadcastString = '/broadcast is currently disabled'
     if (webAppEnabled) {
       webAppString =
         '*Web App Commands*\n' +
