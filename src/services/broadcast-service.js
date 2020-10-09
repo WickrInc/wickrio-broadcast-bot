@@ -123,7 +123,7 @@ class BroadcastService {
     if (this.user.sentByFlag) {
       messageToSend = `${this.user.message}\n\n${sentBy}`
     } else {
-      if (!this.user.ackFlag) {
+      if (this.user.ackFlag) {
         messageToSend = `${this.user.message}\n\nPlease acknowledge message by replying with /ack`
       } else {
         messageToSend = this.user.message
