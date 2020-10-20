@@ -42,6 +42,10 @@ class Help {
         '/map : Get a picture of everybody who responded to a broadcast with their location\n\n'
     }
     if (!BROADCAST_ENABLED || BROADCAST_ENABLED.value === 'yes') {
+      if (webAppEnabled) {
+        webAppString = 
+          '*Web App Commands*\n' +
+          '/panel is currently disabled as it only supports broadcasts which are currently disabled\n\n'
       broadcastString =
         '/broadcast <Message> : To send a broadcast message to the network or security groups\n' +
         'To broadcast a file - Click the + sign and share the file with the bot\n' +
