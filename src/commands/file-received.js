@@ -1,5 +1,6 @@
 import State from '../state'
 
+import BROADCAST_ENABLED from '../helpers/constants'
 // TODO add a delete file command??
 class FileReceived {
   constructor({ fileService, messageService }) {
@@ -24,8 +25,9 @@ class FileReceived {
     // this.fileService.setFile(file)
     this.fileService.setFilePath(filePath)
     this.fileService.setFilename(fileName)
-    const reply =
-      'Would you like to broadcast this file, send this file to a list, or is it a file of usernames or hashes? Please respond with (b)roadcast, (s)end, (u)ser, or (h)ash'
+    const broadcastLetterString = BROADCAST_ENABLED ? '(b)roadcast, ' : ''
+    const broadcastString = BROADCAST_ENABLED ? 'broadcast this file or ' : ''
+    const reply = `Would you like to ${broadcastString}send this file to a list? Or is it a file of usernames or hashes? Please respond with ${broadcastLetterString}(s)end, (u)ser, or (h)ash`
     const obj = {
       reply,
       state: State.FILE_TYPE,

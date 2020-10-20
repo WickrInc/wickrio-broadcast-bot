@@ -29,7 +29,7 @@ class Help {
     const { isAdmin, vGroupID } = this.messageService
 
     let webAppString = ''
-    let broadcastString = '/broadcast is currently disabled'
+    let broadcastString = ''
     if (webAppEnabled) {
       webAppString =
         '*Web App Commands*\n' +
@@ -46,8 +46,14 @@ class Help {
         '/broadcast <Message> : To send a broadcast message to the network or security groups\n' +
         'To broadcast a file - Click the + sign and share the file with the bot\n' +
         'To broadcast a voice memo - Click the microphone button and send a voice memo to the bot\n'
+    } else if (BROADCAST_ENABLED.value === 'no') {
+      broadcastString = '/broadcast is currently disabled\n'
+      if (webAppEnabled) {
+        webAppString =
+          '*Web App Commands*\n' +
+          '/panel is currently disabled as it only supports broadcasts which are currently disabled\n\n'
+      }
     }
-
     let helpString =
       '*Messages Commands*\n' +
       '/send <Message> : To send a broadcast message to a given file of user hashes or usernames\n' +

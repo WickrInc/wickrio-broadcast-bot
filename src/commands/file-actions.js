@@ -2,6 +2,8 @@ import State from '../state'
 // import logger from '../logger'
 import FileHandler from '../helpers/file-handler'
 
+import BROADCAST_ENABLED from '../helpers/constants'
+
 class FileActions {
   constructor({ fileService, broadcastService, sendService, messageService }) {
     this.fileService = fileService
@@ -45,7 +47,7 @@ class FileActions {
         reply += `(${index + 1}) ${fileArr[index]}\n`
       }
       state = State.CHOOSE_FILE
-    } else if (type === 'b' || type === 'broadcast') {
+    } else if ((type === 'b' || type === 'broadcast') && BROADCAST_ENABLED) {
       this.broadcastService.setFile(filePath)
       this.broadcastService.setDisplay(filename)
       this.broadcastService.setMessage(this.messageService.message)
@@ -57,8 +59,8 @@ class FileActions {
       reply = 'Would you like to ask the recipients for an acknowledgement?'
       state = State.ASK_FOR_ACK
     } else {
-      reply =
-        'Input not recognized, please reply with (b)roadcast, (s)end, (u)ser, or (h)ash'
+      const broadcastString = BROADCAST_ENABLED ? '(b)roadcast, ' : ''
+      reply = `Input not recognized, please reply with ${broadcastString}(s)end, (u)ser, or (h)ash`
       state = State.FILE_TYPE
     }
     // Make sure the file is not blank.
