@@ -87,7 +87,7 @@ async function main() {
     // Passes a callback function that will receive incoming messages into the bot client
     bot.startListening(listen)
 
-    if (WEB_APPLICATION.value === 'yes' || REST_APPLICATION.value === 'yes') {
+    if (WEB_APPLICATION?.value === 'yes' || REST_APPLICATION?.value === 'yes') {
       startServer()
     } else {
       console.log(
