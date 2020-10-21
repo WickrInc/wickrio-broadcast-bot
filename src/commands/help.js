@@ -8,8 +8,8 @@ import {
   BROADCAST_ENABLED,
 } from '../helpers/constants'
 const webAppEnabled =
-  WEB_APPLICATION.value === 'yes' && WEB_INTERFACE.value === 'yes'
-const mapEnabled = BOT_MAPS.value === 'yes'
+  WEB_APPLICATION?.value === 'yes' && WEB_INTERFACE?.value === 'yes'
+const mapEnabled = BOT_MAPS?.value === 'yes'
 
 class Help {
   constructor({ apiService, messageService }) {
@@ -54,6 +54,7 @@ class Help {
           '/panel is currently disabled as it only supports broadcasts which are currently disabled\n\n'
       }
     }
+
     let helpString =
       '*Messages Commands*\n' +
       '/send <Message> : To send a broadcast message to a given file of user hashes or usernames\n' +
