@@ -31,6 +31,15 @@ const useRESTRoutes = app => {
     }
   }
 
+  /*
+   * Make sure the input value is convert to a string, or ''
+   */
+  function valToString(val) {
+    if (val === undefined || val === null)
+	  return ''
+    return val.toString()
+  }
+
   const checkBasicAuth = (req, res, next) => {
     res.set('Authorization', 'Basic base64_auth_token')
     res.set('Content-Type', 'application/json')
@@ -135,18 +144,14 @@ const useRESTRoutes = app => {
         user = bot.addUser(wickrUser)
       }
 
-      // const newBroadcast = new BroadcastService(user)
-      const messageService = bot.messageService({
-        rawMessage: JSON.stringify({
-          user,
-          message,
-        }),
+      const newBroadcast = new BroadcastService({
+        messageService: { user: { ...user, users: null } },
+        apiService,
       })
-      const newBroadcast = new BroadcastService({ messageService, apiService })
 
       newBroadcast.setMessage(message)
-      newBroadcast.setTTL(ttl)
-      newBroadcast.setBOR(bor)
+      newBroadcast.setTTL(valToString(ttl))
+      newBroadcast.setBOR(valToString(bor))
       newBroadcast.setSentByFlag(false)
       console.log({
         message,
@@ -257,18 +262,14 @@ const useRESTRoutes = app => {
         user = bot.addUser(wickrUser)
       }
 
-      // const newBroadcast = new BroadcastService(user)
-      const messageService = bot.messageService({
-        rawMessage: JSON.stringify({
-          user,
-          message,
-        }),
+      const newBroadcast = new BroadcastService({
+        messageService: { user: { ...user, users: null } },
+        apiService,
       })
 
-      const newBroadcast = new BroadcastService({ messageService, apiService })
       newBroadcast.setMessage(message)
-      newBroadcast.setTTL(ttl)
-      newBroadcast.setBOR(bor)
+      newBroadcast.setTTL(valToString(ttl))
+      newBroadcast.setBOR(valToString(bor))
       newBroadcast.setSentByFlag(false)
       console.log({
         message,
@@ -361,14 +362,11 @@ const useRESTRoutes = app => {
       const wickrUser = new WickrUser(WICKRIO_BOT_NAME.value, {})
       user = bot.addUser(wickrUser)
     }
-    // const newBroadcast = new BroadcastService(user)
-    const messageService = bot.messageService({
-      rawMessage: JSON.stringify({
-        user,
-        message,
-      }),
+
+    const newBroadcast = new BroadcastService({
+      messageService: { user: { ...user, users: null } },
+      apiService,
     })
-    const newBroadcast = new BroadcastService({ messageService, apiService })
 
     newBroadcast.setMessage(message)
     newBroadcast.setUsers(userList)
@@ -376,8 +374,8 @@ const useRESTRoutes = app => {
       const flags = ['user_meta']
       newBroadcast.setFlags(flags)
     }
-    newBroadcast.setTTL(ttl)
-    newBroadcast.setBOR(bor)
+    newBroadcast.setTTL(valToString(ttl))
+    newBroadcast.setBOR(valToString(bor))
     newBroadcast.setSentByFlag(false)
 
     // let broadcast = {}
