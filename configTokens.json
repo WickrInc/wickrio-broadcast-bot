@@ -24,7 +24,7 @@
           {
             "token": "WEBAPP_HOST",
             "pattern": "",
-            "type": "string",
+            "type": "hostaddress",
             "description": "Please enter the host name or ip address to reach the web application",
             "message": "Cannot leave empty! Please enter a value",
             "required": true,
