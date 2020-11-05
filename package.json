@@ -1,6 +1,6 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "5.68.1",
+  "version": "5.68.3",
   "description": "WickrIO Broadcast Bot",
   "main": "./build/index.js",
   "author": "Paul Cushman",

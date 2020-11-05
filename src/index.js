@@ -40,7 +40,7 @@ async function main() {
 
     bot.startListening(listen)
 
-    if (WEB_APPLICATION.value === 'yes' || REST_APPLICATION.value === 'yes') {
+    if (WEB_APPLICATION?.value === 'yes' || REST_APPLICATION?.value === 'yes') {
       startServer()
     } else {
       console.log(
