@@ -1,4 +1,4 @@
-FROM wickr/bot-cloud-alpha:5.64.06.04
+FROM wickr/bot-cloud-alpha:5.68.01.08
 
 LABEL maintainer="wickr <info@wickr.com>"
 # Variables
@@ -27,8 +27,6 @@ WORKDIR $HOME
 # RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 # RUN ssh-keyscan gitlab.com >> /root/.ssh/known_hosts
 
-
-
 ARG USERNAME=ubuntu
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
@@ -43,7 +41,6 @@ ENV NVM_DIR=/usr/local/nvm
 #   && apt-get install -y sudo \
 #   && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
 #   && chmod 0440 /etc/sudoers.d/$USERNAME
-
 
 
 # ********************************************************
@@ -61,8 +58,8 @@ RUN mkdir /usr/local/wickr/WickrIO
 ENV LANG en_US.utf8
 ENV HOME /home/ubuntu
 ARG DEBIAN_FRONTEND=readline
-# Install Dev environment
-RUN  apt-get update && apt-get -y install curl zsh git 
+# Install zsh
+RUN apt-get update && apt-get -y install curl zsh git 
 RUN zsh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" ||true
 
 # RUN ln -f /bin/zsh /bin/sh
@@ -70,83 +67,28 @@ RUN zsh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zs
 ENV PATH=${PATH}:/usr/local/share/npm-global/bin
 
 RUN  apt-get update \
-  &&  apt-get install software-properties-common -y \
   && echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \ 
-  && apt-get install -y -q \ 
-  &&  apt-get install fonts-powerline -y \
-  #  
-  &&  apt-get update \
-  # 
-  &&  apt install fonts-firacode -y  \ 
-  && apt-get -y install software-properties-common 
-# && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - 2>/dev/null \
-# && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" \
-# && apt-get update -y \
-# && apt-get install -y docker-ce-cli \
-# && apt-get install -y python python-pip \
-# && pip install docker-compose \
-
-# RUN curl -sSf sh.rustup.rs | sh -s -- -y \
-#   && echo "export PATH=~/.cargo/bin:$PATH" >> ~/.zshrc \
-#   && cargo install starship
-# Update default packages
-
-RUN apt-get update
-
-# Get Ubuntu packages
-RUN apt-get install -y \
-  build-essential \
-  curl
+  && apt-get install -yq \ 
+  software-properties-common fonts-powerline fonts-firacode
 
 # Update new packages
-RUN apt-get update
-
-# Get Rust
-ENV RUSTUP_HOME=/usr/local/rustup \
-  CARGO_HOME=/usr/local/cargo \
-  PATH=/usr/local/cargo/bin:$PATH
-
-RUN set -eux; \
-  apt-get update; \
-  apt-get install -y --no-install-recommends \
-  ca-certificates \
-  gcc \
-  libc6-dev \
-  wget \
-  ; \
-  \
-  url="https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init"; \
-  wget "$url"; \
-  chmod +x rustup-init; \
-  ./rustup-init -y --no-modify-path --default-toolchain nightly; \
-  rm rustup-init; \
-  chmod -R a+w $RUSTUP_HOME $CARGO_HOME; \
-  rustup --version; \
-  cargo --version; \
-  rustc --version; \
-  \
-  apt-get remove -y --auto-remove \
-  wget \
-  ; \
-  rm -rf /var/lib/apt/lists/* 
-
+# Get Ubuntu packages
 RUN apt-get update \ 
-  && apt install pkg-config libssl-dev wget -y
-RUN apt-get install ca-certificates gcc  libc6-dev -y
+  && apt install -y build-essential pkg-config libssl-dev wget ca-certificates gcc libc6-dev 
 
-RUN cargo install starship
+RUN curl -fsSL https://starship.rs/install.sh | bash -s -- -y
+
 RUN echo 'eval "$(starship init zsh)"' >> /home/ubuntu/.zshrc
 RUN echo 'eval "$(ssh-agent -s)"' >> /home/ubuntu/.zshrc
 RUN echo '. /usr/local/nvm/nvm.sh' >> /home/ubuntu/.zshrc
+
 # RUN echo '[[ -s $HOME/.nvm/nvm.sh ]] && . $HOME/.nvm/nvm.sh' >> /home/ubuntu/.zshrc
-
-
 
 # ENTRYPOINT ["zsh"]
 # SHELL ["/bin/zsh", "-c"]
 
 
 # Start the processes
-CMD [ "/home/ubuntu/start.sh" ]
+# CMD "/home/ubuntu/start.sh"
 
 ENV DEBIAN_FRONTEND=dialog

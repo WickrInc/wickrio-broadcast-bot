@@ -10,20 +10,20 @@
       "type": "pwa-node",
       "request": "launch",
       // "protocol": "inspector",
-      "program": "${workspaceRoot}/src/broadcast-bot.js",
+      "program": "${workspaceRoot}/src/index.js",
       "stopOnEntry": false,
       "cwd": "${workspaceRoot}",
       "preLaunchTask": null,
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/nodemon",
       // "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/babel-node",
-      "args": ["${workspaceRoot}/src/broadcast-bot.js"],
+      "args": ["${workspaceRoot}/src/index.js"],
       "runtimeArgs": ["--nolazy", "--require", "@babel/register"],
       "env": {
         // "tokens": "{\"WICKRIO_BOT_NAME\": { \"value\": \"localtestrecorderbot\" }}",
         "NODE_ENV": "development"
       },
       "console": "internalConsole",
-      "sourceMaps": true,
+      "sourceMaps": false,
       "outFiles": []
     },
     {

@@ -18,73 +18,26 @@ if (!fs.existsSync(`${process.cwd()}/attachments`)) {
 if (!fs.existsSync(`${process.cwd()}/files`)) {
   fs.mkdirSync(`${process.cwd()}/files`)
 }
-const runHandlers = () => {
-  // STANDARDIZE BELOW -----------
+// bot.runHandlers()
 
-  process.stdin.resume() // so the program will not close instantly
-
-  process.stdin.resume() // so the program will not close instantly
-
-  // catches ctrl+c and stop.sh events
-  process.on('SIGINT', exitHandler.bind(null, { exit: true }))
-
-  // catches "kill pid" (for example: nodemon restart)
-  process.on('SIGUSR1', exitHandler.bind(null, { pid: true }))
-  process.on('SIGUSR2', exitHandler.bind(null, { pid: true }))
-
-  // TODO clear these values!
-  // TODO make these user variables??
-
-  // catches uncaught exceptions
-  // TODO make this more robust of a catch
-
-  process.on('uncaughtException', exitHandler.bind(null, { exit: true }))
-  // STANDARDIZE ABOVE -----------
-}
-async function exitHandler(options, err) {
-  try {
-    await bot.close()
-    if (err || options.exit) {
-      logger.error('Exit reason:', err)
-      process.exit()
-    } else if (options.pid) {
-      process.kill(process.pid)
-    }
-  } catch (err) {
-    logger.error(err)
-  }
-}
 async function main() {
-  runHandlers()
   try {
     const status = await bot.start(WICKRIO_BOT_NAME.value)
 
-    if (!status) {
-      exitHandler(null, {
-        exit: true,
-        reason: 'Client not able to start',
-      })
-    }
+    await bot.provision({
+      status,
+      setAdminOnly: false,
+      attachLifeMinutes: '0',
+      doreceive: 'true',
+      duration: '0',
+      readreceipt: 'true',
+      cleardb: 'false',
+      contactbackup: 'false',
+      convobackup: 'false',
+      verifyusers: VERIFY_USERS,
+      // verifyusers = { encryption: false, value: 'automatic' },
+    })
 
-    // TODO set to true and send from a non admin and see what happens
-    bot.setAdminOnly(false)
-
-    // set the verification mode to true
-    let verifyUsersMode
-    if (VERIFY_USERS.encrypted) {
-      verifyUsersMode = WickrIOAPI.cmdDecryptString(VERIFY_USERS.value)
-    } else {
-      verifyUsersMode = VERIFY_USERS.value
-    }
-
-    bot.setVerificationMode(verifyUsersMode)
-
-    WickrIOAPI.cmdSetControl('cleardb', 'false')
-    WickrIOAPI.cmdSetControl('contactbackup', 'false')
-    WickrIOAPI.cmdSetControl('convobackup', 'false')
-    WickrIOAPI.cmdSetControl('readreceipt', 'true')
-
-    // Passes a callback function that will receive incoming messages into the bot client
     bot.startListening(listen)
 
     if (WEB_APPLICATION.value === 'yes' || REST_APPLICATION.value === 'yes') {
@@ -101,7 +54,6 @@ async function main() {
 
 async function listen(rawMessage) {
   try {
-    // console.log({ rawMessage })
     const messageService = bot.messageService({ rawMessage })
     const {
       // time,

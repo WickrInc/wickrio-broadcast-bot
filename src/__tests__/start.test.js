@@ -1,4 +1,4 @@
-import * as WickrIOBotAPI from 'wickrio-bot-api'
+import { BotAPI } from 'wickrio-bot-api'
 import BroadcastService from '../services/broadcast-service'
 import { StatusService } from '../services'
 import dotenv from 'dotenv'
@@ -9,7 +9,7 @@ import axios from 'axios'
 // import path from 'path'
 dotenv.config()
 
-const bot = new WickrIOBotAPI.WickrIOBot()
+const bot = new BotAPI()
 let token
 let rawMessage = JSON.stringify({
   message: '',

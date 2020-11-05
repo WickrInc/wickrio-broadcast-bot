@@ -1,5 +1,5 @@
 import { getLogger } from 'log4js'
-import * as WickrIOBotAPI from 'wickrio-bot-api'
+import { BotAPI, WickrUser } from 'wickrio-bot-api'
 import fs from 'fs'
 import dotenv from 'dotenv'
 
@@ -7,8 +7,7 @@ dotenv.config()
 
 // import { cronJob } from 'cron'
 
-const WickrUser = WickrIOBotAPI.WickrUser
-const bot = new WickrIOBotAPI.WickrIOBot()
+const bot = new BotAPI()
 const WickrIOAPI = bot.getWickrIOAddon()
 const logger = getLogger()
 logger.level = 'debug'
