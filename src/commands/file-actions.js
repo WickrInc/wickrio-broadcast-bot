@@ -26,6 +26,7 @@ class FileActions {
     const type = this.messageService.getMessage().toLowerCase()
     const userEmail = this.messageService.getUserEmail()
     const fileArr = this.sendService.getFiles(userEmail)
+    console.log('Question ' + BROADCAST_ENABLED?.value === 'no')
     let fileAppend = ''
     let state = State.NONE
     let reply
