@@ -22,11 +22,10 @@ class FileActions {
   execute() {
     const filePath = this.fileService.getFilePath()
     const filename = this.fileService.getFilename()
-    console.log('file actions file service')
+    // console.log('file actions file service')
     const type = this.messageService.getMessage().toLowerCase()
     const userEmail = this.messageService.getUserEmail()
     const fileArr = this.sendService.getFiles(userEmail)
-    console.log('Question ' + BROADCAST_ENABLED?.value === 'no')
     let fileAppend = ''
     let state = State.NONE
     let reply
@@ -55,7 +54,7 @@ class FileActions {
       }
     } else if (
       (type === 'b' || type === 'broadcast') &&
-      !BROADCAST_ENABLED?.value === 'no'
+      (BROADCAST_ENABLED === 'undefined' || BROADCAST_ENABLED.value === 'yes')
     ) {
       this.broadcastService.setFile(filePath)
       this.broadcastService.setDisplay(filename)

@@ -21,12 +21,10 @@ class FileReceived {
     // const file = this.messageService.getFile()
     const filePath = this.messageService.getFilePath()
     const fileName = this.messageService.getFilename()
-    console.log({ filePath, fileName })
+    // console.log({ filePath, fileName })
     // this.fileService.setFile(file)
     this.fileService.setFilePath(filePath)
     this.fileService.setFilename(fileName)
-    console.log('BROADCAST_ENABLED' + BROADCAST_ENABLED)
-    console.log('BROADCAST_ENABLED value' + BROADCAST_ENABLED.value)
     const broadcastLetterString =
       BROADCAST_ENABLED?.value === 'no' ? '' : '(b)roadcast, '
     const broadcastString =
