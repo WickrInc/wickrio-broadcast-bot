@@ -29,8 +29,6 @@ class Help {
     const { isAdmin, vGroupID } = this.messageService
     console.log('WEB_APP: ' + WEB_APPLICATION)
     console.log('MAP_ENABLED: ' + BOT_MAPS)
-    console.log('BROADCAST_ENABLED: ' + BROADCAST_ENABLED)
-    console.log('BROADCAST_ENABLED.value: ' + BROADCAST_ENABLED.value)
 
     let webAppString = ''
     let broadcastString = ''
