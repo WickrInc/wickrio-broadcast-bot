@@ -1,4 +1,4 @@
-import { BotAPI } from 'wickrio-bot-api'
+import { BotAPI } from 'wickrio-toolbox'
 import BroadcastService from '../services/broadcast-service'
 import { StatusService } from '../services'
 import dotenv from 'dotenv'

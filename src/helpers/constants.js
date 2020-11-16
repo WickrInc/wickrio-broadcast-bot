@@ -1,5 +1,5 @@
 import { getLogger } from 'log4js'
-import { BotAPI, WickrUser } from 'wickrio-bot-api'
+import { BotAPI, WickrUser } from 'wickrio-toolbox'
 import fs from 'fs'
 import dotenv from 'dotenv'
 
