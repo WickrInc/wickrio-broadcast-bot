@@ -19,17 +19,13 @@ class InitializeBroadcast {
   execute() {
     let reply
     let state
-    if (BROADCAST_ENABLED.value && BROADCAST_ENABLED.value !== 'yes') {
+    if (BROADCAST_ENABLED?.value === 'no') {
       reply = 'Broadcast is disabled, try the /send command to send to a file'
       state = State.NONE
     } else {
-      const {
-        message,
-        userEmail,
-        vGroupID,
-      } = this.messageService
+      const { message, userEmail, vGroupID } = this.messageService
 
-      var message2send;
+      let message2send
       if (message) {
         const parsedData = message.match(/(\/[a-zA-Z]+)([\s\S]*)$/)
 

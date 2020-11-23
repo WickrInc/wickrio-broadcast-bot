@@ -2,7 +2,7 @@ import State from '../state'
 // import logger from '../logger'
 import FileHandler from '../helpers/file-handler'
 
-import BROADCAST_ENABLED from '../helpers/constants'
+import { BROADCAST_ENABLED } from '../helpers/constants'
 
 class FileActions {
   constructor({ fileService, broadcastService, sendService, messageService }) {
@@ -22,10 +22,11 @@ class FileActions {
   execute() {
     const filePath = this.fileService.getFilePath()
     const filename = this.fileService.getFilename()
-    console.log('file actions file service')
+    // console.log('file actions file service')
     const type = this.messageService.getMessage().toLowerCase()
     const userEmail = this.messageService.getUserEmail()
     const fileArr = this.sendService.getFiles(userEmail)
+    console.log('Question ' + BROADCAST_ENABLED?.value === 'no')
     let fileAppend = ''
     let state = State.NONE
     let reply
@@ -41,13 +42,21 @@ class FileActions {
       this.sendService.setVGroupID(this.messageService.vGroupID)
       this.sendService.setTTL('')
       this.sendService.setBOR('')
-      reply = 'To which list would you like to send your message:\n'
-      const length = Math.min(fileArr.length, 10)
-      for (let index = 0; index < length; index += 1) {
-        reply += `(${index + 1}) ${fileArr[index]}\n`
+      if (!fileArr || fileArr.length === 0) {
+        reply =
+          "There aren't any files available for sending, please upload a file of usernames or hashes first."
+      } else {
+        reply = 'To which list would you like to send your message:\n'
+        const length = Math.min(fileArr.length, 10)
+        for (let index = 0; index < length; index += 1) {
+          reply += `(${index + 1}) ${fileArr[index]}\n`
+        }
+        state = State.CHOOSE_FILE
       }
-      state = State.CHOOSE_FILE
-    } else if ((type === 'b' || type === 'broadcast') && BROADCAST_ENABLED) {
+    } else if (
+      (type === 'b' || type === 'broadcast') &&
+      (BROADCAST_ENABLED === 'undefined' || BROADCAST_ENABLED.value === 'yes')
+    ) {
       this.broadcastService.setFile(filePath)
       this.broadcastService.setDisplay(filename)
       this.broadcastService.setMessage(this.messageService.message)
@@ -59,7 +68,8 @@ class FileActions {
       reply = 'Would you like to ask the recipients for an acknowledgement?'
       state = State.ASK_FOR_ACK
     } else {
-      const broadcastString = BROADCAST_ENABLED ? '(b)roadcast, ' : ''
+      const broadcastString =
+        BROADCAST_ENABLED?.value === 'no' ? '' : '(b)roadcast, '
       reply = `Input not recognized, please reply with ${broadcastString}(s)end, (u)ser, or (h)ash`
       state = State.FILE_TYPE
     }
@@ -86,7 +96,7 @@ class FileActions {
 
       // logger.debug(`Here is file info${file}`)
       const cp = FileHandler.copyFile(filePath, newFilePath)
-      console.log({ cp })
+      // console.log({ cp })
 
       if (cp) {
         reply = `File named: ${filename} successfully saved to directory.`
