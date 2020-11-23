@@ -1,7 +1,7 @@
 /*
     This javascript file will be ran in upgrade.sh. It's purpose is
     to change "script": "node broadcast-bot.js" in processes.json to
-    "script": "node build/broadcast-bot.js"
+    "script": "node build/index.js"
 */
 
 // const Proc = require('./processes.json')

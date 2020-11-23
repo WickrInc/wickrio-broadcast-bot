@@ -12,3 +12,7 @@ users.txt
 files
 .eslintrc.js
 sync.sh
+.devcontainer
+.github
+.vscode
+users.txt
