@@ -141,7 +141,7 @@
     "token": "RESPONSES_ENABLED",
     "pattern": "^(yes|no)$",
     "type": "string",
-    "description": "Do you want the bot to repond to non-administrative users?",
+    "description": "Do you want the bot to respond to non-administrative users?",
     "message": "Please enter either yes or no",
     "required": true,
     "default": "yes"
