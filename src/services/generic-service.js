@@ -1,4 +1,5 @@
 // import APIfrom './api-service'
+import { RESPONSES_ENABLED } from '../helpers/constants'
 
 const maxStringLength = 50
 // TODO put this in the constructor??
@@ -19,8 +20,10 @@ class GenericService {
       statusNumber,
       statusMessage
     )
-    const userArray = [userID]
-    this.apiService.send1to1Message(userArray, reply, '', '', '')
+    if (RESPONSES_ENABLED === undefined || RESPONSES_ENABLED.value === 'yes') {
+      const userArray = [userID]
+      this.apiService.send1to1Message(userArray, reply, '', '', '')
+    }
     return reply
   }
 
