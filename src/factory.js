@@ -38,12 +38,11 @@ import RepeatService from './services/repeat-service'
 import SendService from './services/send-service'
 import FileService from './services/file-service'
 import GenericService from './services/generic-service'
-// import APIService from './services/api-service'
 import StatusService from './services/status-service'
 import ReportService from './services/report-service'
 import Version from './commands/version'
 import MapService from './services/map-service'
-import { WickrIOAPI, apiService } from './helpers/constants'
+import { WickrIOAPI, apiService, RESPONSES_ENABLED } from './helpers/constants'
 import writeFile from './helpers/message-writer.js'
 
 // TODO how can we use a new Broadcast service each time???
@@ -101,10 +100,12 @@ class Factory {
       !this.messageService.isAdmin &&
       this.messageService.command !== '/ack'
     ) {
-      const reply = `Hey this bot is just for announcements and can't respond to you personally, or ${this.messageService.userEmail} is not authorized to use this bot. If you have a question, please get a hold of us a support@wickr.com or visit us a support.wickr.com. Thanks, Team Wickr`
-      WickrIOAPI.cmdSendRoomMessage(this.messageService.vGroupID, reply)
-      // logger.debug({ sMessage })
-      writeFile(this.messageService.message)
+      if (RESPONSES_ENABLED === undefined || RESPONSES_ENABLED.value === 'yes') {
+        const reply = `Hey this bot is just for announcements and can't respond to you personally, or ${this.messageService.userEmail} is not authorized to use this bot. If you have a question, please get a hold of us a support@wickr.com or visit us a support.wickr.com. Thanks, Team Wickr`
+        WickrIOAPI.cmdSendRoomMessage(this.messageService.vGroupID, reply)
+        // logger.debug({ sMessage })
+        writeFile(this.messageService.message)
+      }
       return
     }
 
