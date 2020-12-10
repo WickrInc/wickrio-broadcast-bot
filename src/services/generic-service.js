@@ -6,10 +6,10 @@ const inc = 10
 
 class GenericService {
   constructor({ endIndex, messageService, apiService }) {
-    // this.user = user
     this.messageService = messageService
     this.apiService = apiService
     this.messageService.defaultEndIndex = endIndex
+    this.user = messageService.user
   }
 
   setMessageStatus(messageID, userID, statusNumber, statusMessage) {
@@ -33,7 +33,7 @@ class GenericService {
     let reply
     if (
       currentEntries.length < 1 ||
-      this.messageService.startIndex >= this.messageService.endIndex
+      this.user.startIndex >= this.user.endIndex
     ) {
       if (abort) {
         reply = 'There are no active messages to display'
@@ -46,8 +46,8 @@ class GenericService {
       let messageString = ''
       // TODO fix extra \n in more functionality
       for (
-        let i = this.messageService.startIndex;
-        i < this.messageService.endIndex;
+        let i = this.user.startIndex;
+        i < this.user.endIndex;
         i += 1
       ) {
         contentData = this.getMessageEntry(currentEntries[i].message_id)
@@ -57,12 +57,12 @@ class GenericService {
           maxStringLength
         )
         messageString += `(${
-          this.messageService.startIndex + index
+          this.user.startIndex + index
         }) ${messageDisplayed}\n`
         index += 1
       }
       reply =
-        `Here are the past ${this.messageService.endIndex} broadcast message(s):\n` +
+        `Here are the past ${this.user.endIndex} broadcast message(s):\n` +
         `${messageString}`
     }
     return reply
@@ -104,10 +104,7 @@ class GenericService {
       }
       pageNum += 1
     }
-    this.messageService.endIndex = Math.min(
-      this.messageService.endIndex,
-      messageEntries.length
-    )
+    this.user.endIndex = Math.min(this.user.endIndex, messageEntries.length)
     return messageEntries
   }
 
@@ -121,17 +118,17 @@ class GenericService {
   }
 
   getEndIndex() {
-    return this.messageService.endIndex
+    return this.user.endIndex
   }
 
   incrementIndexes() {
-    this.messageService.startIndex += inc
-    this.messageService.endIndex += inc
+    this.user.startIndex += inc
+    this.user.endIndex += inc
   }
 
   resetIndexes() {
-    this.messageService.startIndex = 0
-    this.messageService.endIndex = this.messageService.defaultEndIndex
+    this.user.startIndex = 0
+    this.user.endIndex = this.messageService.defaultEndIndex
   }
 }
 
