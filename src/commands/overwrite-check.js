@@ -22,30 +22,34 @@ class OverwriteCheck {
 
   execute() {
     const userEmail = this.messageService.getUserEmail()
-    const file = this.fileService.getFile()
-    logger.debug(`Here is the file${file}`)
+    const file = this.fileService.getFilePath()
+    logger.debug(`Here is the file ${file}`)
     const filename = this.fileService.getFilename()
     const fileAppend = this.fileService.getOverwriteFileType()
     let state = State.NONE
     let reply
-    // Overwrite file.
-    if (this.messageService.affirmativeReply()) {
-      const newFilePath = `${process.cwd()}/files/${userEmail}/${filename.toString()}${fileAppend}`
-      logger.debug(`Here is file info${file}`)
-      const cp = FileHandler.copyFile(file, newFilePath)
-      logger.debug(`Here is cp:${cp}`)
-      if (cp) {
-        reply = `File named: ${filename} successfully saved to directory.`
-      } else {
-        reply = `Error: File named: ${filename} not saved to directory.`
-      }
-      // Cancel Overwriting file.
-    } else if (this.messageService.negativeReply()) {
-      reply = 'File upload cancelled.'
-      // Invalid response. Return to beginning of this execute function.
+    if (file === undefined) {
+        reply = `internal error: ${filename} NOT saved to directory.`
     } else {
-      reply = 'Invalid response.\nReply (yes/no) to continue or cancel.'
-      state = State.OVERWRITE_CHECK
+      // Overwrite file.
+      if (this.messageService.affirmativeReply()) {
+        const newFilePath = `${process.cwd()}/files/${userEmail}/${filename.toString()}${fileAppend}`
+        logger.debug(`Here is file info${file}`)
+        const cp = FileHandler.copyFile(file, newFilePath)
+        logger.debug(`Here is cp:${cp}`)
+        if (cp) {
+          reply = `File named: ${filename} successfully saved to directory.`
+        } else {
+          reply = `Error: File named: ${filename} not saved to directory.`
+        }
+        // Cancel Overwriting file.
+      } else if (this.messageService.negativeReply()) {
+        reply = 'File upload cancelled.'
+        // Invalid response. Return to beginning of this execute function.
+      } else {
+        reply = 'Invalid response.\nReply (yes/no) to continue or cancel.'
+        state = State.OVERWRITE_CHECK
+      }
     }
     return {
       reply,
