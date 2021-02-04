@@ -171,16 +171,6 @@ class BroadcastService {
       if (this.user.flags === undefined) this.user.flags = []
 
       if (this.user.ackFlag) {
-        const button1 = {
-          type: 'message',
-          text: '/ack',
-          message: '/ack',
-        };
-        const button2 = {
-          type: 'message',
-          text: 'Send location',
-          message: 'my location',
-        };
         uMessage = this.apiService.send1to1MessageLowPriorityButtons(
           this.user.users,
           messageToSend,
