@@ -150,16 +150,56 @@ class BroadcastService {
     const messageID = `${updateLastID()}`
     let uMessage
     const reply = {}
+    let buttons;
+    const flags = [];
+    if (this.user.ackFlag) {
+      const button1 = {
+        type: 'message',
+        text: '/ack',
+        message: '/ack',
+      };
+      const button2 = {
+        type: 'message',
+        text: 'Send location',
+        message: 'my location',
+      };
+      buttons = [button1, button2];
+    } else {
+      buttons = [];
+    }
     if (target === 'USERS') {
       if (this.user.flags === undefined) this.user.flags = []
-      uMessage = this.apiService.send1to1MessageLowPriority(
-        this.user.users,
-        messageToSend,
-        this.user.ttl,
-        this.user.bor,
-        messageID,
-        this.user.flags
-      )
+
+      if (this.user.ackFlag) {
+        const button1 = {
+          type: 'message',
+          text: '/ack',
+          message: '/ack',
+        };
+        const button2 = {
+          type: 'message',
+          text: 'Send location',
+          message: 'my location',
+        };
+        uMessage = this.apiService.send1to1MessageLowPriorityButtons(
+          this.user.users,
+          messageToSend,
+          this.user.ttl,
+          this.user.bor,
+          messageID,
+          this.user.flags,
+          buttons
+        )
+      } else {
+        uMessage = this.apiService.send1to1MessageLowPriority(
+          this.user.users,
+          messageToSend,
+          this.user.ttl,
+          this.user.bor,
+          messageID,
+          this.user.flags
+        )
+      }
       logger.debug(`send1to1Messge returns=${uMessage}`)
       reply.pending =
         'Broadcast message in process of being sent to list of users'
@@ -215,7 +255,6 @@ class BroadcastService {
         reply.rawMessage = this.user.message
         reply.message = messageToSend
       }
-      // } else if (this.user.voiceMemo !== undefined && this.user.voiceMemo !== '') {
     } else if (this.user.voiceMemo) {
       uMessage = this.apiService.sendSecurityGroupVoiceMemo(
         this.user.securityGroups,
@@ -230,7 +269,6 @@ class BroadcastService {
         'Voice Memo broadcast in process of being sent to security group'
       reply.rawMessage = this.user.message
       reply.message = messageToSend
-      // } else if (this.user.file !== undefined && this.user.file !== '') {
     } else if (this.user.file) {
       uMessage = this.apiService.sendSecurityGroupAttachment(
         this.user.securityGroups,
@@ -256,12 +294,14 @@ class BroadcastService {
         )
       }
     } else {
-      uMessage = this.apiService.sendSecurityGroupMessage(
+      uMessage = this.apiService.sendSecurityGroupMessageButtons(
         this.user.securityGroups,
         messageToSend,
         this.user.ttl,
         this.user.bor,
-        messageID
+        messageID,
+        flags,
+        buttons
       )
       reply.pending =
         'Broadcast message in process of being sent to security group'
