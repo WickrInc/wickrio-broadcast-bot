@@ -159,9 +159,8 @@ class BroadcastService {
         message: '/ack',
       };
       const button2 = {
-        type: 'message',
+        type: 'getlocation',
         text: 'Send location',
-        message: 'my location',
       };
       buttons = [button1, button2];
     } else {
