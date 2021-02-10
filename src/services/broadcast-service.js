@@ -169,7 +169,6 @@ class BroadcastService {
     if (target === 'USERS') {
       if (this.user.flags === undefined) this.user.flags = []
 
-      console.log('PWC: calling send1to1MessageLowPriorityButtons')
       uMessage = this.apiService.send1to1MessageLowPriorityButtons(
         this.user.users,
         messageToSend,
@@ -186,7 +185,6 @@ class BroadcastService {
       reply.message = messageToSend
     } else if (target === 'NETWORK') {
       if (this.user.voiceMemo) {
-        console.log('PWC: calling sendNetworkVoiceMemoButtons')
         uMessage = this.apiService.sendNetworkVoiceMemoButtons(
           this.user.voiceMemo,
           this.user.duration,
@@ -200,7 +198,6 @@ class BroadcastService {
         reply.rawMessage = this.user.message
         reply.message = messageToSend
       } else if (this.user.file) {
-        console.log('PWC: calling sendNetworkAttachmentButtons')
         uMessage = this.apiService.sendNetworkAttachmentButtons(
           this.user.file,
           this.user.display,
@@ -219,7 +216,6 @@ class BroadcastService {
         //
         if (this.user.webapp && this.user.message) {
           console.log('from webapp')
-          console.log('PWC: calling sendNetworkMessageButtons')
           uMessage = this.apiService.sendNetworkMessageButtons(
             this.user.message,
             this.user.ttl,
@@ -230,7 +226,6 @@ class BroadcastService {
           )
         }
       } else {
-        console.log('PWC: calling sendNetworkMessageButtons')
         uMessage = this.apiService.sendNetworkMessageButtons(
           messageToSend,
           this.user.ttl,
@@ -244,7 +239,6 @@ class BroadcastService {
         reply.message = messageToSend
       }
     } else if (this.user.voiceMemo) {
-      console.log('PWC: calling sendSecurityGroupVoiceMemoButtons')
       uMessage = this.apiService.sendSecurityGroupVoiceMemoButtons(
         this.user.securityGroups,
         this.user.voiceMemo,
@@ -260,7 +254,6 @@ class BroadcastService {
       reply.rawMessage = this.user.message
       reply.message = messageToSend
     } else if (this.user.file) {
-      console.log('PWC: calling sendSecurityGroupAttachmentButtons')
       uMessage = this.apiService.sendSecurityGroupAttachmentButtons(
         this.user.securityGroups,
         this.user.file,
@@ -277,7 +270,6 @@ class BroadcastService {
       reply.message = messageToSend
       if (this.user.webapp && this.user.message) {
         console.log('webapp sec group')
-        console.log('PWC: calling sendSecurityGroupMessageButtons')
         uMessage = this.apiService.sendSecurityGroupMessageButtons(
           this.user.securityGroups,
           this.user.message,
@@ -289,7 +281,6 @@ class BroadcastService {
         )
       }
     } else {
-      console.log('PWC: calling sendSecurityGroupMessageButtons')
       uMessage = this.apiService.sendSecurityGroupMessageButtons(
         this.user.securityGroups,
         messageToSend,
