@@ -169,26 +169,15 @@ class BroadcastService {
     if (target === 'USERS') {
       if (this.user.flags === undefined) this.user.flags = []
 
-      if (this.user.ackFlag) {
-        uMessage = this.apiService.send1to1MessageLowPriorityButtons(
-          this.user.users,
-          messageToSend,
-          this.user.ttl,
-          this.user.bor,
-          messageID,
-          this.user.flags,
-          buttons
-        )
-      } else {
-        uMessage = this.apiService.send1to1MessageLowPriority(
-          this.user.users,
-          messageToSend,
-          this.user.ttl,
-          this.user.bor,
-          messageID,
-          this.user.flags
-        )
-      }
+      uMessage = this.apiService.send1to1MessageLowPriorityButtons(
+        this.user.users,
+        messageToSend,
+        this.user.ttl,
+        this.user.bor,
+        messageID,
+        this.user.flags,
+        buttons
+      )
       logger.debug(`send1to1Messge returns=${uMessage}`)
       reply.pending =
         'Broadcast message in process of being sent to list of users'
@@ -196,27 +185,28 @@ class BroadcastService {
       reply.message = messageToSend
     } else if (target === 'NETWORK') {
       if (this.user.voiceMemo) {
-        // if (this.user.voiceMemo !== undefined && this.user.voiceMemo !== '') {
-        uMessage = this.apiService.sendNetworkVoiceMemo(
+        uMessage = this.apiService.sendNetworkVoiceMemoButtons(
           this.user.voiceMemo,
           this.user.duration,
           this.user.ttl,
           this.user.bor,
           messageID,
-          sentBy
+          sentBy,
+          buttons
         )
         reply.pending = 'Voice Memo broadcast in process of being sent'
         reply.rawMessage = this.user.message
         reply.message = messageToSend
-        // } else if (this.user.file !== undefined && this.user.file !== '') {
       } else if (this.user.file) {
-        uMessage = this.apiService.sendNetworkAttachment(
+        uMessage = this.apiService.sendNetworkAttachmentButtons(
           this.user.file,
           this.user.display,
           this.user.ttl,
           this.user.bor,
           messageID,
-          sentBy
+          sentBy,
+          flags,
+          buttons
         )
         reply.pending = 'File broadcast in process of being sent'
         reply.rawMessage = this.user.message
@@ -226,47 +216,53 @@ class BroadcastService {
         //
         if (this.user.webapp && this.user.message) {
           console.log('from webapp')
-          uMessage = this.apiService.sendNetworkMessage(
+          uMessage = this.apiService.sendNetworkMessageButtons(
             this.user.message,
             this.user.ttl,
             this.user.bor,
-            messageID
+            messageID,
+            flags,
+            buttons
           )
         }
       } else {
-        uMessage = this.apiService.sendNetworkMessage(
+        uMessage = this.apiService.sendNetworkMessageButtons(
           messageToSend,
           this.user.ttl,
           this.user.bor,
-          messageID
+          messageID,
+          flags,
+          buttons
         )
         reply.pending = 'Broadcast message in process of being sent'
         reply.rawMessage = this.user.message
         reply.message = messageToSend
       }
     } else if (this.user.voiceMemo) {
-      uMessage = this.apiService.sendSecurityGroupVoiceMemo(
+      uMessage = this.apiService.sendSecurityGroupVoiceMemoButtons(
         this.user.securityGroups,
         this.user.voiceMemo,
         this.user.duration,
         this.user.ttl,
         this.user.bor,
         messageID,
-        sentBy
+        sentBy,
+        buttons
       )
       reply.pending =
         'Voice Memo broadcast in process of being sent to security group'
       reply.rawMessage = this.user.message
       reply.message = messageToSend
     } else if (this.user.file) {
-      uMessage = this.apiService.sendSecurityGroupAttachment(
+      uMessage = this.apiService.sendSecurityGroupAttachmentButtons(
         this.user.securityGroups,
         this.user.file,
         this.user.display,
         this.user.ttl,
         this.user.bor,
         messageID,
-        sentBy
+        sentBy,
+        buttons
       )
       reply.pending =
         'File broadcast in process of being sent to security group'
@@ -274,12 +270,14 @@ class BroadcastService {
       reply.message = messageToSend
       if (this.user.webapp && this.user.message) {
         console.log('webapp sec group')
-        uMessage = this.apiService.sendSecurityGroupMessage(
+        uMessage = this.apiService.sendSecurityGroupMessageButtons(
           this.user.securityGroups,
           this.user.message,
           this.user.ttl,
           this.user.bor,
-          messageID
+          messageID,
+          flags,
+          buttons
         )
       }
     } else {
