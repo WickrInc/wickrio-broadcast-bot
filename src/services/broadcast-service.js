@@ -205,7 +205,6 @@ class BroadcastService {
           this.user.bor,
           messageID,
           sentBy,
-          flags,
           buttons
         )
         reply.pending = 'File broadcast in process of being sent'
