@@ -155,12 +155,12 @@ class BroadcastService {
     if (this.user.ackFlag) {
       const button1 = {
         type: 'message',
-        text: '/ack',
+        text: '/Ack',
         message: '/ack',
       };
       const button2 = {
         type: 'getlocation',
-        text: 'Send location',
+        text: '/Ack with Location',
       };
       buttons = [button1, button2];
     } else {
