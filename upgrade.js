@@ -22,3 +22,5 @@ if (!dataToChange.apps[0].env.tokens.RESPONSES_ENABLED) {
     encrypted: false,
   }
 }
+
+fs.writeFileSync('./processes.json', JSON.stringify(dataToChange, null, 2))
