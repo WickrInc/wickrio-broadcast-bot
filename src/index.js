@@ -132,6 +132,11 @@ async function listen(rawMessage) {
       // voiceMemoDuration,
     } = messageService
 
+    // do not handle non location and messages
+    if (msgType !== 'location' && msgType !== undefined) {
+      return
+    }
+
     if (!fs.existsSync(`${process.cwd()}/files/${userEmail}`)) {
       fs.mkdirSync(`${process.cwd()}/files/${userEmail}`)
     }
