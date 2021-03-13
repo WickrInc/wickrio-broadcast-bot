@@ -15,6 +15,7 @@ const dir = `${process.cwd()}/files`
 class SendService {
   constructor({ messageService }) {
     this.messageService = messageService
+    this.messageService.user = messageService.user
   }
 
   // TODO what happens if someone is adding a file at the same time as someone is sending a message?
@@ -26,7 +27,7 @@ class SendService {
       )
       return this.messageService.user.fileArr
     } catch (err) {
-      // TODO fix this.user.!! gracefully >:)
+      // TODO fix this.messageService.user.!! gracefully >:)
       logger.error(err)
       return null
     }
@@ -36,11 +37,20 @@ class SendService {
     this.messageService.user.file = file
   }
 
+  setSendFile(file) {
+    this.messageService.user.sendfile = file
+  }
+
+  getSendFile() {
+    return this.messageService.user.sendfile
+  }
+
   setMessage(message) {
     this.messageService.user.message = message
   }
 
   setDisplay(display) {
+    console.log('send-service:setDisplay: '+display)
     this.messageService.user.display = display
   }
 
@@ -60,10 +70,37 @@ class SendService {
     this.messageService.user.ttl = ttl
   }
 
-  sendToFile(fileName) {
+  setAckFlag(ackFlag) {
+    console.log('send-service:setAckFlag: '+ackFlag)
+    this.messageService.user.ackFlag = ackFlag
+  }
+
+  sendToFile() {
+
+    const fileName = this.messageService.user.sendfile
     const sentBy = `\n\nBroadcast message sent by: ${this.messageService.user.userEmail}`
-    const messageToSend = this.messageService.user.message + sentBy
-    logger.debug('Broadcasting to a file')
+    let messageToSend = this.messageService.user.message + sentBy
+
+    const flags=[]
+    let buttons;
+    if (this.messageService.user.ackFlag) {
+      messageToSend = messageToSend + '\n\nPlease acknowledge message by replying with /ack'
+
+      const button1 = {
+        type: 'message',
+        text: '/Ack',
+        message: '/ack',
+      };
+      const button2 = {
+        type: 'getlocation',
+        text: '/Ack with Location',
+      };
+      buttons = [button1, button2];
+    } else {
+      buttons = [];
+    }
+
+    logger.debug('Broadcasting to a file: file='+fileName)
     const currentDate = new Date()
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
     const jsonDateTime = currentDate.toJSON()
@@ -80,7 +117,8 @@ class SendService {
         email: this.messageService.user.userEmail,
         filePath,
         jsonDateTime,
-        disaply: this.messageService.user.display,
+        file: this.messageService.user.sendfile,
+        display: this.messageService.user.display,
       })
       apiService.writeMessageIDDB(
         messageID,
@@ -90,22 +128,24 @@ class SendService {
         this.messageService.user.display
       )
       if (fileName.endsWith('hash')) {
-        uMessage = apiService.sendAttachmentUserHashFile(
+        uMessage = apiService.sendAttachmentUserHashFileButtons(
           filePath,
           this.messageService.user.file,
           this.messageService.user.display,
           this.messageService.user.ttl,
           this.messageService.user.bor,
-          messageID
+          messageID,
+          buttons
         )
       } else if (fileName.endsWith('user')) {
-        uMessage = apiService.sendAttachmentUserNameFile(
+        uMessage = apiService.sendAttachmentUserNameFileButtons(
           filePath,
           this.messageService.user.file,
           this.messageService.user.display,
           this.messageService.user.ttl,
           this.messageService.user.bor,
-          messageID
+          messageID,
+          buttons
         )
       }
     } else {
@@ -124,20 +164,24 @@ class SendService {
         this.messageService.user.message
       )
       if (fileName.endsWith('hash')) {
-        uMessage = apiService.sendMessageUserHashFile(
+        uMessage = apiService.sendMessageUserHashFileButtons(
           filePath,
           messageToSend,
           this.messageService.user.ttl,
           this.messageService.user.bor,
-          messageID
+          messageID,
+          flags,
+          buttons
         )
       } else if (fileName.endsWith('user')) {
-        uMessage = apiService.sendMessageUserNameFile(
+        uMessage = apiService.sendMessageUserNameFileButtons(
           filePath,
           messageToSend,
           this.messageService.user.ttl,
           this.messageService.user.bor,
-          messageID
+          messageID,
+          flags,
+          buttons
         )
       }
     }
@@ -153,12 +197,14 @@ class SendService {
 
   clearValues() {
     this.messageService.user.file = ''
+    this.messageService.user.sendfile = ''
     this.messageService.user.message = ''
     this.messageService.user.userEmail = ''
     this.messageService.user.display = ''
     this.messageService.user.vGroupID = ''
     this.messageService.user.ttl = ''
     this.messageService.user.bor = ''
+    this.messageService.user.ackFlag = 0
   }
 
   // This function is used to send a file to a room.

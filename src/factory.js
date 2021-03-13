@@ -27,6 +27,7 @@ import FileActions from './commands/file-actions'
 import OverwriteCheck from './commands/overwrite-check'
 import RepeatFrequency from './commands/repeat-frequency'
 import SendUserFile from './commands/send-user-file'
+import SendAskForAck from './commands/send-ask-for-ack'
 import TimesRepeat from './commands/times-repeat'
 import WhichAbort from './commands/which-abort'
 import WhichDelete from './commands/which-delete'
@@ -228,6 +229,10 @@ class Factory {
       sendService: this.sendService,
       messageService: this.messageService,
     })
+    this.sendAskForAck = new SendAskForAck({
+      sendService: this.sendService,
+      messageService: this.messageService,
+    })
     this.timesRepeat = new TimesRepeat({
       repeatService: this.repeatService,
       messageService: this.messageService,
@@ -286,6 +291,7 @@ class Factory {
       this.overwriteCheck,
       this.repeatFrequency,
       this.sendUserFile,
+      this.sendAskForAck,
       this.timesRepeat,
       this.whichAbort,
       this.whichDelete,
