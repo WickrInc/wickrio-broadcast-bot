@@ -14,6 +14,7 @@ export default Object.freeze({
   WHICH_ABORT: 12,
   DELETE_FILE: 13,
   SEND_USER_FILE: 14,
-  OVERWRITE_CHECK: 15,
-  WHICH_MAP: 16,
+  SEND_ASK_FOR_ACK: 15,
+  OVERWRITE_CHECK: 16,
+  WHICH_MAP: 17,
 })

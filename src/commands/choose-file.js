@@ -37,10 +37,11 @@ class ChooseFile {
     } else {
       // Subtract one to account for 0 based indexing
       const fileName = fileArr[parseInt(message, 10) - 1]
-      // TODO check for errors first!! return from send
-      // TODO should the fileName be a variable of sendService??
-      this.sendService.sendToFile(fileName)
-      reply = `Message sent to users from the file: ${fileName}`
+
+      this.sendService.setSendFile(fileName)
+
+      state = State.SEND_ASK_FOR_ACK
+      reply = 'Would you like to ask the recipients for an acknowledgement?'
     }
     return {
       reply,
