@@ -133,7 +133,7 @@ async function listen(rawMessage) {
     } = messageService
 
     // do not handle non location and messages
-    if (msgType !== 'location' && msgType !== undefined) {
+    if (msgType !== 'location'&& msgType !== 'file' && msgType !== undefined) {
       return
     }
 
