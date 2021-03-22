@@ -1,4 +1,9 @@
-import State from '../state'
+import fs from 'fs'
+import path from 'path'
+
+import WickrIOBotAPI from 'wickrio-bot-api'
+const bot = new WickrIOBotAPI.WickrIOBot()
+
 
 class Version {
   constructor({ messageService }) {
@@ -13,26 +18,20 @@ class Version {
   }
 
   execute() {
-    let json = require('../../node_modules/wickrio_addon/package.json')
-    const addonVersion = json.version
-    json = require('../../node_modules/wickrio-bot-api/package.json')
-    const apiVersion = json.version
-    const reply =
-      `*Versions*\nIntegration: ${process.env.npm_package_version}\n` +
-      `WickrIO Addon: ${addonVersion}\n` +
-      `WickrIO API: ${apiVersion}`
-    return {
-      reply,
-      state: State.NONE,
+    try {
+      const packageJsonFile = path.join(process.cwd(), 'package.json')
+      const reply = bot.getVersions(packageJsonFile)
+
+      return {
+        reply,
+      }
+    } catch (err) {
+      const reply = 'Failed to get version information!'
+      return {
+        reply,
+      }
     }
   }
 }
-
-// if (command === '/version') {
-//   const obj = Version.execute()
-//   WickrIOAPI.cmdSendRoomMessage(vGroupID, obj.reply)
-//   user.currentState = State.NONE
-//   return
-// }
 
 export default Version
