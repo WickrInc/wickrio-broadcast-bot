@@ -82,7 +82,7 @@ class SendService {
     let messageToSend = this.messageService.user.message + sentBy
 
     const flags=[]
-    let buttons;
+    let meta={};
     if (this.messageService.user.ackFlag) {
       messageToSend = messageToSend + '\n\nPlease acknowledge message by replying with /ack'
 
@@ -95,10 +95,15 @@ class SendService {
         type: 'getlocation',
         text: '/Ack with Location',
       };
-      buttons = [button1, button2];
+      meta = {
+        buttons: [button1, button2]
+      }
     } else {
-      buttons = [];
+      meta = {
+        buttons: []
+      }
     }
+    const metaString = JSON.stringify(meta);
 
     logger.debug('Broadcasting to a file: file='+fileName)
     const currentDate = new Date()
@@ -128,24 +133,24 @@ class SendService {
         this.messageService.user.display
       )
       if (fileName.endsWith('hash')) {
-        uMessage = apiService.sendAttachmentUserHashFileButtons(
+        uMessage = apiService.sendAttachmentUserHashFile(
           filePath,
           this.messageService.user.file,
           this.messageService.user.display,
           this.messageService.user.ttl,
           this.messageService.user.bor,
           messageID,
-          buttons
+          metaString
         )
       } else if (fileName.endsWith('user')) {
-        uMessage = apiService.sendAttachmentUserNameFileButtons(
+        uMessage = apiService.sendAttachmentUserNameFile(
           filePath,
           this.messageService.user.file,
           this.messageService.user.display,
           this.messageService.user.ttl,
           this.messageService.user.bor,
           messageID,
-          buttons
+          metaString
         )
       }
     } else {
@@ -164,24 +169,24 @@ class SendService {
         this.messageService.user.message
       )
       if (fileName.endsWith('hash')) {
-        uMessage = apiService.sendMessageUserHashFileButtons(
+        uMessage = apiService.sendMessageUserHashFile(
           filePath,
           messageToSend,
           this.messageService.user.ttl,
           this.messageService.user.bor,
           messageID,
           flags,
-          buttons
+          metaString
         )
       } else if (fileName.endsWith('user')) {
-        uMessage = apiService.sendMessageUserNameFileButtons(
+        uMessage = apiService.sendMessageUserNameFile(
           filePath,
           messageToSend,
           this.messageService.user.ttl,
           this.messageService.user.bor,
           messageID,
           flags,
-          buttons
+          metaString
         )
       }
     }
