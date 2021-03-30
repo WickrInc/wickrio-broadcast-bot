@@ -1,9 +1,7 @@
-import fs from 'fs'
 import path from 'path'
 
 import WickrIOBotAPI from 'wickrio-bot-api'
 const bot = new WickrIOBotAPI.WickrIOBot()
-
 
 class Version {
   constructor({ messageService }) {
@@ -34,4 +32,4 @@ class Version {
   }
 }
 
-export default Version
+module.exports = Version
