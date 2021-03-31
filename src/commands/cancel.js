@@ -28,4 +28,4 @@ class Cancel {
   }
 }
 
-export default Cancel
+module.exports = Cancel

@@ -92,4 +92,4 @@ class Help {
   }
 }
 
-export default Help
+module.exports = Help
