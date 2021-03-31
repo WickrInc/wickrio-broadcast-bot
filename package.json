@@ -1,12 +1,14 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "5.79.2",
+  "version": "5.79.3",
   "description": "WickrIO Broadcast Bot",
   "main": "./build/broadcast-bot.js",
   "author": "Paul Cushman",
   "license": "ISC",
   "dependencies": {
+    "@istanbuljs/nyc-config-babel": "^3.0.0",
     "babel-eslint": "^10.1.0",
+    "babel-plugin-istanbul": "^6.0.0",
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.5",
     "csv-writer": "^1.6.0",
@@ -15,8 +17,10 @@
     "helmet": "^3.23.3",
     "jsonwebtoken": "^8.5.1",
     "log4js": "^5.3.0",
+    "mocha": "^8.3.2",
     "multer": "^1.4.2",
     "node-cron": "^2.0.3",
+    "nyc": "^15.1.0",
     "pino": "^5.15.0",
     "pm2": "^4.5.5",
     "prompt": "^1.0.0",
@@ -58,7 +62,7 @@
     "lint": "eslint src/**/*.js --fix --color",
     "prettier": "prettier --write ./src",
     "stop": "pm2 delete processes.json",
-    "test": "jest --coverage",
+    "test": "nyc --reporter=text-summary  --reporter=text mocha test",
     "watch:test": "jest --watch"
   },
   "husky": {
@@ -122,7 +126,8 @@
           "@babel/plugin-proposal-optional-chaining",
           "@babel/plugin-transform-runtime",
           "@babel/plugin-transform-modules-commonjs",
-          "@babel/plugin-proposal-class-properties"
+          "@babel/plugin-proposal-class-properties",
+          "istanbul"
         ]
       },
       "development": {
@@ -136,9 +141,10 @@
           "@babel/plugin-proposal-optional-chaining",
           "@babel/plugin-transform-runtime",
           "@babel/plugin-transform-modules-commonjs",
-          "@babel/plugin-proposal-class-properties"
+          "@babel/plugin-proposal-class-properties",
+          "istanbul"
         ],
-        "sourceMaps": "inline",
+        "sourceMaps": true,
         "retainLines": true
       },
       "test": {
@@ -149,9 +155,10 @@
           "@babel/plugin-proposal-optional-chaining",
           "@babel/plugin-transform-runtime",
           "@babel/plugin-transform-modules-commonjs",
-          "@babel/plugin-proposal-class-properties"
+          "@babel/plugin-proposal-class-properties",
+          "istanbul"
         ],
-        "sourceMaps": "inline",
+        "sourceMaps": true,
         "retainLines": true
       }
     }
@@ -170,5 +177,24 @@
     "messaging",
     "api"
   ],
-  "database": true
+  "database": true,
+  "nyc": {
+    "all": true,
+    "sourceMap": false,
+    "instrument": false,
+    "extends": "@istanbuljs/nyc-config-babel",
+    "exclude": [
+      "configure.js",
+      "upgrade.js",
+      "test/*.js",
+      "scratchpad/*.js",
+      ".npm/**/*.js",
+      ".git",
+      "wickrio-bot-web",
+      "node_modules",
+      "public",
+      "src",
+      "temp"
+    ]
+  }
 }
