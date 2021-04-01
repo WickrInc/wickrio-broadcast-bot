@@ -32,7 +32,7 @@ describe('version validation', () => {
 
     const msgSvc = bot.messageService({
       rawMessage,
-      testOnly: true
+      testOnly: true,
     })
     console.log('messageService=' + JSON.stringify(msgSvc))
 

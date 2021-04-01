@@ -121,9 +121,9 @@ describe('files command validation', () => {
     const replyvalue = filesCommand.execute()
     const expectedReply =
       "There aren't any files available for sending, please upload a file of usernames or hashes first."
-    assert.equal(replyvalue.reply, expectedReply)
 
     fs.rmdirSync(testFileDirectory)
+    assert.equal(replyvalue.reply, expectedReply)
   })
 
   /* ================================================================================ */
