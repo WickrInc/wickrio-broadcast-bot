@@ -34,6 +34,7 @@ describe('help validation', () => {
       rawMessage,
       testOnly: true,
     })
+
     console.log('messageService=' + JSON.stringify(msgSvc))
 
     const help = new Help({
