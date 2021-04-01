@@ -20,17 +20,49 @@ class Report {
     const entriesString = this.genericService.getEntriesString(userEmail)
     const entries = this.genericService.getMessageEntries(userEmail, false)
     let reply
+    let messagemeta={};
     if (!entries || entries.length === 0) {
       reply = entriesString
     } else {
-      reply = `${entriesString}Which message would you like to see the report of?`
+      reply = `${entriesString}To get started, select the broadcast for which you would like to generate a report`
+
+      const tablestring = JSON.stringify(entries)
+      console.log('report: table:' + tablestring)
+
+      messagemeta = {
+        table: {
+          name: 'List of Sent Broadcasts',
+          firstcolname: 'Message',
+          actioncolname: 'Select',
+          rows: [],
+        },
+        textcut: [
+          {
+            startindex: 0,
+            endindex: entriesString.length - 1,
+          }
+        ]
+      }
+      for (let i=0; i<entries.length; i++) {
+        const response = i+1
+        const row = {
+          firstcolvalue: entries[i].message,
+          response: response.toString(),
+        }
+        messagemeta.table.rows.push(row)
+      }
+
+      const messagemetastring = JSON.stringify(messagemeta)
+      console.log('report: messagemeta:' + messagemetastring)
     }
+
     if (entries.length > this.genericService.getEndIndex()) {
       reply += '\nOr to see more messages reply more'
     }
     return {
       reply,
       state: State.WHICH_REPORT,
+      messagemeta,
     }
   }
 }

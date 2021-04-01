@@ -149,8 +149,23 @@ async function listen(rawMessage) {
       cmdResult = factory.execute()
     }
 
-    if (cmdResult?.reply)
-      WickrIOAPI.cmdSendRoomMessage(vGroupID, cmdResult.reply)
+    if (cmdResult?.reply) {
+      if (cmdResult?.messagemeta) {
+        console.log('Object has a reply and message meta')
+        const metastring = JSON.stringify(cmdResult.messagemeta)
+        WickrIOAPI.cmdSendRoomMessage(
+          vGroupID,
+          cmdResult.reply,
+          '',
+          '',
+          '',
+          [],
+          metastring
+        )
+      } else {
+        WickrIOAPI.cmdSendRoomMessage(vGroupID, cmdResult.reply)
+      }
+    }
 
     if (cmdResult?.state || cmdResult?.state === 0) {
       // change to broacastservice?
