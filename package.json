@@ -74,7 +74,6 @@
     "./src/**/*.{js,jsx,ts,tsx}": [
       "npm run prettier",
       "npm run lint",
-      "jest --coverage --findRelatedTests --bail",
       "npm run build"
     ]
   },

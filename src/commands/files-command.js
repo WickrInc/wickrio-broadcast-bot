@@ -26,7 +26,7 @@ class FileCommand {
       reply =
         "There aren't any files available for sending, please upload a file of usernames or hashes first."
     } else {
-      //const length = Math.min(fileArr.length, 10)
+      // const length = Math.min(fileArr.length, 10)
       const length = fileArr.length
       for (let index = 0; index < length; index += 1) {
         reply += `(${index + 1}) ${fileArr[index]}\n`

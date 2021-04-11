@@ -35,8 +35,7 @@ const useRESTRoutes = app => {
    * Make sure the input value is convert to a string, or ''
    */
   function valToString(val) {
-    if (val === undefined || val === null)
-	  return ''
+    if (val === undefined || val === null) return ''
     return val.toString()
   }
 
