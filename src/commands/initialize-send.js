@@ -18,7 +18,7 @@ class InitializeSend {
   execute() {
     const { message, userEmail, vGroupID } = this.messageService
 
-    var message2send;
+    let message2send
     if (message) {
       const parsedData = message.match(/(\/[a-zA-Z]+)([\s\S]*)$/)
 

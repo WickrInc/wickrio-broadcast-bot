@@ -150,27 +150,27 @@ class BroadcastService {
     const messageID = `${updateLastID()}`
     let uMessage
     const reply = {}
-    let meta = {};
-    const flags = [];
+    let meta = {}
+    const flags = []
     if (this.user.ackFlag) {
       const button1 = {
         type: 'message',
         text: '/Ack',
         message: '/ack',
-      };
+      }
       const button2 = {
         type: 'getlocation',
         text: '/Ack with Location',
-      };
+      }
       meta = {
-        buttons: [button1, button2]
+        buttons: [button1, button2],
       }
     } else {
       meta = {
-        buttons: []
+        buttons: [],
       }
     }
-    const metaString = JSON.stringify(meta);
+    const metaString = JSON.stringify(meta)
 
     if (target === 'USERS') {
       if (this.user.flags === undefined) this.user.flags = []
