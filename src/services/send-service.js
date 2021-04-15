@@ -218,4 +218,4 @@ class SendService {
   }
 }
 
-export default SendService
+module.exports = SendService

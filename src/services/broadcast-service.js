@@ -369,4 +369,4 @@ class BroadcastService {
   }
 }
 
-export default BroadcastService
+module.exports = BroadcastService
