@@ -37,4 +37,4 @@ class Ack {
   // }
 }
 
-export default Ack
+module.exports = Ack

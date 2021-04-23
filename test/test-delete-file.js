@@ -1,6 +1,3 @@
-// const expect = require('chai').expect;
-// const sinon = require('sinon');
-
 const assert = require('assert')
 const util = require('util')
 const WickrIOBotAPI = require('wickrio-bot-api')
@@ -11,12 +8,12 @@ process.env.tokens = tokens
 console.log(
   'process.env.tokens: ' + util.inspect(process.env.tokens, { depth: null })
 )
-const Help = require('../build/commands/help')
-const { apiService } = require('../build/helpers/constants')
+const DeleteFile = require('../build/commands/delete-file')
+const SendService = require('../build/services/send-service')
 
-describe('help validation', () => {
+describe('delet file validation', () => {
   /* ================================================================================ */
-  it('shouldExecute false if /help is not the command', async () => {
+  it('shouldExecute false if /delete is not the command', async () => {
     const bot = new WickrIOBotAPI.WickrIOBot()
     const status = await bot.startForTesting('clientName')
 
@@ -34,25 +31,26 @@ describe('help validation', () => {
       rawMessage,
       testOnly: true,
     })
-
     console.log('messageService=' + JSON.stringify(msgSvc))
 
-    const help = new Help({
-      apiService: apiService,
+    const sendSrv = new SendService({ messageService: msgSvc })
+
+    const deleteFile = new DeleteFile({
+      sendService: sendSrv,
       messageService: msgSvc,
     })
 
-    assert.equal(help.shouldExecute(), false)
+    assert.equal(deleteFile.shouldExecute(), false)
   })
 
   /* ================================================================================ */
-  it('shouldExecute true if /help is the command', async () => {
+  it('shouldExecute true if /delete is the command', async () => {
     const bot = new WickrIOBotAPI.WickrIOBot()
     const status = await bot.startForTesting('clientName')
 
     const messageObject = {
       message_id: '1234',
-      message: '/help',
+      message: '/delete',
       sender: 'testuser@wickr.com',
       users: ['user1@wickr.com', 'user2@wickr.com'],
       vgroupid: '3423423423423423423',
@@ -66,22 +64,24 @@ describe('help validation', () => {
     })
     console.log('messageService=' + JSON.stringify(msgSvc))
 
-    const help = new Help({
-      apiService: apiService,
+    const sendSrv = new SendService({ messageService: msgSvc })
+
+    const deleteFile = new DeleteFile({
+      sendService: sendSrv,
       messageService: msgSvc,
     })
 
-    assert.equal(help.shouldExecute(), true)
+    assert.equal(deleteFile.shouldExecute(), true)
   })
 
-  /* ================================================================================ */
+  /* ================================================================================
   it('execute() returns a reply', async () => {
     const bot = new WickrIOBotAPI.WickrIOBot()
     const status = await bot.startForTesting('clientName')
 
     const messageObject = {
       message_id: '1234',
-      message: '/version',
+      message: '/delete',
       sender: 'testuser@wickr.com',
       users: ['user1@wickr.com', 'user2@wickr.com'],
       vgroupid: '3423423423423423423',
@@ -95,12 +95,15 @@ describe('help validation', () => {
     })
     console.log('messageService=' + JSON.stringify(msgSvc))
 
-    const help = new Help({
-      apiService: apiService,
+    const sendSrv = new SendService({ messageService: msgSvc })
+
+    const delete = new DeleteFile({
+      sendService: sendSrv,
       messageService: msgSvc,
     })
 
-    const replyvalue = help.execute()
+    const replyvalue = delete.execute()
     assert.ok(replyvalue.reply)
   })
+  */
 })

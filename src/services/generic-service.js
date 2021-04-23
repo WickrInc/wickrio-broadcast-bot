@@ -135,4 +135,4 @@ class GenericService {
   }
 }
 
-export default GenericService
+module.exports = GenericService
