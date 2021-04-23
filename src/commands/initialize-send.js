@@ -61,4 +61,4 @@ class InitializeSend {
   }
 }
 
-export default InitializeSend
+module.exports = InitializeSend

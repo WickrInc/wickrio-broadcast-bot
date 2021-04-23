@@ -59,4 +59,4 @@ class InitializeBroadcast {
   }
 }
 
-export default InitializeBroadcast
+module.exports = InitializeBroadcast

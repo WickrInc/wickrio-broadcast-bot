@@ -67,4 +67,4 @@ class Report {
   }
 }
 
-export default Report
+module.exports = Report

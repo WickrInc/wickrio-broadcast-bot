@@ -38,4 +38,4 @@ class DeleteFile {
   }
 }
 
-export default DeleteFile
+module.exports = DeleteFile

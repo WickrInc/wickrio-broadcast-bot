@@ -40,4 +40,4 @@ class Abort {
   }
 }
 
-export default Abort
+module.exports = Abort

@@ -36,4 +36,4 @@ class Status {
   }
 }
 
-export default Status
+module.exports = Status

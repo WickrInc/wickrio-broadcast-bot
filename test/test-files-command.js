@@ -7,7 +7,7 @@ const fs = require('fs')
 const path = require('path')
 const WickrIOBotAPI = require('wickrio-bot-api')
 const tokens =
-  '{"WICKRIO_BOT_NAME" : { "value" : "test", "encrypted" : false }}'
+  '{"WICKRIO_BOT_NAME" : { "value" : "test", "encrypted" : false }, "BOT_MAPS" : { "value" : "yes", "encrypted" : false }}'
 console.log('tokens: ' + util.inspect(tokens, { depth: null }))
 process.env.tokens = tokens
 console.log(
