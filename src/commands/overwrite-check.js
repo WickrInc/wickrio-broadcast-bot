@@ -29,7 +29,7 @@ class OverwriteCheck {
     let state = State.NONE
     let reply
     if (file === undefined) {
-        reply = `internal error: ${filename} NOT saved to directory.`
+      reply = `internal error: ${filename} NOT saved to directory.`
     } else {
       // Overwrite file.
       if (this.messageService.affirmativeReply()) {

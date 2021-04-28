@@ -20,7 +20,7 @@ class Report {
     const entriesString = this.genericService.getEntriesString(userEmail)
     const entries = this.genericService.getMessageEntries(userEmail, false)
     let reply
-    let messagemeta={};
+    let messagemeta = {}
     if (!entries || entries.length === 0) {
       reply = entriesString
     } else {
@@ -40,11 +40,11 @@ class Report {
           {
             startindex: 0,
             endindex: entriesString.length - 1,
-          }
-        ]
+          },
+        ],
       }
-      for (let i=0; i<entries.length; i++) {
-        const response = i+1
+      for (let i = 0; i < entries.length; i++) {
+        const response = i + 1
         const row = {
           firstcolvalue: entries[i].message,
           response: response.toString(),

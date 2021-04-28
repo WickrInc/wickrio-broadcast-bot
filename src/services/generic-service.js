@@ -48,11 +48,7 @@ class GenericService {
       let index = 1
       let messageString = ''
       // TODO fix extra \n in more functionality
-      for (
-        let i = this.user.startIndex;
-        i < this.user.endIndex;
-        i += 1
-      ) {
+      for (let i = this.user.startIndex; i < this.user.endIndex; i += 1) {
         contentData = this.getMessageEntry(currentEntries[i].message_id)
         const contentParsed = JSON.parse(contentData)
         const messageDisplayed = this.truncate(

@@ -50,7 +50,7 @@ class SendService {
   }
 
   setDisplay(display) {
-    console.log('send-service:setDisplay: '+display)
+    console.log('send-service:setDisplay: ' + display)
     this.messageService.user.display = display
   }
 
@@ -71,41 +71,41 @@ class SendService {
   }
 
   setAckFlag(ackFlag) {
-    console.log('send-service:setAckFlag: '+ackFlag)
+    console.log('send-service:setAckFlag: ' + ackFlag)
     this.messageService.user.ackFlag = ackFlag
   }
 
   sendToFile() {
-
     const fileName = this.messageService.user.sendfile
     const sentBy = `\n\nBroadcast message sent by: ${this.messageService.user.userEmail}`
     let messageToSend = this.messageService.user.message + sentBy
 
-    const flags=[]
-    let meta={};
+    const flags = []
+    let meta = {}
     if (this.messageService.user.ackFlag) {
-      messageToSend = messageToSend + '\n\nPlease acknowledge message by replying with /ack'
+      messageToSend =
+        messageToSend + '\n\nPlease acknowledge message by replying with /ack'
 
       const button1 = {
         type: 'message',
         text: '/Ack',
         message: '/ack',
-      };
+      }
       const button2 = {
         type: 'getlocation',
         text: '/Ack with Location',
-      };
+      }
       meta = {
-        buttons: [button1, button2]
+        buttons: [button1, button2],
       }
     } else {
       meta = {
-        buttons: []
+        buttons: [],
       }
     }
-    const metaString = JSON.stringify(meta);
+    const metaString = JSON.stringify(meta)
 
-    logger.debug('Broadcasting to a file: file='+fileName)
+    logger.debug('Broadcasting to a file: file=' + fileName)
     const currentDate = new Date()
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
     const jsonDateTime = currentDate.toJSON()

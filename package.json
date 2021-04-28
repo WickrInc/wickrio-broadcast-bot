@@ -1,6 +1,6 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "5.79.4",
+  "version": "5.79.5",
   "description": "WickrIO Broadcast Bot",
   "main": "./build/broadcast-bot.js",
   "author": "Paul Cushman",
@@ -74,7 +74,6 @@
     "./src/**/*.{js,jsx,ts,tsx}": [
       "npm run prettier",
       "npm run lint",
-      "jest --coverage --findRelatedTests --bail",
       "npm run build"
     ]
   },

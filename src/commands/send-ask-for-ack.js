@@ -34,7 +34,8 @@ class SendAskForAck {
       }
     }
 
-    reply = `Message sent to users from the file: ` + this.sendService.getSendFile()
+    reply =
+      `Message sent to users from the file: ` + this.sendService.getSendFile()
 
     // TODO check for errors first!! return from send
     // TODO should the fileName be a variable of sendService??

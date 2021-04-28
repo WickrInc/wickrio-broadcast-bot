@@ -1,4 +1,5 @@
 import State from '../state'
+import ButtonHelper from '../helpers/button-helper'
 // import { logger } from '../helpers/constants'
 
 class InitializeSend {
@@ -18,7 +19,8 @@ class InitializeSend {
   execute() {
     const { message, userEmail, vGroupID } = this.messageService
 
-    var message2send;
+    let messagemeta
+    let message2send
     if (message) {
       const parsedData = message.match(/(\/[a-zA-Z]+)([\s\S]*)$/)
 
@@ -48,15 +50,31 @@ class InitializeSend {
     } else {
       // TODO get rid of newline on last line
       // TODO add more function to listing files as well
-      reply = 'To which list would you like to send your message:\n'
-      for (let index = 0; index < fileArr.length; index += 1) {
-        reply += `(${index + 1}) ${fileArr[index]}\n`
+      let replyStart =
+        'Here are the saved user files that you can send a message to:\n'
+      let index = 0
+      for (index = 0; index < fileArr.length; index += 1) {
+        replyStart += `(${index + 1}) ${fileArr[index]}\n`
       }
+      reply = `${replyStart}To which list would you like to send your message?`
+      const tableName = 'Show User Files'
+      const firstColName = 'User Files'
+      const actionColName = 'Select'
+      // const entriesString = JSON.stringify(fileArr)
+      messagemeta = ButtonHelper.makeButtonList(
+        tableName,
+        firstColName,
+        actionColName,
+        0,
+        replyStart.length - 1,
+        fileArr
+      )
       state = State.CHOOSE_FILE
     }
     return {
       reply,
       state,
+      messagemeta,
     }
   }
 }
