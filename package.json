@@ -1,6 +1,6 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "5.80.1",
+  "version": "5.80.2",
   "description": "WickrIO Broadcast Bot",
   "main": "./build/broadcast-bot.js",
   "author": "Paul Cushman",
@@ -48,7 +48,6 @@
     "eslint-plugin-standard": "^4.0.1",
     "form-data": "^3.0.0",
     "husky": "^4.2.5",
-    "jest": "^26.1.0",
     "lint-staged": "^10.2.11",
     "nodemon": "^2.0.4",
     "pino-pretty": "^3.5.0",
@@ -61,8 +60,7 @@
     "lint": "eslint src/**/*.js --fix --color",
     "prettier": "prettier --write ./src",
     "stop": "pm2 delete processes.json",
-    "test": "nyc --reporter=text-summary  --reporter=text mocha test",
-    "watch:test": "jest --watch"
+    "test": "nyc --reporter=text-summary  --reporter=text mocha test"
   },
   "husky": {
     "hooks": {
@@ -99,8 +97,7 @@
     },
     "env": {
       "node": true,
-      "es6": true,
-      "jest": true
+      "es6": true
     },
     "rules": {
       "space-before-function-paren": "off",
