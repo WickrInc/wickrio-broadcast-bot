@@ -1,6 +1,6 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "5.79.5",
+  "version": "5.80.1",
   "description": "WickrIO Broadcast Bot",
   "main": "./build/broadcast-bot.js",
   "author": "Paul Cushman",
@@ -22,7 +22,6 @@
     "node-cron": "^2.0.3",
     "nyc": "^15.1.0",
     "pino": "^5.15.0",
-    "pm2": "^4.5.5",
     "prompt": "^1.0.0",
     "wickrio-bot-api": "5.79.x"
   },
