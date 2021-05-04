@@ -162,7 +162,7 @@
         "description": "Please enter the number of entries you want to allow",
         "message": "Please enter a number",
         "required": true,
-        "default": false
+        "default": 1000
       }
     ]
   }
