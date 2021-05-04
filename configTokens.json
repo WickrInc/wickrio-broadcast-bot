@@ -145,6 +145,26 @@
     "message": "Please enter either yes or no",
     "required": true,
     "default": "yes"
-   }
+  },
+  {
+    "token": "LIMIT_FILE_ENTRIES",
+    "pattern": "^(yes|no)$",
+    "type": "string",
+    "description": "Would you like to limit the number of users that can be saved for sending in a file [yes/no]",
+    "message": "Please enter either yes or no",
+    "required": true,
+    "default": "no",
+    "list": [
+      {
+        "token": "FILE_ENTRY_SIZE",
+        "pattern": "^[0-9]+",
+        "type": "number",
+        "description": "Please enter the number of entries you want to allow",
+        "message": "Please enter a number",
+        "required": true,
+        "default": false
+      }
+    ]
+  }
   ]
 }

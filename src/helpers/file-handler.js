@@ -1,6 +1,7 @@
-import { logger } from './constants'
+import { logger, LIMIT_FILE_ENTRIES, FILE_ENTRY_SIZE } from './constants'
 import fs from 'fs'
 import util from 'util'
+const execSync = require('child_process').execSync
 
 util.promisify(fs.copyFile)
 
@@ -31,6 +32,23 @@ class FileHandler {
     const theFile = fs.readFileSync(filePath, 'utf-8').trim()
     if (theFile.length === 0) {
       return true
+    }
+    return false
+  }
+
+  static checkFileSize(filePath) {
+    let lines = 0
+    try {
+      const results = execSync(`wc -l < ${filePath}`)
+      lines = parseInt(results)
+    } catch (err) {
+      logger.error(err)
+    }
+    if (LIMIT_FILE_ENTRIES.value === 'yes') {
+      console.log(lines)
+      if (lines > parseInt(FILE_ENTRY_SIZE.value)) {
+        return true
+      }
     }
     return false
   }
