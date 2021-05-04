@@ -32,6 +32,8 @@ const {
   SSL_CRT_LOCATION,
   BROADCAST_ENABLED,
   RESPONSES_ENABLED,
+  LIMIT_FILE_ENTRIES,
+  FILE_ENTRY_SIZE,
 } = JSON.parse(process.env.tokens)
 
 const updateLastID = () => {
@@ -180,5 +182,7 @@ export {
   getLastID,
   BROADCAST_ENABLED,
   RESPONSES_ENABLED,
+  LIMIT_FILE_ENTRIES,
+  FILE_ENTRY_SIZE,
   // cronJob,
 }
