@@ -88,7 +88,7 @@ class FileActions {
           'Warning : File already exists in user directory.\nIf you continue you will overwrite the file.\nReply (yes/no) to continue or cancel.'
         state = State.OVERWRITE_CHECK
         // Upload new file to the user directory
-      } else if (fileAppend === '.user' || fileAppend === '.hash') {
+      } else {
         console.log('file actions user or hash, should copy file')
         const newFilePath = `${process.cwd()}/files/${userEmail}/${filename.toString()}${fileAppend}`
         console.log({
