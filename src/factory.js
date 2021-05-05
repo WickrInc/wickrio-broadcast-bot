@@ -42,6 +42,7 @@ import GenericService from './services/generic-service'
 import StatusService from './services/status-service'
 import ReportService from './services/report-service'
 import Version from './commands/version'
+import Queue from './commands/queue'
 import MapService from './services/map-service'
 import { WickrIOAPI, apiService, RESPONSES_ENABLED } from './helpers/constants'
 import writeFile from './helpers/message-writer.js'
@@ -132,6 +133,9 @@ class Factory {
 
     // These are the /commands
     this.version = new Version({
+      messageService: this.messageService,
+    })
+    this.queue = new Queue({
       messageService: this.messageService,
     })
     this.ack = new Ack({
@@ -269,6 +273,7 @@ class Factory {
     this.commandList = [
       // These are the /commands and must go first
       this.version,
+      this.queue,
       this.ack,
       this.abort,
       this.cancel,
