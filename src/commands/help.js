@@ -6,6 +6,7 @@ import {
   WEB_INTERFACE,
   BOT_MAPS,
   BROADCAST_ENABLED,
+  ADMINISTRATORS_CHOICE,
 } from '../helpers/constants'
 const webAppEnabled =
   WEB_APPLICATION?.value === 'yes' && WEB_INTERFACE?.value === 'yes'
@@ -68,8 +69,7 @@ class Help {
       '/abort : To abort a broadcast or send that is currently in progress\n\n' +
       `${webAppString}` +
       `${mapString}` +
-      '*Admin Commands*\n' +
-      '%{adminHelp}\n' +
+      '%{adminHelpHeader}' +
       '*Other Commands*\n' +
       '/help : Show help information\n' +
       '/version : Get the version of the integration\n' +
@@ -77,13 +77,25 @@ class Help {
       '/files : To get a list of saved files available for the /send command\n' +
       '/delete : To delete a file that was previously made available for the /send command'
 
-    if (isAdmin) {
+    if (ADMINISTRATORS_CHOICE === 'no' || isAdmin) {
       // console.log({ helpString, vGroupID })
-      helpString = bot.getAdminHelp(helpString)
+
+      if (ADMINISTRATORS_CHOICE === 'yes') {
+        let adminHelp =
+          '*Admin Commands*\n' +
+          '%{adminHelp}\n'
+        adminHelp = bot.getAdminHelp(adminHelp)
+        helpString = helpString.replace('%{adminHelpHeader}', adminHelp)
+      } else {
+        helpString = helpString.replace('%{adminHelpHeader}', '')
+      }
+
       const sMessage = this.apiService.sendRoomMessage(vGroupID, helpString)
       logger.debug(sMessage)
       // user.currentState = State.NONE
       return
+    } else {
+      helpString = helpString.replace('%{adminHelpHeader}', '')
     }
     return {
       reply: helpString,
