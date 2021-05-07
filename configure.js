@@ -46,14 +46,20 @@ main()
 async function main() {
 
   const token = require('./configTokens.json')
+  let adminOptional = false
+  if (token.administratorsOptional !== undefined) {
+    adminOptional = token.administratorsOptional
+  }
   const fullName = `${process.cwd()}/processes.json`
   wickrIOConfigure = new WickrIOBotAPI.WickrIOConfigure(
     token.tokens,
     fullName,
     token.supportAdministrators,
-    token.supportVerification
+    token.supportVerification,
+    undefined,
+    undefined,
+    adminOptional
   )
-
   await wickrIOConfigure.configureYourBot('WickrIO-Broadcast-Bot')
   process.exit()
 }

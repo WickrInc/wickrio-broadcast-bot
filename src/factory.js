@@ -44,7 +44,7 @@ import ReportService from './services/report-service'
 import Version from './commands/version'
 import Queue from './commands/queue'
 import MapService from './services/map-service'
-import { WickrIOAPI, apiService, RESPONSES_ENABLED } from './helpers/constants'
+import { WickrIOAPI, apiService, RESPONSES_ENABLED, ADMINISTRATORS_CHOICE } from './helpers/constants'
 import writeFile from './helpers/message-writer.js'
 
 // TODO how can we use a new Broadcast service each time???
@@ -98,7 +98,7 @@ class Factory {
     }
     */
 
-    if (
+    if ( ADMINISTRATORS_CHOICE === 'yes' &&
       !this.messageService.isAdmin &&
       this.messageService.command !== '/ack'
     ) {
