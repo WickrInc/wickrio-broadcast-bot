@@ -42,12 +42,21 @@ class FileCommand {
       const length = fileArr.length
 
       for (let index = 0; index < length; index += 1) {
-        reply += `(${index + 1}) ${fileArr[index]}\n`
+        let fileName = fileArr[index]
+        let fileType
+        if (fileName.endsWith('.user')) {
+          fileType="User file"
+          fileName=fileName.slice(0,-5)
+        } else if (fileName.endsWith('.hash')) {
+          fileType="Hash file"
+          fileName=fileName.slice(0,-5)
+        }
+        reply += `(${index + 1}) ${fileName}\n`
 
         const response = index + 1
         const row = {
-          firstcolvalue: fileArr[index],
-          secondcolvalue: 'file',
+          firstcolvalue: fileName,
+          secondcolvalue: fileType,
           response: response.toString(),
         }
         messagemeta.table.rows.push(row)
@@ -56,7 +65,7 @@ class FileCommand {
       // Add the area of text to cut for clients that handle lists
       messagemeta.textcut = [
         {
-          startindex: basereplylength,
+          startindex: basereplylength-1,
           endindex: reply.length,
         }
       ]
