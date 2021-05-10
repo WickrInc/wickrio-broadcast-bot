@@ -18,6 +18,7 @@ class InitializeBroadcast {
 
   execute() {
     let reply
+    let messagemeta = {}
     let state
     if (BROADCAST_ENABLED?.value === 'no') {
       reply = 'Broadcast is disabled, try the /send command to send to a file'
@@ -43,10 +44,25 @@ class InitializeBroadcast {
       this.broadcastService.setTTL('')
       this.broadcastService.setBOR('')
       this.broadcastService.setSentByFlag(true)
-      state = State.ASK_FOR_ACK
-      reply = 'Would you like to ask the recipients for an acknowledgement?'
       // TODO check for undefined??
-      if (!message2send) {
+      if (message2send) {
+        reply = 'Would you like to ask the recipients for an acknowledgement?'
+        messagemeta = {
+          buttons: [
+            {
+              type: 'message',
+              text: 'yes',
+              message: 'yes',
+            },
+            {
+              type: 'message',
+              text: 'no',
+              message: 'no',
+            },
+          ],
+        }
+        state = State.ASK_FOR_ACK
+      } else {
         reply =
           'Must have a message or file to broadcast, Usage: /broadcast <message>'
         state = State.NONE
@@ -55,6 +71,7 @@ class InitializeBroadcast {
     return {
       reply,
       state,
+      messagemeta,
     }
   }
 }

@@ -23,6 +23,7 @@ class ChooseFile {
     } = this.messageService
 
     let reply = null
+    let messagemeta = {}
     let state = State.NONE
 
     const fileArr = this.sendService.getFiles(userEmail)
@@ -42,10 +43,25 @@ class ChooseFile {
 
       state = State.SEND_ASK_FOR_ACK
       reply = 'Would you like to ask the recipients for an acknowledgement?'
+      messagemeta = {
+        buttons: [
+          {
+            type: 'message',
+            text: 'yes',
+            message: 'yes',
+          },
+          {
+            type: 'message',
+            text: 'no',
+            message: 'no',
+          },
+        ],
+      }
     }
     return {
       reply,
       state,
+      messagemeta,
     }
   }
 }
