@@ -59,11 +59,11 @@ class Status {
     }
 
     if (entries.length > this.genericService.getEndIndex()) {
-      const startindex=reply.length
+      const startindex = reply.length
 
       reply += '\nOr to see more messages reply more'
 
-      const tcrow= {
+      const tcrow = {
         startindex: startindex,
         endindex: reply.length,
       }
