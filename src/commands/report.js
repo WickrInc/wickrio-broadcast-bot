@@ -56,9 +56,20 @@ class Report {
       console.log('report: messagemeta:' + messagemetastring)
     }
 
+    // If the number of messages is greater than the end index
+    // then let the user know about the "more" command
     if (entries.length > this.genericService.getEndIndex()) {
+      const startindex = reply.length
+
       reply += '\nOr to see more messages reply more'
+
+      const tcrow = {
+        startindex: startindex,
+        endindex: reply.length,
+      }
+      messagemeta.textcut.push(tcrow)
     }
+
     return {
       reply,
       state: State.WHICH_REPORT,

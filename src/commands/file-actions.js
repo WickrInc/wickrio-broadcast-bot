@@ -20,6 +20,7 @@ class FileActions {
   }
 
   execute() {
+    let messagemeta = {}
     const filePath = this.fileService.getFilePath()
     const filename = this.fileService.getFilename()
     // console.log('file actions file service')
@@ -67,6 +68,20 @@ class FileActions {
       this.broadcastService.setBOR('')
       this.broadcastService.setSentByFlag(true)
       reply = 'Would you like to ask the recipients for an acknowledgement?'
+      messagemeta = {
+        buttons: [
+          {
+            type: 'message',
+            text: 'yes',
+            message: 'yes',
+          },
+          {
+            type: 'message',
+            text: 'no',
+            message: 'no',
+          },
+        ],
+      }
       state = State.ASK_FOR_ACK
     } else {
       const broadcastString =
@@ -113,6 +128,7 @@ class FileActions {
     return {
       reply,
       state,
+      messagemeta,
     }
   }
 }

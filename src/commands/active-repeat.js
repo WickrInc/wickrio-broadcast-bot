@@ -16,6 +16,8 @@ class ActiveRepeat {
   execute() {
     let state
     let reply
+    let messagemeta = {}
+
     if (this.messageService.affirmativeReply()) {
       reply = 'How many times would you like to repeat this message?'
       state = State.TIMES_REPEAT
@@ -27,10 +29,25 @@ class ActiveRepeat {
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'
       state = State.ASK_REPEAT
+      messagemeta = {
+        buttons: [
+          {
+            type: 'message',
+            text: 'yes',
+            message: 'yes',
+          },
+          {
+            type: 'message',
+            text: 'no',
+            message: 'no',
+          }
+        ],
+      }
     }
     return {
       reply,
       state,
+      messagemeta,
     }
   }
 }

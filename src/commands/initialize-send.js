@@ -1,6 +1,4 @@
 import State from '../state'
-import ButtonHelper from '../helpers/button-helper'
-// import { logger } from '../helpers/constants'
 
 class InitializeSend {
   constructor({ sendService, messageService }) {
@@ -19,7 +17,7 @@ class InitializeSend {
   execute() {
     const { message, userEmail, vGroupID } = this.messageService
 
-    let messagemeta
+    let messagemeta = {}
     let message2send
     if (message) {
       const parsedData = message.match(/(\/[a-zA-Z]+)([\s\S]*)$/)
@@ -48,29 +46,55 @@ class InitializeSend {
       reply =
         "There aren't any files available for sending, please upload a file of usernames or hashes first."
     } else {
-      // TODO get rid of newline on last line
-      // TODO add more function to listing files as well
-      let replyStart =
-        'Here are the saved user files that you can send a message to:\n'
-      let index = 0
-      for (index = 0; index < fileArr.length; index += 1) {
-        replyStart += `(${index + 1}) ${fileArr[index]}\n`
+      reply = 'Here are the saved user files that you can send a message to:\n'
+      const basereplylength = reply.length
+
+      messagemeta = {
+        table: {
+          name: 'List of files',
+          firstcolname: 'Name',
+          secondcolname: 'Type',
+          actioncolname: 'Select',
+          rows: [],
+        },
       }
-      reply = `${replyStart}To which list would you like to send your message?`
-      const tableName = 'Show User Files'
-      const firstColName = 'User Files'
-      const actionColName = 'Select'
-      // const entriesString = JSON.stringify(fileArr)
-      messagemeta = ButtonHelper.makeButtonList(
-        tableName,
-        firstColName,
-        actionColName,
-        0,
-        replyStart.length - 1,
-        fileArr
-      )
+      // const length = Math.min(fileArr.length, 10)
+      const length = fileArr.length
+
+      for (let index = 0; index < length; index += 1) {
+        let fileName = fileArr[index]
+        let fileType
+        if (fileName.endsWith('.user')) {
+          fileType = 'User file'
+          fileName = fileName.slice(0, -5)
+        } else if (fileName.endsWith('.hash')) {
+          fileType = 'Hash file'
+          fileName = fileName.slice(0, -5)
+        }
+        reply += `(${index + 1}) ${fileName}\n`
+
+        const response = index + 1
+        const row = {
+          firstcolvalue: fileName,
+          secondcolvalue: fileType,
+          response: response.toString(),
+        }
+        messagemeta.table.rows.push(row)
+      }
+
+      reply += `To which list would you like to send your message?`
+
+      // Add the area of text to cut for clients that handle lists
+      messagemeta.textcut = [
+        {
+          startindex: basereplylength - 1,
+          endindex: reply.length,
+        },
+      ]
+
       state = State.CHOOSE_FILE
     }
+
     return {
       reply,
       state,
