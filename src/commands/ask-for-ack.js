@@ -20,6 +20,8 @@ class AskForAck {
   execute() {
     let state
     let reply
+    let messagemeta = {}
+
     if (this.messageService.affirmativeReply()) {
       this.broadcastService.setAckFlag(true)
     } else if (this.messageService.negativeReply()) {
@@ -27,10 +29,25 @@ class AskForAck {
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'
       state = State.ASK_FOR_ACK
+      messagemeta = {
+        buttons: [
+          {
+            type: 'message',
+            text: 'yes',
+            message: 'yes',
+          },
+          {
+            type: 'message',
+            text: 'no',
+            message: 'no',
+          }
+        ],
+      }
 
       return {
         reply,
         state,
+        messagemeta,
       }
     }
 
