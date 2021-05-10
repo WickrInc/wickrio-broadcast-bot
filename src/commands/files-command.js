@@ -70,9 +70,6 @@ class FileCommand {
         }
       ]
 
-console.log('replylength='+reply.length)
-console.log('basereploylength='+basereplylength)
-
       state = State.SEND_USER_FILE
     }
     return {
