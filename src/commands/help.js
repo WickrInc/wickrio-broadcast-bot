@@ -28,9 +28,6 @@ class Help {
 
   execute() {
     const { isAdmin, vGroupID } = this.messageService
-    console.log('WEB_APP: ' + WEB_APPLICATION)
-    console.log('MAP_ENABLED: ' + BOT_MAPS)
-    console.log('BROADCAST_ENABLED: ' + BROADCAST_ENABLED)
 
     let webAppString = ''
     let broadcastString = ''
@@ -77,10 +74,10 @@ class Help {
       '/files : To get a list of saved files available for the /send command\n' +
       '/delete : To delete a file that was previously made available for the /send command'
 
-    if (ADMINISTRATORS_CHOICE === 'no' || isAdmin) {
+    if (ADMINISTRATORS_CHOICE.value === 'no' || isAdmin) {
       // console.log({ helpString, vGroupID })
 
-      if (ADMINISTRATORS_CHOICE === 'yes') {
+      if (ADMINISTRATORS_CHOICE.value === 'yes') {
         let adminHelp =
           '*Admin Commands*\n' +
           '%{adminHelp}\n'
