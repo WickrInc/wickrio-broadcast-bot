@@ -83,22 +83,7 @@ class Factory {
       return
     }
 
-    // Go back to dev toolkit and fix
-    /*
-      if (!parsedMessage) {
-        // why are we writing?
-        await writer.writeFile(rawMessage)
-        return
-      }
-    if(convoType === 'personal') {
-      personalVGroupID = vGroupID;
-    } else {
-      writer.writeFile(message);
-      return;
-    }
-    */
-
-    if ( ADMINISTRATORS_CHOICE === 'yes' &&
+    if ( ADMINISTRATORS_CHOICE.value === 'yes' &&
       !this.messageService.isAdmin &&
       this.messageService.command !== '/ack'
     ) {
@@ -111,9 +96,11 @@ class Factory {
         // logger.debug({ sMessage })
         writeFile(this.messageService.message)
       }
+      this.validatedUser = false
       return
     }
 
+    this.validatedUser = true
     this.reportService = ReportService
     this.statusService = StatusService
 
@@ -310,16 +297,15 @@ class Factory {
   }
 
   execute() {
+    // If the constructor did not validate the user then return!
+    if (!this.validatedUser)
+      return
+
     for (const command of this.commandList) {
       if (command.shouldExecute()) {
         return command.execute()
       }
     }
-    // TODO fix the admin command returning this then add it back
-    // return {
-    //   reply: 'Command not recognized send the command /help for a list of commands',
-    //   state: State.NONE,
-    // };
   }
 
   // do we need this?
@@ -328,11 +314,6 @@ class Factory {
     this.broadcastService.setDisplay(display)
     return FileReceived.execute()
   }
-
-  // static fileActions(messageService) {
-  //   const response = FileActions.execute(messageService);
-  //   return response;
-  // }
 }
 
 export default Factory
