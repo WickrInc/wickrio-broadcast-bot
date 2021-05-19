@@ -48,9 +48,10 @@ class ReportService {
     const dateString = `${now.getDate()}-${
       now.getMonth() + 1
     }-${now.getFullYear()}_${now.getHours()}_${now.getMinutes()}_${now.getSeconds()}`
-    const path = `${process.cwd()}/attachments/report-${dateString}.csv`
+    const filename = `report-${dateString}.csv`
+    const path = `${process.cwd()}/attachments/${filename}`
     ReportService.writeCSVReport(path, csvArray)
-    apiService.sendRoomAttachment(vGroupID, path, path)
+    apiService.sendRoomAttachment(vGroupID, path, filename)
     // TODO make a reply like here is the attachment
     // TODO can replies just be empty?
     return csvArray
