@@ -1,7 +1,6 @@
 import State from '../state'
 
 import { BROADCAST_ENABLED } from '../helpers/constants'
-// TODO add a delete file command??
 class FileReceived {
   constructor({ fileService, messageService }) {
     this.fileService = fileService
@@ -18,23 +17,54 @@ class FileReceived {
   }
 
   execute() {
-    // const file = this.messageService.getFile()
     const filePath = this.messageService.getFilePath()
     const fileName = this.messageService.getFilename()
-    // console.log({ filePath, fileName })
-    // this.fileService.setFile(file)
     this.fileService.setFilePath(filePath)
     this.fileService.setFilename(fileName)
-    const broadcastLetterString =
-      BROADCAST_ENABLED?.value === 'no' ? '' : '(b)roadcast, '
-    const broadcastString =
-      BROADCAST_ENABLED.value === 'no' ? '' : 'broadcast this file or '
+    let buttons = []
+    let broadcastLetterString = ''
+    let broadcastString = ''
+    if (
+      BROADCAST_ENABLED?.value === undefined ||
+      BROADCAST_ENABLED?.value === 'yes'
+    ) {
+      broadcastLetterString = ''
+      broadcastString = 'broadcast this file or '
+      buttons = [
+        {
+          type: 'message',
+          text: 'Broadcast',
+          message: 'Broadcast',
+        },
+      ]
+    }
     const reply = `Would you like to ${broadcastString}send this file to a list? Or is it a file of usernames or hashes? Please respond with ${broadcastLetterString}(s)end, (u)ser, or (h)ash`
-    const obj = {
+    const buttonsConcat = [
+      {
+        type: 'message',
+        text: 'Send',
+        message: 'Send',
+      },
+      {
+        type: 'message',
+        text: 'User',
+        message: 'User',
+      },
+      {
+        type: 'message',
+        text: 'Hash',
+        message: 'Hash',
+      },
+    ]
+    buttons = buttons.concat(buttonsConcat)
+    const messagemeta = {
+      buttons,
+    }
+    return {
       reply,
       state: State.FILE_TYPE,
+      messagemeta,
     }
-    return obj
   }
 }
 

@@ -34,7 +34,7 @@ class WhichAbort {
       index < 1 ||
       index > currentEntries.length
     ) {
-      reply = `Index: ${index} is out of range. Please enter a whole number between 1 and ${currentEntries.length}`
+      reply = `Index: ${index} is out of range. Please enter a whole number between 1 and ${currentEntries.length} or type /cancel to end previous flow.`
       state = this.state
     } else {
       const messageID = `${currentEntries[parseInt(index, 10) - 1].message_id}`

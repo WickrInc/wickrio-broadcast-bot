@@ -24,7 +24,7 @@ class WhichDelete {
     const fileArr = this.sendService.getFiles(userEmail)
     // const length = Math.min(fileArr.length, 5);
     if (!this.messageService.isInt() || index < 1 || index > fileArr.length) {
-      reply = `Index: ${index} is out of range. Please enter an integer between 1 and ${fileArr.length}`
+      reply = `Index: ${index} is out of range. Please enter an integer between 1 and ${fileArr.length} or type /cancel to end previous flow.`
       state = State.DELETE_FILE
     } else {
       // Subtract one to account for 0 based indexing

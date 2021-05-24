@@ -33,7 +33,7 @@ class ChooseFile {
       message < 1 ||
       message > fileArr.length
     ) {
-      reply = `Index: ${message} is out of range. Please enter an integer between 1 and ${fileArr.length}`
+      reply = `Index: ${message} is out of range. Please enter an integer between 1 and ${fileArr.length} or type /cancel to end previous flow.`
       state = State.CHOOSE_FILE
     } else {
       // Subtract one to account for 0 based indexing

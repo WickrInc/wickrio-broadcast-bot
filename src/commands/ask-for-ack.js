@@ -40,7 +40,7 @@ class AskForAck {
             type: 'message',
             text: 'no',
             message: 'no',
-          }
+          },
         ],
       }
 
