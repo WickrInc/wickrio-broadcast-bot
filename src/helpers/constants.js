@@ -2,6 +2,7 @@ import { getLogger } from 'log4js'
 import * as WickrIOBotAPI from 'wickrio-bot-api'
 import fs from 'fs'
 import dotenv from 'dotenv'
+import path from 'path'
 
 dotenv.config()
 
@@ -13,6 +14,21 @@ const WickrIOAPI = bot.getWickrIOAddon()
 const logger = getLogger()
 logger.level = 'debug'
 const client_auth_codes = {}
+
+// Read in the processes.json file 
+const processesJsonFile = path.join(process.cwd(), 'processes.json')
+if (!fs.existsSync(processesJsonFile)) {
+  console.error(processesJsonFile + ' does not exist!')
+  process.exit(1)
+}
+const processesJson = fs.readFileSync(processesJsonFile);
+console.log('processes.json=' + processesJson)
+const processesJsonObject = JSON.parse(processesJson)
+
+process.env['tokens'] = JSON.stringify(processesJsonObject.apps[0].env.tokens)
+
+console.log('end process.env=' + JSON.stringify(process.env))
+console.log('end process.env.tokens=' + process.env.tokens)
 
 const {
   BOT_AUTH_TOKEN,

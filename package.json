@@ -1,6 +1,6 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "5.80.8",
+  "version": "5.82.1",
   "description": "WickrIO Broadcast Bot",
   "main": "./build/broadcast-bot.js",
   "author": "Paul Cushman",
@@ -54,12 +54,10 @@
     "prettier": "2.0.5"
   },
   "scripts": {
-    "start": "pm2 start processes.json --update-env",
     "dev": "nodemon --exec 'babel-node --inspect=0.0.0.0 src/index.js'",
     "build": "rm -rf build && babel ./src --out-dir ./build --ignore node_modules",
     "lint": "eslint src/**/*.js --fix --color",
     "prettier": "prettier --write ./src",
-    "stop": "pm2 delete processes.json",
     "test": "nyc --reporter=text-summary  --reporter=text mocha test"
   },
   "husky": {
