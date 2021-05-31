@@ -40,6 +40,23 @@ class ButtonHelper {
     console.log('report: messageMeta:' + messageMetaString)
     return messageMeta
   }
+
+  static makeYesNoButton() {
+    return {
+      buttons: [
+        {
+          type: 'message',
+          text: 'Yes',
+          message: 'yes',
+        },
+        {
+          type: 'message',
+          text: 'No',
+          message: 'no',
+        },
+      ],
+    }
+  }
 }
 
 export default ButtonHelper

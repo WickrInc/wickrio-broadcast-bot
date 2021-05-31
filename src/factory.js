@@ -44,7 +44,12 @@ import ReportService from './services/report-service'
 import Version from './commands/version'
 import Queue from './commands/queue'
 import MapService from './services/map-service'
-import { WickrIOAPI, apiService, RESPONSES_ENABLED, ADMINISTRATORS_CHOICE } from './helpers/constants'
+import {
+  WickrIOAPI,
+  apiService,
+  RESPONSES_ENABLED,
+  ADMINISTRATORS_CHOICE,
+} from './helpers/constants'
 import writeFile from './helpers/message-writer.js'
 
 // TODO how can we use a new Broadcast service each time???
@@ -83,7 +88,8 @@ class Factory {
       return
     }
 
-    if ( ADMINISTRATORS_CHOICE.value === 'yes' &&
+    if (
+      ADMINISTRATORS_CHOICE.value === 'yes' &&
       !this.messageService.isAdmin &&
       this.messageService.command !== '/ack'
     ) {
@@ -297,18 +303,24 @@ class Factory {
   }
 
   execute() {
+    const defaultReply =
+      'This command is not recognized. Check the format and spelling and try again. For a list of available commands, type in /help'
     // If the constructor did not validate the user then return!
-    if (!this.validatedUser)
-      return
+    if (!this.validatedUser) return
+    console.log('STATE' + this.messageService.user.currentState)
 
     for (const command of this.commandList) {
       if (command.shouldExecute()) {
         return command.execute()
       }
     }
+
+    return {
+      reply: defaultReply,
+    }
   }
 
-  // do we need this?
+  // TODO do we need this?
   file(file, display) {
     this.broadcastService.setFile(file)
     this.broadcastService.setDisplay(display)
