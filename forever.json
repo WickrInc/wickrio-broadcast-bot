@@ -1,12 +1,10 @@
 {
-	// Comments are supported
     "uid": "WickrIO-Broadcast-Bot_pauls-bcast-bot",
     "append": true,
-    "watch": true,
+    "watch": false,
     "script": "./build/index.js",
-    //"sourceDir": "/opt/WickrIODebug/clients/pauls-bcast-bot/integration/wickrio-broadcast-bot/build",
-    "sourceDir": "/opt/WickrIODebug/clients/pauls-bcast-bot/integration/wickrio-broadcast-bot",
-    "logFile": "/opt/WickrIODebug/clients/pauls-bcast-bot/integration/wickrio-broadcast-bot/log.output",
-    "outFile": "/opt/WickrIODebug/clients/pauls-bcast-bot/integration/wickrio-broadcast-bot/outfile.output",
-    "errFile": "/opt/WickrIODebug/clients/pauls-bcast-bot/integration/wickrio-broadcast-bot/err.output"
+    "sourceDir": "",
+    "logFile": "",
+    "outFile": "",
+    "errFile": ""
 }
