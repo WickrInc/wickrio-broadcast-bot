@@ -35,7 +35,7 @@ class AskRepeat {
               type: 'message',
               text: 'no',
               message: 'no',
-            }
+            },
           ],
         }
       } else {
@@ -46,6 +46,12 @@ class AskRepeat {
     } else if (this.messageService.negativeReply()) {
       this.repeatService.setActiveRepeat(false)
 
+      // CHECK QUEUE here
+      const broadcastsInQueue = 0
+      if (broadcastsInQueue > 0) {
+        reply = `There are ${broadcastsInQueue} broadcasts before you in the queue. Please confirm you are ready to send your broadcast.`
+        state = State.CHECK_QUEUE
+      }
       reply = this.broadcastService.broadcastMessage().pending // pending?? what this
       // TODO fix this! ? whats the issue
       state = State.NONE
@@ -63,7 +69,7 @@ class AskRepeat {
             type: 'message',
             text: 'no',
             message: 'no',
-          }
+          },
         ],
       }
     }
