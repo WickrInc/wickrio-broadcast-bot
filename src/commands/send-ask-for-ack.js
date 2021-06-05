@@ -40,7 +40,7 @@ class SendAskForAck {
             type: 'message',
             text: 'no',
             message: 'no',
-          }
+          },
         ],
       }
 

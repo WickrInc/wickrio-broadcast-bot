@@ -1,6 +1,7 @@
 // import { logger } from './constants'
 
 class ButtonHelper {
+  // TODO replace entries parameter with table
   static makeButtonList(
     tableName,
     colName,

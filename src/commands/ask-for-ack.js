@@ -1,14 +1,14 @@
 import State from '../state'
+import ButtonHelper from '../helpers/button-helper.js'
 
 class AskForAck {
   constructor({ broadcastService, messageService }) {
     this.broadcastService = broadcastService
     this.messageService = messageService
-    this.state = State.ASK_FOR_ACK
+    this.state = [State.ASK_FOR_ACK, State.SEND_ASK_FOR_ACK]
   }
 
   shouldExecute() {
-    // TODO could remove the /broadcast check if done right
     const commandStatusMatches = this.messageService.matchUserCommandCurrentState(
       {
         commandState: this.state,
@@ -29,21 +29,7 @@ class AskForAck {
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'
       state = State.ASK_FOR_ACK
-      messagemeta = {
-        buttons: [
-          {
-            type: 'message',
-            text: 'yes',
-            message: 'yes',
-          },
-          {
-            type: 'message',
-            text: 'no',
-            message: 'no',
-          },
-        ],
-      }
-
+      messagemeta = ButtonHelper.makeYesNoButton()
       return {
         reply,
         state,
