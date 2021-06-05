@@ -38,7 +38,6 @@ class CheckQueue {
     } else {
       reply =
         'Invalid input, please reply with (y)es or (n)o or type /cancel to cancel previous flow'
-      // state = State.CHECK_QUEUE
       state = currentState
       messagemeta = ButtonHelper.makeYesNoButton()
       return {
