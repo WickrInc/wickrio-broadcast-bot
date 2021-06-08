@@ -1,4 +1,5 @@
 import State from '../state'
+import ButtonHelper from '../helpers/button-helper.js'
 
 class ConfirmSecurityGroups {
   constructor({ broadcastService, messageService }) {
@@ -22,20 +23,7 @@ class ConfirmSecurityGroups {
     if (this.messageService.affirmativeReply()) {
       reply = 'Would you like to repeat this broadcast message?'
       state = State.ASK_REPEAT
-      messagemeta = {
-        buttons: [
-          {
-            type: 'message',
-            text: 'yes',
-            message: 'yes',
-          },
-          {
-            type: 'message',
-            text: 'no',
-            message: 'no',
-          }
-        ],
-      }
+      messagemeta = ButtonHelper.makeYesNoButton()
     } else if (this.messageService.negativeReply()) {
       reply =
         'Please enter the number(s) of the security group(s) or reply all to send the message to everyone in the network.'
@@ -43,22 +31,8 @@ class ConfirmSecurityGroups {
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'
       state = this.state
-      messagemeta = {
-        buttons: [
-          {
-            type: 'message',
-            text: 'yes',
-            message: 'yes',
-          },
-          {
-            type: 'message',
-            text: 'no',
-            message: 'no',
-          }
-        ],
-      }
+      messagemeta = ButtonHelper.makeYesNoButton()
     }
-
     const obj = {
       reply,
       state,

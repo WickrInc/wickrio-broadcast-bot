@@ -1,9 +1,5 @@
-import fs from 'fs'
-import path from 'path'
-
 import WickrIOBotAPI from 'wickrio-bot-api'
 const bot = new WickrIOBotAPI.WickrIOBot()
-
 
 class Queue {
   constructor({ messageService }) {
@@ -26,15 +22,22 @@ class Queue {
         reply = 'There is no transmit queue information!'
       } else {
         if (txQInfo.estimated_time !== undefined) {
-          reply = 'Estimated remaining time for transmits is ' + txQInfo.estimated_time + ' seconds'
+          reply =
+            'Estimated remaining time for transmits is ' +
+            txQInfo.estimated_time +
+            ' seconds'
         }
 
         if (txQInfo.count !== undefined) {
-          reply += '\nThere are ' + txQInfo.count + ' messages to be transmitted'
+          reply +=
+            '\nThere are ' + txQInfo.count + ' messages to be transmitted'
         }
 
         if (txQInfo.tx_queue !== undefined) {
-          reply += '\nThere are ' + txQInfo.tx_queue.length + ' broadcasts in the queue.'
+          reply +=
+            '\nThere are ' +
+            txQInfo.tx_queue.length +
+            ' broadcasts in the queue.'
         }
       }
 

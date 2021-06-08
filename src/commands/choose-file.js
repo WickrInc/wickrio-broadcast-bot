@@ -1,4 +1,5 @@
 import State from '../state'
+import ButtonHelper from '../helpers/button-helper'
 
 class ChooseFile {
   constructor({ sendService, messageService }) {
@@ -38,25 +39,10 @@ class ChooseFile {
     } else {
       // Subtract one to account for 0 based indexing
       const fileName = fileArr[parseInt(message, 10) - 1]
-
       this.sendService.setSendFile(fileName)
-
       state = State.SEND_ASK_FOR_ACK
       reply = 'Would you like to ask the recipients for an acknowledgement?'
-      messagemeta = {
-        buttons: [
-          {
-            type: 'message',
-            text: 'yes',
-            message: 'yes',
-          },
-          {
-            type: 'message',
-            text: 'no',
-            message: 'no',
-          },
-        ],
-      }
+      messagemeta = ButtonHelper.makeYesNoButton()
     }
     return {
       reply,

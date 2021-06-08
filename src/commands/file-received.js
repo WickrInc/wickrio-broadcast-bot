@@ -28,7 +28,7 @@ class FileReceived {
       BROADCAST_ENABLED?.value === undefined ||
       BROADCAST_ENABLED?.value === 'yes'
     ) {
-      broadcastLetterString = ''
+      broadcastLetterString = '(b)roadcast, '
       broadcastString = 'broadcast this file or '
       buttons = [
         {

@@ -46,52 +46,9 @@ class InitializeSend {
       reply =
         "There aren't any files available for sending, please upload a file of usernames or hashes first."
     } else {
-      reply = 'Here are the saved user files that you can send a message to:\n'
-      const basereplylength = reply.length
-
-      messagemeta = {
-        table: {
-          name: 'List of files',
-          firstcolname: 'Name',
-          secondcolname: 'Type',
-          actioncolname: 'Select',
-          rows: [],
-        },
-      }
-      // const length = Math.min(fileArr.length, 10)
-      const length = fileArr.length
-
-      for (let index = 0; index < length; index += 1) {
-        let fileName = fileArr[index]
-        let fileType
-        if (fileName.endsWith('.user')) {
-          fileType = 'User file'
-          fileName = fileName.slice(0, -5)
-        } else if (fileName.endsWith('.hash')) {
-          fileType = 'Hash file'
-          fileName = fileName.slice(0, -5)
-        }
-        reply += `(${index + 1}) ${fileName}\n`
-
-        const response = index + 1
-        const row = {
-          firstcolvalue: fileName,
-          secondcolvalue: fileType,
-          response: response.toString(),
-        }
-        messagemeta.table.rows.push(row)
-      }
-
-      reply += `To which list would you like to send your message?`
-
-      // Add the area of text to cut for clients that handle lists
-      messagemeta.textcut = [
-        {
-          startindex: basereplylength - 1,
-          endindex: reply.length,
-        },
-      ]
-
+      const sendObj = this.sendService.getFilesForSending(userEmail)
+      reply = sendObj.reply
+      messagemeta = sendObj.messagemeta
       state = State.CHOOSE_FILE
     }
 

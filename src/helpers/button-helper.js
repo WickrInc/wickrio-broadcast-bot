@@ -1,6 +1,7 @@
 // import { logger } from './constants'
 
 class ButtonHelper {
+  // TODO replace entries parameter with table
   static makeButtonList(
     tableName,
     colName,
@@ -39,6 +40,28 @@ class ButtonHelper {
     const messageMetaString = JSON.stringify(messageMeta)
     console.log('report: messageMeta:' + messageMetaString)
     return messageMeta
+  }
+
+  static makeYesNoButton() {
+    return {
+      buttons: [
+        {
+          type: 'message',
+          text: 'Yes',
+          message: 'yes',
+        },
+        {
+          type: 'message',
+          text: 'No',
+          message: 'no',
+        },
+        {
+          type: 'message',
+          text: 'Cancel',
+          message: '/cancel',
+        },
+      ],
+    }
   }
 }
 

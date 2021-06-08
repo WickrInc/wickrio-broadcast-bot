@@ -1,4 +1,5 @@
 import State from '../state'
+import ButtonHelper from '../helpers/button-helper.js'
 // import logger from '../logger'
 import FileHandler from '../helpers/file-handler'
 
@@ -68,20 +69,7 @@ class FileActions {
       this.broadcastService.setBOR('')
       this.broadcastService.setSentByFlag(true)
       reply = 'Would you like to ask the recipients for an acknowledgement?'
-      messagemeta = {
-        buttons: [
-          {
-            type: 'message',
-            text: 'yes',
-            message: 'yes',
-          },
-          {
-            type: 'message',
-            text: 'no',
-            message: 'no',
-          },
-        ],
-      }
+      messagemeta = ButtonHelper.makeYesNoButton()
       state = State.ASK_FOR_ACK
     } else {
       const broadcastString =

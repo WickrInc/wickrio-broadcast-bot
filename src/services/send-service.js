@@ -75,6 +75,69 @@ class SendService {
     this.messageService.user.ackFlag = ackFlag
   }
 
+  getFilesForSending(userEmail) {
+    const fileArr = this.getFiles(userEmail)
+    let messagemeta
+    let reply =
+      'Here are the saved user files that you can send a message to:\n'
+    const basereplylength = reply.length
+
+    messagemeta = {
+      table: {
+        name: 'List of files',
+        firstcolname: 'Name',
+        secondcolname: 'Type',
+        actioncolname: 'Select',
+        rows: [],
+      },
+    }
+    const length = fileArr.length
+
+    for (let index = 0; index < length; index += 1) {
+      let fileName = fileArr[index]
+      let fileType
+      if (fileName.endsWith('.user')) {
+        fileType = 'User file'
+        fileName = fileName.slice(0, -5)
+      } else if (fileName.endsWith('.hash')) {
+        fileType = 'Hash file'
+        fileName = fileName.slice(0, -5)
+      }
+      reply += `(${index + 1}) ${fileName}\n`
+
+      const response = index + 1
+      const row = {
+        firstcolvalue: fileName,
+        secondcolvalue: fileType,
+        response: response.toString(),
+      }
+      messagemeta.table.rows.push(row)
+    }
+
+    reply += `To which list would you like to send your message?`
+
+    // Add the area of text to cut for clients that handle lists
+    messagemeta.textcut = [
+      {
+        startindex: basereplylength - 1,
+        endindex: reply.length,
+      },
+    ]
+
+    // messagemeta = ButtonHelper.makeButtonList(
+    //   'List of files',
+    //   'Name',
+    //   'Select',
+    //   basereplylength - 1,
+    //   reply.length,
+    //   rows
+    // )
+    return {
+      reply,
+      messagemeta,
+    }
+  }
+
   sendToFile() {
     const fileName = this.messageService.user.sendfile
     const sentBy = `\n\nBroadcast message sent by: ${this.messageService.user.userEmail}`
