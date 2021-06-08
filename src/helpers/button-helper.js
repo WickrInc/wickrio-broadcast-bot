@@ -55,6 +55,11 @@ class ButtonHelper {
           text: 'No',
           message: 'no',
         },
+        {
+          type: 'message',
+          text: 'Cancel',
+          message: '/cancel',
+        },
       ],
     }
   }
