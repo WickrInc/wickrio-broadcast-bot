@@ -1,4 +1,8 @@
 import State from '../state'
+import ButtonHelper from '../helpers/button-helper'
+
+import WickrIOBotAPI from 'wickrio-bot-api'
+const bot = new WickrIOBotAPI.WickrIOBot()
 
 class SendAskForAck {
   constructor({ sendService, messageService }) {
@@ -27,23 +31,10 @@ class SendAskForAck {
     } else if (this.messageService.negativeReply()) {
       this.sendService.setAckFlag(false)
     } else {
-      reply = 'Invalid input, please reply with (y)es or (n)o'
+      reply =
+        'Invalid input, please reply with (y)es or (n)o or type /cancel to cancel previous flow'
       state = State.SEND_ASK_FOR_ACK
-      messagemeta = {
-        buttons: [
-          {
-            type: 'message',
-            text: 'yes',
-            message: 'yes',
-          },
-          {
-            type: 'message',
-            text: 'no',
-            message: 'no',
-          },
-        ],
-      }
-
+      messagemeta = ButtonHelper.makeYesNoButton()
       return {
         reply,
         state,
@@ -51,11 +42,17 @@ class SendAskForAck {
       }
     }
 
-    reply =
-      `Message sent to users from the file: ` + this.sendService.getSendFile()
+    const txQInfo = bot.getTransmitQueueInfo()
+    const broadcastsInQueue = txQInfo.count
+    const broadcastDelay = txQInfo.estimated_time
+    if (broadcastsInQueue > 0) {
+      reply = `There are ${broadcastsInQueue} messages before you in the queue. This may add a delay of approximately ${broadcastDelay} mins to your broadcast.`
+    } else {
+      reply =
+        `Message sent to users from the file: ` + this.sendService.getSendFile()
+    }
 
     // TODO check for errors first!! return from send
-    // TODO should the fileName be a variable of sendService??
     this.sendService.sendToFile()
     return {
       reply,

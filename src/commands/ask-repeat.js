@@ -1,4 +1,7 @@
 import State from '../state'
+import ButtonHelper from '../helpers/button-helper.js'
+import WickrIOBotAPI from 'wickrio-bot-api'
+const bot = new WickrIOBotAPI.WickrIOBot()
 
 class AskRepeat {
   constructor({ repeatService, broadcastService, messageService }) {
@@ -24,20 +27,7 @@ class AskRepeat {
         reply =
           'There is already a repeating broadcast active, would you like to cancel it?'
         state = State.ACTIVE_REPEAT
-        messagemeta = {
-          buttons: [
-            {
-              type: 'message',
-              text: 'yes',
-              message: 'yes',
-            },
-            {
-              type: 'message',
-              text: 'no',
-              message: 'no',
-            },
-          ],
-        }
+        messagemeta = ButtonHelper.makeYesNoButton()
       } else {
         this.repeatService.setActiveRepeat(true)
         reply = 'How many times would you like to repeat this message?'
@@ -46,32 +36,19 @@ class AskRepeat {
     } else if (this.messageService.negativeReply()) {
       this.repeatService.setActiveRepeat(false)
 
-      // CHECK QUEUE here
-      const broadcastsInQueue = 0
+      const txQInfo = bot.getTransmitQueueInfo()
+      const broadcastsInQueue = txQInfo.count
+      const broadcastDelay = txQInfo.estimated_time
       if (broadcastsInQueue > 0) {
-        reply = `There are ${broadcastsInQueue} broadcasts before you in the queue. Please confirm you are ready to send your broadcast.`
-        state = State.CHECK_QUEUE
+        reply = `There are ${broadcastsInQueue} messages before you in the queue. This may add a delay of approximately ${broadcastDelay} mins to your broadcast.`
+      } else {
+        reply = this.broadcastService.broadcastMessage().pending
       }
-      reply = this.broadcastService.broadcastMessage().pending // pending?? what this
-      // TODO fix this! ? whats the issue
       state = State.NONE
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'
       state = State.ASK_REPEAT
-      messagemeta = {
-        buttons: [
-          {
-            type: 'message',
-            text: 'yes',
-            message: 'yes',
-          },
-          {
-            type: 'message',
-            text: 'no',
-            message: 'no',
-          },
-        ],
-      }
+      messagemeta = ButtonHelper.makeYesNoButton()
     }
     return {
       reply,

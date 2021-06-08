@@ -9,20 +9,6 @@ class BroadcastService {
     this.messageService = messageService
     this.apiService = apiService
     this.user = messageService.user
-    // this.user.file = null
-    // this.user.message = null
-    // this.user.mail = null
-    // this.user.display = null
-    // this.user.ackFlag = false
-    // this.user.securityGroups = []
-    // this.user.duration = 0
-    // this.user.voiceMemo = null
-    // this.user.repeatFlag = false
-    // this.user.vGroupID = null
-    // this.user.APISecurityGroups = []
-    // this.user.messageServices = []
-    // this.user.ttl = null
-    // this.user.bor = null
   }
 
   setRepeatFlag(repeatFlag) {
@@ -47,7 +33,6 @@ class BroadcastService {
 
   setMessage(message) {
     this.user.message = message
-    // console.log({ setMessage: this.user.message })
   }
 
   setDisplay(display) {
@@ -93,6 +78,31 @@ class BroadcastService {
 
   setWebApp() {
     this.user.webapp = true
+  }
+
+  getSecurityGroups() {
+    const securityGroupList = this.getAPISecurityGroups()
+    let groupsString = ''
+    for (let i = 0; i < securityGroupList.length; i += 1) {
+      // Check if the securityGroup has a size
+      if (securityGroupList[i].size === undefined) {
+        groupsString = `${groupsString}(${i + 1}) ${
+          securityGroupList[i].name
+        }\n`
+      } else {
+        groupsString = `${groupsString}(${i + 1}) ${
+          securityGroupList[i].name
+        } (users: ${securityGroupList[i].size})\n`
+      }
+    }
+    const reply = `${
+      'Who would you like to receive this message?\n\n' +
+      'Here is a list of the security groups:\n'
+    }${groupsString}Please enter the number(s) of the security group(s) you would like to send your message to.\n\nOr reply *all* to send the message to everyone in the network`
+    return {
+      reply,
+      // messagemeta,
+    }
   }
 
   recallBroadcast() {}

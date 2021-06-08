@@ -27,7 +27,8 @@ class AskForAck {
     } else if (this.messageService.negativeReply()) {
       this.broadcastService.setAckFlag(false)
     } else {
-      reply = 'Invalid input, please reply with (y)es or (n)o'
+      reply =
+        'Invalid input, please reply with (y)es or (n)o or type /cancel to cancel previous flow'
       state = State.ASK_FOR_ACK
       messagemeta = ButtonHelper.makeYesNoButton()
       return {
@@ -36,28 +37,12 @@ class AskForAck {
         messagemeta,
       }
     }
-
-    const securityGroupList = this.broadcastService.getAPISecurityGroups()
-    let groupsString = ''
-    for (let i = 0; i < securityGroupList.length; i += 1) {
-      // Check if the securityGroup has a size
-      if (securityGroupList[i].size === undefined) {
-        groupsString = `${groupsString}(${i + 1}) ${
-          securityGroupList[i].name
-        }\n`
-      } else {
-        groupsString = `${groupsString}(${i + 1}) ${
-          securityGroupList[i].name
-        } (users: ${securityGroupList[i].size})\n`
-      }
-    }
-    reply = `${
-      'Who would you like to receive this message?\n\n' +
-      'Here is a list of the security groups:\n'
-    }${groupsString}Please enter the number(s) of the security group(s) you would like to send your message to.\n\nOr reply *all* to send the message to everyone in the network`
+    reply = this.broadcastService.getSecurityGroups()
+    state = State.WHICH_GROUPS
     return {
       reply,
-      state: State.WHICH_GROUPS,
+      state,
+      messagemeta,
     }
   }
 }
