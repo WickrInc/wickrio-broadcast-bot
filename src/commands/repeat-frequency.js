@@ -23,10 +23,12 @@ class RepeatFrequency {
       this.repeatService.setFrequency(this.messageService.message)
       this.repeatService.repeatMessage()
       const txQInfo = bot.getTransmitQueueInfo()
-      const broadcastsInQueue = txQInfo.count
-      const broadcastDelay = txQInfo.estimated_time
+      const broadcastsInQueue = txQInfo.tx_queue.length
+      let broadcastDelay = txQInfo.estimated_time
+      broadcastDelay = broadcastDelay + 30
+      broadcastDelay = Math.round(broadcastDelay / 60)
       if (broadcastsInQueue > 0) {
-        reply = `There are ${broadcastsInQueue} messages before you in the queue. This may add a delay of approximately ${broadcastDelay} mins to your broadcast.`
+        reply = `There are ${broadcastsInQueue} broadcasts before you in the queue. This may add a delay of approximately ${broadcastDelay} minutes to your broadcast.`
       } else {
         reply = 'Broadcast message #1 in the process of being sent...'
       }

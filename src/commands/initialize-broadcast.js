@@ -1,4 +1,4 @@
-import { bot, BROADCAST_ENABLED } from '../helpers/constants'
+import { BROADCAST_ENABLED } from '../helpers/constants'
 import State from '../state'
 import ButtonHelper from '../helpers/button-helper.js'
 // import { logger } from '../helpers/constants'
@@ -48,18 +48,9 @@ class InitializeBroadcast {
       this.broadcastService.setSentByFlag(true)
       // TODO check for undefined??
       if (message2send) {
-        // CHECK QUEUE here
-        const transmitQueueInfo = bot.getTransmitQueueInfo()
-        const broadcastsInQueue = transmitQueueInfo?.count
-        if (broadcastsInQueue > 0) {
-          reply = `There are ${broadcastsInQueue} broadcasts before you in the queue. Please confirm you are ready to send your broadcast.`
-          state = State.CHECK_QUEUE
-          messagemeta = ButtonHelper.makeYesNoButton()
-        } else {
-          reply = 'Would you like to ask the recipients for an acknowledgement?'
-          messagemeta = ButtonHelper.makeYesNoButton()
-          state = State.ASK_FOR_ACK
-        }
+        reply = 'Would you like to ask the recipients for an acknowledgement?'
+        messagemeta = ButtonHelper.makeYesNoButton()
+        state = State.ASK_FOR_ACK
       } else {
         reply =
           'Must have a message or file to broadcast, Usage: /broadcast <message>'

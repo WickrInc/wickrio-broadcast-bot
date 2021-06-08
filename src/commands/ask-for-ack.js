@@ -5,7 +5,7 @@ class AskForAck {
   constructor({ broadcastService, messageService }) {
     this.broadcastService = broadcastService
     this.messageService = messageService
-    this.state = [State.ASK_FOR_ACK, State.SEND_ASK_FOR_ACK]
+    this.state = State.ASK_FOR_ACK
   }
 
   shouldExecute() {

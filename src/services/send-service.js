@@ -4,7 +4,6 @@ import StatusService from './status-service'
 // TODO proper form??
 import updateLastID from '../helpers/message-id-helper'
 import { logger, apiService } from '../helpers/constants'
-import ButtonHelper from '../helpers/button-helper'
 
 // TODO make fs a variable that is passed into the constructor
 if (!existsSync(`${process.cwd()}/files`)) {
