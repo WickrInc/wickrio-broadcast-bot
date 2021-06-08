@@ -1,4 +1,5 @@
 import State from '../state'
+import ButtonHelper from '../helpers/button-helper.js'
 
 class ActiveRepeat {
   constructor({ repeatService, messageService }) {
@@ -29,20 +30,7 @@ class ActiveRepeat {
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'
       state = State.ASK_REPEAT
-      messagemeta = {
-        buttons: [
-          {
-            type: 'message',
-            text: 'yes',
-            message: 'yes',
-          },
-          {
-            type: 'message',
-            text: 'no',
-            message: 'no',
-          }
-        ],
-      }
+      messagemeta = ButtonHelper.makeYesNoButton()
     }
     return {
       reply,
