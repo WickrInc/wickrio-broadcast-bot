@@ -35,7 +35,10 @@ class AskRepeat {
       }
     } else if (this.messageService.negativeReply()) {
       this.repeatService.setActiveRepeat(false)
-
+      // Send the broadcast
+      reply = this.broadcastService.broadcastMessage().pending
+      state = State.NONE
+      // Check the queue and send info message if pending broadcasts
       const txQInfo = bot.getTransmitQueueInfo()
       const broadcastsInQueue = txQInfo.tx_queue.length
       let broadcastDelay = txQInfo.estimated_time
@@ -43,10 +46,7 @@ class AskRepeat {
       broadcastDelay = Math.round(broadcastDelay / 60)
       if (broadcastsInQueue > 0) {
         reply = `There are ${broadcastsInQueue} broadcasts before you in the queue. This may add a delay of approximately ${broadcastDelay} minutes to your broadcast.`
-      } else {
-        reply = this.broadcastService.broadcastMessage().pending
       }
-      state = State.NONE
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'
       state = State.ASK_REPEAT

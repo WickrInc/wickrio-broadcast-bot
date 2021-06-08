@@ -22,6 +22,7 @@ class RepeatFrequency {
     if (this.messageService.isInt()) {
       this.repeatService.setFrequency(this.messageService.message)
       this.repeatService.repeatMessage()
+      // Check the queue and send info message if pending broadcasts
       const txQInfo = bot.getTransmitQueueInfo()
       const broadcastsInQueue = txQInfo.tx_queue.length
       let broadcastDelay = txQInfo.estimated_time
