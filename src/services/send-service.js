@@ -1,9 +1,10 @@
 import { existsSync, mkdirSync } from 'fs'
 import FileHandler from '../helpers/file-handler'
 import StatusService from './status-service'
-// TODO proper form??
 import updateLastID from '../helpers/message-id-helper'
 import { logger, apiService } from '../helpers/constants'
+import WickrIOBotAPI from 'wickrio-bot-api'
+const bot = new WickrIOBotAPI.WickrIOBot()
 
 // TODO make fs a variable that is passed into the constructor
 if (!existsSync(`${process.cwd()}/files`)) {
@@ -15,6 +16,7 @@ const dir = `${process.cwd()}/files`
 class SendService {
   constructor({ messageService }) {
     this.messageService = messageService
+    // TODO replace with just this.user
     this.messageService.user = messageService.user
   }
 
@@ -75,14 +77,33 @@ class SendService {
     this.messageService.user.ackFlag = ackFlag
   }
 
+  setDMFlag(dmFlag) {
+    this.messageService.user.dmFlag = dmFlag
+  }
+
+  setDMRecipient(dmRecipient) {
+    this.messageService.user.dmRecipient = dmRecipient
+  }
+
+  getQueueInfo() {
+    const txQInfo = bot.getTransmitQueueInfo()
+    const broadcastsInQueue = txQInfo.tx_queue.length
+    let broadcastDelay = txQInfo.estimated_time
+    broadcastDelay = broadcastDelay + 30
+    broadcastDelay = Math.round(broadcastDelay / 60)
+    if (broadcastsInQueue > 0) {
+      return `There are ${broadcastsInQueue} broadcasts before you in the queue. This may add a delay of approximately ${broadcastDelay} minutes to your broadcast.`
+    }
+    return `Message sent to users from the file: ` + this.getSendFile()
+  }
+
   getFilesForSending(userEmail) {
     const fileArr = this.getFiles(userEmail)
-    let messagemeta
     let reply =
       'Here are the saved user files that you can send a message to:\n'
     const basereplylength = reply.length
 
-    messagemeta = {
+    const messagemeta = {
       table: {
         name: 'List of files',
         firstcolname: 'Name',
@@ -160,6 +181,19 @@ class SendService {
       }
       meta = {
         buttons: [button1, button2],
+      }
+    } else if (this.messageService.user.dmFlag) {
+      const btntext = 'DM ' + this.messageService.user.dmRecipient
+      meta = {
+        buttons: [
+          {
+            type: 'dm',
+            text: btntext,
+            messagetosend: '/ack',
+            messagetodm: 'Responding to broadcast',
+            userid: this.messageService.user.dmRecipient,
+          },
+        ],
       }
     } else {
       meta = {

@@ -1,7 +1,5 @@
 import State from '../state'
 import ButtonHelper from '../helpers/button-helper.js'
-import WickrIOBotAPI from 'wickrio-bot-api'
-const bot = new WickrIOBotAPI.WickrIOBot()
 
 class AskRepeat {
   constructor({ repeatService, broadcastService, messageService }) {
@@ -38,15 +36,8 @@ class AskRepeat {
       // Send the broadcast
       reply = this.broadcastService.broadcastMessage().pending
       state = State.NONE
-      // Check the queue and send info message if pending broadcasts
-      const txQInfo = bot.getTransmitQueueInfo()
-      const broadcastsInQueue = txQInfo.tx_queue.length
-      let broadcastDelay = txQInfo.estimated_time
-      broadcastDelay = broadcastDelay + 30
-      broadcastDelay = Math.round(broadcastDelay / 60)
-      if (broadcastsInQueue > 0) {
-        reply = `There are ${broadcastsInQueue} broadcasts before you in the queue. This may add a delay of approximately ${broadcastDelay} minutes to your broadcast.`
-      }
+      const queueReply = this.broadcastService.getQueueInfo()
+      reply = queueReply === '' ? reply : queueReply
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'
       state = State.ASK_REPEAT

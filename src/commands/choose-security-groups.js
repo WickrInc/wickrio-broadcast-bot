@@ -20,7 +20,7 @@ class ChooseSecurityGroups {
     let state
     let messagemeta = {}
 
-    if (this.messageService.getMessage() === 'all') {
+    if (this.messageService.getMessage().toLowerCase() === 'all') {
       this.broadcastService.setSecurityGroups([])
       reply = 'Would you like to repeat this broadcast message?'
       state = State.ASK_REPEAT

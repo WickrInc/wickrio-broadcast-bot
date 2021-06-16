@@ -18,9 +18,10 @@ class AskForAck {
   }
 
   execute() {
-    let state
-    let reply
-    let messagemeta = {}
+    let state = State.ASK_DM_RECIPIENT
+    let reply =
+      'If your broadcast requires a response, type in the username of the Wickr user to whom you want to direct these responses. Else type or click "Next" to move on to selecting the recipients of your message.'
+    let messagemeta = ButtonHelper.makeCancelButtons(['Next'])
 
     if (this.messageService.affirmativeReply()) {
       this.broadcastService.setAckFlag(true)
@@ -31,14 +32,7 @@ class AskForAck {
         'Invalid input, please reply with (y)es or (n)o or type /cancel to cancel previous flow'
       state = State.ASK_FOR_ACK
       messagemeta = ButtonHelper.makeYesNoButton()
-      return {
-        reply,
-        state,
-        messagemeta,
-      }
     }
-    reply = this.broadcastService.getSecurityGroups()
-    state = State.WHICH_GROUPS
     return {
       reply,
       state,

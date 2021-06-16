@@ -19,6 +19,7 @@ import Map from './commands/map'
 import ActiveRepeat from './commands/active-repeat'
 import AskRepeat from './commands/ask-repeat'
 import AskForAck from './commands/ask-for-ack'
+import AskDMRecipient from './commands/ask-dm-recipient'
 import ChooseFile from './commands/choose-file'
 import Panel from './commands/panel'
 import ChooseSecurityGroups from './commands/choose-security-groups'
@@ -28,6 +29,7 @@ import OverwriteCheck from './commands/overwrite-check'
 import RepeatFrequency from './commands/repeat-frequency'
 import SendUserFile from './commands/send-user-file'
 import SendAskForAck from './commands/send-ask-for-ack'
+import SendAskDMRecipient from './commands/send-ask-dm-recipient'
 import TimesRepeat from './commands/times-repeat'
 import WhichAbort from './commands/which-abort'
 import WhichDelete from './commands/which-delete'
@@ -194,6 +196,11 @@ class Factory {
       broadcastService: this.broadcastService,
       messageService: this.messageService,
     })
+    this.askDMRecipient = new AskDMRecipient({
+      broadcastService: this.broadcastService,
+      messageService: this.messageService,
+      apiService: this.apiService,
+    })
     this.askRepeat = new AskRepeat({
       repeatService: this.repeatService,
       broadcastService: this.broadcastService,
@@ -232,6 +239,11 @@ class Factory {
     this.sendAskForAck = new SendAskForAck({
       sendService: this.sendService,
       messageService: this.messageService,
+    })
+    this.sendAskDMRecipient = new SendAskDMRecipient({
+      sendService: this.sendService,
+      messageService: this.messageService,
+      apiService: this.apiService,
     })
     this.timesRepeat = new TimesRepeat({
       repeatService: this.repeatService,
@@ -282,6 +294,7 @@ class Factory {
       this.panel,
 
       // Here are the options that rely on the current state
+      this.askDMRecipient,
       this.askForAck,
       this.askRepeat,
       this.activeRepeat,
@@ -292,6 +305,7 @@ class Factory {
       this.overwriteCheck,
       this.repeatFrequency,
       this.sendUserFile,
+      this.sendAskDMRecipient,
       this.sendAskForAck,
       this.timesRepeat,
       this.whichAbort,
