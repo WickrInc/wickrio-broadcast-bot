@@ -1,4 +1,5 @@
 import State from '../state'
+import ButtonHelper from '../helpers/button-helper.js'
 
 class SendAskDMRecipient {
   constructor({ sendService, messageService, apiService }) {
@@ -31,7 +32,8 @@ class SendAskDMRecipient {
       const userInfo = this.apiService.getUserInfo([userID])
       const failed = userInfo.failed
       if (failed !== undefined && userInfo.failed.length !== 0) {
-        reply = `The user: ${userID} does not exist in Wickr. Type in the username of the Wickr user to whom you want to direct these responses. Or type /cancel to cancel flow`
+        reply = `The user: ${userID} does not exist in Wickr. Type in the username of the Wickr user to whom you want to direct these responses. Or type Complete to skip this step. Or type /cancel to cancel flow`
+        messagemeta = ButtonHelper.makeCancelButtons(['Complete'])
         state = State.SEND_ASK_DM_RECIPIENT
         return {
           reply,

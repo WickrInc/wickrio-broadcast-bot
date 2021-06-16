@@ -153,14 +153,19 @@ class BroadcastService {
     if (this.user.ackFlag) {
       sentBy = `${sentBy}\nPlease acknowledge message by replying with /ack`
     }
+    if (this.user.dmFlag) {
+      sentBy = `${sentBy}\nPlease send a response to ${this.user.dmRecipient}`
+    }
 
     if (this.user.sentByFlag) {
       messageToSend = `${this.user.message}\n\n${sentBy}`
     } else {
+      messageToSend = this.user.message
       if (this.user.ackFlag) {
-        messageToSend = `${this.user.message}\n\nPlease acknowledge message by replying with /ack`
-      } else {
-        messageToSend = this.user.message
+        messageToSend = `${messageToSend}\n\nPlease acknowledge message by replying with /ack`
+      }
+      if (this.user.dmFlag) {
+        messageToSend = `${messageToSend}\n\nPlease send a response to ${this.user.dmRecipient}`
       }
     }
 
@@ -184,39 +189,30 @@ class BroadcastService {
     const messageID = `${updateLastID()}`
     let uMessage
     const reply = {}
-    let meta = {}
     const flags = []
+    const buttons = []
     if (this.user.ackFlag) {
-      const button1 = {
+      buttons.push({
         type: 'message',
         text: '/Ack',
         message: '/ack',
-      }
-      const button2 = {
+      })
+      buttons.push({
         type: 'getlocation',
         text: '/Ack with Location',
-      }
-      meta = {
-        buttons: [button1, button2],
-      }
-    } else if (this.user.dmFlag) {
-      const btntext = 'DM ' + this.user.dmRecipient
-      meta = {
-        buttons: [
-          {
-            type: 'dm',
-            text: btntext,
-            messagetosend: '/ack',
-            messagetodm: 'Responding to broadcast',
-            userid: this.user.dmRecipient,
-          },
-        ],
-      }
-    } else {
-      meta = {
-        buttons: [],
-      }
+      })
     }
+    if (this.user.dmFlag) {
+      // const btntext = 'DM ' + this.user.dmRecipient
+      buttons.push({
+        type: 'dm',
+        text: '/Ack and Respond',
+        messagetosend: '/ack',
+        messagetodm: 'Response to broadcast:',
+        userid: this.user.dmRecipient,
+      })
+    }
+    const meta = { buttons }
     const metaString = JSON.stringify(meta)
 
     if (target === 'USERS') {

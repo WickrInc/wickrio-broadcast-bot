@@ -30,7 +30,7 @@ class AskDMRecipient {
       const userInfo = this.apiService.getUserInfo([userID])
       const failed = userInfo.failed
       if (failed !== undefined && userInfo.failed.length !== 0) {
-        reply = `The user: ${userID} does not exist in your network. Type in the username of the Wickr user to whom you want to direct these responses. Or type /cancel to cancel flow`
+        reply = `The user: ${userID} does not exist in your network. Type in the username of the Wickr user to whom you want to direct these responses. Or type Next to skip this step. Or type /cancel to cancel flow`
         state = State.ASK_DM_RECIPIENT
         messagemeta = ButtonHelper.makeCancelButtons(['Next'])
       } else {

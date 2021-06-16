@@ -165,43 +165,33 @@ class SendService {
     let messageToSend = this.messageService.user.message + sentBy
 
     const flags = []
-    let meta = {}
+    const buttons = []
     if (this.messageService.user.ackFlag) {
       messageToSend =
         messageToSend + '\n\nPlease acknowledge message by replying with /ack'
-
-      const button1 = {
+      buttons.push({
         type: 'message',
         text: '/Ack',
         message: '/ack',
-      }
-      const button2 = {
+      })
+      buttons.push({
         type: 'getlocation',
         text: '/Ack with Location',
-      }
-      meta = {
-        buttons: [button1, button2],
-      }
-    } else if (this.messageService.user.dmFlag) {
-      const btntext = 'DM ' + this.messageService.user.dmRecipient
-      meta = {
-        buttons: [
-          {
-            type: 'dm',
-            text: btntext,
-            messagetosend: '/ack',
-            messagetodm: 'Responding to broadcast',
-            userid: this.messageService.user.dmRecipient,
-          },
-        ],
-      }
-    } else {
-      meta = {
-        buttons: [],
-      }
+      })
     }
+    if (this.messageService.user.dmFlag) {
+      // const btntext = 'DM ' + this.messageService.user.dmRecipient
+      messageToSend = `${messageToSend}\n\nPlease send a response to ${this.messageService.user.dmRecipient}`
+      buttons.push({
+        type: 'dm',
+        text: '/Ack and Respond',
+        messagetosend: '/ack',
+        messagetodm: 'Response to broadcast:',
+        userid: this.messageService.user.dmRecipient,
+      })
+    }
+    const meta = { buttons }
     const metaString = JSON.stringify(meta)
-
     logger.debug('Broadcasting to a file: file=' + fileName)
     const currentDate = new Date()
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
