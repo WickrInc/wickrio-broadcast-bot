@@ -19,4 +19,6 @@ export default Object.freeze({
   WHICH_MAP: 17,
   CHECK_QUEUE: 18,
   SEND_CHECK_QUEUE: 19,
+  ASK_DM_RECIPIENT: 20,
+  SEND_ASK_DM_RECIPIENT: 21,
 })

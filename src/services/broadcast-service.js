@@ -1,8 +1,10 @@
 // import APIService from './api-service'
 // import StatusService from './status-service'
+import WickrIOBotAPI from 'wickrio-bot-api'
 // TODO proper form??
 import updateLastID from '../helpers/message-id-helper'
 import { logger } from '../helpers/constants'
+const bot = new WickrIOBotAPI.WickrIOBot()
 
 class BroadcastService {
   constructor({ messageService, apiService }) {
@@ -80,6 +82,14 @@ class BroadcastService {
     this.user.webapp = true
   }
 
+  setDMFlag(dmFlag) {
+    this.user.dmFlag = dmFlag
+  }
+
+  setDMRecipient(dmRecipient) {
+    this.user.dmRecipient = dmRecipient
+  }
+
   getSecurityGroups() {
     const securityGroupList = this.getAPISecurityGroups()
     let groupsString = ''
@@ -106,6 +116,19 @@ class BroadcastService {
     // }
   }
 
+  getQueueInfo() {
+    // Check the queue and send info message if pending broadcasts
+    const txQInfo = bot.getTransmitQueueInfo()
+    const broadcastsInQueue = txQInfo.tx_queue.length
+    let broadcastDelay = txQInfo.estimated_time
+    broadcastDelay = broadcastDelay + 30
+    broadcastDelay = Math.round(broadcastDelay / 60)
+    if (broadcastsInQueue > 0) {
+      return `There are ${broadcastsInQueue} broadcasts before you in the queue. This may add a delay of approximately ${broadcastDelay} minutes to your broadcast.`
+    }
+    return ''
+  }
+
   recallBroadcast() {}
 
   broadcastMessage() {
@@ -130,14 +153,19 @@ class BroadcastService {
     if (this.user.ackFlag) {
       sentBy = `${sentBy}\nPlease acknowledge message by replying with /ack`
     }
+    if (this.user.dmFlag) {
+      sentBy = `${sentBy}\nPlease send a response to ${this.user.dmRecipient}`
+    }
 
     if (this.user.sentByFlag) {
       messageToSend = `${this.user.message}\n\n${sentBy}`
     } else {
+      messageToSend = this.user.message
       if (this.user.ackFlag) {
-        messageToSend = `${this.user.message}\n\nPlease acknowledge message by replying with /ack`
-      } else {
-        messageToSend = this.user.message
+        messageToSend = `${messageToSend}\n\nPlease acknowledge message by replying with /ack`
+      }
+      if (this.user.dmFlag) {
+        messageToSend = `${messageToSend}\n\nPlease send a response to ${this.user.dmRecipient}`
       }
     }
 
@@ -161,26 +189,30 @@ class BroadcastService {
     const messageID = `${updateLastID()}`
     let uMessage
     const reply = {}
-    let meta = {}
     const flags = []
+    const buttons = []
     if (this.user.ackFlag) {
-      const button1 = {
+      buttons.push({
         type: 'message',
         text: '/Ack',
         message: '/ack',
-      }
-      const button2 = {
+      })
+      buttons.push({
         type: 'getlocation',
         text: '/Ack with Location',
-      }
-      meta = {
-        buttons: [button1, button2],
-      }
-    } else {
-      meta = {
-        buttons: [],
-      }
+      })
     }
+    if (this.user.dmFlag) {
+      // const btntext = 'DM ' + this.user.dmRecipient
+      buttons.push({
+        type: 'dm',
+        text: '/Ack and Respond',
+        messagetosend: '/ack',
+        messagetodm: 'Response to broadcast:',
+        userid: this.user.dmRecipient,
+      })
+    }
+    const meta = { buttons }
     const metaString = JSON.stringify(meta)
 
     if (target === 'USERS') {

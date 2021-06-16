@@ -63,6 +63,35 @@ class ButtonHelper {
       ],
     }
   }
+
+  static makeMessageButtons(buttonArray) {
+    const buttons = []
+    for (const button of buttonArray) {
+      buttons.push({
+        type: 'message',
+        text: button,
+        message: button,
+      })
+    }
+    return { buttons }
+  }
+
+  static makeCancelButtons(buttonArray) {
+    const buttons = []
+    for (const button of buttonArray) {
+      buttons.push({
+        type: 'message',
+        text: button,
+        message: button,
+      })
+    }
+    buttons.push({
+      type: 'message',
+      text: 'Cancel',
+      message: '/cancel',
+    })
+    return { buttons }
+  }
 }
 
 export default ButtonHelper
