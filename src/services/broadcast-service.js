@@ -70,6 +70,10 @@ class BroadcastService {
     this.user.vGroupID = vGroupID
   }
 
+  setRepeatVGroupID(vGroupID) {
+    this.user.repeatVGroupID = vGroupID
+  }
+
   setBOR(bor) {
     this.user.bor = bor
   }
@@ -88,6 +92,22 @@ class BroadcastService {
 
   setDMRecipient(dmRecipient) {
     this.user.dmRecipient = dmRecipient
+  }
+
+  setRepeats(repeats) {
+    this.user.repeats = repeats
+  }
+
+  getVGroupID() {
+    return this.user.vGroupID
+  }
+
+  getRepeatVGroupID() {
+    return this.user.repeatVGroupID
+  }
+
+  getRepeats(repeats) {
+    return this.user.repeats
   }
 
   getSecurityGroups() {
@@ -170,8 +190,13 @@ class BroadcastService {
     }
 
     let target
-    if (this.user.users) {
+    if (this.user.users !== undefined && this.user.users !== []) {
       target = 'USERS'
+      console.log('USERS:' + this.user.users + ':\n')
+      console.log('Truth:\n' + this.user.users === true)
+      console.log('empty:\n' + this.user.users !== [])
+      console.log('no words:' + this.user.users !== '')
+      console.log('undefined:' + this.user.users !== undefined)
     } else if (
       this.user.securityGroups === undefined ||
       this.user.securityGroups.length < 1
@@ -383,7 +408,10 @@ class BroadcastService {
       reply.securityGroups = this.user.securityGroups
     }
 
-    this.clearValues()
+    if (!this.user.repeatFlag) {
+      console.log('ClearValues')
+      this.clearValues()
+    }
 
     return reply
   }

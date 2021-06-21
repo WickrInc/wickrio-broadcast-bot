@@ -19,6 +19,8 @@ class RepeatFrequency {
     let state
     let reply
     // TODO more checks required
+    const { vGroupID } = this.messageService
+    this.repeatService.setVGroupID(vGroupID)
     if (this.messageService.isInt()) {
       this.repeatService.setFrequency(this.messageService.message)
       this.repeatService.repeatMessage()

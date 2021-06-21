@@ -119,6 +119,7 @@ class Factory {
     this.repeatService = new RepeatService({
       broadcastService: this.broadcastService,
       messageService: this.messageService,
+      apiService: this.apiService,
     })
     this.sendService = new SendService({ messageService: this.messageService })
     this.fileService = new FileService({ messageService: this.messageService })

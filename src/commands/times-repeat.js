@@ -16,11 +16,13 @@ class TimesRepeat {
   execute() {
     let state
     let reply
+    const { vGroupID } = this.messageService
     if (this.messageService.isInt()) {
       this.repeatService.setRepeats(
         parseInt(this.messageService.getMessage(), 10)
       )
-      this.repeatService.setVGroupID(this.messageService.vGroupID)
+      this.repeatService.setVGroupID(vGroupID)
+      console.log(vGroupID)
       reply =
         'How often would you like to repeat this message?(every 5, 10 or 15 minutes)'
       state = State.REPEAT_FREQUENCY
