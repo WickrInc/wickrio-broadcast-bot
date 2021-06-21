@@ -18,6 +18,8 @@ class SendService {
     this.messageService = messageService
     // TODO replace with just this.user
     this.messageService.user = messageService.user
+    this.messageService.user.ttl = ''
+    this.messageService.user.bor = ''
   }
 
   // TODO what happens if someone is adding a file at the same time as someone is sending a message?

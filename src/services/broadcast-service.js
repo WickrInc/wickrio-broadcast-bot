@@ -11,6 +11,8 @@ class BroadcastService {
     this.messageService = messageService
     this.apiService = apiService
     this.user = messageService.user
+    this.user.ttl = ''
+    this.user.bor = ''
   }
 
   setRepeatFlag(repeatFlag) {
