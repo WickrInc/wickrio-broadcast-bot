@@ -51,7 +51,8 @@
     "lint-staged": "^10.2.11",
     "nodemon": "^2.0.4",
     "pino-pretty": "^3.5.0",
-    "prettier": "2.0.5"
+    "prettier": "2.0.5",
+    "path": "0.12.7"
   },
   "scripts": {
     "dev": "nodemon --exec 'babel-node --inspect=0.0.0.0 src/index.js'",
@@ -62,18 +63,6 @@
     "start": "forever start -m 5 ./forever.json",
     "stop": "forever stopall",
     "test": "nyc --reporter=text-summary  --reporter=text mocha test"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "./src/**/*.{js,jsx,ts,tsx}": [
-      "npm run prettier",
-      "npm run lint",
-      "npm run build"
-    ]
   },
   "prettier": {
     "semi": false,
