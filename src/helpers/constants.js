@@ -22,13 +22,13 @@ if (!fs.existsSync(processesJsonFile)) {
   process.exit(1)
 }
 const processesJson = fs.readFileSync(processesJsonFile);
-console.log('processes.json=' + processesJson)
+//console.log('processes.json=' + processesJson)
 const processesJsonObject = JSON.parse(processesJson)
 
 process.env['tokens'] = JSON.stringify(processesJsonObject.apps[0].env.tokens)
 
-console.log('end process.env=' + JSON.stringify(process.env))
-console.log('end process.env.tokens=' + process.env.tokens)
+//console.log('end process.env=' + JSON.stringify(process.env))
+//console.log('end process.env.tokens=' + process.env.tokens)
 
 const {
   BOT_AUTH_TOKEN,
