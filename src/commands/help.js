@@ -78,9 +78,7 @@ class Help {
       // console.log({ helpString, vGroupID })
 
       if (ADMINISTRATORS_CHOICE.value === 'yes') {
-        let adminHelp =
-          '*Admin Commands*\n' +
-          '%{adminHelp}\n'
+        let adminHelp = '*Admin Commands*\n' + '%{adminHelp}\n'
         adminHelp = bot.getAdminHelp(adminHelp)
         helpString = helpString.replace('%{adminHelpHeader}', adminHelp)
       } else {

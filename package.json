@@ -1,6 +1,6 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "5.84.2",
+  "version": "5.84.3",
   "description": "WickrIO Broadcast Bot",
   "main": "./build/broadcast-bot.js",
   "author": "Paul Cushman",
@@ -51,7 +51,9 @@
     "lint-staged": "^10.2.11",
     "nodemon": "^2.0.4",
     "pino-pretty": "^3.5.0",
-    "prettier": "2.0.5"
+    "prettier": "2.0.5",
+    "path": "0.12.7",
+    "sinon": "11.1.1"
   },
   "scripts": {
     "dev": "nodemon --exec 'babel-node --inspect=0.0.0.0 src/index.js'",
@@ -64,17 +66,17 @@
     "test": "nyc --reporter=text-summary  --reporter=text mocha test"
   },
   "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "./src/**/*.{js,jsx,ts,tsx}": [
-      "npm run prettier",
-      "npm run lint",
-      "npm run build"
-    ]
-  },
+     "hooks": {
+       "pre-commit": "lint-staged"
+     }
+   },
+   "lint-staged": {
+     "./src/**/*.{js,jsx,ts,tsx}": [
+       "npm run prettier",
+       "npm run lint",
+       "npm run build"
+     ]
+   },
   "prettier": {
     "semi": false,
     "arrowParens": "avoid",
