@@ -129,12 +129,12 @@ describe('abort validation', () => {
       apiService: apiService,
     })
 
-    const ver = new Abort({
+    const abort = new Abort({
       genericService: genericService,
       messageService: msgSvc,
     })
 
-    assert.equal(ver.shouldExecute(), false)
+    assert.equal(abort.shouldExecute(), false)
   })
 
   /* ================================================================================ */
@@ -167,15 +167,15 @@ describe('abort validation', () => {
       apiService: apiService,
     })
 
-    const ver = new Abort({
+    const abort = new Abort({
       genericService: genericService,
       messageService: msgSvc,
     })
 
-    assert.equal(ver.shouldExecute(), true)
+    assert.equal(abort.shouldExecute(), true)
   })
 
-  /* ================================================================================
+  /* ================================================================================ */
   it('execute() returns a reply', async () => {
     const Abort = require('../build/commands/abort')
     const { apiService } = require('../build/helpers/constants')
@@ -200,23 +200,32 @@ describe('abort validation', () => {
     if (debug) console.log('messageService=' + JSON.stringify(msgSvc))
 
     const genericService = new GenericService({
-      endIndex: 10,
+      endIndex: 1,
       messageService: msgSvc,
       apiService: apiService,
     })
 
-    const ver = new Abort({
+    const abort = new Abort({
       genericService: genericService,
       messageService: msgSvc,
     })
 
-    const replyvalue = ver.execute()
+    const entry1 = { "message_id": "1234" }
+    const entry2 = { "message_id": "002" }
+    const msgEntries = sinon.stub(genericService, 'getMessageEntries').returns([entry1, entry2])
+    const getMsgEntry = sinon.stub(genericService, 'getMessageEntry').returns('{ "message": "This is a message" }')
+
+    const replyvalue = abort.execute()
+
+    msgEntries.restore()
+    getMsgEntry.restore()
+
     assert.ok(replyvalue.reply)
+//    sinon.assert.calledOnce(send)
   })
-  */
 })
 
-/* ============================== Abort Tests ===================================== */
+/* ============================== Ack Tests ======================================= */
 
 describe('ack validation', () => {
   /* ================================================================================ */
@@ -249,12 +258,12 @@ describe('ack validation', () => {
       apiService: apiService,
     })
 
-    const ver = new Ack({
+    const ack = new Ack({
       genericService: genericService,
       messageService: msgSvc,
     })
 
-    assert.equal(ver.shouldExecute(), false)
+    assert.equal(ack.shouldExecute(), false)
   })
 
   /* ================================================================================ */
@@ -287,15 +296,15 @@ describe('ack validation', () => {
       apiService: apiService,
     })
 
-    const ver = new Ack({
+    const ack = new Ack({
       genericService: genericService,
       messageService: msgSvc,
     })
 
-    assert.equal(ver.shouldExecute(), true)
+    assert.equal(ack.shouldExecute(), true)
   })
 
-  /* ================================================================================
+  /* ================================================================================ */
   it('execute() returns a reply', async () => {
     const Ack = require('../build/commands/ack')
     const { apiService } = require('../build/helpers/constants')
@@ -325,15 +334,19 @@ describe('ack validation', () => {
       apiService: apiService,
     })
 
-    const ver = new Ack({
+    const ack = new Ack({
       genericService: genericService,
       messageService: msgSvc,
     })
 
-    const replyvalue = ver.execute()
-    assert.ok(replyvalue.reply)
+    const setMsgStatus = sinon.stub(genericService, 'setMessageStatus').returns('Set status')
+
+    const replyvalue = ack.execute()
+
+    setMsgStatus.restore()
+
+    assert.ok(replyvalue.reply !== undefined)
   })
-  */
 })
 
 /* ============================== Broadcast Tests ================================= */
@@ -645,10 +658,11 @@ describe('delet file validation', () => {
     assert.equal(deleteFile.shouldExecute(), true)
   })
 
-  /* ================================================================================
+  /* ================================================================================ */
   it('execute() returns a reply', async () => {
     const DeleteFile = require('../build/commands/delete-file')
     const SendService = require('../build/services/send-service')
+    const FileHandler = require('../build/helpers/file-handler')
     const bot = new WickrIOBotAPI.WickrIOBot()
     const status = await bot.startForTesting('clientName')
 
@@ -670,15 +684,19 @@ describe('delet file validation', () => {
 
     const sendSrv = new SendService({ messageService: msgSvc })
 
-    const delete = new DeleteFile({
+    const deleteFile = new DeleteFile({
       sendService: sendSrv,
       messageService: msgSvc,
     })
 
-    const replyvalue = delete.execute()
+    const listFiles = sinon.stub(FileHandler, 'listFiles').returns('Set status')
+
+    const replyvalue = deleteFile.execute()
+
+    listFiles.restore()
+
     assert.ok(replyvalue.reply)
   })
-  */
 })
 
 /* ============================== Files Tests ===================================== */
@@ -881,7 +899,7 @@ describe('help validation', () => {
       testOnly: true,
     })
 
-    console.log('messageService=' + JSON.stringify(msgSvc))
+    if (debug) console.log('messageService=' + JSON.stringify(msgSvc))
 
     const help = new Help({
       apiService: apiService,
@@ -912,7 +930,7 @@ describe('help validation', () => {
       rawMessage,
       testOnly: true,
     })
-    console.log('messageService=' + JSON.stringify(msgSvc))
+    if (debug) console.log('messageService=' + JSON.stringify(msgSvc))
 
     const help = new Help({
       apiService: apiService,
@@ -943,7 +961,7 @@ describe('help validation', () => {
       rawMessage,
       testOnly: true,
     })
-    console.log('messageService=' + JSON.stringify(msgSvc))
+    if (debug) console.log('messageService=' + JSON.stringify(msgSvc))
 
     const help = new Help({
       apiService: apiService,
@@ -1040,7 +1058,7 @@ describe('report validation', () => {
     assert.equal(report.shouldExecute(), true)
   })
 
-  /* ================================================================================
+  /* ================================================================================ */
   it('execute() returns a reply', async () => {
     const { apiService } = require('../build/helpers/constants')
     const GenericService = require('../build/services/generic-service')
@@ -1065,7 +1083,7 @@ describe('report validation', () => {
     if (debug) console.log('messageService=' + JSON.stringify(msgSvc))
 
     const genericService = new GenericService({
-      endIndex: 10,
+      endIndex: 1,
       messageService: msgSvc,
       apiService: apiService,
     })
@@ -1075,10 +1093,27 @@ describe('report validation', () => {
       messageService: msgSvc,
     })
 
+
+    const msgIDData = { list : [
+                          { sender: 'testuser@wickr.com', status: 'sending' },
+                          { sender: 'testuser@wickr.com', status: 'sending' },
+                        ],
+                      }
+    const msgIDDataString = JSON.stringify(msgIDData)
+    const getMsgIDTable = sinon.stub(apiService, 'getMessageIDTable').returns(msgIDDataString)
+    const entry1 = { "message_id": "1234" }
+    const entry2 = { "message_id": "002" }
+    const msgEntries = sinon.stub(genericService, 'getMessageEntries').returns([entry1, entry2])
+    const getMsgEntry = sinon.stub(genericService, 'getMessageEntry').returns('{ "message": "This is a message" }')
+
     const replyvalue = report.execute()
+
+    getMsgIDTable.restore()
+    msgEntries.restore()
+    getMsgEntry.restore()
+
     assert.ok(replyvalue.reply)
   })
-  */
 })
 
 /* ============================== Send Tests ====================================== */
@@ -1428,7 +1463,7 @@ describe('version validation', () => {
       rawMessage,
       testOnly: true,
     })
-    console.log('messageService=' + JSON.stringify(msgSvc))
+    if (debug) console.log('messageService=' + JSON.stringify(msgSvc))
 
     const ver = new Version({
       messageService: msgSvc,
@@ -1457,7 +1492,7 @@ describe('version validation', () => {
       rawMessage,
       testOnly: true,
     })
-    console.log('messageService=' + JSON.stringify(msgSvc))
+    if (debug) console.log('messageService=' + JSON.stringify(msgSvc))
 
     const ver = new Version({
       messageService: msgSvc,
@@ -1486,7 +1521,7 @@ describe('version validation', () => {
       rawMessage,
       testOnly: true,
     })
-    console.log('messageService=' + JSON.stringify(msgSvc))
+    if (debug) console.log('messageService=' + JSON.stringify(msgSvc))
 
     const ver = new Version({
       messageService: msgSvc,

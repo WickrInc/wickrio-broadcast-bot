@@ -66,17 +66,17 @@
     "test": "nyc --reporter=text-summary  --reporter=text mocha test"
   },
   "husky": {
-     "hooks": {
-       "pre-commit": "lint-staged"
-     }
-   },
-   "lint-staged": {
-     "./src/**/*.{js,jsx,ts,tsx}": [
-       "npm run prettier",
-       "npm run lint",
-       "npm run build"
-     ]
-   },
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "./src/**/*.{js,jsx,ts,tsx}": [
+      "npm run prettier",
+      "npm run lint",
+      "npm run build"
+    ]
+  },
   "prettier": {
     "semi": false,
     "arrowParens": "avoid",
