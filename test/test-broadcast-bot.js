@@ -1,5 +1,5 @@
 // const expect = require('chai').expect;
-const sinon = require('sinon');
+const sinon = require('sinon')
 const assert = require('assert')
 const util = require('util')
 const path = require('path')
@@ -7,7 +7,7 @@ const WickrIOBotAPI = require('wickrio-bot-api')
 const fs = require('fs')
 const processesJsonFile = path.resolve(__dirname, '../processes.json')
 let processesJsonFileSave = ''
-const debug=false
+const debug = false
 
 const tokens =
   '{"WICKRIO_BOT_NAME" : { "value" : "test", "encrypted" : false }, "BOT_MAPS" : { "value" : "yes", "encrypted" : false }}'
@@ -19,86 +19,82 @@ if (debug) {
   )
 }
 
+before('map validation before function', function (done) {
+  // save the contents of the processes.json file
+  console.log('read the processes.json file contents')
+  if (fs.existsSync(processesJsonFile)) {
+    processesJsonFileSave = fs.readFileSync(processesJsonFile)
+  }
 
+  const processesJson = {
+    apps: [
+      {
+        name: 'WickrIO-Broadcast-Bot_test',
+        args: [],
+        script: './build/index.js',
+        env: {
+          tokens: {
+            ADMINISTRATORS_CHOICE: {
+              value: 'no',
+              encrypted: false,
+            },
+            WICKRIO_BOT_NAME: {
+              value: 'bcast-bot',
+              encrypted: false,
+            },
+            WEB_INTERFACE: {
+              value: 'no',
+              encrypted: false,
+            },
+            BOT_MAPS: {
+              value: 'yes',
+              encrypted: false,
+            },
+            BROADCAST_ENABLED: {
+              value: 'yes',
+              encrypted: false,
+            },
+            RESPONSES_ENABLED: {
+              value: 'yes',
+              encrypted: false,
+            },
+            LIMIT_FILE_ENTRIES: {
+              value: 'no',
+              encrypted: false,
+            },
+            VERIFY_USERS: {
+              value: 'automatic',
+              encrypted: false,
+            },
+          },
+        },
+      },
+    ],
+  }
+  const processesJsonString = JSON.stringify(processesJson)
+  if (debug) console.log('processesJsonString=', processesJsonString)
 
-  before('map validation before function', function(done) {
-    // save the contents of the processes.json file
-    console.log('read the processes.json file contents')
-    if (fs.existsSync(processesJsonFile)) {
-      processesJsonFileSave = fs.readFileSync(processesJsonFile)
-    }
+  console.log('write string to processes.json')
+  fs.writeFileSync(processesJsonFile, processesJsonString)
 
-    const processesJson= {
-      apps: [
-        {
-          name: "WickrIO-Broadcast-Bot_test",
-          args: [],
-          script: "./build/index.js",
-          env: {
-            tokens: {
-              ADMINISTRATORS_CHOICE: {
-                value: "no",
-                encrypted: false
-              },
-              WICKRIO_BOT_NAME: {
-                value: "bcast-bot",
-                encrypted: false
-              },
-              WEB_INTERFACE: {
-                value: "no",
-                encrypted: false
-              },
-              BOT_MAPS: {
-                value: "yes",
-                encrypted: false
-              },
-              BROADCAST_ENABLED: {
-                value: "yes",
-                encrypted: false
-              },
-              RESPONSES_ENABLED: {
-                value: "yes",
-                encrypted: false
-              },
-              LIMIT_FILE_ENTRIES: {
-                value: "no",
-                encrypted: false
-              },
-              VERIFY_USERS: {
-                value: "automatic",
-                encrypted: false
-              }
-            }
-          }
-        }
-      ]
-    }
-    const processesJsonString = JSON.stringify(processesJson)
-    if (debug) console.log('processesJsonString=', processesJsonString)
-    
-    console.log('write string to processes.json')
-    fs.writeFileSync(processesJsonFile, processesJsonString)
+  //    await mock({
+  //      'processes.json' : processesJsonString,
+  //      'build' : mock.load(path.resolve(__dirname, '../build'), {recursive: true}),
+  //      'node_modules' : mock.load(path.resolve(__dirname, '../node_modules'), {recursive: true})
+  //    })
 
-//    await mock({
-//      'processes.json' : processesJsonString,
-//      'build' : mock.load(path.resolve(__dirname, '../build'), {recursive: true}),
-//      'node_modules' : mock.load(path.resolve(__dirname, '../node_modules'), {recursive: true})
-//    })
+  console.log('map before function done')
+  done()
+})
 
-    console.log('map before function done')
-    done()
-  })
-
-  after('map validation after function', function(done) {
-    console.log('writing the dat back to the processes.json file')
-    if (processesJsonFileSave.length > 0) {
-      fs.writeFileSync(processesJsonFile, processesJsonFileSave)
-    }
-    console.log('map after function done')
-    done()
-  })
-
-
+after('map validation after function', function (done) {
+  console.log('writing the dat back to the processes.json file')
+  if (processesJsonFileSave.length > 0) {
+    fs.writeFileSync(processesJsonFile, processesJsonFileSave)
+  }
+  console.log('map after function done')
+  done()
+})
 
 /* ============================== Abort Tests ===================================== */
 
@@ -220,7 +216,6 @@ describe('abort validation', () => {
   */
 })
 
-
 /* ============================== Abort Tests ===================================== */
 
 describe('ack validation', () => {
@@ -341,7 +336,6 @@ describe('ack validation', () => {
   */
 })
 
-
 /* ============================== Broadcast Tests ================================= */
 
 describe('broadcast validation', () => {
@@ -453,8 +447,6 @@ describe('broadcast validation', () => {
   })
   */
 })
-
-
 
 /* ============================== Cancel Tests ==================================== */
 
@@ -689,7 +681,6 @@ describe('delet file validation', () => {
   */
 })
 
-
 /* ============================== Files Tests ===================================== */
 
 describe('files command validation', () => {
@@ -865,8 +856,6 @@ describe('files command validation', () => {
   })
 })
 
-
-
 /* ============================== Help Tests ====================================== */
 
 describe('help validation', () => {
@@ -967,16 +956,14 @@ describe('help validation', () => {
 
     send.restore()
 
-    //assert.ok(replyvalue.reply)
+    // assert.ok(replyvalue.reply)
     sinon.assert.calledOnce(send)
   })
 })
 
-
 /* ============================== Report Tests ==================================== */
 
 describe('report validation', () => {
-
   /* ================================================================================ */
   it('shouldExecute false if /report is not the command', async () => {
     const { apiService } = require('../build/helpers/constants')
@@ -1094,7 +1081,6 @@ describe('report validation', () => {
   */
 })
 
-
 /* ============================== Send Tests ====================================== */
 
 describe('send validation', () => {
@@ -1206,7 +1192,6 @@ describe('send validation', () => {
   })
   */
 })
-
 
 /* ============================== Status Tests ==================================== */
 
@@ -1328,7 +1313,6 @@ describe('status validation', () => {
   */
 })
 
-
 /* ============================== Map Tests ======================================= */
 
 describe('version validation', () => {
@@ -1420,7 +1404,6 @@ describe('version validation', () => {
     assert.ok(replyvalue.reply)
   })
 })
-
 
 /* ============================== Version Tests =================================== */
 
@@ -1514,13 +1497,11 @@ describe('version validation', () => {
   })
 })
 
-
 /* ============================== Map Tests ======================================= */
 
 describe('map validation', () => {
-
   /* ================================================================================ */
-  it('shouldExecute false if /map is not the command', function(done) {
+  it('shouldExecute false if /map is not the command', function (done) {
     const { apiService } = require('../build/helpers/constants')
     const GenericService = require('../build/services/generic-service')
     const Map = require('../build/commands/map')
@@ -1559,7 +1540,7 @@ describe('map validation', () => {
   })
 
   /* ================================================================================ */
-  it('shouldExecute true if /map is the command', function(done) {
+  it('shouldExecute true if /map is the command', function (done) {
     const { apiService } = require('../build/helpers/constants')
     const GenericService = require('../build/services/generic-service')
     const Map = require('../build/commands/map')

@@ -45,11 +45,11 @@ class FileCommand {
         let fileName = fileArr[index]
         let fileType
         if (fileName.endsWith('.user')) {
-          fileType="User file"
-          fileName=fileName.slice(0,-5)
+          fileType = 'User file'
+          fileName = fileName.slice(0, -5)
         } else if (fileName.endsWith('.hash')) {
-          fileType="Hash file"
-          fileName=fileName.slice(0,-5)
+          fileType = 'Hash file'
+          fileName = fileName.slice(0, -5)
         }
         reply += `(${index + 1}) ${fileName}\n`
 
@@ -65,9 +65,9 @@ class FileCommand {
       // Add the area of text to cut for clients that handle lists
       messagemeta.textcut = [
         {
-          startindex: basereplylength-1,
+          startindex: basereplylength - 1,
           endindex: reply.length,
-        }
+        },
       ]
 
       state = State.SEND_USER_FILE
