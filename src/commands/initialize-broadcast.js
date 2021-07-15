@@ -43,8 +43,6 @@ class InitializeBroadcast {
       this.broadcastService.setMessage(message2send)
       this.broadcastService.setUserEmail(userEmail)
       this.broadcastService.setVGroupID(vGroupID)
-      this.broadcastService.setTTL('')
-      this.broadcastService.setBOR('')
       this.broadcastService.setSentByFlag(true)
       // TODO check for undefined??
       if (message2send) {

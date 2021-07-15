@@ -65,8 +65,6 @@ class FileActions {
       this.broadcastService.setMessage(this.messageService.message)
       this.broadcastService.setUserEmail(this.messageService.userEmail)
       this.broadcastService.setVGroupID(this.messageService.vGroupID)
-      this.broadcastService.setTTL('')
-      this.broadcastService.setBOR('')
       this.broadcastService.setSentByFlag(true)
       reply = 'Would you like to ask the recipients for an acknowledgement?'
       messagemeta = ButtonHelper.makeYesNoButton()
@@ -78,8 +76,10 @@ class FileActions {
       state = State.FILE_TYPE
     }
     if (fileAppend !== '') {
-      // Make sure the file is not blank.
-      if (FileHandler.checkFileBlank(filePath)) {
+      if (!filename.endsWith('.txt')) {
+        reply = `File: ${filename} is not the proper format. File must be a text (.txt) file`
+      } else if (FileHandler.checkFileBlank(filePath)) {
+        // Make sure the file is not blank.
         reply = `File: ${filename} is empty. Please send a list of usernames or hashes`
         // If file already exists go to the overwrite check state
       } else if (FileHandler.checkFileSize(filePath)) {

@@ -33,8 +33,6 @@ class InitializeSend {
     this.sendService.setMessage(message2send)
     this.sendService.setUserEmail(userEmail)
     this.sendService.setVGroupID(vGroupID)
-    this.sendService.setTTL('')
-    this.sendService.setBOR('')
     // this.broadcastService.setSentByFlag(true);
     const fileArr = this.sendService.getFiles(userEmail)
     // TODO add more command to getting files
