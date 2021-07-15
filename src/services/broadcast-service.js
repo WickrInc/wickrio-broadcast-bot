@@ -1,5 +1,5 @@
 // import APIService from './api-service'
-// import StatusService from './status-service'
+import StatusService from './status-service'
 import WickrIOBotAPI from 'wickrio-bot-api'
 // TODO proper form??
 import updateLastID from '../helpers/message-id-helper'
@@ -373,10 +373,9 @@ class BroadcastService {
         this.user.message
       )
     }
-    // if (this.user.vGroupID !== '' && this.user.vGroupID !== undefined) {
-    // //if (this.user.vGroupID) {
-    //   StatusService.asyncStatus(messageID, this.user.vGroupID)
-    // }
+    if (this.user.vGroupID !== '' && this.user.vGroupID !== undefined) {
+      StatusService.asyncStatus(messageID, this.user.vGroupID)
+    }
     logger.debug(`Broadcast uMessage=${uMessage}`)
     reply.message_id = messageID
     if (target === 'USERS') {
