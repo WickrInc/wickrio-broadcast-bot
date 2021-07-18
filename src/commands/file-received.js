@@ -1,4 +1,5 @@
 import State from '../state'
+import ButtonHelper from '../helpers/button-helper.js'
 
 import { BROADCAST_ENABLED } from '../helpers/constants'
 class FileReceived {
@@ -30,36 +31,12 @@ class FileReceived {
     ) {
       broadcastLetterString = '(b)roadcast, '
       broadcastString = 'broadcast this file or '
-      buttons = [
-        {
-          type: 'message',
-          text: 'Broadcast',
-          message: 'Broadcast',
-        },
-      ]
+      buttons = ['Broadcast']
     }
-    const reply = `Would you like to ${broadcastString}send this file to a list? Or is it a file of usernames or hashes? Please respond with ${broadcastLetterString}(s)end, (u)ser, or (h)ash`
-    const buttonsConcat = [
-      {
-        type: 'message',
-        text: 'Send',
-        message: 'Send',
-      },
-      {
-        type: 'message',
-        text: 'User',
-        message: 'User',
-      },
-      {
-        type: 'message',
-        text: 'Hash',
-        message: 'Hash',
-      },
-    ]
+    const reply = `Would you like to ${broadcastString}send this file to a list? Or is it a file of usernames or hashes? Please respond with ${broadcastLetterString}(s)end, (u)ser`
+    const buttonsConcat = ['Send', 'User']
     buttons = buttons.concat(buttonsConcat)
-    const messagemeta = {
-      buttons,
-    }
+    const messagemeta = ButtonHelper.makeCancelButtons(buttons)
     return {
       reply,
       state: State.FILE_TYPE,
