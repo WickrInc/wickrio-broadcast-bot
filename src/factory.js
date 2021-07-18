@@ -12,6 +12,7 @@ import FileReceived from './commands/file-received'
 import InitializeBroadcast from './commands/initialize-broadcast'
 import InitializeSend from './commands/initialize-send'
 import Report from './commands/report'
+import Start from './commands/start'
 import Status from './commands/status'
 import Map from './commands/map'
 
@@ -174,6 +175,7 @@ class Factory {
       genericService: this.genericService,
       messageService: this.messageService,
     })
+    this.start = new Start({ messageService: this.messageService })
     this.map = new Map({
       genericService: this.genericService,
       messageService: this.messageService,
@@ -289,6 +291,7 @@ class Factory {
       this.initializeSend,
       this.initializeBroadcast,
       this.report,
+      this.start,
       this.statusCommand,
       this.map,
       this.panel,
