@@ -21,4 +21,5 @@ export default Object.freeze({
   SEND_CHECK_QUEUE: 19,
   ASK_DM_RECIPIENT: 20,
   SEND_ASK_DM_RECIPIENT: 21,
+  SELECT_RECIPIENTS: 22,
 })
