@@ -98,9 +98,9 @@ after('map validation after function', function (done) {
 
 /* ============================== Abort Tests ===================================== */
 
-describe('abort validation', () => {
+describe('abort validation', function () {
   /* ================================================================================ */
-  it('shouldExecute false if /abort is not the command', async () => {
+  it('shouldExecute false if /abort is not the command', async function () {
     const Abort = require('../build/commands/abort')
     const { apiService } = require('../build/helpers/constants')
     const GenericService = require('../build/services/generic-service')
@@ -138,7 +138,7 @@ describe('abort validation', () => {
   })
 
   /* ================================================================================ */
-  it('shouldExecute true if /abort is the command', async () => {
+  it('shouldExecute true if /abort is the command', async function () {
     const Abort = require('../build/commands/abort')
     const { apiService } = require('../build/helpers/constants')
     const GenericService = require('../build/services/generic-service')
@@ -176,7 +176,7 @@ describe('abort validation', () => {
   })
 
   /* ================================================================================ */
-  it('execute() returns a reply', async () => {
+  it('execute() returns a reply', async function () {
     const Abort = require('../build/commands/abort')
     const { apiService } = require('../build/helpers/constants')
     const GenericService = require('../build/services/generic-service')
@@ -210,10 +210,14 @@ describe('abort validation', () => {
       messageService: msgSvc,
     })
 
-    const entry1 = { "message_id": "1234" }
-    const entry2 = { "message_id": "002" }
-    const msgEntries = sinon.stub(genericService, 'getMessageEntries').returns([entry1, entry2])
-    const getMsgEntry = sinon.stub(genericService, 'getMessageEntry').returns('{ "message": "This is a message" }')
+    const entry1 = { message_id: '1234' }
+    const entry2 = { message_id: '002' }
+    const msgEntries = sinon
+      .stub(genericService, 'getMessageEntries')
+      .returns([entry1, entry2])
+    const getMsgEntry = sinon
+      .stub(genericService, 'getMessageEntry')
+      .returns('{ "message": "This is a message" }')
 
     const replyvalue = abort.execute()
 
@@ -221,15 +225,15 @@ describe('abort validation', () => {
     getMsgEntry.restore()
 
     assert.ok(replyvalue.reply)
-//    sinon.assert.calledOnce(send)
+    //    sinon.assert.calledOnce(send)
   })
 })
 
 /* ============================== Ack Tests ======================================= */
 
-describe('ack validation', () => {
+describe('ack validation', function () {
   /* ================================================================================ */
-  it('shouldExecute false if /ack is not the command', async () => {
+  it('shouldExecute false if /ack is not the command', async function () {
     const Ack = require('../build/commands/ack')
     const { apiService } = require('../build/helpers/constants')
     const GenericService = require('../build/services/generic-service')
@@ -267,7 +271,7 @@ describe('ack validation', () => {
   })
 
   /* ================================================================================ */
-  it('shouldExecute true if /ack is the command', async () => {
+  it('shouldExecute true if /ack is the command', async function () {
     const Ack = require('../build/commands/ack')
     const { apiService } = require('../build/helpers/constants')
     const GenericService = require('../build/services/generic-service')
@@ -305,7 +309,7 @@ describe('ack validation', () => {
   })
 
   /* ================================================================================ */
-  it('execute() returns a reply', async () => {
+  it('execute() returns a reply', async function () {
     const Ack = require('../build/commands/ack')
     const { apiService } = require('../build/helpers/constants')
     const GenericService = require('../build/services/generic-service')
@@ -339,7 +343,9 @@ describe('ack validation', () => {
       messageService: msgSvc,
     })
 
-    const setMsgStatus = sinon.stub(genericService, 'setMessageStatus').returns('Set status')
+    const setMsgStatus = sinon
+      .stub(genericService, 'setMessageStatus')
+      .returns('Set status')
 
     const replyvalue = ack.execute()
 
@@ -351,9 +357,9 @@ describe('ack validation', () => {
 
 /* ============================== Broadcast Tests ================================= */
 
-describe('broadcast validation', () => {
+describe('broadcast validation', function () {
   /* ================================================================================ */
-  it('shouldExecute false if /broadcast is not the command', async () => {
+  it('shouldExecute false if /broadcast is not the command', async function () {
     const InitializeBroadcast = require('../build/commands/initialize-broadcast')
     const BroadcastService = require('../build/services/broadcast-service')
     const bot = new WickrIOBotAPI.WickrIOBot()
@@ -391,7 +397,7 @@ describe('broadcast validation', () => {
   })
 
   /* ================================================================================ */
-  it('shouldExecute true if /broadcast is the command', async () => {
+  it('shouldExecute true if /broadcast is the command', async function () {
     const InitializeBroadcast = require('../build/commands/initialize-broadcast')
     const BroadcastService = require('../build/services/broadcast-service')
     const bot = new WickrIOBotAPI.WickrIOBot()
@@ -463,9 +469,9 @@ describe('broadcast validation', () => {
 
 /* ============================== Cancel Tests ==================================== */
 
-describe('cancel validation', () => {
+describe('cancel validation', function () {
   /* ================================================================================ */
-  it('shouldExecute false if /cancel is not the command', async () => {
+  it('shouldExecute false if /cancel is not the command', async function () {
     const Cancel = require('../build/commands/cancel')
     const BroadcastService = require('../build/services/broadcast-service')
     const SendService = require('../build/services/send-service')
@@ -506,7 +512,7 @@ describe('cancel validation', () => {
   })
 
   /* ================================================================================ */
-  it('shouldExecute true if /cancel is the command', async () => {
+  it('shouldExecute true if /cancel is the command', async function () {
     const Cancel = require('../build/commands/cancel')
     const BroadcastService = require('../build/services/broadcast-service')
     const SendService = require('../build/services/send-service')
@@ -547,7 +553,7 @@ describe('cancel validation', () => {
   })
 
   /* ================================================================================ */
-  it('execute() returns a reply', async () => {
+  it('execute() returns a reply', async function () {
     const Cancel = require('../build/commands/cancel')
     const BroadcastService = require('../build/services/broadcast-service')
     const SendService = require('../build/services/send-service')
@@ -591,9 +597,9 @@ describe('cancel validation', () => {
 
 /* ============================== Delete File Tests =============================== */
 
-describe('delet file validation', () => {
+describe('delet file validation', function () {
   /* ================================================================================ */
-  it('shouldExecute false if /delete is not the command', async () => {
+  it('shouldExecute false if /delete is not the command', async function () {
     const DeleteFile = require('../build/commands/delete-file')
     const SendService = require('../build/services/send-service')
     const bot = new WickrIOBotAPI.WickrIOBot()
@@ -626,7 +632,7 @@ describe('delet file validation', () => {
   })
 
   /* ================================================================================ */
-  it('shouldExecute true if /delete is the command', async () => {
+  it('shouldExecute true if /delete is the command', async function () {
     const DeleteFile = require('../build/commands/delete-file')
     const SendService = require('../build/services/send-service')
     const bot = new WickrIOBotAPI.WickrIOBot()
@@ -659,7 +665,7 @@ describe('delet file validation', () => {
   })
 
   /* ================================================================================ */
-  it('execute() returns a reply', async () => {
+  it('execute() returns a reply', async function () {
     const DeleteFile = require('../build/commands/delete-file')
     const SendService = require('../build/services/send-service')
     const FileHandler = require('../build/helpers/file-handler')
@@ -701,9 +707,9 @@ describe('delet file validation', () => {
 
 /* ============================== Files Tests ===================================== */
 
-describe('files command validation', () => {
+describe('files command validation', function () {
   /* ================================================================================ */
-  it('shouldExecute false if /files is not the command', async () => {
+  it('shouldExecute false if /files is not the command', async function () {
     const FilesCommand = require('../build/commands/files-command')
     const SendService = require('../build/services/send-service')
     const bot = new WickrIOBotAPI.WickrIOBot()
@@ -736,7 +742,7 @@ describe('files command validation', () => {
   })
 
   /* ================================================================================ */
-  it('shouldExecute true if /files is the command', async () => {
+  it('shouldExecute true if /files is the command', async function () {
     const FilesCommand = require('../build/commands/files-command')
     const SendService = require('../build/services/send-service')
     const bot = new WickrIOBotAPI.WickrIOBot()
@@ -769,7 +775,7 @@ describe('files command validation', () => {
   })
 
   /* ================================================================================ */
-  it('execute() returns correct reply when file array is empty', async () => {
+  it('execute() returns correct reply when file array is empty', async function () {
     const FilesCommand = require('../build/commands/files-command')
     const SendService = require('../build/services/send-service')
     const bot = new WickrIOBotAPI.WickrIOBot()
@@ -817,7 +823,7 @@ describe('files command validation', () => {
   })
 
   /* ================================================================================ */
-  it('execute() returns correct reply when file array has at least one file', async () => {
+  it('execute() returns correct reply when file array has at least one file', async function () {
     const FilesCommand = require('../build/commands/files-command')
     const SendService = require('../build/services/send-service')
     const bot = new WickrIOBotAPI.WickrIOBot()
@@ -876,9 +882,9 @@ describe('files command validation', () => {
 
 /* ============================== Help Tests ====================================== */
 
-describe('help validation', () => {
+describe('help validation', function () {
   /* ================================================================================ */
-  it('shouldExecute false if /help is not the command', async () => {
+  it('shouldExecute false if /help is not the command', async function () {
     const Help = require('../build/commands/help')
     const { apiService } = require('../build/helpers/constants')
     const bot = new WickrIOBotAPI.WickrIOBot()
@@ -910,7 +916,7 @@ describe('help validation', () => {
   })
 
   /* ================================================================================ */
-  it('shouldExecute true if /help is the command', async () => {
+  it('shouldExecute true if /help is the command', async function () {
     const Help = require('../build/commands/help')
     const { apiService } = require('../build/helpers/constants')
     const bot = new WickrIOBotAPI.WickrIOBot()
@@ -941,7 +947,7 @@ describe('help validation', () => {
   })
 
   /* ================================================================================ */
-  it('execute() returns a reply', async () => {
+  it('execute() returns a reply', async function () {
     const Help = require('../build/commands/help')
     const { apiService } = require('../build/helpers/constants')
     const bot = new WickrIOBotAPI.WickrIOBot()
@@ -981,9 +987,9 @@ describe('help validation', () => {
 
 /* ============================== Report Tests ==================================== */
 
-describe('report validation', () => {
+describe('report validation', function () {
   /* ================================================================================ */
-  it('shouldExecute false if /report is not the command', async () => {
+  it('shouldExecute false if /report is not the command', async function () {
     const { apiService } = require('../build/helpers/constants')
     const GenericService = require('../build/services/generic-service')
     const Report = require('../build/commands/report')
@@ -1021,7 +1027,7 @@ describe('report validation', () => {
   })
 
   /* ================================================================================ */
-  it('shouldExecute true if /report is the command', async () => {
+  it('shouldExecute true if /report is the command', async function () {
     const { apiService } = require('../build/helpers/constants')
     const GenericService = require('../build/services/generic-service')
     const Report = require('../build/commands/report')
@@ -1059,7 +1065,7 @@ describe('report validation', () => {
   })
 
   /* ================================================================================ */
-  it('execute() returns a reply', async () => {
+  it('execute() returns a reply', async function () {
     const { apiService } = require('../build/helpers/constants')
     const GenericService = require('../build/services/generic-service')
     const Report = require('../build/commands/report')
@@ -1093,18 +1099,24 @@ describe('report validation', () => {
       messageService: msgSvc,
     })
 
-
-    const msgIDData = { list : [
-                          { sender: 'testuser@wickr.com', status: 'sending' },
-                          { sender: 'testuser@wickr.com', status: 'sending' },
-                        ],
-                      }
+    const msgIDData = {
+      list: [
+        { sender: 'testuser@wickr.com', status: 'sending' },
+        { sender: 'testuser@wickr.com', status: 'sending' },
+      ],
+    }
     const msgIDDataString = JSON.stringify(msgIDData)
-    const getMsgIDTable = sinon.stub(apiService, 'getMessageIDTable').returns(msgIDDataString)
-    const entry1 = { "message_id": "1234" }
-    const entry2 = { "message_id": "002" }
-    const msgEntries = sinon.stub(genericService, 'getMessageEntries').returns([entry1, entry2])
-    const getMsgEntry = sinon.stub(genericService, 'getMessageEntry').returns('{ "message": "This is a message" }')
+    const getMsgIDTable = sinon
+      .stub(apiService, 'getMessageIDTable')
+      .returns(msgIDDataString)
+    const entry1 = { message_id: '1234' }
+    const entry2 = { message_id: '002' }
+    const msgEntries = sinon
+      .stub(genericService, 'getMessageEntries')
+      .returns([entry1, entry2])
+    const getMsgEntry = sinon
+      .stub(genericService, 'getMessageEntry')
+      .returns('{ "message": "This is a message" }')
 
     const replyvalue = report.execute()
 
@@ -1118,9 +1130,9 @@ describe('report validation', () => {
 
 /* ============================== Send Tests ====================================== */
 
-describe('send validation', () => {
+describe('send validation', function () {
   /* ================================================================================ */
-  it('shouldExecute false if /send is not the command', async () => {
+  it('shouldExecute false if /send is not the command', async function () {
     const InitializeSend = require('../build/commands/initialize-send')
     const SendService = require('../build/services/send-service')
     const bot = new WickrIOBotAPI.WickrIOBot()
@@ -1158,7 +1170,7 @@ describe('send validation', () => {
   })
 
   /* ================================================================================ */
-  it('shouldExecute true if /send is the command', async () => {
+  it('shouldExecute true if /send is the command', async function () {
     const InitializeSend = require('../build/commands/initialize-send')
     const SendService = require('../build/services/send-service')
     const bot = new WickrIOBotAPI.WickrIOBot()
@@ -1230,9 +1242,9 @@ describe('send validation', () => {
 
 /* ============================== Status Tests ==================================== */
 
-describe('status validation', () => {
+describe('status validation', function () {
   /* ================================================================================ */
-  it('shouldExecute false if /status is not the command', async () => {
+  it('shouldExecute false if /status is not the command', async function () {
     const Status = require('../build/commands/status')
     const { apiService } = require('../build/helpers/constants')
     const GenericService = require('../build/services/generic-service')
@@ -1270,7 +1282,7 @@ describe('status validation', () => {
   })
 
   /* ================================================================================ */
-  it('shouldExecute true if /status is the command', async () => {
+  it('shouldExecute true if /status is the command', async function () {
     const Status = require('../build/commands/status')
     const { apiService } = require('../build/helpers/constants')
     const GenericService = require('../build/services/generic-service')
@@ -1350,9 +1362,9 @@ describe('status validation', () => {
 
 /* ============================== Map Tests ======================================= */
 
-describe('version validation', () => {
+describe('version validation', function () {
   /* ================================================================================ */
-  it('shouldExecute false if /version is not the command', async () => {
+  it('shouldExecute false if /version is not the command', async function () {
     const Version = require('../build/commands/version')
     const bot = new WickrIOBotAPI.WickrIOBot()
     const status = await bot.startForTesting('clientName')
@@ -1381,7 +1393,7 @@ describe('version validation', () => {
   })
 
   /* ================================================================================ */
-  it('shouldExecute true if /version is the command', async () => {
+  it('shouldExecute true if /version is the command', async function () {
     const Version = require('../build/commands/version')
     const bot = new WickrIOBotAPI.WickrIOBot()
     const status = await bot.startForTesting('clientName')
@@ -1410,7 +1422,7 @@ describe('version validation', () => {
   })
 
   /* ================================================================================ */
-  it('execute() returns a reply', async () => {
+  it('execute() returns a reply', async function () {
     const Version = require('../build/commands/version')
     const bot = new WickrIOBotAPI.WickrIOBot()
     const status = await bot.startForTesting('clientName')
@@ -1442,9 +1454,9 @@ describe('version validation', () => {
 
 /* ============================== Version Tests =================================== */
 
-describe('version validation', () => {
+describe('version validation', function () {
   /* ================================================================================ */
-  it('shouldExecute false if /version is not the command', async () => {
+  it('shouldExecute false if /version is not the command', async function () {
     const Version = require('../build/commands/version')
     const bot = new WickrIOBotAPI.WickrIOBot()
     const status = await bot.startForTesting('clientName')
@@ -1473,7 +1485,7 @@ describe('version validation', () => {
   })
 
   /* ================================================================================ */
-  it('shouldExecute true if /version is the command', async () => {
+  it('shouldExecute true if /version is the command', async function () {
     const Version = require('../build/commands/version')
     const bot = new WickrIOBotAPI.WickrIOBot()
     const status = await bot.startForTesting('clientName')
@@ -1502,7 +1514,7 @@ describe('version validation', () => {
   })
 
   /* ================================================================================ */
-  it('execute() returns a reply', async () => {
+  it('execute() returns a reply', async function () {
     const Version = require('../build/commands/version')
     const bot = new WickrIOBotAPI.WickrIOBot()
     const status = await bot.startForTesting('clientName')
@@ -1534,7 +1546,7 @@ describe('version validation', () => {
 
 /* ============================== Map Tests ======================================= */
 
-describe('map validation', () => {
+describe('map validation', function () {
   /* ================================================================================ */
   it('shouldExecute false if /map is not the command', function (done) {
     const { apiService } = require('../build/helpers/constants')

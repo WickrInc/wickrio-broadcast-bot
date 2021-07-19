@@ -10,7 +10,6 @@
     "babel-eslint": "^10.1.0",
     "babel-plugin-istanbul": "^6.0.0",
     "body-parser": "^1.19.0",
-    "chai": "^4.3.4",
     "cookie-parser": "^1.4.5",
     "csv-writer": "^1.6.0",
     "dotenv": "^8.2.0",
@@ -38,11 +37,13 @@
     "axios": "^0.21.1",
     "babel-jest": "^26.1.0",
     "babel-preset-airbnb": "^5.0.0",
+    "chai": "^4.3.4",
     "eslint": "^7.4.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-config-standard": "^14.1.1",
     "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-mocha": "^9.0.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-promise": "^4.2.1",
@@ -88,11 +89,13 @@
     "parser": "babel-eslint",
     "extends": [
       "standard",
+      "plugin:mocha/recommended",
       "prettier",
       "prettier/standard"
     ],
     "plugins": [
       "import",
+      "mocha",
       "prettier",
       "standard"
     ],
