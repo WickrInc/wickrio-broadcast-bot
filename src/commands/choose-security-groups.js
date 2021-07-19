@@ -8,7 +8,6 @@ class ChooseSecurityGroups {
     this.state = State.WHICH_GROUPS
   }
 
-  // TODO should this be standard??
   shouldExecute() {
     return this.messageService.matchUserCommandCurrentState({
       commandState: this.state,

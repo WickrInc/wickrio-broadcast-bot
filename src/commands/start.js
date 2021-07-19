@@ -27,7 +27,7 @@ class Start {
     // TODO check if value can be capital letters?
     // TODO Check the correct way to check BROADCAST_ENABLED
     if (BROADCAST_ENABLED === undefined || BROADCAST_ENABLED.value === 'yes') {
-      broadcastString = '"S for Security Group"\n'
+      broadcastString = '"S" for Security Group"\n'
       buttonArray.unshift('Security Group')
     }
     // TODO should be undefined??

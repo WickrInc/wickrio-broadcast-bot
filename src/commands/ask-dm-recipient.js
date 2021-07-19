@@ -21,7 +21,7 @@ class AskDMRecipient {
 
   execute() {
     let state = State.WHICH_GROUPS
-    let reply = this.broadcastService.getSecurityGroups()
+    let reply = this.broadcastService.getSecurityGroupReply()
     let messagemeta
     const userID = this.messageService.message
     if (userID.toLowerCase() === 'next') {

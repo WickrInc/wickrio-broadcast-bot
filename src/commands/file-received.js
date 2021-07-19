@@ -33,7 +33,7 @@ class FileReceived {
       broadcastString = 'broadcast this file or '
       buttons = ['Broadcast']
     }
-    const reply = `Would you like to ${broadcastString}send this file to a list? Or is it a file of usernames or hashes? Please respond with ${broadcastLetterString}(s)end, (u)ser`
+    const reply = `Would you like to ${broadcastString}send this file to a list? Or is it a file of usernames? Please respond with ${broadcastLetterString}(s)end or (u)ser`
     const buttonsConcat = ['Send', 'User']
     buttons = buttons.concat(buttonsConcat)
     const messagemeta = ButtonHelper.makeCancelButtons(buttons)

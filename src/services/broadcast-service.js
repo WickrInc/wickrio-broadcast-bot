@@ -92,7 +92,15 @@ class BroadcastService {
     this.user.dmRecipient = dmRecipient
   }
 
-  getSecurityGroups() {
+  setupFileBroadcast(filePath, filename, userEmail, vGroupID) {
+    this.setFile(filePath)
+    this.setDisplay(filename)
+    this.setUserEmail(userEmail)
+    this.setVGroupID(vGroupID)
+    this.setSentByFlag(true)
+  }
+
+  getSecurityGroupReply() {
     const securityGroupList = this.getAPISecurityGroups()
     let groupsString = ''
     for (let i = 0; i < securityGroupList.length; i += 1) {
