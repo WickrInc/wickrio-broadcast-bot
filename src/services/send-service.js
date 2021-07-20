@@ -146,33 +146,17 @@ class SendService {
     let messageToSend = this.messageService.user.message + sentBy
 
     const flags = []
-    const buttons = []
     if (this.messageService.user.ackFlag) {
-      messageToSend =
-        messageToSend + '\n\nPlease acknowledge message by replying with /ack'
-      buttons.push({
-        type: 'message',
-        text: '/Ack',
-        message: '/ack',
-      })
-      buttons.push({
-        type: 'getlocation',
-        text: '/Ack with Location',
-      })
+      messageToSend = `${messageToSend}\n\nPlease acknowledge message by replying with /ack`
     }
     if (this.messageService.user.dmFlag) {
-      // TODO still this?? const btntext = 'DM ' + this.messageService.user.dmRecipient
       messageToSend = `${messageToSend}\n\nPlease send a response to ${this.messageService.user.dmRecipient}`
-      buttons.push({
-        type: 'dm',
-        text: '/Ack and Respond',
-        messagetosend: '/ack',
-        messagetodm: 'Response to broadcast:',
-        userid: this.messageService.user.dmRecipient,
-      })
     }
-    const meta = { buttons }
-    const metaString = JSON.stringify(meta)
+    const metaString = ButtonHelper.makeRecipientButtons(
+      this.messageService.user.ackFlag,
+      this.messageService.user.dmFlag,
+      this.messageService.user.dmRecipient
+    )
     logger.debug('Broadcasting to a file: file=' + fileName)
     const currentDate = new Date()
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
@@ -278,6 +262,8 @@ class SendService {
     this.messageService.user.ttl = ''
     this.messageService.user.bor = ''
     this.messageService.user.ackFlag = 0
+    this.messageService.user.dmFlag = false
+    this.messageService.user.dmRecipient = ''
   }
 
   // This function is used to send a file to a room.

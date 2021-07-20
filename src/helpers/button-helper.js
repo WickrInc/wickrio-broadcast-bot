@@ -92,6 +92,34 @@ class ButtonHelper {
     })
     return { buttons }
   }
+
+  static makeRecipientButtons(ackFlag, dmFlag, dmRecipient) {
+    const buttons = []
+    if (ackFlag) {
+      buttons.push({
+        type: 'message',
+        text: '/Ack',
+        message: '/ack',
+      })
+      // TODO check if location is enabled??
+      buttons.push({
+        type: 'getlocation',
+        text: '/Ack with Location',
+      })
+    }
+    if (dmFlag) {
+      // TODO still doing this? const btntext = 'DM ' + this.user.dmRecipient
+      buttons.push({
+        type: 'dm',
+        text: '/Ack and Respond',
+        messagetosend: '/ack',
+        messagetodm: 'Response to broadcast:',
+        userid: dmRecipient,
+      })
+    }
+    const meta = { buttons }
+    return JSON.stringify(meta)
+  }
 }
 
 export default ButtonHelper
