@@ -13,6 +13,7 @@ class SendAskDMRecipient {
     // logger.trace('SendAskDMRecipient: shouldExecute')
     console.log('SendAskDMRecipient: shouldExecute')
     // TODO could remove the /broadcast check if done right
+    // TODO checkout this command in messageSErvice
     const commandStatusMatches = this.messageService.matchUserCommandCurrentState(
       {
         commandState: this.state,

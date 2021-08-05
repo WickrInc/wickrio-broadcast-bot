@@ -22,24 +22,29 @@ import AskRepeat from './commands/ask-repeat'
 import AskForAck from './commands/ask-for-ack'
 import AskDMRecipient from './commands/ask-dm-recipient'
 import ChooseFile from './commands/choose-file'
-import Panel from './commands/panel'
+import CreateMessage from './commands/create-message'
 import ChooseSecurityGroups from './commands/choose-security-groups'
 import ConfirmSecurityGroups from './commands/confirm-security-groups'
 import FileActions from './commands/file-actions'
 import OverwriteCheck from './commands/overwrite-check'
+import Panel from './commands/panel'
 import RepeatFrequency from './commands/repeat-frequency'
 import SendUserFile from './commands/send-user-file'
 import SendAskForAck from './commands/send-ask-for-ack'
 import SendAskDMRecipient from './commands/send-ask-dm-recipient'
+import SelectRecipients from './commands/select-recipients'
 import TimesRepeat from './commands/times-repeat'
+import UploadUserFile from './commands/upload-user-file'
 import WhichAbort from './commands/which-abort'
 import WhichDelete from './commands/which-delete'
 import WhichReport from './commands/which-report'
 import WhichStatus from './commands/which-status'
 import WhichMap from './commands/which-map'
-import BroadcastService from './services/broadcast-service'
+// import BroadcastService from './services/broadcast-service'
+import CombinedService from './services/combined-service'
 import RepeatService from './services/repeat-service'
-import SendService from './services/send-service'
+// import SendService from './services/send-service'
+import SetupService from './services/setup-service'
 import FileService from './services/file-service'
 import GenericService from './services/generic-service'
 import StatusService from './services/status-service'
@@ -113,7 +118,11 @@ class Factory {
     this.reportService = ReportService
     this.statusService = StatusService
 
-    this.broadcastService = new BroadcastService({
+    this.broadcastService = new CombinedService({
+      messageService: this.messageService,
+      apiService: this.apiService,
+    })
+    this.combinedService = new CombinedService({
       messageService: this.messageService,
       apiService: this.apiService,
     })
@@ -121,7 +130,11 @@ class Factory {
       broadcastService: this.broadcastService,
       messageService: this.messageService,
     })
-    this.sendService = new SendService({ messageService: this.messageService })
+    this.sendService = new CombinedService({
+      messageService: this.messageService,
+      apiService: this.apiService,
+    })
+    // this.sendService = new SendService({ messageService: this.messageService })
     this.fileService = new FileService({ messageService: this.messageService })
     this.mapService = new MapService({
       apiService: this.apiService,
@@ -157,6 +170,8 @@ class Factory {
     })
     this.fileReceived = new FileReceived({
       fileService: this.fileService,
+      setupService: SetupService,
+      combinedService: this.combinedService,
       messageService: this.messageService,
     })
     this.initializeBroadcast = new InitializeBroadcast({
@@ -175,7 +190,11 @@ class Factory {
       genericService: this.genericService,
       messageService: this.messageService,
     })
-    this.start = new Start({ messageService: this.messageService })
+    this.start = new Start({
+      messageService: this.messageService,
+      setupService: SetupService,
+      combinedService: this.combinedService,
+    })
     this.map = new Map({
       genericService: this.genericService,
       messageService: this.messageService,
@@ -216,18 +235,23 @@ class Factory {
       broadcastService: this.broadcastService,
       messageService: this.messageService,
     })
+    this.createMessage = new CreateMessage({
+      combinedService: this.combinedService,
+      messageService: this.messageService,
+    })
     this.confirmSecurityGroups = new ConfirmSecurityGroups({
       broadcastService: this.broadcastService,
       messageService: this.messageService,
     })
     this.fileActions = new FileActions({
       fileService: this.fileService,
-      broadcastService: this.broadcastService,
-      sendService: this.sendService,
+      combinedService: this.combinedService,
+      setupService: this.setupService,
       messageService: this.messageService,
     })
     this.overwriteCheck = new OverwriteCheck({
       fileService: this.fileService,
+      combinedService: this.combinedService,
       messageService: this.messageService,
     })
     this.repeatFrequency = new RepeatFrequency({
@@ -247,8 +271,17 @@ class Factory {
       messageService: this.messageService,
       apiService: this.apiService,
     })
+    this.selectRecipients = new SelectRecipients({
+      broadcastService: this.broadcastService,
+      sendService: this.sendService,
+      messageService: this.messageService,
+    })
     this.timesRepeat = new TimesRepeat({
       repeatService: this.repeatService,
+      messageService: this.messageService,
+    })
+    this.uploadUserFile = new UploadUserFile({
+      fileService: this.fileService,
       messageService: this.messageService,
     })
     this.whichAbort = new WhichAbort({
@@ -303,14 +336,17 @@ class Factory {
       this.activeRepeat,
       this.chooseFile,
       this.chooseSecurityGroups,
+      this.createMessage,
       this.confirmSecurityGroups,
       this.fileActions,
       this.overwriteCheck,
       this.repeatFrequency,
+      this.selectRecipients,
       this.sendUserFile,
       this.sendAskDMRecipient,
       this.sendAskForAck,
       this.timesRepeat,
+      this.uploadUserFile,
       this.whichAbort,
       this.whichDelete,
       this.whichReport,

@@ -20,11 +20,10 @@ class Cancel {
     this.sendService.clearValues()
     const reply =
       'Previous command canceled, send a new command or enter /help for a list of commands.'
-    const obj = {
+    return {
       reply,
       state: State.NONE,
     }
-    return obj
   }
 }
 

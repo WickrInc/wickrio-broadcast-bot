@@ -22,11 +22,10 @@ class Ack {
       ''
     )
     const reply = ''
-    const obj = {
+    return {
       reply,
       state: State.NONE,
     }
-    return obj
   }
 
   // if (command === '/ack') {

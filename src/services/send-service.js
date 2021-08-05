@@ -1,4 +1,5 @@
 import { existsSync, mkdirSync } from 'fs'
+
 import FileHandler from '../helpers/file-handler'
 import StatusService from './status-service'
 import updateLastID from '../helpers/message-id-helper'
@@ -12,6 +13,7 @@ if (!existsSync(`${process.cwd()}/files`)) {
   mkdirSync(`${process.cwd()}/files`)
 }
 
+// TODO reduce magic chars
 const dir = `${process.cwd()}/files`
 
 class SendService {
@@ -26,11 +28,8 @@ class SendService {
   // TODO what happens if someone is adding a file at the same time as someone is sending a message?
   getFiles(userEmail) {
     try {
-      this.messageService.user.userDir = `${dir}/${userEmail}/`
-      this.messageService.user.fileArr = FileHandler.listFiles(
-        this.messageService.user.userDir
-      )
-      return this.messageService.user.fileArr
+      const userDir = `${dir}/${userEmail}/`
+      return FileHandler.listFiles(userDir)
     } catch (err) {
       // TODO fix this.messageService.user.!! gracefully >:)
       logger.error(err)
@@ -86,6 +85,10 @@ class SendService {
 
   setDMRecipient(dmRecipient) {
     this.messageService.user.dmRecipient = dmRecipient
+  }
+
+  getMessage() {
+    return this.messageService.user.message
   }
 
   setupFileSend(filePath, filename, userEmail, vGroupID) {
@@ -162,7 +165,8 @@ class SendService {
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
     const jsonDateTime = currentDate.toJSON()
     // TODO move filePathcreation?
-    const filePath = this.messageService.user.userDir + `${fileName}`
+    const userDir = `${dir}/${this.messageService.user.userEmail}/`
+    const filePath = userDir + `${fileName}`
     let uMessage
     const messageID = updateLastID()
     if (

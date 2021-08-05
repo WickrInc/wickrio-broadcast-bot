@@ -8,8 +8,11 @@ import {
   WickrIOAPI,
   WEB_APPLICATION,
   REST_APPLICATION,
+  apiService,
 } from './helpers/constants'
 import Factory from './factory'
+import SetupService from './services/setup-service'
+import JSONCredentialsHandler from './helpers/json-credentials-handler'
 
 if (!fs.existsSync(`${process.cwd()}/attachments`)) {
   fs.mkdirSync(`${process.cwd()}/attachments`)
@@ -18,6 +21,8 @@ if (!fs.existsSync(`${process.cwd()}/attachments`)) {
 if (!fs.existsSync(`${process.cwd()}/files`)) {
   fs.mkdirSync(`${process.cwd()}/files`)
 }
+
+let setupService
 const runHandlers = () => {
   // STANDARDIZE BELOW -----------
 
@@ -84,9 +89,6 @@ async function main() {
     WickrIOAPI.cmdSetControl('convobackup', 'false')
     WickrIOAPI.cmdSetControl('readreceipt', 'true')
 
-    // Passes a callback function that will receive incoming messages into the bot client
-    bot.startListening(listen)
-
     if (WEB_APPLICATION?.value === 'yes' || REST_APPLICATION?.value === 'yes') {
       startServer()
     } else {
@@ -94,6 +96,44 @@ async function main() {
         'If you wanted a web or rest interface, the env variables not set properly. Check BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT'
       )
     }
+
+    const adminList = bot.getAdmins()
+    const setupData = { admins: {} }
+    for (const admin of adminList) {
+      console.log('admin' + admin)
+      setupData.admins[admin] = false
+    }
+
+    const setupHandler = new JSONCredentialsHandler(
+      setupData,
+      './setupData.json'
+    )
+
+    setupService = new SetupService(setupHandler)
+    // const setupAdmins = []
+    const setupAdmins = []
+    for (const admin of bot.getAdmins()) {
+      if (!setupService.alreadySetup(admin)) {
+        setupAdmins.push(admin)
+      }
+    }
+    const welcomeObj = SetupService.getWelcomeMessage()
+    const welcomeMessage = welcomeObj.reply
+    const welcomeMessagemeta = welcomeObj.messagemeta
+    // TODO can we send messagemeta in one to one messages??
+    if (setupAdmins.length > 0) {
+      apiService.send1to1Message(
+        setupAdmins,
+        welcomeMessage,
+        '',
+        '',
+        '',
+        [],
+        welcomeMessagemeta
+      )
+    }
+    // Passes a callback function that will receive incoming messages into the bot client
+    bot.startListening(listen)
   } catch (err) {
     console.log(err)
   }
@@ -124,13 +164,18 @@ async function listen(rawMessage) {
       msgType,
       user,
       userEmail,
-      // isAdmin,
+      isAdmin,
       // latitude,
       // longitude,
       // location,
       // isVoiceMemo,
       // voiceMemoDuration,
     } = messageService
+
+    if (isAdmin && !setupService.alreadySetup(userEmail)) {
+      console.log('isAdmin and not already setup')
+      setupService.setupComplete(userEmail)
+    }
 
     // do not handle non location and messages
     if (msgType !== 'location' && msgType !== 'file' && msgType !== undefined) {
@@ -170,6 +215,8 @@ async function listen(rawMessage) {
     if (cmdResult?.state || cmdResult?.state === 0) {
       // change to broacastservice?
       user.currentState = cmdResult.state
+    } else {
+      user.currentState = 0
     }
   } catch (err) {
     logger.error(err)

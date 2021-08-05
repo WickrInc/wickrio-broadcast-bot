@@ -4,7 +4,7 @@ import WickrIOBotAPI from 'wickrio-bot-api'
 import ButtonHelper from '../helpers/button-helper'
 // TODO proper form??
 import updateLastID from '../helpers/message-id-helper'
-import { logger } from '../helpers/constants'
+import { logger, BROADCAST_ENABLED } from '../helpers/constants'
 const bot = new WickrIOBotAPI.WickrIOBot()
 
 class BroadcastService {
@@ -99,6 +99,10 @@ class BroadcastService {
     this.setUserEmail(userEmail)
     this.setVGroupID(vGroupID)
     this.setSentByFlag(true)
+  }
+
+  getBroadcastEnabled() {
+    return BROADCAST_ENABLED === undefined || BROADCAST_ENABLED === 'yes'
   }
 
   getSecurityGroupReply() {

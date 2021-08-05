@@ -21,9 +21,20 @@ class ConfirmSecurityGroups {
 
     // TODO account for voice/ file message
     if (this.messageService.affirmativeReply()) {
-      reply = 'Would you like to repeat this broadcast message?'
-      state = State.ASK_REPEAT
-      messagemeta = ButtonHelper.makeYesNoButton()
+      if (
+        (this.broadcastService.getMessage() !== undefined &&
+          this.broadcastService.getMessage() !== '') ||
+        (this.broadcastService.getFile() !== undefined &&
+          this.broadcastService.getFile() !== '')
+      ) {
+        reply = 'Would you like to ask the recipients for an acknowledgement?'
+        state = State.ASK_FOR_ACK
+        messagemeta = ButtonHelper.makeYesNoButton(0)
+      } else {
+        reply =
+          'Great! Now type a message or upload the file (by clicking on the "+" sign) that you want to broadcast.'
+        state = State.CREATE_MESSAGE
+      }
     } else if (this.messageService.negativeReply()) {
       reply =
         'Please enter the number(s) of the security group(s) or reply all to send the message to everyone in the network.'
@@ -31,14 +42,13 @@ class ConfirmSecurityGroups {
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'
       state = this.state
-      messagemeta = ButtonHelper.makeYesNoButton()
+      messagemeta = ButtonHelper.makeYesNoButton(0)
     }
-    const obj = {
+    return {
       reply,
       state,
       messagemeta,
     }
-    return obj
   }
 }
 

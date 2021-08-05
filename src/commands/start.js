@@ -1,12 +1,13 @@
-import { BROADCAST_ENABLED } from '../helpers/constants'
 import State from '../state'
-import ButtonHelper from '../helpers/button-helper.js'
+// TODO is it better to put setupService in the constructor??
+// import SetupService from '../services/setup-service'
 // import { logger } from '../helpers/constants'
 
 class Start {
-  constructor({ messageService, sendService }) {
+  constructor({ combinedService, setupService, messageService }) {
     this.messageService = messageService
-    this.sendService = sendService
+    this.combinedService = combinedService
+    this.setupService = setupService
     this.commandString = '/start'
   }
 
@@ -18,32 +19,15 @@ class Start {
   }
 
   execute() {
+    this.combinedService.clearValues()
+    this.combinedService.setUserEmail(this.messageService.getUserEmail())
+    this.combinedService.setVGroupID(this.messageService.getVGroupID())
+    this.combinedService.setSentByFlag(true)
     const state = State.SELECT_RECIPIENTS
-    let reply = ''
-    let broadcastString = ''
-    let existingString = ''
-    let messagemeta = {}
-    const buttonArray = ['New User File']
-    // TODO check if value can be capital letters?
-    // TODO Check the correct way to check BROADCAST_ENABLED
-    if (BROADCAST_ENABLED === undefined || BROADCAST_ENABLED.value === 'yes') {
-      broadcastString = '"S" for Security Group"\n'
-      buttonArray.unshift('Security Group')
-    }
-    // TODO should be undefined??
-    if (
-      this.sendService.getFiles(this.messageService.getUserEmail()) !== null
-    ) {
-      existingString = '\n"E" for Existing User File'
-      buttonArray.push('Existing User File')
-    }
-    if (buttonArray.length === 1) {
-      reply =
-        'To upload a new user file, select the " + " icon below and upload a .txt file containing return separated usernames of users who are in your Wickr network.'
-    } else {
-      reply = `How would you like to select the recipients for your broadcast?\nType ${broadcastString}"N" for New User File${existingString}`
-      messagemeta = ButtonHelper.makeCancelButtons(buttonArray)
-    }
+    const userEmail = this.messageService.getUserEmail()
+    const retObj = this.setupService.getStartReply(userEmail)
+    const reply = retObj.reply
+    const messagemeta = retObj.messagemeta
     return {
       reply,
       state,

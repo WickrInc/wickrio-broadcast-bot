@@ -74,8 +74,9 @@ class FileHandler {
     userEmail
   ) {
     let reply
-    let state
+    let state = State.NONE
     let messagemeta = {}
+    let retVal = false
     if (!filename.endsWith('.txt')) {
       reply = `File: ${filename} is not the proper format. File must be a text (.txt) file`
     } else if (FileHandler.checkFileBlank(filePath)) {
@@ -106,6 +107,7 @@ class FileHandler {
 
       if (cp) {
         reply = `File named: ${filename} successfully saved to directory.`
+        retVal = true
       } else {
         reply = `Error: File named: ${filename} not saved to directory.`
       }
@@ -114,6 +116,7 @@ class FileHandler {
       reply,
       state,
       messagemeta,
+      retVal,
     }
   }
 }

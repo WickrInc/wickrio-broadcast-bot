@@ -42,35 +42,39 @@ class ButtonHelper {
     return messageMeta
   }
 
-  static makeYesNoButton() {
+  static makeYesNoButton(preferredIndex = -1) {
     return {
       buttons: [
         {
           type: 'message',
           text: 'Yes',
           message: 'yes',
+          preferred: preferredIndex === 0,
         },
         {
           type: 'message',
           text: 'No',
           message: 'no',
+          preferred: preferredIndex === 1,
         },
         {
           type: 'message',
           text: 'Cancel',
           message: '/cancel',
+          preferred: preferredIndex === 2,
         },
       ],
     }
   }
 
-  static makeMessageButtons(buttonArray) {
+  static makeMessageButtons(buttonArray, preferredIndex = -1) {
     const buttons = []
     for (const button of buttonArray) {
       buttons.push({
         type: 'message',
         text: button,
         message: button,
+        preferred: preferredIndex,
       })
     }
     return { buttons }
@@ -90,6 +94,18 @@ class ButtonHelper {
       text: 'Cancel',
       message: '/cancel',
     })
+    return { buttons }
+  }
+
+  static makeCommandButtons(buttonArray) {
+    const buttons = []
+    for (const button of buttonArray) {
+      buttons.push({
+        type: 'message',
+        text: button,
+        message: '/' + button,
+      })
+    }
     return { buttons }
   }
 

@@ -10,7 +10,6 @@ class AskDMRecipient {
   }
 
   shouldExecute() {
-    // TODO could remove the /broadcast check if done right
     const commandStatusMatches = this.messageService.matchUserCommandCurrentState(
       {
         commandState: this.state,
@@ -20,23 +19,52 @@ class AskDMRecipient {
   }
 
   execute() {
-    let state = State.WHICH_GROUPS
-    let reply = this.broadcastService.getSecurityGroupReply()
+    let reply = ''
     let messagemeta
+    let state
     const userID = this.messageService.message
-    if (userID.toLowerCase() === 'next') {
+    if (userID.toLowerCase() === 'confirm') {
       this.broadcastService.setDMFlag(false)
     } else {
-      const userInfo = this.apiService.getUserInfo([userID])
+      let userInfo
+      try {
+        userInfo = this.apiService.getUserInfo([userID])
+      } catch {
+        reply = `The user: ${userID} does not exist in your network. Type in the username of the Wickr user to whom you want to direct these responses. \nElse type "Confirm" to confirm your broadcast. Or type /cancel to cancel flow`
+        state = State.ASK_DM_RECIPIENT
+        messagemeta = ButtonHelper.makeCancelButtons(['Confirm'])
+        return {
+          reply,
+          state,
+          messagemeta,
+        }
+      }
       const failed = userInfo.failed
       if (failed !== undefined && userInfo.failed.length !== 0) {
-        reply = `The user: ${userID} does not exist in your network. Type in the username of the Wickr user to whom you want to direct these responses. Or type Next to skip this step. Or type /cancel to cancel flow`
+        reply = `The user: ${userID} does not exist in your network. Type in the username of the Wickr user to whom you want to direct these responses. \nElse type "Confirm" to confirm your broadcast. Or type /cancel to cancel flow`
         state = State.ASK_DM_RECIPIENT
-        messagemeta = ButtonHelper.makeCancelButtons(['Next'])
+        messagemeta = ButtonHelper.makeCancelButtons(['Confirm'])
+        return {
+          reply,
+          state,
+          messagemeta,
+        }
       } else {
         this.broadcastService.setDMFlag(true)
         this.broadcastService.setDMRecipient(userID)
       }
+    }
+    if (
+      this.broadcastService.getSendFile() !== undefined &&
+      this.broadcastService.getSendFile() !== ''
+    ) {
+      state = State.NONE
+      this.broadcastService.sendToFile()
+      reply = this.broadcastService.getQueueInfo()
+    } else {
+      reply = 'Would you like to repeat this broadcast message?'
+      state = State.ASK_REPEAT
+      messagemeta = ButtonHelper.makeYesNoButton()
     }
     return {
       reply,

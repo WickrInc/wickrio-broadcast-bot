@@ -1,15 +1,12 @@
 import State from '../state'
-import ButtonHelper from '../helpers/button-helper'
 // import logger from '../logger'
 import FileHandler from '../helpers/file-handler'
 
-import { BROADCAST_ENABLED } from '../helpers/constants'
-
 class FileActions {
-  constructor({ fileService, broadcastService, sendService, messageService }) {
+  constructor({ fileService, combinedService, setupService, messageService }) {
     this.fileService = fileService
-    this.broadcastService = broadcastService
-    this.sendService = sendService
+    this.combinedService = combinedService
+    this.setupService = setupService
     this.messageService = messageService
     this.state = State.FILE_TYPE
   }
@@ -26,42 +23,26 @@ class FileActions {
     const filename = this.fileService.getFilename()
     const userEmail = this.messageService.getUserEmail()
     const vGroupID = this.messageService.getVGroupID()
-    const fileArr = this.sendService.getFiles(userEmail)
+    const fileArr = this.combinedService.getFiles(userEmail)
     let fileAppend = ''
-    let state = State.NONE
+    let state
     let reply = ''
     let messagemeta = {}
-    if (type === 'u' || type === 'user') {
-      fileAppend = '.user'
-    } else if (type === 'HASH') {
+    this.combinedService.setUserEmail(userEmail)
+    this.combinedService.setVGroupID(vGroupID)
+    this.combinedService.setSentByFlag(true)
+    if (type === 'HASH') {
       fileAppend = '.hash'
-    } else if (type === 's' || type === 'send') {
-      // TODO should this be null
-      this.sendService.setMessage(this.messageService.message)
-      this.sendService.setupFileSend(filePath, filename, userEmail, vGroupID)
-      const filesObject = this.sendService.getFilesForSending(userEmail)
-      reply = filesObject.reply
-      messagemeta = filesObject.messagemeta
-      state = State.CHOOSE_FILE
-    } else if (
-      (type === 'b' || type === 'broadcast') &&
-      (BROADCAST_ENABLED === 'undefined' || BROADCAST_ENABLED.value === 'yes')
-    ) {
-      this.broadcastService.setupFileBroadcast(
-        filePath,
-        filename,
-        userEmail,
-        vGroupID
-      )
-      // TODO should this be null
-      this.broadcastService.setMessage(this.messageService.message)
-      reply = 'Would you like to ask the recipients for an acknowledgement?'
-      messagemeta = ButtonHelper.makeYesNoButton()
-      state = State.ASK_FOR_ACK
+    } else if (this.messageService.affirmativeReply()) {
+      state = State.CREATE_MESSAGE
+      fileAppend = '.user'
+    } else if (this.messageService.negativeReply()) {
+      const retObj = this.setupService.getStartReply(userEmail)
+      reply = retObj.reply
+      messagemeta = retObj.messagemeta
+      state = State.SELECT_RECIPIENTS
     } else {
-      const broadcastString =
-        BROADCAST_ENABLED?.value === 'no' ? '' : '(b)roadcast, '
-      reply = `Input not recognized, please reply with ${broadcastString}(s)end or (u)ser`
+      reply = 'Input not recognized, please reply with yes or no'
       state = State.FILE_TYPE
     }
     if (fileAppend !== '') {
@@ -75,6 +56,13 @@ class FileActions {
       )
       reply = checkFileObject.reply
       state = checkFileObject.state
+      messagemeta = checkFileObject.messagemeta
+      if (checkFileObject.retVal) {
+        this.combinedService.setSendFile(filename)
+        reply =
+          'Great! Now type a message or upload the file (by clicking on the "+" sign) that you want to broadcast.'
+        state = State.CREATE_MESSAGE
+      }
     }
     return {
       reply,

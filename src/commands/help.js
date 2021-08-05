@@ -51,15 +51,13 @@ class Help {
       broadcastString = '/broadcast: is currently disabled\n'
     } else {
       broadcastString =
-        '/broadcast <Message> : To send a broadcast message to the network or security groups\n' +
-        'To broadcast a file - Click the + sign and share the file with the bot\n' +
         'To broadcast a voice memo - Click the microphone button and send a voice memo to the bot\n'
     }
     let helpString =
       '*Messages Commands*\n' +
-      '/send <Message> : To send a broadcast message to a given file of user hashes or usernames\n' +
-      'To save a file of usernames or user hashes - Click the + sign and share the file with the bot\n' +
+      '/start : To send a broadcast message to a given file of user hashes or usernames\n' +
       '/ack : To acknowledge a broadcast message \n' +
+      'To broadcast a file - Click the + sign and share the file with the bot\n' +
       `${broadcastString}` +
       '/status : To get the status of a broadcast message\n' +
       '/report : To get a CSV file with the status of each user for a broadcast message\n' +
