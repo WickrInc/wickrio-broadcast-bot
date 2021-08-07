@@ -33,6 +33,7 @@ class CombinedService {
     this.user.flags = flags
   }
 
+  // TODO rename to broadcast File
   setFile(file) {
     this.user.file = file
   }
@@ -89,10 +90,12 @@ class CombinedService {
     this.user.webapp = true
   }
 
+  // TODO doesDMRecipientExist
   setDMFlag(dmFlag) {
     this.user.dmFlag = dmFlag
   }
 
+  // TODO rename UserListFile
   setSendFile(file) {
     this.user.sendfile = file
   }
@@ -101,11 +104,12 @@ class CombinedService {
     this.user.dmRecipient = dmRecipient
   }
 
-  // setRecipientType(recipientType) {
-  //   this.user.recipientType = recipientType
+  // TODO rename doesUserlistFileExist
+  // setSendFileExists(sendFileExists) {
+  //   this.user.sendFileExists = sendFileExists
   // }
 
-  // getRecipientType() {
+  // getUserFileFlag() {
   //   return this.user.recipientType
   // }
 

@@ -37,8 +37,9 @@ class SetupService {
 
   static getWelcomeMessage() {
     const reply = `Welcome to the Wickr BroadcastBot (version ${pkgjson.version}). I can help you broadcast messages to the members of your network. To get started type /start.\n\n At any time you can type /help to get a list of available commands or /cancel to exit from the the broadcast configuration flow.`
-    const buttons = ['Start', 'Help']
-    const messagemeta = ButtonHelper.makeCommandButtons(buttons, 0)
+    // const buttons = ['Start', 'Help']
+    // const messagemeta = ButtonHelper.makeCommandButtons(buttons, 0)
+    const messagemeta = ButtonHelper.makeYesNoButton(0)
     return {
       reply,
       messagemeta,

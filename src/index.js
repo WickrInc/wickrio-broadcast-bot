@@ -111,7 +111,7 @@ async function main() {
 
     setupService = new SetupService(setupHandler)
     // const setupAdmins = []
-    const setupAdmins = []
+    const setupAdmins = ['tderosa+largenetwork@wickr.com']
     for (const admin of bot.getAdmins()) {
       if (!setupService.alreadySetup(admin)) {
         setupAdmins.push(admin)
@@ -120,6 +120,7 @@ async function main() {
     const welcomeObj = SetupService.getWelcomeMessage()
     const welcomeMessage = welcomeObj.reply
     const welcomeMessagemeta = welcomeObj.messagemeta
+    console.log(welcomeMessagemeta)
     // TODO can we send messagemeta in one to one messages??
     if (setupAdmins.length > 0) {
       apiService.send1to1Message(
@@ -127,9 +128,9 @@ async function main() {
         welcomeMessage,
         '',
         '',
-        '',
-        [],
-        welcomeMessagemeta
+        ''
+        // [],
+        // welcomeMessagemeta
       )
     }
     // Passes a callback function that will receive incoming messages into the bot client

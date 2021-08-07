@@ -7,6 +7,7 @@ import { logger } from '../helpers/constants'
 const dir = `${process.cwd()}/files`
 
 class SendMessageService {
+  // TODO rename to sendToUserList
   static sendToFile(apiService, user) {
     const fileName = user.sendfile
     const sentBy = `\n\nBroadcast message sent by: ${user.userEmail}`
