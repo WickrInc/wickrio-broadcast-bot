@@ -22,7 +22,7 @@ class GenericService {
     )
     if (RESPONSES_ENABLED === undefined || RESPONSES_ENABLED.value === 'yes') {
       const userArray = [userID]
-      this.apiService.send1to1Message(userArray, reply, '', '', '', [], {})
+      this.apiService.send1to1Message(userArray, reply, '', '', '', [], '')
     }
     return reply
   }

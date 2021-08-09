@@ -110,8 +110,7 @@ async function main() {
     )
 
     setupService = new SetupService(setupHandler)
-    // const setupAdmins = []
-    const setupAdmins = ['tderosa+largenetwork@wickr.com']
+    const setupAdmins = []
     for (const admin of bot.getAdmins()) {
       if (!setupService.alreadySetup(admin)) {
         setupAdmins.push(admin)
