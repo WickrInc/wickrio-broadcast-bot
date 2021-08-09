@@ -16,6 +16,7 @@ if (!existsSync(`${process.cwd()}/files`)) {
 // TODO reduce magic chars
 const dir = `${process.cwd()}/files`
 
+// TODO rename userbroadcastmessage
 class CombinedService {
   constructor({ messageService, apiService }) {
     this.messageService = messageService
@@ -264,7 +265,7 @@ class CombinedService {
       )
     }
     SendMessageService.sendToFile(this.apiService, this.user)
-    const reply = `Your broadcast is being sent to the users in ${this.user.sendFile}. This may take a few minutes. Type /status to check the status of your broadcast.\n\nTo start a new broadcast, type /start`
+    const reply = `Your broadcast is being sent to the users in ${this.user.sendfile}. This may take a few minutes. Type /status to check the status of your broadcast.\n\nTo start a new broadcast, type /start`
     this.clearValues()
     return reply
   }

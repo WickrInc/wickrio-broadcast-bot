@@ -12,15 +12,17 @@ class FileReceived {
 
   shouldExecute() {
     const file = this.messageService.getFile()
-    console.log('TD' + this.messageService.getUserCurrentStateConstructor())
-    const currentState = this.messageService.getUserCurrentStateConstructor()
+    // const currentState = this.messageService.getUserCurrentStateConstructor()
     if (
       file &&
       // TODO make this more robust
-      // !this.messageService.matchUserCommandCurrentState({
-      //   commandState: State.UPLOAD_USER_FILE,
-      // })
-      (currentState === null || currentState === State.NONE)
+      !this.messageService.matchUserCommandCurrentState({
+        commandState: State.UPLOAD_USER_FILE,
+      }) &&
+      !this.messageService.matchUserCommandCurrentState({
+        commandState: State.CREATE_MESSAGE,
+      })
+      // (currentState === null || currentState === State.NONE)
     ) {
       return true
     }

@@ -119,7 +119,7 @@ async function main() {
     }
     const welcomeObj = SetupService.getWelcomeMessage()
     const welcomeMessage = welcomeObj.reply
-    const welcomeMessagemeta = welcomeObj.messagemeta
+    const welcomeMessagemeta = JSON.stringify(welcomeObj.messagemeta)
     console.log(welcomeMessagemeta)
     // TODO can we send messagemeta in one to one messages??
     if (setupAdmins.length > 0) {
@@ -128,9 +128,9 @@ async function main() {
         welcomeMessage,
         '',
         '',
-        ''
-        // [],
-        // welcomeMessagemeta
+        '',
+        [],
+        welcomeMessagemeta
       )
     }
     // Passes a callback function that will receive incoming messages into the bot client

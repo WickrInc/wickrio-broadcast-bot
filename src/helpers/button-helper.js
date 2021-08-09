@@ -97,13 +97,14 @@ class ButtonHelper {
     return { buttons }
   }
 
-  static makeCommandButtons(buttonArray) {
+  static makeCommandButtons(buttonArray, preferredIndex = -1) {
     const buttons = []
-    for (const button of buttonArray) {
+    for (let i = 0; i < buttonArray.length; i++) {
       buttons.push({
         type: 'message',
-        text: button,
-        message: '/' + button,
+        text: buttonArray[i],
+        message: '/' + buttonArray[i],
+        preferred: i === preferredIndex,
       })
     }
     return { buttons }
