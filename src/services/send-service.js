@@ -1,9 +1,11 @@
 import { existsSync, mkdirSync } from 'fs'
+
 import FileHandler from '../helpers/file-handler'
 import StatusService from './status-service'
 import updateLastID from '../helpers/message-id-helper'
 import { logger, apiService } from '../helpers/constants'
 import WickrIOBotAPI from 'wickrio-bot-api'
+import ButtonHelper from '../helpers/button-helper'
 const bot = new WickrIOBotAPI.WickrIOBot()
 
 // TODO make fs a variable that is passed into the constructor
@@ -11,6 +13,7 @@ if (!existsSync(`${process.cwd()}/files`)) {
   mkdirSync(`${process.cwd()}/files`)
 }
 
+// TODO reduce magic chars
 const dir = `${process.cwd()}/files`
 
 class SendService {
@@ -25,11 +28,8 @@ class SendService {
   // TODO what happens if someone is adding a file at the same time as someone is sending a message?
   getFiles(userEmail) {
     try {
-      this.messageService.user.userDir = `${dir}/${userEmail}/`
-      this.messageService.user.fileArr = FileHandler.listFiles(
-        this.messageService.user.userDir
-      )
-      return this.messageService.user.fileArr
+      const userDir = `${dir}/${userEmail}/`
+      return FileHandler.listFiles(userDir)
     } catch (err) {
       // TODO fix this.messageService.user.!! gracefully >:)
       logger.error(err)
@@ -87,6 +87,19 @@ class SendService {
     this.messageService.user.dmRecipient = dmRecipient
   }
 
+  getMessage() {
+    return this.messageService.user.message
+  }
+
+  setupFileSend(filePath, filename, userEmail, vGroupID) {
+    this.setFile(filePath)
+    this.setDisplay(filename)
+    this.setUserEmail(userEmail)
+    this.setVGroupID(vGroupID)
+    this.setTTL('')
+    this.setBOR('')
+  }
+
   getQueueInfo() {
     const txQInfo = bot.getTransmitQueueInfo()
     const broadcastsInQueue = txQInfo.tx_queue.length
@@ -101,60 +114,29 @@ class SendService {
 
   getFilesForSending(userEmail) {
     const fileArr = this.getFiles(userEmail)
-    let reply =
-      'Here are the saved user files that you can send a message to:\n'
-    const basereplylength = reply.length
-
-    const messagemeta = {
-      table: {
-        name: 'List of files',
-        firstcolname: 'Name',
-        secondcolname: 'Type',
-        actioncolname: 'Select',
-        rows: [],
-      },
-    }
-    const length = fileArr.length
-
-    for (let index = 0; index < length; index += 1) {
-      let fileName = fileArr[index]
-      let fileType
-      if (fileName.endsWith('.user')) {
-        fileType = 'User file'
-        fileName = fileName.slice(0, -5)
-      } else if (fileName.endsWith('.hash')) {
-        fileType = 'Hash file'
-        fileName = fileName.slice(0, -5)
+    let reply = ''
+    let messagemeta = {}
+    // TODO check button list cut on iOS
+    if (!fileArr || fileArr.length === 0) {
+      reply =
+        "There aren't any files available for sending, please upload a file of usernames first."
+    } else {
+      reply = 'Here are the saved user files to which you can send a message:\n'
+      const baseReplyLength = reply.length
+      const files = fileArr.map(file => file.slice(0, -5))
+      for (let index = 0; index < files.length; index += 1) {
+        reply += `(${index + 1}) ${files[index]}\n`
       }
-      reply += `(${index + 1}) ${fileName}\n`
-
-      const response = index + 1
-      const row = {
-        firstcolvalue: fileName,
-        secondcolvalue: fileType,
-        response: response.toString(),
-      }
-      messagemeta.table.rows.push(row)
+      reply += `To which list would you like to send your message?`
+      messagemeta = ButtonHelper.makeButtonList(
+        'List of files',
+        'Name',
+        'Select',
+        baseReplyLength,
+        reply.length,
+        files
+      )
     }
-
-    reply += `To which list would you like to send your message?`
-
-    // Add the area of text to cut for clients that handle lists
-    messagemeta.textcut = [
-      {
-        startindex: basereplylength - 1,
-        endindex: reply.length,
-      },
-    ]
-
-    // messagemeta = ButtonHelper.makeButtonList(
-    //   'List of files',
-    //   'Name',
-    //   'Select',
-    //   basereplylength - 1,
-    //   reply.length,
-    //   rows
-    // )
     return {
       reply,
       messagemeta,
@@ -167,39 +149,24 @@ class SendService {
     let messageToSend = this.messageService.user.message + sentBy
 
     const flags = []
-    const buttons = []
     if (this.messageService.user.ackFlag) {
-      messageToSend =
-        messageToSend + '\n\nPlease acknowledge message by replying with /ack'
-      buttons.push({
-        type: 'message',
-        text: '/Ack',
-        message: '/ack',
-      })
-      buttons.push({
-        type: 'getlocation',
-        text: '/Ack with Location',
-      })
+      messageToSend = `${messageToSend}\n\nPlease acknowledge message by replying with /ack`
     }
     if (this.messageService.user.dmFlag) {
-      // const btntext = 'DM ' + this.messageService.user.dmRecipient
       messageToSend = `${messageToSend}\n\nPlease send a response to ${this.messageService.user.dmRecipient}`
-      buttons.push({
-        type: 'dm',
-        text: '/Ack and Respond',
-        messagetosend: '/ack',
-        messagetodm: 'Response to broadcast:',
-        userid: this.messageService.user.dmRecipient,
-      })
     }
-    const meta = { buttons }
-    const metaString = JSON.stringify(meta)
+    const metaString = ButtonHelper.makeRecipientButtons(
+      this.messageService.user.ackFlag,
+      this.messageService.user.dmFlag,
+      this.messageService.user.dmRecipient
+    )
     logger.debug('Broadcasting to a file: file=' + fileName)
     const currentDate = new Date()
     // "YYYY-MM-DDTHH:MM:SS.sssZ"
     const jsonDateTime = currentDate.toJSON()
     // TODO move filePathcreation?
-    const filePath = this.messageService.user.userDir + `${fileName}`
+    const userDir = `${dir}/${this.messageService.user.userEmail}/`
+    const filePath = userDir + `${fileName}`
     let uMessage
     const messageID = updateLastID()
     if (
@@ -299,6 +266,8 @@ class SendService {
     this.messageService.user.ttl = ''
     this.messageService.user.bor = ''
     this.messageService.user.ackFlag = 0
+    this.messageService.user.dmFlag = false
+    this.messageService.user.dmRecipient = ''
   }
 
   // This function is used to send a file to a room.

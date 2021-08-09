@@ -1,9 +1,10 @@
 // import APIService from './api-service'
 import StatusService from './status-service'
 import WickrIOBotAPI from 'wickrio-bot-api'
+import ButtonHelper from '../helpers/button-helper'
 // TODO proper form??
 import updateLastID from '../helpers/message-id-helper'
-import { logger } from '../helpers/constants'
+import { logger, BROADCAST_ENABLED } from '../helpers/constants'
 const bot = new WickrIOBotAPI.WickrIOBot()
 
 class BroadcastService {
@@ -92,7 +93,19 @@ class BroadcastService {
     this.user.dmRecipient = dmRecipient
   }
 
-  getSecurityGroups() {
+  setupFileBroadcast(filePath, filename, userEmail, vGroupID) {
+    this.setFile(filePath)
+    this.setDisplay(filename)
+    this.setUserEmail(userEmail)
+    this.setVGroupID(vGroupID)
+    this.setSentByFlag(true)
+  }
+
+  getBroadcastEnabled() {
+    return BROADCAST_ENABLED === undefined || BROADCAST_ENABLED === 'yes'
+  }
+
+  getSecurityGroupReply() {
     const securityGroupList = this.getAPISecurityGroups()
     let groupsString = ''
     for (let i = 0; i < securityGroupList.length; i += 1) {
@@ -192,30 +205,11 @@ class BroadcastService {
     let uMessage
     const reply = {}
     const flags = []
-    const buttons = []
-    if (this.user.ackFlag) {
-      buttons.push({
-        type: 'message',
-        text: '/Ack',
-        message: '/ack',
-      })
-      buttons.push({
-        type: 'getlocation',
-        text: '/Ack with Location',
-      })
-    }
-    if (this.user.dmFlag) {
-      // const btntext = 'DM ' + this.user.dmRecipient
-      buttons.push({
-        type: 'dm',
-        text: '/Ack and Respond',
-        messagetosend: '/ack',
-        messagetodm: 'Response to broadcast:',
-        userid: this.user.dmRecipient,
-      })
-    }
-    const meta = { buttons }
-    const metaString = JSON.stringify(meta)
+    const metaString = ButtonHelper.makeRecipientButtons(
+      this.user.ackFlag,
+      this.user.dmFlag,
+      this.user.dmRecipient
+    )
 
     if (target === 'USERS') {
       if (this.user.flags === undefined) this.user.flags = []
@@ -410,6 +404,8 @@ class BroadcastService {
     this.user.ttl = ''
     this.user.bor = ''
     this.user.flags = []
+    this.user.dmFlag = false
+    this.user.dmRecipient = ''
   }
 }
 

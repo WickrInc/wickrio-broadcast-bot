@@ -1,6 +1,6 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "5.85.1",
+  "version": "5.87.1",
   "description": "WickrIO Broadcast Bot",
   "main": "./build/broadcast-bot.js",
   "author": "Paul Cushman",
@@ -23,7 +23,7 @@
     "nyc": "^15.1.0",
     "pino": "^5.15.0",
     "prompt": "^1.0.0",
-    "wickrio-bot-api": "5.85.x"
+    "wickrio-bot-api": "5.87.x"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.4",
@@ -37,11 +37,13 @@
     "axios": "^0.21.1",
     "babel-jest": "^26.1.0",
     "babel-preset-airbnb": "^5.0.0",
+    "chai": "^4.3.4",
     "eslint": "^7.4.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-config-standard": "^14.1.1",
     "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-mocha": "^9.0.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-promise": "^4.2.1",
@@ -87,11 +89,13 @@
     "parser": "babel-eslint",
     "extends": [
       "standard",
+      "plugin:mocha/recommended",
       "prettier",
       "prettier/standard"
     ],
     "plugins": [
       "import",
+      "mocha",
       "prettier",
       "standard"
     ],

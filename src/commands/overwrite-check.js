@@ -1,6 +1,7 @@
 import State from '../state'
 import logger from '../logger'
 import FileHandler from '../helpers/file-handler'
+import ButtonHelper from '../helpers/button-helper.js'
 
 /*
   This class is accessed when the user is trying to upload a file that already
@@ -8,9 +9,10 @@ import FileHandler from '../helpers/file-handler'
   process is cancelled.
 */
 class OverwriteCheck {
-  constructor({ fileService, messageService }) {
+  constructor({ fileService, combinedService, messageService }) {
     this.fileService = fileService
     this.messageService = messageService
+    this.combinedService = combinedService
     this.state = State.OVERWRITE_CHECK
   }
 
@@ -26,8 +28,9 @@ class OverwriteCheck {
     logger.debug(`Here is the file ${file}`)
     const filename = this.fileService.getFilename()
     const fileAppend = this.fileService.getOverwriteFileType()
-    let state = State.NONE
+    let state
     let reply
+    let messagemeta
     if (file === undefined) {
       reply = `internal error: ${filename} NOT saved to directory.`
     } else {
@@ -38,24 +41,32 @@ class OverwriteCheck {
         const cp = FileHandler.copyFile(file, newFilePath)
         logger.debug(`Here is cp:${cp}`)
         if (cp) {
-          reply = `File named: ${filename} successfully saved to directory.`
+          // reply = `File named: ${filename} successfully saved to directory.`
+          reply =
+            'Great! Now type a message or upload the file (by clicking on the "+" sign) that you want to broadcast.'
+          this.combinedService.setSendFile(`${filename}${fileAppend}`)
+          state = State.CREATE_MESSAGE
         } else {
           reply = `Error: File named: ${filename} not saved to directory.`
+          // TODO what do we do if there's an error here?
         }
         // Cancel Overwriting file.
       } else if (this.messageService.negativeReply()) {
         reply = 'File upload cancelled.'
         // Invalid response. Return to beginning of this execute function.
+        // TODO what state should we go to if they cancel?
       } else {
         reply = 'Invalid response.\nReply (yes/no) to continue or cancel.'
+        messagemeta = ButtonHelper.makeYesNoButton()
         state = State.OVERWRITE_CHECK
       }
     }
     return {
       reply,
       state,
+      messagemeta,
     }
   }
 }
 
-export default OverwriteCheck
+module.exports = OverwriteCheck

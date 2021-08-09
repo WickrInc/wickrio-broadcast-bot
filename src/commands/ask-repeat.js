@@ -34,7 +34,7 @@ class AskRepeat {
     } else if (this.messageService.negativeReply()) {
       this.repeatService.setActiveRepeat(false)
       // Send the broadcast
-      reply = this.broadcastService.broadcastMessage().pending
+      reply = this.broadcastService.broadcastMessage()
       state = State.NONE
       const queueReply = this.broadcastService.getQueueInfo()
       reply = queueReply === '' ? reply : queueReply
