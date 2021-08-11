@@ -68,7 +68,6 @@ class SendMessageService {
           user.ttl,
           user.bor,
           messageID,
-          messageToSend,
           metaString
         )
       }
