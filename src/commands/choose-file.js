@@ -58,7 +58,7 @@ class ChooseFile {
         state = checkFileObject.state
         messagemeta = checkFileObject.messagemeta
         if (checkFileObject.retVal) {
-          this.sendService.setSendFile(filename)
+          this.sendService.setSendFile(`${filename}${fileAppend}`)
           reply =
             'Great! Now type a message or upload the file (by clicking on the "+" sign) that you want to broadcast.'
           state = State.CREATE_MESSAGE
