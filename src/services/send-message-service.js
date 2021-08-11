@@ -43,13 +43,6 @@ class SendMessageService {
         file: user.sendfile,
         display: user.display,
       })
-      apiService.writeMessageIDDB(
-        messageID,
-        user.userEmail,
-        filePath,
-        jsonDateTime,
-        user.display
-      )
       if (fileName.endsWith('hash')) {
         uMessage = apiService.sendAttachmentUserHashFile(
           filePath,
@@ -70,7 +63,16 @@ class SendMessageService {
           messageID,
           metaString
         )
+      } else {
+        return 'User file is not in the proper format please upload a .txt file with a return-separated list of users in your network'
       }
+      apiService.writeMessageIDDB(
+        messageID,
+        user.userEmail,
+        filePath,
+        jsonDateTime,
+        user.display
+      )
     } else {
       console.log({
         messageID,
@@ -79,13 +81,6 @@ class SendMessageService {
         jsonDateTime,
         message: user.message,
       })
-      apiService.writeMessageIDDB(
-        messageID,
-        user.userEmail,
-        filePath,
-        jsonDateTime,
-        user.message
-      )
       if (fileName.endsWith('hash')) {
         uMessage = apiService.sendMessageUserHashFile(
           filePath,
@@ -106,12 +101,22 @@ class SendMessageService {
           flags,
           metaString
         )
+      } else {
+        return 'User file is not in the proper format please upload a .txt file with a return-separated list of users in your network'
       }
+      apiService.writeMessageIDDB(
+        messageID,
+        user.userEmail,
+        filePath,
+        jsonDateTime,
+        user.message
+      )
     }
     if (user.vGroupID !== '' && user.vGroupID !== undefined) {
       StatusService.asyncStatus(messageID, user.vGroupID, user)
     }
     logger.debug(`Broadcast uMessage${uMessage}`)
+    return ''
   }
 }
 

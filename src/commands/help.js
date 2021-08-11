@@ -48,20 +48,19 @@ class Help {
           '*Web App Commands*\n' +
           '/panel: is currently disabled as it only supports broadcasts which are currently disabled\n\n'
       }
-      broadcastString = '/broadcast: is currently disabled\n'
     } else {
       broadcastString =
         'To broadcast a voice memo - Click the microphone button and send a voice memo to the bot\n'
     }
     let helpString =
       '*Messages Commands*\n' +
-      '/start : To send a broadcast message to a given file of user hashes or usernames\n' +
-      '/ack : To acknowledge a broadcast message \n' +
-      'To broadcast a file - Click the + sign and share the file with the bot\n' +
-      `${broadcastString}` +
+      '/start : Start a new broadcast\n' +
+      '/ack : To acknowledge a broadcast message\n' +
       '/status : To get the status of a broadcast message\n' +
       '/report : To get a CSV file with the status of each user for a broadcast message\n' +
       '/abort : To abort a broadcast or send that is currently in progress\n\n' +
+      'To broadcast a file - Click the + sign and share the file with the bot\n' +
+      `${broadcastString}` +
       `${webAppString}` +
       `${mapString}` +
       '%{adminHelpHeader}' +

@@ -278,8 +278,13 @@ class CombinedService {
         ''
       )
     }
-    SendMessageService.sendToFile(this.apiService, this.user)
-    const reply = `Your broadcast is being sent to the users in ${this.user.sendfile}. This may take a few minutes. Type /status to check the status of your broadcast.\n\nTo start a new broadcast, type /start`
+    const sendReply = SendMessageService.sendToFile(this.apiService, this.user)
+    let reply
+    if (sendReply === '') {
+      reply = `Your broadcast is being sent to the users in ${this.user.sendfile}. This may take a few minutes. Type /status to check the status of your broadcast.\n\nTo start a new broadcast, type /start`
+    } else {
+      reply = sendReply
+    }
     this.clearValues()
     return reply
   }
