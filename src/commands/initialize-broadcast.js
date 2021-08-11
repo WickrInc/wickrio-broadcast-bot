@@ -1,6 +1,5 @@
 import { BROADCAST_ENABLED } from '../helpers/constants'
 import State from '../state'
-import ButtonHelper from '../helpers/button-helper.js'
 // import { logger } from '../helpers/constants'
 
 class InitializeBroadcast {
@@ -20,10 +19,10 @@ class InitializeBroadcast {
 
   execute() {
     let reply
-    let messagemeta = {}
+    const messagemeta = {}
     let state
     if (BROADCAST_ENABLED?.value === 'no') {
-      reply = 'Broadcast is disabled, try the /send command to send to a file'
+      reply = 'Broadcast is disabled, try the /start command to send to a file'
       state = State.NONE
     } else {
       const { message, userEmail, vGroupID } = this.messageService
@@ -46,9 +45,8 @@ class InitializeBroadcast {
       this.broadcastService.setSentByFlag(true)
       // TODO check for undefined??
       if (message2send) {
-        reply = 'Would you like to ask the recipients for an acknowledgement?'
-        messagemeta = ButtonHelper.makeYesNoButton()
-        state = State.ASK_FOR_ACK
+        reply = this.broadcastService.getSecurityGroupReply()
+        state = State.WHICH_GROUPS
       } else {
         reply =
           'Must have a message or file to broadcast, Usage: /broadcast <message>'

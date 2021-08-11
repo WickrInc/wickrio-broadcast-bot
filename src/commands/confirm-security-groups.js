@@ -36,8 +36,9 @@ class ConfirmSecurityGroups {
         state = State.CREATE_MESSAGE
       }
     } else if (this.messageService.negativeReply()) {
-      reply =
-        'Please enter the number(s) of the security group(s) or reply all to send the message to everyone in the network.'
+      reply = this.broadcastService.getSecurityGroupReply()
+      // reply =
+      //   'Please enter the number(s) of the security group(s) or reply all to send the message to everyone in the network.'
       state = State.WHICH_GROUPS
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'

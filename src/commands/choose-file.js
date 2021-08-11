@@ -1,9 +1,13 @@
 import State from '../state'
 import ButtonHelper from '../helpers/button-helper'
+import FileHandler from '../helpers/file-handler'
+
+const path = require('path')
 
 class ChooseFile {
-  constructor({ sendService, messageService }) {
+  constructor({ sendService, fileService, messageService }) {
     this.sendService = sendService
+    this.fileService = fileService
     this.messageService = messageService
     this.state = State.CHOOSE_FILE
   }
@@ -20,6 +24,7 @@ class ChooseFile {
       // argument,
       message,
       userEmail,
+      file,
       // vGroupID,
     } = this.messageService
 
@@ -29,7 +34,41 @@ class ChooseFile {
 
     const fileArr = this.sendService.getFiles(userEmail)
     // const length = Math.min(fileArr.length, 5);
-    if (
+    if ((fileArr === undefined || fileArr.length === 0) && !file) {
+      reply =
+        'Broadcast to multiple users by uploading a .txt file with the list of usernames in line-separated format, only one username per line'
+      state = this.state
+    } else if (file) {
+      const filePath = this.messageService.getFilePath()
+      const filename = this.messageService.getFilename()
+      const userEmail = this.messageService.getUserEmail()
+      this.fileService.setFilePath(filePath)
+      this.fileService.setFilename(filename)
+      const fileAppend = '.user'
+      if (path.extname(filePath) === '.txt') {
+        const checkFileObject = FileHandler.checkFileUpload(
+          this.fileService,
+          filename,
+          filePath,
+          fileArr,
+          fileAppend,
+          userEmail
+        )
+        reply = checkFileObject.reply
+        state = checkFileObject.state
+        messagemeta = checkFileObject.messagemeta
+        if (checkFileObject.retVal) {
+          this.sendService.setSendFile(filename)
+          reply =
+            'Great! Now type a message or upload the file (by clicking on the "+" sign) that you want to broadcast.'
+          state = State.CREATE_MESSAGE
+        }
+      } else {
+        reply =
+          'If you would like to upload a User File to send to please upload a .txt file with a return-separated list of users in your network'
+        state = this.state
+      }
+    } else if (
       !this.messageService.isInt() ||
       message < 1 ||
       message > fileArr.length
