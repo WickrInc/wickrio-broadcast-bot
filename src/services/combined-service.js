@@ -24,6 +24,12 @@ class CombinedService {
     this.user = messageService.user
     this.user.ttl = ''
     this.user.bor = ''
+    if (
+      this.user.asyncStatusMap === undefined ||
+      !(this.user.asyncStatusMap instanceof Map)
+    ) {
+      this.user.asyncStatusMap = new Map()
+    }
   }
 
   setRepeatFlag(repeatFlag) {
@@ -103,6 +109,14 @@ class CombinedService {
 
   setDMRecipient(dmRecipient) {
     this.user.dmRecipient = dmRecipient
+  }
+
+  setAsyncStatusMap(key, value) {
+    this.user.asyncStatusMap.set(key, value)
+  }
+
+  getAsyncStatusMap() {
+    return this.user.asyncStatusMap
   }
 
   // TODO rename doesUserlistFileExist
@@ -234,13 +248,13 @@ class CombinedService {
     const queueInfo = this.getQueueInfo()
     if (queueInfo !== '') {
       this.apiService.sendRoomMessage(
-        this.vGroupID,
+        this.user.vGroupID,
         queueInfo,
         '',
         '',
         '',
         [],
-        {}
+        ''
       )
     }
     BroadcastMessageService.broadcastMessage(this.apiService, this.user)
@@ -255,13 +269,13 @@ class CombinedService {
     const queueInfo = this.getQueueInfo()
     if (queueInfo !== '') {
       this.apiService.sendRoomMessage(
-        this.vGroupID,
+        this.user.vGroupID,
         queueInfo,
         '',
         '',
         '',
         [],
-        {}
+        ''
       )
     }
     SendMessageService.sendToFile(this.apiService, this.user)

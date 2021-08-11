@@ -57,16 +57,23 @@ class StatusService {
     return statusString
   }
 
-  static asyncStatus(messageID, vGroupID) {
+  static asyncStatus(messageID, vGroupID, user) {
     logger.debug('Enter asyncStatus ')
     const timeString = '*/30 * * * * *'
+    user.asyncStatusMap.set(messageID, 0)
     // let preparing;
     const cronJob = schedule(timeString, () => {
       logger.debug('Running cronjob')
       const statusObj = StatusService.getStatus(messageID, true)
       const { preparing } = statusObj
-      if (!preparing) {
+      const count = user.asyncStatusMap.get(messageID)
+      user.asyncStatusMap.set(messageID, count + 1)
+      if (!preparing && statusObj.complete) {
         apiService.sendRoomMessage(vGroupID, statusObj.statusString)
+      } else if (user.asyncStatusMap.get(messageID) === 9) {
+        const reply = `${statusObj.statusString}
+          \nTo get the latest status of a broadcast, type /status at any time.`
+        apiService.sendRoomMessage(vGroupID, reply)
       }
       if (statusObj.complete) {
         return cronJob.stop()

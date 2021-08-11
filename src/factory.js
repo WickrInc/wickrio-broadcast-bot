@@ -30,11 +30,8 @@ import OverwriteCheck from './commands/overwrite-check'
 import Panel from './commands/panel'
 import RepeatFrequency from './commands/repeat-frequency'
 import SendUserFile from './commands/send-user-file'
-import SendAskForAck from './commands/send-ask-for-ack'
-import SendAskDMRecipient from './commands/send-ask-dm-recipient'
 import SelectRecipients from './commands/select-recipients'
 import TimesRepeat from './commands/times-repeat'
-import UploadUserFile from './commands/upload-user-file'
 import WhichAbort from './commands/which-abort'
 import WhichDelete from './commands/which-delete'
 import WhichReport from './commands/which-report'
@@ -229,6 +226,7 @@ class Factory {
     })
     this.chooseFile = new ChooseFile({
       sendService: this.sendService,
+      fileService: this.fileService,
       messageService: this.messageService,
     })
     this.chooseSecurityGroups = new ChooseSecurityGroups({
@@ -262,15 +260,6 @@ class Factory {
       sendService: this.sendService,
       messageService: this.messageService,
     })
-    this.sendAskForAck = new SendAskForAck({
-      sendService: this.sendService,
-      messageService: this.messageService,
-    })
-    this.sendAskDMRecipient = new SendAskDMRecipient({
-      sendService: this.sendService,
-      messageService: this.messageService,
-      apiService: this.apiService,
-    })
     this.selectRecipients = new SelectRecipients({
       broadcastService: this.broadcastService,
       sendService: this.sendService,
@@ -278,10 +267,6 @@ class Factory {
     })
     this.timesRepeat = new TimesRepeat({
       repeatService: this.repeatService,
-      messageService: this.messageService,
-    })
-    this.uploadUserFile = new UploadUserFile({
-      fileService: this.fileService,
       messageService: this.messageService,
     })
     this.whichAbort = new WhichAbort({
@@ -343,10 +328,7 @@ class Factory {
       this.repeatFrequency,
       this.selectRecipients,
       this.sendUserFile,
-      this.sendAskDMRecipient,
-      this.sendAskForAck,
       this.timesRepeat,
-      this.uploadUserFile,
       this.whichAbort,
       this.whichDelete,
       this.whichReport,

@@ -227,7 +227,7 @@ class BroadcastMessageService {
       )
     }
     if (user.vGroupID !== '' && user.vGroupID !== undefined) {
-      StatusService.asyncStatus(messageID, user.vGroupID)
+      StatusService.asyncStatus(messageID, user.vGroupID, user)
     }
     logger.debug(`Broadcast uMessage=${uMessage}`)
     reply.message_id = messageID

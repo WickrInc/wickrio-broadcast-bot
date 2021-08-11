@@ -59,8 +59,7 @@ class AskDMRecipient {
       this.broadcastService.getSendFile() !== ''
     ) {
       state = State.NONE
-      this.broadcastService.sendToFile()
-      reply = this.broadcastService.getQueueInfo()
+      reply = this.broadcastService.sendToFile()
     } else {
       reply = 'Would you like to repeat this broadcast message?'
       state = State.ASK_REPEAT

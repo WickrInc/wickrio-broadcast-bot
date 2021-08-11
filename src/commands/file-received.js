@@ -17,10 +17,10 @@ class FileReceived {
       file &&
       // TODO make this more robust
       !this.messageService.matchUserCommandCurrentState({
-        commandState: State.UPLOAD_USER_FILE,
+        commandState: State.CREATE_MESSAGE,
       }) &&
       !this.messageService.matchUserCommandCurrentState({
-        commandState: State.CREATE_MESSAGE,
+        commandState: State.CHOOSE_FILE,
       })
       // (currentState === null || currentState === State.NONE)
     ) {

@@ -68,6 +68,7 @@ class SendMessageService {
           user.ttl,
           user.bor,
           messageID,
+          messageToSend,
           metaString
         )
       }
@@ -109,7 +110,7 @@ class SendMessageService {
       }
     }
     if (user.vGroupID !== '' && user.vGroupID !== undefined) {
-      StatusService.asyncStatus(messageID, user.vGroupID)
+      StatusService.asyncStatus(messageID, user.vGroupID, user)
     }
     logger.debug(`Broadcast uMessage${uMessage}`)
   }

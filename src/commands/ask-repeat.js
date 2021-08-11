@@ -36,8 +36,6 @@ class AskRepeat {
       // Send the broadcast
       reply = this.broadcastService.broadcastMessage()
       state = State.NONE
-      const queueReply = this.broadcastService.getQueueInfo()
-      reply = queueReply === '' ? reply : queueReply
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'
       state = State.ASK_REPEAT

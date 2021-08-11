@@ -10,15 +10,7 @@ class SelectRecipients {
     this.state = State.SELECT_RECIPIENTS
   }
 
-  // TODO should this be standard??
   shouldExecute() {
-    console.log('TD' + this.messageService.getUserCurrentStateConstructor())
-    console.log(
-      'SR' +
-        this.messageService.matchUserCommandCurrentState({
-          commandState: this.state,
-        })
-    )
     return this.messageService.matchUserCommandCurrentState({
       commandState: this.state,
     })
@@ -44,11 +36,7 @@ class SelectRecipients {
       const sendObj = this.sendService.getFilesForSending(
         this.messageService.getUserEmail()
       )
-      if (sendObj.fileArr === undefined || sendObj.fileArr.length === 0) {
-        state = State.UPLOAD_USER_FILE
-      } else {
-        state = State.CHOOSE_FILE
-      }
+      state = State.CHOOSE_FILE
       reply = sendObj.reply
       messagemeta = sendObj.messagemeta
     } else if (
