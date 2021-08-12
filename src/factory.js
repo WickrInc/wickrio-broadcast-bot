@@ -244,7 +244,7 @@ class Factory {
     this.fileActions = new FileActions({
       fileService: this.fileService,
       combinedService: this.combinedService,
-      setupService: this.setupService,
+      setupService: SetupService,
       messageService: this.messageService,
     })
     this.overwriteCheck = new OverwriteCheck({

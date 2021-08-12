@@ -42,7 +42,7 @@ class FileReceived {
     let state
     if (path.extname(filePath) === '.txt') {
       reply =
-        'Is this .txt file a User File (a list of return separated users in your network) to whom you want to broadcast a message?'
+        'Is this .txt file a User File (a list of return separated users in your network to whom you want to broadcast a message)?'
       messagemeta = ButtonHelper.makeYesNoButton()
       state = State.FILE_TYPE
       // reply = `Would you like to ${broadcastString}send this file to a list? Please respond with ${broadcastLetterString}(s)end or (u)ser`

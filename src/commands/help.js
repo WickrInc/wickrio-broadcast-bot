@@ -60,7 +60,7 @@ class Help {
       '/report : To get a CSV file with the status of each user for a broadcast message\n' +
       '/abort : To abort a broadcast or send that is currently in progress\n\n' +
       'To broadcast a file - Click the + sign and share the file with the bot\n' +
-      `${broadcastString}` +
+      `${broadcastString}\n` +
       `${webAppString}` +
       `${mapString}` +
       '%{adminHelpHeader}' +

@@ -21,26 +21,20 @@ class BroadcastMessageService {
     //   ttl: user.ttl,
     //   bor: user.bor,
     // })
-    let messageToSend
     let sentBy = `Broadcast message sent by: ${user.userEmail}`
-    if (user.ackFlag) {
-      sentBy = `${sentBy}\nPlease acknowledge message by replying with /ack`
-    }
-    if (user.dmFlag) {
-      sentBy = `${sentBy}\nPlease send a response to ${user.dmRecipient}`
-    }
+    let messageToSend
 
     // TODO when is sentByFlag false??
     if (user.sentByFlag) {
-      messageToSend = `${user.message}\n\n${sentBy}`
-    } else {
-      messageToSend = user.message
-      if (user.ackFlag) {
-        messageToSend = `${messageToSend}\n\nPlease acknowledge message by replying with /ack`
-      }
-      if (user.dmFlag) {
-        messageToSend = `${messageToSend}\n\nPlease send a response to ${user.dmRecipient}`
-      }
+      messageToSend = `${sentBy}\n${user.message}\n`
+    }
+    if (user.ackFlag) {
+      sentBy = `${sentBy}\nPlease acknowledge message by replying with /ack`
+      messageToSend = `${messageToSend}\nPlease acknowledge message by replying with /ack`
+    }
+    if (user.dmFlag) {
+      sentBy = `${sentBy}\nPlease send a response to ${user.dmRecipient}`
+      messageToSend = `${messageToSend}\nPlease send a response to ${user.dmRecipient}`
     }
 
     let target
