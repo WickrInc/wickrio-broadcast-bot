@@ -197,7 +197,7 @@ class SendService {
           this.messageService.user.bor,
           messageID,
           metaString,
-          sentBy,
+          sentBy
         )
       } else if (fileName.endsWith('user')) {
         uMessage = apiService.sendAttachmentUserNameFile(
@@ -208,7 +208,7 @@ class SendService {
           this.messageService.user.bor,
           messageID,
           metaString,
-          sentBy,
+          sentBy
         )
       }
     } else {
