@@ -10,15 +10,17 @@ class SendMessageService {
   // TODO rename to sendToUserList
   static sendToFile(apiService, user) {
     const fileName = user.sendfile
-    const sentBy = `\n\nBroadcast message sent by: ${user.userEmail}`
-    let messageToSend = user.message + sentBy
+    let sentBy = `Broadcast message sent by: ${user.userEmail}`
+    let messageToSend = `${sentBy}\n\n${user.message}`
 
     const flags = []
     if (user.ackFlag) {
       messageToSend = `${messageToSend}\n\nPlease acknowledge message by replying with /ack`
+      sentBy = `${sentBy}\n\nPlease acknowledge message by replying with /ack`
     }
     if (user.dmFlag) {
       messageToSend = `${messageToSend}\n\nPlease send a response to ${user.dmRecipient}`
+      sentBy = `${sentBy}\n\nPlease send a response to ${user.dmRecipient}`
     }
     const metaString = ButtonHelper.makeRecipientButtons(
       user.ackFlag,
@@ -43,7 +45,16 @@ class SendMessageService {
         file: user.sendfile,
         display: user.display,
       })
-      if (fileName.endsWith('hash')) {
+      apiService.writeMessageIDDB(
+        messageID,
+        user.userEmail,
+        filePath,
+        jsonDateTime,
+        user.display
+      )
+      if (!fileName.endsWith('hash') && !fileName.endsWith('user')) {
+        return 'User file is not in the proper format please upload a .txt file with a return-separated list of users in your network'
+      } else if (fileName.endsWith('hash')) {
         uMessage = apiService.sendAttachmentUserHashFile(
           filePath,
           user.file,
@@ -52,7 +63,7 @@ class SendMessageService {
           user.bor,
           messageID,
           metaString,
-          sentBy,
+          sentBy
         )
       } else if (fileName.endsWith('user')) {
         uMessage = apiService.sendAttachmentUserNameFile(
@@ -63,18 +74,9 @@ class SendMessageService {
           user.bor,
           messageID,
           metaString,
-          sentBy,
+          sentBy
         )
-      } else {
-        return 'User file is not in the proper format please upload a .txt file with a return-separated list of users in your network'
       }
-      apiService.writeMessageIDDB(
-        messageID,
-        user.userEmail,
-        filePath,
-        jsonDateTime,
-        user.display
-      )
     } else {
       console.log({
         messageID,
@@ -83,7 +85,16 @@ class SendMessageService {
         jsonDateTime,
         message: user.message,
       })
-      if (fileName.endsWith('hash')) {
+      apiService.writeMessageIDDB(
+        messageID,
+        user.userEmail,
+        filePath,
+        jsonDateTime,
+        user.message
+      )
+      if (!fileName.endsWith('hash') && !fileName.endsWith('user')) {
+        return 'User file is not in the proper format please upload a .txt file with a return-separated list of users in your network'
+      } else if (fileName.endsWith('hash')) {
         uMessage = apiService.sendMessageUserHashFile(
           filePath,
           messageToSend,
@@ -103,16 +114,7 @@ class SendMessageService {
           flags,
           metaString
         )
-      } else {
-        return 'User file is not in the proper format please upload a .txt file with a return-separated list of users in your network'
       }
-      apiService.writeMessageIDDB(
-        messageID,
-        user.userEmail,
-        filePath,
-        jsonDateTime,
-        user.message
-      )
     }
     if (user.vGroupID !== '' && user.vGroupID !== undefined) {
       StatusService.asyncStatus(messageID, user.vGroupID, user)

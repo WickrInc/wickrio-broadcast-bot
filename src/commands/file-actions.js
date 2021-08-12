@@ -41,6 +41,12 @@ class FileActions {
       reply = retObj.reply
       messagemeta = retObj.messagemeta
       state = State.SELECT_RECIPIENTS
+      this.combinedService.setupFileBroadcast(
+        filePath,
+        filename,
+        userEmail,
+        vGroupID
+      )
     } else {
       reply = 'Input not recognized, please reply with yes or no'
       state = State.FILE_TYPE
@@ -58,7 +64,7 @@ class FileActions {
       state = checkFileObject.state
       messagemeta = checkFileObject.messagemeta
       if (checkFileObject.retVal) {
-        this.combinedService.setSendFile(filename)
+        this.combinedService.setSendFile(`${filename}${fileAppend}`)
         reply =
           'Great! Now type a message or upload the file (by clicking on the "+" sign) that you want to broadcast.'
         state = State.CREATE_MESSAGE
