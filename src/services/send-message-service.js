@@ -51,7 +51,8 @@ class SendMessageService {
           user.ttl,
           user.bor,
           messageID,
-          metaString
+          metaString,
+          sentBy,
         )
       } else if (fileName.endsWith('user')) {
         uMessage = apiService.sendAttachmentUserNameFile(
@@ -61,7 +62,8 @@ class SendMessageService {
           user.ttl,
           user.bor,
           messageID,
-          metaString
+          metaString,
+          sentBy,
         )
       } else {
         return 'User file is not in the proper format please upload a .txt file with a return-separated list of users in your network'
