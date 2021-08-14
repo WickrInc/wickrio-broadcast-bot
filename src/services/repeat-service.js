@@ -3,59 +3,93 @@ import { schedule } from 'node-cron'
 import { logger } from '../helpers/constants'
 
 class RepeatService {
-  constructor({ broadcastService, messageService, apiService }) {
-    this.broadcastService = broadcastService
+  constructor({
+    combinedService,
+    messageService,
+    apiService,
+    broadcastMessageService,
+  }) {
+    this.combinedService = combinedService
     this.messageService = messageService
     this.apiService = apiService
-    // this.broadcastService.frequency = 0;
-    // this.broadcastService.repeats = 0;
-    // this.broadcastService.count = 0;
-    // this.broadcastService.activeRepeat = false;
-    // this.broadcastService.vGroupID = '';
+    this.broadcastMessageService = broadcastMessageService
+    // this.combinedService.frequency = 0;
+    // this.combinedService.repeats = 0;
+    // this.combinedService.count = 0;
+    // this.combinedService.activeRepeat = false;
+    // this.combinedService.vGroupID = '';
   }
 
   setFrequency(frequency) {
-    this.broadcastService.frequency = frequency
+    this.combinedService.user.frequency = frequency
   }
 
   setRepeats(repeats) {
-    this.broadcastService.repeats = repeats
+    this.combinedService.user.repeats = repeats
   }
 
   setActiveRepeat(activeRepeat) {
-    this.broadcastService.activeRepeat = activeRepeat
+    this.combinedService.user.activeRepeat = activeRepeat
   }
 
-  getActiveRepeat() {
-    return this.broadcastService.activeRepeat
+  isActiveRepeat() {
+    return this.combinedService.isActiveRepeat()
   }
 
   setVGroupID(vGroupID) {
-    this.broadcastService.vGroupID = vGroupID
+    this.combinedService.user.vGroupID = vGroupID
   }
 
   repeatMessage() {
     logger.debug('Enter repeatMessage')
-    this.broadcastService.broadcastMessage()
-    this.broadcastService.count = 1
-    const timeString = `*/${this.broadcastService.frequency} * * * *`
+    logger.debug(`combined message!:${this.combinedService.getMessage()}`)
+    this.combinedService.setCount(0)
+    // TODO more robust way to save data needed
+    const repeatUser = JSON.parse(JSON.stringify(this.combinedService.user))
+    // const repeatUser = this.combinedService.user
+    logger.debug(`message:${repeatUser.message}`)
+    logger.debug(`repeats:${this.combinedService.getRepeats()}`)
+    this.combinedService.broadcastMessage()
+    const timeString = `*/${this.combinedService.getFrequency()} * * * *`
     const cronJob = schedule(timeString, () => {
       logger.debug('Running repeat cronjob')
+      this.combinedService.incCount()
       const reply = `Broadcast message #${
-        this.broadcastService.count + 1
+        this.combinedService.getCount() + 1
       } in process of being sent...`
       logger.debug(`reply:${reply}`)
-      logger.debug(`vgroupid:${this.broadcastService.vGroupID}`)
-      logger.debug(`count:${this.broadcastService.count}`)
-      logger.debug(`repeats:${this.broadcastService.repeats}`)
-      this.apiService.sendRoomMessage(this.broadcastService.vGroupID, reply)
-      this.broadcastService.broadcastMessage()
-      if (this.broadcastService.count === this.broadcastService.repeats) {
-        this.broadcastService.activeRepeat = false
+      logger.debug(`vgroupid:${this.combinedService.getVGroupID()}`)
+      logger.debug(`combined message!:${this.combinedService.getMessage()}`)
+      logger.debug(`count:${this.combinedService.getCount()}`)
+      logger.debug(`repeats:${this.combinedService.getRepeats()}`)
+      logger.debug(`repeat message:${repeatUser.message}`)
+      logger.debug(
+        `repeats === count:${
+          this.combinedService.getRepeats() === this.combinedService.getCount()
+        }`
+      )
+      try {
+        this.apiService.sendRoomMessage(
+          this.combinedService.getVGroupID(),
+          reply
+        )
+        this.broadcastMessageService.broadcastMessage(
+          this.apiService,
+          repeatUser
+        )
+      } catch (err) {
+        this.combinedService.setActiveRepeat(false)
+        logger.debug('rock the cron job')
+        logger.error(err)
+        return cronJob.stop()
+      }
+      if (
+        this.combinedService.getRepeats() === this.combinedService.getCount()
+      ) {
+        this.combinedService.setActiveRepeat(false)
         logger.debug('rock the cron job')
         return cronJob.stop()
       }
-      this.broadcastService.count += 1
       return false
     })
     cronJob.start()

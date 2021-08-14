@@ -12,7 +12,7 @@ class BroadcastMessageService {
     //   display: user.display,
     //   ackFlag: user.ackFlag,
     //   securityGroups: user.securityGroups,
-    //   duration: user.duration,
+    //   voiceMemoDuration: user.voiceMemoDuration,
     //   voiceMemo: user.voiceMemo,
     //   repeatFlag: user.repeatFlag,
     //   vGroupID: user.vGroupID,
@@ -22,19 +22,19 @@ class BroadcastMessageService {
     //   bor: user.bor,
     // })
     let sentBy = `Broadcast message sent by: ${user.userEmail}`
-    let messageToSend
+    let messageToSend = user.message
 
     // TODO when is sentByFlag false??
     if (user.sentByFlag) {
-      messageToSend = `${sentBy}\n${user.message}\n`
+      messageToSend = `${sentBy}\n\n${user.message}`
     }
     if (user.ackFlag) {
-      sentBy = `${sentBy}\nPlease acknowledge message by replying with /ack`
-      messageToSend = `${messageToSend}\nPlease acknowledge message by replying with /ack`
+      sentBy = `${sentBy}\n\nPlease acknowledge message by replying with /ack`
+      messageToSend = `${messageToSend}\n\nPlease acknowledge message by replying with /ack`
     }
     if (user.dmFlag) {
-      sentBy = `${sentBy}\nPlease send a response to ${user.dmRecipient}`
-      messageToSend = `${messageToSend}\nPlease send a response to ${user.dmRecipient}`
+      sentBy = `${sentBy}\n\nPlease send a response to ${user.dmRecipient}`
+      messageToSend = `${messageToSend}\n\nPlease send a response to ${user.dmRecipient}`
     }
 
     let target
@@ -85,7 +85,7 @@ class BroadcastMessageService {
       if (user.voiceMemo) {
         uMessage = apiService.sendNetworkVoiceMemo(
           user.voiceMemo,
-          user.duration,
+          user.voiceMemoDuration,
           user.ttl,
           user.bor,
           messageID,
@@ -139,7 +139,7 @@ class BroadcastMessageService {
       uMessage = apiService.sendSecurityGroupVoiceMemo(
         user.securityGroups,
         user.voiceMemo,
-        user.duration,
+        user.voiceMemoDuration,
         user.ttl,
         user.bor,
         messageID,
@@ -230,26 +230,6 @@ class BroadcastMessageService {
     } else {
       reply.securityGroups = user.securityGroups
     }
-
-    // clear values
-    user.file = ''
-    user.message = ''
-    user.userEmail = ''
-    user.display = ''
-    user.ackFlag = false
-    user.securityGroups = []
-    user.duration = 0
-    user.voiceMemo = ''
-    user.repeatFlag = false
-    user.vGroupID = ''
-    user.APISecurityGroups = []
-    user.users = []
-    user.ttl = ''
-    user.bor = ''
-    user.flags = []
-    user.dmFlag = false
-    user.dmRecipient = ''
-
     return reply
   }
 }

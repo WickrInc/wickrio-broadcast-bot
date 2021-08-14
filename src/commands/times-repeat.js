@@ -1,8 +1,8 @@
 import State from '../state'
 
 class TimesRepeat {
-  constructor({ repeatService, messageService }) {
-    this.repeatService = repeatService
+  constructor({ combinedService, messageService }) {
+    this.combinedService = combinedService
     this.messageService = messageService
     this.state = State.TIMES_REPEAT
   }
@@ -16,17 +16,15 @@ class TimesRepeat {
   execute() {
     let state
     let reply
-    if (this.messageService.isInt()) {
-      this.repeatService.setRepeats(
-        parseInt(this.messageService.getMessage(), 10)
-      )
-      this.repeatService.setVGroupID(this.messageService.vGroupID)
+    const message = this.messageService.getMessage()
+    if (this.messageService.isInt() && parseInt(message, 10) > 0) {
+      this.combinedService.setRepeats(parseInt(message, 10))
       reply =
         'How often would you like to repeat this message?(every 5, 10 or 15 minutes)'
       state = State.REPEAT_FREQUENCY
     } else {
-      reply = 'Invalid Input, please enter a number value.'
-      state = State.TIMES_REPEAT
+      reply = 'Invalid Input, please enter a number value greater than 0.'
+      state = this.state
     }
     return {
       reply,

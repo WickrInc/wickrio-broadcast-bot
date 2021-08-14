@@ -1,6 +1,4 @@
 import State from '../state'
-// TODO is it better to put setupService in the constructor??
-// import SetupService from '../services/setup-service'
 // import { logger } from '../helpers/constants'
 
 class Start {
