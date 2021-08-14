@@ -1,7 +1,5 @@
 import { existsSync, mkdirSync } from 'fs'
 
-import BroadcastMessageService from './broadcast-message-service'
-import SendMessageService from './send-message-service'
 import FileHandler from '../helpers/file-handler'
 import WickrIOBotAPI from 'wickrio-bot-api'
 import ButtonHelper from '../helpers/button-helper'
@@ -18,22 +16,35 @@ const dir = `${process.cwd()}/files`
 
 // TODO rename userbroadcastmessage
 class CombinedService {
-  constructor({ messageService, apiService }) {
+  constructor({
+    messageService,
+    apiService,
+    broadcastMessageService,
+    sendMessageService,
+  }) {
     this.messageService = messageService
     this.apiService = apiService
+    this.broadcastMessageService = broadcastMessageService
+    this.sendMessageService = sendMessageService
     this.user = messageService.user
     this.user.ttl = ''
     this.user.bor = ''
-    if (
-      this.user.asyncStatusMap === undefined ||
-      !(this.user.asyncStatusMap instanceof Map)
-    ) {
-      this.user.asyncStatusMap = new Map()
-    }
   }
 
   setRepeatFlag(repeatFlag) {
     this.user.repeatFlag = repeatFlag
+  }
+
+  setRepeats(repeats) {
+    this.user.repeats = repeats
+  }
+
+  setActiveRepeat(activeRepeat) {
+    this.user.activeRepeat = activeRepeat
+  }
+
+  setFrequency(frequency) {
+    this.user.frequency = frequency
   }
 
   setFlags(flags) {
@@ -49,8 +60,8 @@ class CombinedService {
     this.user.voiceMemo = voiceMemo
   }
 
-  setDuration(duration) {
-    this.user.duration = duration
+  setVoiceMemoDuration(voiceMemoDuration) {
+    this.user.voiceMemoDuration = voiceMemoDuration
   }
 
   setMessage(message) {
@@ -111,6 +122,10 @@ class CombinedService {
     this.user.dmRecipient = dmRecipient
   }
 
+  setCount(count) {
+    this.user.count = count
+  }
+
   setAsyncStatusMap(key, value) {
     this.user.asyncStatusMap.set(key, value)
   }
@@ -149,6 +164,30 @@ class CombinedService {
     return this.user.file
   }
 
+  getVoiceMemo() {
+    return this.user.voiceMemo
+  }
+
+  getCount() {
+    return this.user.count
+  }
+
+  getRepeats() {
+    return this.user.repeats
+  }
+
+  isActiveRepeat() {
+    return this.user.activeRepeat
+  }
+
+  getFrequency() {
+    return this.user.frequency
+  }
+
+  getVGroupID() {
+    return this.user.vGroupID
+  }
+
   getFiles(userEmail) {
     try {
       const userDir = `${dir}/${userEmail}/`
@@ -166,6 +205,26 @@ class CombinedService {
     this.setUserEmail(userEmail)
     this.setVGroupID(vGroupID)
     this.setSentByFlag(true)
+  }
+
+  setupVoiceMemoBroadcast(voiceMemoFilePath, duration, userEmail, vGroupID) {
+    this.setVoiceMemo(voiceMemoFilePath)
+    this.setVoiceMemoDuration('' + duration)
+    this.setUserEmail(userEmail)
+    this.setVGroupID(vGroupID)
+    this.setSentByFlag(true)
+  }
+
+  hasMessageOrFile() {
+    return (
+      (this.getMessage() !== undefined && this.getMessage() !== '') ||
+      (this.getFile() !== undefined && this.getFile() !== '') ||
+      (this.getVoiceMemo() !== undefined && this.getVoiceMemo() !== '')
+    )
+  }
+
+  incCount() {
+    this.user.count = this.user.count + 1
   }
 
   getSecurityGroupReply() {
@@ -257,7 +316,7 @@ class CombinedService {
         ''
       )
     }
-    BroadcastMessageService.broadcastMessage(this.apiService, this.user)
+    this.broadcastMessageService.broadcastMessage(this.apiService, this.user)
     const reply = `Your broadcast is being sent to the users in your network. This may take a few minutes. Type /status to check the status of your broadcast.\n\nTo start a new broadcast, type /start`
     this.clearValues()
     return reply
@@ -278,7 +337,10 @@ class CombinedService {
         ''
       )
     }
-    const sendReply = SendMessageService.sendToFile(this.apiService, this.user)
+    const sendReply = this.sendMessageService.sendToFile(
+      this.apiService,
+      this.user
+    )
     let reply
     if (sendReply === '') {
       reply = `Your broadcast is being sent to the users in ${this.user.sendfile}. This may take a few minutes. Type /status to check the status of your broadcast.\n\nTo start a new broadcast, type /start`
@@ -303,7 +365,7 @@ class CombinedService {
     this.user.display = ''
     this.user.ackFlag = false
     this.user.securityGroups = []
-    this.user.duration = 0
+    this.user.voiceMemoDuration = 0
     this.user.voiceMemo = ''
     this.user.repeatFlag = false
     this.user.APISecurityGroups = []

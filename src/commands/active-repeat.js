@@ -25,6 +25,8 @@ class ActiveRepeat {
       this.repeatService.setActiveRepeat(false)
     } else if (this.messageService.negativeReply()) {
       // TODO what if they don't want to cancel?
+      // reply = this.combinedService.broadcastMessage()
+      // state = State.NONE
       reply = 'Please send a new broadcast'
       state = State.NONE
     } else {

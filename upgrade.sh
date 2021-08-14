@@ -39,7 +39,7 @@ set +e
 # need to convert the WHITELISTED_USERS to ADMINISTRATORS
 sed -e "s/WHITELISTED_USERS/ADMINISTRATORS/g" <processes.json > $NEW_BOT_LOCATION/processes.json
 
-cp -f users.txt last_id.json $NEW_BOT_LOCATION
+cp -f users.txt last_id.json setupData.json $NEW_BOT_LOCATION
 set -e
 
 

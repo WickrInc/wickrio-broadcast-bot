@@ -97,6 +97,24 @@ class ButtonHelper {
     return { buttons }
   }
 
+  static makeStartButtons(hasHelpButton) {
+    const buttons = []
+    buttons.push({
+      type: 'message',
+      text: 'Start a Broadcast',
+      message: '/start',
+      preferred: true,
+    })
+    if (hasHelpButton) {
+      buttons.push({
+        type: 'message',
+        text: 'Help',
+        message: '/help',
+      })
+    }
+    return { buttons }
+  }
+
   static makeCommandButtons(buttonArray, preferredIndex = -1) {
     const buttons = []
     for (let i = 0; i < buttonArray.length; i++) {

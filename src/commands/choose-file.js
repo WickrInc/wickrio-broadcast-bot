@@ -59,9 +59,16 @@ class ChooseFile {
         messagemeta = checkFileObject.messagemeta
         if (checkFileObject.retVal) {
           this.sendService.setSendFile(`${filename}${fileAppend}`)
-          reply =
-            'Great! Now type a message or upload the file (by clicking on the "+" sign) that you want to broadcast.'
-          state = State.CREATE_MESSAGE
+          if (this.sendService.hasMessageOrFile()) {
+            state = State.ASK_FOR_ACK
+            reply =
+              'Would you like to ask the recipients for an acknowledgement?'
+            messagemeta = ButtonHelper.makeYesNoButton()
+          } else {
+            reply =
+              'Great! Now type a message or upload the file (by clicking on the "+" sign) that you want to broadcast.'
+            state = State.CREATE_MESSAGE
+          }
         }
       } else {
         reply =
@@ -79,12 +86,7 @@ class ChooseFile {
       // Subtract one to account for 0 based indexing
       const fileName = fileArr[parseInt(message, 10) - 1]
       this.sendService.setSendFile(fileName)
-      if (
-        (this.sendService.getMessage() !== undefined &&
-          this.sendService.getMessage() !== '') ||
-        (this.sendService.getFile() !== undefined &&
-          this.sendService.getFile() !== '')
-      ) {
+      if (this.sendService.hasMessageOrFile()) {
         state = State.ASK_FOR_ACK
         reply = 'Would you like to ask the recipients for an acknowledgement?'
         messagemeta = ButtonHelper.makeYesNoButton()

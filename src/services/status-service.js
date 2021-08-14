@@ -1,5 +1,6 @@
 import { schedule } from 'node-cron'
 import { logger, apiService } from '../helpers/constants'
+import ButtonHelper from '../helpers/button-helper.js'
 
 class StatusService {
   static getStatus(messageID, asyncStatus) {
@@ -60,6 +61,12 @@ class StatusService {
   static asyncStatus(messageID, vGroupID, user) {
     logger.debug('Enter asyncStatus ')
     const timeString = '*/30 * * * * *'
+    if (
+      user.asyncStatusMap === undefined ||
+      !(user.asyncStatusMap instanceof Map)
+    ) {
+      user.asyncStatusMap = new Map()
+    }
     user.asyncStatusMap.set(messageID, 0)
     // let preparing;
     const cronJob = schedule(timeString, () => {
@@ -68,12 +75,16 @@ class StatusService {
       const { preparing } = statusObj
       const count = user.asyncStatusMap.get(messageID)
       user.asyncStatusMap.set(messageID, count + 1)
+      let reply = statusObj.statusString
       if (!preparing && statusObj.complete) {
-        apiService.sendRoomMessage(vGroupID, statusObj.statusString)
+        const metastring = JSON.stringify(ButtonHelper.makeStartButtons(false))
+        apiService.sendRoomMessage(vGroupID, reply, '', '', '', [], metastring)
       } else if (user.asyncStatusMap.get(messageID) === 9) {
-        const reply = `${statusObj.statusString}
-          \nTo get the latest status of a broadcast, type /status at any time.`
-        apiService.sendRoomMessage(vGroupID, reply)
+        const metastring = JSON.stringify(
+          ButtonHelper.makeCommandButtons(['Status'])
+        )
+        reply = `${reply}\nTo get the latest status of a broadcast, type /status at any time.`
+        apiService.sendRoomMessage(vGroupID, reply, '', '', '', [], metastring)
       }
       if (statusObj.complete) {
         return cronJob.stop()

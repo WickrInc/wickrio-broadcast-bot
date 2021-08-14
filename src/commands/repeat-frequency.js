@@ -3,8 +3,9 @@ import WickrIOBotAPI from 'wickrio-bot-api'
 const bot = new WickrIOBotAPI.WickrIOBot()
 
 class RepeatFrequency {
-  constructor({ repeatService, messageService }) {
+  constructor({ repeatService, combinedService, messageService }) {
     this.repeatService = repeatService
+    this.combinedService = combinedService
     this.messageService = messageService
     this.state = State.REPEAT_FREQUENCY
   }
@@ -19,8 +20,12 @@ class RepeatFrequency {
     let state
     let reply
     // TODO more checks required
-    if (this.messageService.isInt()) {
-      this.repeatService.setFrequency(this.messageService.message)
+    const message = this.messageService.message
+    if (
+      this.messageService.isInt() &&
+      (message === '5' || message === '10' || message === '15')
+    ) {
+      this.combinedService.setFrequency(message)
       this.repeatService.repeatMessage()
       // Check the queue and send info message if pending broadcasts
       const txQInfo = bot.getTransmitQueueInfo()
@@ -35,8 +40,8 @@ class RepeatFrequency {
       }
       state = State.NONE
     } else {
-      reply = 'Invalid Input, please enter a number value.'
-      state = State.TIMES_REPEAT
+      reply = 'Invalid Input, please enter a number value of 5, 10, or 15'
+      state = this.state
     }
     return {
       reply,

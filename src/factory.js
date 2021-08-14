@@ -38,9 +38,11 @@ import WhichReport from './commands/which-report'
 import WhichStatus from './commands/which-status'
 import WhichMap from './commands/which-map'
 // import BroadcastService from './services/broadcast-service'
+// import SendService from './services/send-service'
+import BroadcastMessageService from './services/broadcast-message-service'
 import CombinedService from './services/combined-service'
 import RepeatService from './services/repeat-service'
-// import SendService from './services/send-service'
+import SendMessageService from './services/send-message-service'
 import SetupService from './services/setup-service'
 import FileService from './services/file-service'
 import GenericService from './services/generic-service'
@@ -118,18 +120,26 @@ class Factory {
     this.broadcastService = new CombinedService({
       messageService: this.messageService,
       apiService: this.apiService,
+      broadcastMessageService: BroadcastMessageService,
+      sendMessageService: SendMessageService,
     })
     this.combinedService = new CombinedService({
       messageService: this.messageService,
       apiService: this.apiService,
+      broadcastMessageService: BroadcastMessageService,
+      sendMessageService: SendMessageService,
     })
     this.repeatService = new RepeatService({
-      broadcastService: this.broadcastService,
+      combinedService: this.combinedService,
       messageService: this.messageService,
+      apiService: this.apiService,
+      broadcastMessageService: BroadcastMessageService,
     })
     this.sendService = new CombinedService({
       messageService: this.messageService,
       apiService: this.apiService,
+      broadcastMessageService: BroadcastMessageService,
+      sendMessageService: SendMessageService,
     })
     // this.sendService = new SendService({ messageService: this.messageService })
     this.fileService = new FileService({ messageService: this.messageService })
@@ -207,7 +217,7 @@ class Factory {
 
     // These are the options
     this.activeRepeat = new ActiveRepeat({
-      repeatService: this.repeatService,
+      combinedService: this.combinedService,
       messageService: this.messageService,
     })
     this.askForAck = new AskForAck({
@@ -220,8 +230,7 @@ class Factory {
       apiService: this.apiService,
     })
     this.askRepeat = new AskRepeat({
-      repeatService: this.repeatService,
-      broadcastService: this.broadcastService,
+      combinedService: this.combinedService,
       messageService: this.messageService,
     })
     this.chooseFile = new ChooseFile({
@@ -253,6 +262,7 @@ class Factory {
       messageService: this.messageService,
     })
     this.repeatFrequency = new RepeatFrequency({
+      combinedService: this.combinedService,
       repeatService: this.repeatService,
       messageService: this.messageService,
     })
@@ -266,7 +276,7 @@ class Factory {
       messageService: this.messageService,
     })
     this.timesRepeat = new TimesRepeat({
-      repeatService: this.repeatService,
+      combinedService: this.combinedService,
       messageService: this.messageService,
     })
     this.whichAbort = new WhichAbort({

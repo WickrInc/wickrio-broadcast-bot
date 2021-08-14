@@ -2,9 +2,8 @@ import State from '../state'
 import ButtonHelper from '../helpers/button-helper.js'
 
 class AskRepeat {
-  constructor({ repeatService, broadcastService, messageService }) {
-    this.repeatService = repeatService
-    this.broadcastService = broadcastService
+  constructor({ combinedService, messageService }) {
+    this.combinedService = combinedService
     this.messageService = messageService
     this.state = State.ASK_REPEAT
   }
@@ -21,20 +20,20 @@ class AskRepeat {
     let messagemeta = {}
 
     if (this.messageService.affirmativeReply()) {
-      if (this.repeatService.getActiveRepeat()) {
+      if (this.combinedService.isActiveRepeat()) {
         reply =
           'There is already a repeating broadcast active, would you like to cancel it?'
         state = State.ACTIVE_REPEAT
         messagemeta = ButtonHelper.makeYesNoButton()
       } else {
-        this.repeatService.setActiveRepeat(true)
+        this.combinedService.setActiveRepeat(true)
         reply = 'How many times would you like to repeat this message?'
         state = State.TIMES_REPEAT
       }
     } else if (this.messageService.negativeReply()) {
-      this.repeatService.setActiveRepeat(false)
+      this.combinedService.setActiveRepeat(false)
       // Send the broadcast
-      reply = this.broadcastService.broadcastMessage()
+      reply = this.combinedService.broadcastMessage()
       state = State.NONE
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'

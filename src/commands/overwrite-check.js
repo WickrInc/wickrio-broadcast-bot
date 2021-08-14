@@ -42,10 +42,17 @@ class OverwriteCheck {
         logger.debug(`Here is cp:${cp}`)
         if (cp) {
           // reply = `File named: ${filename} successfully saved to directory.`
-          reply =
-            'Great! Now type a message or upload the file (by clicking on the "+" sign) that you want to broadcast.'
-          this.combinedService.setSendFile(`${filename}${fileAppend}`)
-          state = State.CREATE_MESSAGE
+          if (this.combinedService.hasMessageOrFile()) {
+            reply =
+              'Would you like to ask the recipients for an acknowledgement?'
+            messagemeta = ButtonHelper.makeYesNoButton()
+            state = State.ASK_FOR_ACK
+          } else {
+            reply =
+              'Great! Now type a message or upload the file (by clicking on the "+" sign) that you want to broadcast.'
+            this.combinedService.setSendFile(`${filename}${fileAppend}`)
+            state = State.CREATE_MESSAGE
+          }
         } else {
           reply = `Error: File named: ${filename} not saved to directory.`
           // TODO what do we do if there's an error here?
