@@ -21,12 +21,7 @@ class ConfirmSecurityGroups {
 
     // TODO account for voice/ file message
     if (this.messageService.affirmativeReply()) {
-      if (
-        (this.broadcastService.getMessage() !== undefined &&
-          this.broadcastService.getMessage() !== '') ||
-        (this.broadcastService.getFile() !== undefined &&
-          this.broadcastService.getFile() !== '')
-      ) {
+      if (this.broadcastService.hasMessageOrFile()) {
         reply = 'Would you like to ask the recipients for an acknowledgement?'
         state = State.ASK_FOR_ACK
         messagemeta = ButtonHelper.makeYesNoButton(0)

@@ -120,7 +120,6 @@ async function main() {
     const welcomeMessage = welcomeObj.reply
     const welcomeMessagemeta = JSON.stringify(welcomeObj.messagemeta)
     console.log(welcomeMessagemeta)
-    // TODO can we send messagemeta in one to one messages??
     if (setupAdmins.length > 0) {
       apiService.send1to1Message(
         setupAdmins,

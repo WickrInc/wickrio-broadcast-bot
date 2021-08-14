@@ -48,15 +48,25 @@ class FileReceived {
       // reply = `Would you like to ${broadcastString}send this file to a list? Please respond with ${broadcastLetterString}(s)end or (u)ser`
     } else {
       const retObj = this.setupService.getStartReply(userEmail)
-      reply = `${retObj.reply}\n\nIf you would like to upload a User File to send to please upload a .txt file with a return-separated list of users in your network`
       messagemeta = retObj.messagemeta
       state = State.SELECT_RECIPIENTS
-      this.combinedService.setupFileBroadcast(
-        filePath,
-        fileName,
-        userEmail,
-        vGroupID
-      )
+      if (this.messageService.isVoiceMemo) {
+        this.combinedService.setupVoiceMemoBroadcast(
+          filePath,
+          this.messageService.voiceMemoDuration,
+          userEmail,
+          vGroupID
+        )
+        reply = retObj.reply
+      } else {
+        this.combinedService.setupFileBroadcast(
+          filePath,
+          fileName,
+          userEmail,
+          vGroupID
+        )
+        reply = `${retObj.reply}\n\nIf you would like to upload a User File to send to please upload a .txt file with a return-separated list of users in your network`
+      }
     }
     return {
       reply,

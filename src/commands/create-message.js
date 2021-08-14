@@ -36,6 +36,13 @@ class CreateMessage {
       messagemeta = {}
     } else if (message !== null && message !== undefined && message !== '') {
       this.combinedService.setMessage(message)
+    } else if (this.messageService.isVoiceMemo) {
+      this.combinedService.setupVoiceMemoBroadcast(
+        filePath,
+        this.messageService.voiceMemoDuration,
+        userEmail,
+        vGroupID
+      )
     } else {
       this.combinedService.setupFileBroadcast(
         filePath,

@@ -36,7 +36,40 @@ class SendMessageService {
     const filePath = userDir + `${fileName}`
     let uMessage
     const messageID = updateLastID()
-    if (user.file !== undefined && user.file !== '') {
+    if (user.voiceMemo !== undefined && user.voiceMemo !== '') {
+      apiService.writeMessageIDDB(
+        messageID,
+        user.userEmail,
+        filePath,
+        jsonDateTime,
+        `VoiceMemo-${jsonDateTime}`
+      )
+      if (!fileName.endsWith('hash') && !fileName.endsWith('user')) {
+        return 'User file is not in the proper format please upload a .txt file with a return-separated list of users in your network'
+      } else if (fileName.endsWith('hash')) {
+        uMessage = apiService.sendVoiceMemoUserHashFile(
+          filePath,
+          user.voiceMemo,
+          user.voiceMemoDuration,
+          user.ttl,
+          user.bor,
+          messageID,
+          metaString,
+          sentBy
+        )
+      } else if (fileName.endsWith('user')) {
+        uMessage = apiService.sendVoiceMemoUserNameFile(
+          filePath,
+          user.voiceMemo,
+          user.voiceMemoDuration,
+          user.ttl,
+          user.bor,
+          messageID,
+          metaString,
+          sentBy
+        )
+      }
+    } else if (user.file !== undefined && user.file !== '') {
       console.log({
         messageID,
         email: user.userEmail,
