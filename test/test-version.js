@@ -45,7 +45,10 @@ describe('start validation', function () {
   /* ================================================================================ */
   it('execute() returns a reply', async function () {
     const combinedService = {
-      sinon.
+      clearValues: sinon.fake.clearValues,
+      setUserEmail: sinon.fake.setUserEmail,
+      this.combinedService.setVGroupID(this.messageService.getVGroupID())
+      this.combinedService.setSentByFlag(true)
     }
     const setupService = {}
     const messageService = {}
