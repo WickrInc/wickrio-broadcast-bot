@@ -63,7 +63,34 @@ class BroadcastMessageService {
       user.dmFlag,
       user.dmRecipient
     )
-
+    // if (user.file !== undefined && user.file !== '') {
+    if (user.file) {
+      logger.debug(`display:${user.display}:`)
+      apiService.writeMessageIDDB(
+        messageID,
+        user.userEmail,
+        target,
+        jsonDateTime,
+        user.display
+      )
+      // } else if (user.voiceMemo !== undefined && user.voiceMemo !== '') {
+    } else if (user.voiceMemo) {
+      apiService.writeMessageIDDB(
+        messageID,
+        user.userEmail,
+        target,
+        jsonDateTime,
+        `VoiceMemo-${jsonDateTime}`
+      )
+    } else {
+      apiService.writeMessageIDDB(
+        messageID,
+        user.userEmail,
+        target,
+        jsonDateTime,
+        user.message
+      )
+    }
     if (target === 'USERS') {
       if (user.flags === undefined) user.flags = []
 
@@ -191,34 +218,6 @@ class BroadcastMessageService {
         'Broadcast message in process of being sent to security group'
       reply.rawMessage = user.message
       reply.message = messageToSend
-    }
-    // if (user.file !== undefined && user.file !== '') {
-    if (user.file) {
-      logger.debug(`display:${user.display}:`)
-      apiService.writeMessageIDDB(
-        messageID,
-        user.userEmail,
-        target,
-        jsonDateTime,
-        user.display
-      )
-      // } else if (user.voiceMemo !== undefined && user.voiceMemo !== '') {
-    } else if (user.voiceMemo) {
-      apiService.writeMessageIDDB(
-        messageID,
-        user.userEmail,
-        target,
-        jsonDateTime,
-        `VoiceMemo-${jsonDateTime}`
-      )
-    } else {
-      apiService.writeMessageIDDB(
-        messageID,
-        user.userEmail,
-        target,
-        jsonDateTime,
-        user.message
-      )
     }
     if (user.vGroupID !== '' && user.vGroupID !== undefined) {
       StatusService.asyncStatus(messageID, user.vGroupID, user)

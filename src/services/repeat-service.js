@@ -50,6 +50,7 @@ class RepeatService {
     logger.debug(`message:${repeatUser.message}`)
     logger.debug(`repeats:${this.combinedService.getRepeats()}`)
     this.combinedService.broadcastMessage()
+    logger.debug('Frequency:' + this.combinedService.getFrequency())
     const timeString = `*/${this.combinedService.getFrequency()} * * * *`
     const cronJob = schedule(timeString, () => {
       logger.debug('Running repeat cronjob')

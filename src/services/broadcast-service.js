@@ -211,6 +211,35 @@ class BroadcastService {
       this.user.dmRecipient
     )
 
+    // if (this.user.file !== undefined && this.user.file !== '') {
+    if (this.user.file) {
+      logger.debug(`display:${this.user.display}:`)
+      this.apiService.writeMessageIDDB(
+        messageID,
+        this.user.userEmail,
+        target,
+        jsonDateTime,
+        this.user.display
+      )
+      // } else if (this.user.voiceMemo !== undefined && this.user.voiceMemo !== '') {
+    } else if (this.user.voiceMemo) {
+      this.apiService.writeMessageIDDB(
+        messageID,
+        this.user.userEmail,
+        target,
+        jsonDateTime,
+        `VoiceMemo-${jsonDateTime}`
+      )
+    } else {
+      this.apiService.writeMessageIDDB(
+        messageID,
+        this.user.userEmail,
+        target,
+        jsonDateTime,
+        this.user.message
+      )
+    }
+
     if (target === 'USERS') {
       if (this.user.flags === undefined) this.user.flags = []
 
@@ -338,34 +367,6 @@ class BroadcastService {
         'Broadcast message in process of being sent to security group'
       reply.rawMessage = this.user.message
       reply.message = messageToSend
-    }
-    // if (this.user.file !== undefined && this.user.file !== '') {
-    if (this.user.file) {
-      logger.debug(`display:${this.user.display}:`)
-      this.apiService.writeMessageIDDB(
-        messageID,
-        this.user.userEmail,
-        target,
-        jsonDateTime,
-        this.user.display
-      )
-      // } else if (this.user.voiceMemo !== undefined && this.user.voiceMemo !== '') {
-    } else if (this.user.voiceMemo) {
-      this.apiService.writeMessageIDDB(
-        messageID,
-        this.user.userEmail,
-        target,
-        jsonDateTime,
-        `VoiceMemo-${jsonDateTime}`
-      )
-    } else {
-      this.apiService.writeMessageIDDB(
-        messageID,
-        this.user.userEmail,
-        target,
-        jsonDateTime,
-        this.user.message
-      )
     }
     if (this.user.vGroupID !== '' && this.user.vGroupID !== undefined) {
       StatusService.asyncStatus(messageID, this.user.vGroupID)
