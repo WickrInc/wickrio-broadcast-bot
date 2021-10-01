@@ -28,6 +28,7 @@ class RepeatFrequency {
       this.combinedService.setFrequency(message)
       this.repeatService.repeatMessage()
       // Check the queue and send info message if pending broadcasts
+      // TODO use the queueInfo in combined service
       const txQInfo = bot.getTransmitQueueInfo()
       const broadcastsInQueue = txQInfo.tx_queue.length
       let broadcastDelay = txQInfo.estimated_time

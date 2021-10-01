@@ -217,7 +217,7 @@ class Factory {
 
     // These are the options
     this.activeRepeat = new ActiveRepeat({
-      combinedService: this.combinedService,
+      repeatService: this.repeatService,
       messageService: this.messageService,
     })
     this.askForAck = new AskForAck({
