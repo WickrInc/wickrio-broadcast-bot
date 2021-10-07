@@ -19,25 +19,26 @@ class WhichReport {
     let reply
     let state
     const userEmail = this.messageService.userEmail
-    const currentEntries = this.genericService.getMessageEntries(
-      userEmail,
-      false
-    )
+    const entries = this.genericService.getMessageEntries(userEmail, false)
     const index = this.messageService.getMessage()
-    const endIndex = this.genericService.getEndIndex()
+    // const endIndex = this.genericService.getEndIndex()
     if (index === 'more') {
       this.genericService.incrementIndexes()
       reply = this.genericService.getEntriesString(userEmail)
-      if (currentEntries.length > this.genericService.getEndIndex()) {
+      if (entries.length > this.genericService.getEndIndex()) {
         reply += 'Or to see more messages reply more'
       }
       state = this.state
-    } else if (!this.messageService.isInt() || index < 1 || index > endIndex) {
-      reply = `Index: ${index} is out of range. Please enter a whole number between 1 and ${endIndex} or type /cancel to end previous flow.`
+    } else if (
+      !this.messageService.isInt() ||
+      index < 1 ||
+      index > entries.length
+    ) {
+      reply = `Index: ${index} is out of range. Please enter a whole number between 1 and ${entries.length} or type /cancel to end previous flow.`
       state = this.state
     } else {
       // Subtract one to account for 0 based indexes
-      const messageID = `${currentEntries[parseInt(index, 10) - 1].message_id}`
+      const messageID = `${entries[parseInt(index, 10) - 1].message_id}`
       const csvArray = this.reportService.getReport(
         messageID,
         this.messageService.getVGroupID()
