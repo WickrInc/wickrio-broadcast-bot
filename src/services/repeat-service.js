@@ -53,7 +53,7 @@ class RepeatService {
     logger.debug('Frequency:' + this.combinedService.getFrequency())
     const timeString = `*/${this.combinedService.getFrequency()} * * * *`
     const cronJob = schedule(timeString, () => {
-      logger.debug('Running repeat cronjob')
+      // logger.debug('Running repeat cronjob')
       this.combinedService.incCount()
       const reply = `Broadcast message #${
         this.combinedService.getCount() + 1
@@ -80,7 +80,7 @@ class RepeatService {
         )
       } catch (err) {
         this.combinedService.setActiveRepeat(false)
-        logger.debug('rock the cron job')
+        // logger.debug('rock the cron job')
         logger.error(err)
         return cronJob.stop()
       }
@@ -88,7 +88,7 @@ class RepeatService {
         this.combinedService.getRepeats() === this.combinedService.getCount()
       ) {
         this.combinedService.setActiveRepeat(false)
-        logger.debug('rock the cron job')
+        // logger.debug('rock the cron job')
         return cronJob.stop()
       }
       return false

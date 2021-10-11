@@ -39,7 +39,7 @@ class MapService {
         // APIService.sendRoomMessage(vGroupID, link)
         return link
       } else {
-        return 'no location for the replied users'
+        return 'No location information available for this broadcast.'
         // APIService.sendRoomMessage(
         //   vGroupID,
         //   'no location for the replied users'
@@ -50,17 +50,23 @@ class MapService {
 
   getMap(messageID, maxUsers) {
     // get status to check if acknowledged messages exists, and then, if they include the status_message that is added to the repo
-    const messageStatus = JSON.parse(
-      this.apiService.getMessageStatus(
-        String(messageID),
-        'full',
-        String(0),
-        '2000'
-      ) // get all dynamically
-    )
+    let link
+    try {
+      const messageStatus = JSON.parse(
+        this.apiService.getMessageStatus(
+          String(messageID),
+          'full',
+          String(0),
+          '2000'
+        ) // get all dynamically
+      )
 
-    const link = this.buildMapLink({ messageStatus, maxUsers })
-    return link
+      link = this.buildMapLink({ messageStatus, maxUsers })
+      return link
+    } catch (e) {
+      console.error(e)
+      return 'No location information available for this broadcast.'
+    }
   }
 }
 

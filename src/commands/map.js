@@ -75,7 +75,7 @@ class Map {
 
       state = State.WHICH_MAP
     } else {
-      reply = 'Map is disabled, configure it with our google maps API key.'
+      reply = 'Map is disabled, configure it with your own google maps API key.'
       state = State.NONE
     }
 
