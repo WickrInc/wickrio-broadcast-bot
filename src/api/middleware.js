@@ -25,8 +25,8 @@ const checkAuth = (req, res, next) => {
 
   jwt.verify(token, BOT_AUTH_TOKEN.value, (err, user) => {
     if (err) {
-      console.log(err)
-      console.log('err: ' + err.message)
+      logger.error(err)
+      logger.error('err: ' + err.message)
       return res.status(403).send(err.message)
     }
 

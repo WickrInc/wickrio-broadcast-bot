@@ -54,7 +54,7 @@ class SendService {
   }
 
   setDisplay(display) {
-    console.log('send-service:setDisplay: ' + display)
+    logger.verbose('send-service:setDisplay: ' + display)
     this.messageService.user.display = display
   }
 
@@ -75,7 +75,7 @@ class SendService {
   }
 
   setAckFlag(ackFlag) {
-    console.log('send-service:setAckFlag: ' + ackFlag)
+    logger.verbose('send-service:setAckFlag: ' + ackFlag)
     this.messageService.user.ackFlag = ackFlag
   }
 
@@ -173,7 +173,7 @@ class SendService {
       this.messageService.user.file !== undefined &&
       this.messageService.user.file !== ''
     ) {
-      console.log({
+      logger.debug({
         messageID,
         email: this.messageService.user.userEmail,
         filePath,
@@ -212,7 +212,7 @@ class SendService {
         )
       }
     } else {
-      console.log({
+      logger.debug({
         messageID,
         email: this.messageService.user.userEmail,
         filePath,

@@ -92,7 +92,7 @@ async function main() {
     if (WEB_APPLICATION?.value === 'yes' || REST_APPLICATION?.value === 'yes') {
       startServer()
     } else {
-      console.log(
+      logger.info(
         'If you wanted a web or rest interface, the env variables not set properly. Check BOT_AUTH_TOKEN, BOT_KEY, BOT_PORT'
       )
     }
@@ -100,7 +100,7 @@ async function main() {
     const adminList = bot.getAdmins()
     const setupData = { admins: {} }
     for (const admin of adminList) {
-      console.log('admin' + admin)
+      logger.debug('admin' + admin)
       setupData.admins[admin] = false
     }
 
@@ -119,7 +119,7 @@ async function main() {
     const welcomeObj = SetupService.getWelcomeMessage()
     const welcomeMessage = welcomeObj.reply
     const welcomeMessagemeta = JSON.stringify(welcomeObj.messagemeta)
-    console.log(welcomeMessagemeta)
+    logger.debug(welcomeMessagemeta)
     if (setupAdmins.length > 0) {
       apiService.send1to1Message(
         setupAdmins,
@@ -134,13 +134,13 @@ async function main() {
     // Passes a callback function that will receive incoming messages into the bot client
     bot.startListening(listen)
   } catch (err) {
-    console.log(err)
+    logger.error(err)
   }
 }
 
 async function listen(rawMessage) {
   try {
-    // console.log({ rawMessage })
+    // logger.debug({ rawMessage })
     const messageService = bot.messageService({ rawMessage })
     const {
       // time,
@@ -172,7 +172,7 @@ async function listen(rawMessage) {
     } = messageService
 
     if (isAdmin && !setupService.alreadySetup(userEmail)) {
-      console.log('isAdmin and not already setup')
+      logger.debug('isAdmin and not already setup')
       setupService.setupComplete(userEmail)
     }
 
@@ -195,7 +195,7 @@ async function listen(rawMessage) {
 
     if (cmdResult?.reply) {
       if (cmdResult?.messagemeta) {
-        console.log('Object has a reply and message meta')
+        logger.verbose('Object has a reply and message meta')
         const metastring = JSON.stringify(cmdResult.messagemeta)
         WickrIOAPI.cmdSendRoomMessage(
           vGroupID,

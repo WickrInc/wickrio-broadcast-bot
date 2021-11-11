@@ -72,7 +72,7 @@ class Help {
       '/delete : To delete a file that was previously made available for the /send command'
 
     if (ADMINISTRATORS_CHOICE.value === 'no' || isAdmin) {
-      // console.log({ helpString, vGroupID })
+      // logger.debug({ helpString, vGroupID })
 
       if (ADMINISTRATORS_CHOICE.value === 'yes') {
         let adminHelp = '*Admin Commands*\n' + '%{adminHelp}\n'

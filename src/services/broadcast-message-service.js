@@ -5,7 +5,7 @@ import { logger } from '../helpers/constants'
 
 class BroadcastMessageService {
   static broadcastMessage(apiService, user) {
-    // console.log({
+    // logger.debug({
     //   file: user.file,
     //   message: user.message,
     //   mail: user.mail,
@@ -139,7 +139,7 @@ class BroadcastMessageService {
         // what is this? why webappp?
         //
         if (user.webapp && user.message) {
-          console.log('from webapp')
+          logger.verbose('from webapp')
           uMessage = apiService.sendNetworkMessage(
             user.message,
             user.ttl,
@@ -193,7 +193,7 @@ class BroadcastMessageService {
       reply.rawMessage = user.message
       reply.message = messageToSend
       if (user.webapp && user.message) {
-        console.log('webapp sec group')
+        logger.verbose('webapp sec group')
         uMessage = apiService.sendSecurityGroupMessage(
           user.securityGroups,
           user.message,

@@ -21,9 +21,11 @@
     "multer": "^1.4.2",
     "node-cron": "^2.0.3",
     "nyc": "^15.1.0",
-    "pino": "^5.15.0",
+    "pino": "^5.17.0",
     "prompt": "^1.0.0",
-    "wickrio-bot-api": "5.87.x"
+    "wickrio-bot-api": "5.87.x",
+    "winston": "^3.3.3",
+    "winston-daily-rotate-file": "^3.10.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.4",
@@ -52,9 +54,9 @@
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",
     "nodemon": "^2.0.4",
+    "path": "0.12.7",
     "pino-pretty": "^3.5.0",
     "prettier": "2.0.5",
-    "path": "0.12.7",
     "sinon": "11.1.1"
   },
   "scripts": {

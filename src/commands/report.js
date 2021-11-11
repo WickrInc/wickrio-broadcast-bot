@@ -1,4 +1,5 @@
 import State from '../state'
+import { logger } from '../helpers/constants'
 
 class Report {
   constructor({ genericService, messageService }) {
@@ -27,7 +28,7 @@ class Report {
       reply = `${entriesString}To get started, select the broadcast for which you would like to generate a report`
 
       const tablestring = JSON.stringify(entries)
-      console.log('report: table:' + tablestring)
+      logger.verbose('report: table:' + tablestring)
 
       messagemeta = {
         table: {
@@ -53,7 +54,7 @@ class Report {
       }
 
       const messagemetastring = JSON.stringify(messagemeta)
-      console.log('report: messagemeta:' + messagemetastring)
+      logger.verbose('report: messagemeta:' + messagemetastring)
     }
 
     // If the number of messages is greater than the end index
