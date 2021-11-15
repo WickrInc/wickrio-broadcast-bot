@@ -1,4 +1,5 @@
 import State from '../state'
+import { logger } from '../helpers/constants'
 
 class Status {
   constructor({ genericService, messageService }) {
@@ -53,7 +54,7 @@ class Status {
       }
 
       const messagemetastring = JSON.stringify(messagemeta)
-      console.log('status: messagemeta:' + messagemetastring)
+      logger.verbose('status: messagemeta:' + messagemetastring)
 
       reply = `${entriesString}Which message would you like to see the status of?`
     }

@@ -303,7 +303,7 @@ class CombinedService {
 
   broadcastMessage() {
     const util = require('util')
-    console.log(util.inspect(this.user, { depth: null }))
+    logger.debug(util.inspect(this.user, { depth: null }))
     const queueInfo = this.getQueueInfo()
     if (queueInfo !== '') {
       this.apiService.sendRoomMessage(
@@ -324,7 +324,7 @@ class CombinedService {
 
   sendToFile() {
     const util = require('util')
-    console.log(util.inspect(this.user, { depth: null }))
+    logger.debug(util.inspect(this.user, { depth: null }))
     const queueInfo = this.getQueueInfo()
     if (queueInfo !== '') {
       this.apiService.sendRoomMessage(
@@ -358,7 +358,7 @@ class CombinedService {
 
   // TODO should these all be in the constructor?
   clearValues() {
-    console.log('Clear values called')
+    logger.verbose('Clear values called')
     this.user.file = ''
     this.user.sendfile = ''
     this.user.message = ''

@@ -1,4 +1,3 @@
-// import logger from './logger'
 // import State from './state'
 
 // These are the /commands and must go first to cancel any other existing commands
@@ -56,6 +55,7 @@ import {
   apiService,
   RESPONSES_ENABLED,
   ADMINISTRATORS_CHOICE,
+  logger,
 } from './helpers/constants'
 import writeFile from './helpers/message-writer.js'
 
@@ -91,7 +91,6 @@ class Factory {
         '3',
         statusMessage
       )
-      // user.currentState = State.NONE
       return
     }
 
@@ -352,7 +351,7 @@ class Factory {
       'This command is not recognized. Check the format and spelling and try again. For a list of available commands, type in /help'
     // If the constructor did not validate the user then return!
     if (!this.validatedUser) return
-    console.log('STATE' + this.messageService.user.currentState)
+    logger.debug('STATE' + this.messageService.user.currentState)
 
     for (const command of this.commandList) {
       if (command.shouldExecute()) {

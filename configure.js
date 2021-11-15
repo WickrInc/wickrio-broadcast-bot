@@ -1,5 +1,4 @@
 const WickrIOBotAPI = require('wickrio-bot-api')
-const util = require('util')
 
 require('dotenv').config({
   path: '.env.configure',
@@ -44,7 +43,6 @@ process.on(
 main()
 
 async function main() {
-
   const token = require('./configTokens.json')
   let adminOptional = false
   if (token.administratorsOptional !== undefined) {

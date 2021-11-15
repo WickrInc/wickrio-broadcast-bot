@@ -26,7 +26,6 @@ class StatusService {
     const preparing =
       messageStatus.status === 'preparing' || messageStatus.status === 'created'
     // logger.debug(`messageStatus.status is: ${messageStatus.status}`)
-    // console.log({ messageStatus })
     if (preparing) {
       complete = false
       statusString =

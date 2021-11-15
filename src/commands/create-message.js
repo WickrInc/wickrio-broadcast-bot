@@ -1,5 +1,6 @@
 import State from '../state'
 import ButtonHelper from '../helpers/button-helper.js'
+import { logger } from '../helpers/constants'
 
 class CreateMessage {
   constructor({ combinedService, messageService }) {
@@ -9,8 +10,8 @@ class CreateMessage {
   }
 
   shouldExecute() {
-    // logger.trace('CreateMessage: shouldExecute')
-    console.log('CreateMessage: shouldExecute')
+    // logger.verbose('CreateMessage: shouldExecute')
+    logger.debug('CreateMessage: shouldExecute')
     return this.messageService.matchUserCommandCurrentState({
       commandState: this.state,
     })

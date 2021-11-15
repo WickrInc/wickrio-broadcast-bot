@@ -1,15 +1,16 @@
-import { getLogger } from 'log4js'
+// import { getLogger } from 'log4js'
 import * as WickrIOBotAPI from 'wickrio-bot-api'
 import fs from 'fs'
 import dotenv from 'dotenv'
 import path from 'path'
+import logger from './logger'
 
 dotenv.config()
 
 const WickrUser = WickrIOBotAPI.WickrUser
 const bot = new WickrIOBotAPI.WickrIOBot()
 const WickrIOAPI = bot.getWickrIOAddon()
-const logger = getLogger()
+// const logger = logger.logger//getLogger()
 logger.level = 'debug'
 const client_auth_codes = {}
 
@@ -64,7 +65,7 @@ const updateLastID = () => {
     fs.writeFile('last_id.json', idToWrite, err => {
       // Fix this
       if (err) throw err
-      logger.trace('Current Message ID saved in file')
+      logger.verbose('Current Message ID saved in file')
     })
     return id.toString()
   } catch (err) {
@@ -84,7 +85,7 @@ function getLastID() {
       fs.writeFile('last_id.json', lastID, err => {
         // Fix this
         if (err) throw err
-        logger.trace('Current Message ID saved in file')
+        logger.verbose('Current Message ID saved in file')
       })
     }
     logger.debug('This is the id: ' + lastID)

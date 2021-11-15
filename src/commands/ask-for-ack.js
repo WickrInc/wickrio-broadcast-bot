@@ -1,5 +1,6 @@
 import State from '../state'
 import ButtonHelper from '../helpers/button-helper.js'
+import { logger } from '../helpers/constants'
 
 class AskForAck {
   constructor({ broadcastService, messageService }) {
@@ -29,7 +30,7 @@ class AskForAck {
       messagemeta = ButtonHelper.makeCancelButtons(['Confirm'])
     } else if (this.messageService.negativeReply()) {
       this.broadcastService.setAckFlag(false)
-      console.log(this.broadcastService.getSendFile())
+      logger.debug(this.broadcastService.getSendFile())
       if (
         this.broadcastService.getSendFile() !== undefined &&
         this.broadcastService.getSendFile() !== ''

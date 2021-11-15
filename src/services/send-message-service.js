@@ -70,7 +70,7 @@ class SendMessageService {
         )
       }
     } else if (user.file !== undefined && user.file !== '') {
-      console.log({
+      logger.debug({
         messageID,
         email: user.userEmail,
         filePath,
@@ -111,7 +111,7 @@ class SendMessageService {
         )
       }
     } else {
-      console.log({
+      logger.debug({
         messageID,
         email: user.userEmail,
         filePath,

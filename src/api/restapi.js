@@ -7,6 +7,7 @@ import {
   BOT_KEY,
   BOT_AUTH_TOKEN,
   WICKRIO_BOT_NAME,
+  logger,
   // cronJob
 } from '../helpers/constants'
 import BroadcastService from '../services/broadcast-service'
@@ -27,7 +28,7 @@ const useRESTRoutes = app => {
       if (authStr !== BOT_AUTH_TOKEN.value) valid = false
       return valid
     } catch (err) {
-      console.log(err)
+      logger.error(err)
     }
   }
 
@@ -78,20 +79,20 @@ const useRESTRoutes = app => {
       // typecheck and validate parameters
       if (req.is('multipart/form-data')) {
         const formData = req.body
-        console.log('form data: ', formData)
-        console.log('form data body: ', formData.body)
+        logger.debug('form data: ', formData)
+        logger.debug('form data body: ', formData.body)
 
         fileData = req.file
         let userAttachments
         let inFile
 
         if (fileData === undefined) {
-          console.log('attachment is not defined!')
+          logger.info('attachment is not defined!')
         } else {
-          console.log('originalname: ', fileData.originalname)
-          console.log('size: ', fileData.size)
-          console.log('destination: ', fileData.destination)
-          console.log('filename: ', fileData.filename)
+          logger.debug('originalname: ', fileData.originalname)
+          logger.debug('size: ', fileData.size)
+          logger.debug('destination: ', fileData.destination)
+          logger.debug('filename: ', fileData.filename)
 
           userAttachments =
             process.cwd() + '/attachments/' + WICKRIO_BOT_NAME.value
@@ -152,7 +153,7 @@ const useRESTRoutes = app => {
       newBroadcast.setTTL(valToString(ttl))
       newBroadcast.setBOR(valToString(bor))
       newBroadcast.setSentByFlag(false)
-      console.log({
+      logger.debug({
         message,
         acknowledge,
         security_group,
@@ -207,8 +208,8 @@ const useRESTRoutes = app => {
     [checkBasicAuth, upload.single('attachment')],
     (req, res) => {
       const formData = req.body
-      console.log('form data: ', formData)
-      console.log('form data body: ', formData.body)
+      logger.debug('form data: ', formData)
+      logger.debug('form data body: ', formData.body)
 
       const fileData = req.file
       let userAttachments
@@ -216,12 +217,12 @@ const useRESTRoutes = app => {
       let inFile
 
       if (fileData === undefined) {
-        console.log('attachment is not defined!')
+        logger.info('attachment is not defined!')
       } else {
-        console.log('originalname: ', fileData.originalname)
-        console.log('size: ', fileData.size)
-        console.log('destination: ', fileData.destination)
-        console.log('filename: ', fileData.filename)
+        logger.debug('originalname: ', fileData.originalname)
+        logger.debug('size: ', fileData.size)
+        logger.debug('destination: ', fileData.destination)
+        logger.debug('filename: ', fileData.filename)
 
         userAttachments =
           process.cwd() + '/attachments/' + WICKRIO_BOT_NAME.value
@@ -252,7 +253,7 @@ const useRESTRoutes = app => {
           .send('Bad request: message missing from request.')
       }
 
-      console.log('message: ', message)
+      logger.debug('message: ', message)
 
       // look up the user for the bot. Create a user record if not found
       let user = bot.getUser(WICKRIO_BOT_NAME.value)
@@ -270,7 +271,7 @@ const useRESTRoutes = app => {
       newBroadcast.setTTL(valToString(ttl))
       newBroadcast.setBOR(valToString(bor))
       newBroadcast.setSentByFlag(false)
-      console.log({
+      logger.debug({
         message,
         acknowledge,
         security_group,
@@ -436,7 +437,7 @@ const useRESTRoutes = app => {
       const response = apiService.getSecurityGroups()
       res.json(response)
     } catch (err) {
-      console.log(err)
+      logger.error(err)
       res.statusCode = 400
       res.type('txt').send(err.toString())
     }
@@ -491,7 +492,7 @@ const useRESTRoutes = app => {
 
   const mapEntries = (messageIdEntries, type, page, size) => {
     messageIdEntries?.map(async entry => {
-      console.log({ entry })
+      logger.debug({ entry })
       const contentData = JSON.parse(
         apiService.getMessageIDEntry(entry.message_id)
       )
@@ -502,7 +503,7 @@ const useRESTRoutes = app => {
         page,
         size
       )
-      console.log({ statusdata })
+      logger.debug({ statusdata })
       const parsedstatus = JSON.parse(statusdata)
       entry.summary = {}
       entry.test = 'test'
@@ -551,11 +552,11 @@ const useRESTRoutes = app => {
         reply.error = 'no broadcasts yet'
       } else {
         reply.data = builtStatus
-        console.log({ builtStatus })
+        logger.debug({ builtStatus })
       }
       return reply
     } catch (e) {
-      console.log(e)
+      logger.error(e)
       return e
     }
   }
@@ -685,13 +686,13 @@ const useRESTRoutes = app => {
     res
   ) {
     const callbackUrl = req.query.callbackurl
-    console.log('callbackUrl:', callbackUrl)
+    logger.debug('callbackUrl:', callbackUrl)
     try {
       const csmc = apiService.setEventCallback(callbackUrl)
-      console.log(csmc)
+      logger.debug(csmc)
       res.type('txt').send(csmc)
     } catch (err) {
-      console.log(err)
+      logger.error(err)
       res.statusCode = 400
       res.type('txt').send(err.toString())
     }
@@ -702,7 +703,7 @@ const useRESTRoutes = app => {
       const cgmc = apiService.getEventCallback()
       res.type('txt').send(cgmc)
     } catch (err) {
-      console.log(err)
+      logger.error(err)
       res.statusCode = 400
       res.type('txt').send(err.toString())
     }
@@ -714,10 +715,10 @@ const useRESTRoutes = app => {
   ) {
     try {
       const cdmc = apiService.deleteEventCallback()
-      console.log(cdmc)
+      logger.debug(cdmc)
       res.type('txt').send(cdmc)
     } catch (err) {
-      console.log(err)
+      logger.error(err)
       res.statusCode = 400
       res.type('txt').send(err.toString())
     }

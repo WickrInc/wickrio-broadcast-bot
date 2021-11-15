@@ -1,4 +1,5 @@
 import WickrIOBotAPI from 'wickrio-bot-api'
+import { logger } from '../helpers/constants'
 const bot = new WickrIOBotAPI.WickrIOBot()
 
 class Queue {
@@ -45,7 +46,7 @@ class Queue {
         reply,
       }
     } catch (err) {
-      console.log('queue:' + err)
+      logger.error('queue:' + err)
       const reply = 'Failed to get queue information!'
       return {
         reply,

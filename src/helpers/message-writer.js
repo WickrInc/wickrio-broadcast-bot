@@ -1,14 +1,15 @@
 'use strict'
 
 import fs from 'fs'
+import { logger } from './constants'
 
 const writeFile = message => {
   const path = process.cwd() + '/attachments/messages.txt'
   fs.appendFile(path, message + '\n', function (err) {
     if (err) {
-      return console.log(err)
+      return logger.error(err)
     }
-    // console.log("The file was saved!");
+    // logger.verbose("The file was saved!");
   })
 }
 

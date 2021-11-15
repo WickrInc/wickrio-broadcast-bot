@@ -1,4 +1,5 @@
 import State from '../state'
+import { logger } from '../helpers/constants'
 
 class Abort {
   constructor({ genericService, messageService }) {
@@ -52,7 +53,7 @@ class Abort {
       }
 
       const messagemetastring = JSON.stringify(messagemeta)
-      console.log('status: messagemeta:' + messagemetastring)
+      logger.verbose('status: messagemeta:' + messagemetastring)
 
       reply = `${entriesString}Which message would you like to abort?`
     }

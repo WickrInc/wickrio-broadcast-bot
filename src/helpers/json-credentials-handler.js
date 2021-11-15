@@ -18,13 +18,13 @@ class JSONCredentialsHandler {
           logger.debug('creating credenitals.json')
         }
       )
-      console.log({ defaultData: this.defaultData })
+      logger.debug({ defaultData: this.defaultData })
       return this.defaultData
     }
     const rawcreds = fs.readFileSync(this.credentialFile, (err, data) => {
       // TODO need more error handling here!
       if (err) {
-        console.log({ err })
+        logger.error({ err })
       } else if (data) {
         return data
       }
@@ -35,8 +35,8 @@ class JSONCredentialsHandler {
 
   saveData(writeObject) {
     fs.writeFile(this.credentialFile, JSON.stringify(writeObject), err => {
-      if (err) return console.log(err)
-      logger.trace('Current data saved in file')
+      if (err) return logger.debug(err)
+      logger.verbose('Current data saved in file')
     })
   }
 }

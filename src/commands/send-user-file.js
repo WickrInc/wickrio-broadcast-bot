@@ -1,4 +1,5 @@
 import State from '../state'
+import { logger } from '../helpers/constants'
 
 // This class is used to send the user their selected file.
 
@@ -17,7 +18,7 @@ class SendUserFile {
 
   execute() {
     const userEmail = this.messageService.userEmail
-    console.log({ userEmail })
+    logger.debug({ userEmail })
     const index = this.messageService.message
     let reply = null
     let state = State.NONE

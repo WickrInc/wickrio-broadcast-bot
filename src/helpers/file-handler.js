@@ -10,9 +10,9 @@ util.promisify(fs.copyFile)
 
 class FileHandler {
   static listFiles(path) {
-    console.log('File Handler list files')
-    console.log({ path })
-    console.log({ 'list files': fs.readdirSync(path) })
+    logger.verbose('File Handler list files')
+    logger.debug({ path })
+    logger.debug({ 'list files': fs.readdirSync(path) })
     return fs.readdirSync(path)
     // return readdir(path);
   }
@@ -48,7 +48,6 @@ class FileHandler {
       logger.error(err)
     }
     if (LIMIT_FILE_ENTRIES.value === 'yes') {
-      console.log(lines)
       if (lines > parseInt(FILE_ENTRY_SIZE.value)) {
         return true
       }
@@ -93,9 +92,9 @@ class FileHandler {
       state = State.OVERWRITE_CHECK
       // Upload new file to the user directory
     } else {
-      console.log('file actions user or hash, should copy file')
+      // file actions user or hash, should copy file
       const newFilePath = `${process.cwd()}/files/${userEmail}/${filename.toString()}${fileAppend}`
-      console.log({
+      logger.debug({
         filePath,
         newFilePath,
         userEmail,

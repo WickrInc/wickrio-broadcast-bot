@@ -1,4 +1,4 @@
-// import { logger } from './constants'
+import { logger } from './constants'
 
 class ButtonHelper {
   // TODO replace entries parameter with table
@@ -11,7 +11,7 @@ class ButtonHelper {
     entries
   ) {
     const tablestring = JSON.stringify(entries)
-    console.log('report: table:' + tablestring)
+    logger.debug('report: table:' + tablestring)
     let messageMeta = {}
 
     messageMeta = {
@@ -38,7 +38,7 @@ class ButtonHelper {
     }
 
     const messageMetaString = JSON.stringify(messageMeta)
-    console.log('report: messageMeta:' + messageMetaString)
+    logger.debug('report: messageMeta:' + messageMetaString)
     return messageMeta
   }
 
