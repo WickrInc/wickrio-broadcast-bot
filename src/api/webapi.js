@@ -8,9 +8,9 @@ import {
   client_auth_codes,
   BOT_AUTH_TOKEN,
   BOT_PORT,
-  logger,
   // cronJob
 } from '../helpers/constants'
+import logger from '../helpers/logger'
 import BroadcastService from '../services/broadcast-service'
 
 // set upload destination for attachments sent to broadcast with multer

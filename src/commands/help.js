@@ -1,13 +1,13 @@
 import State from '../state'
 import {
   bot,
-  logger,
   WEB_APPLICATION,
   WEB_INTERFACE,
   BOT_MAPS,
   BROADCAST_ENABLED,
   ADMINISTRATORS_CHOICE,
 } from '../helpers/constants'
+import logger from '../helpers/logger'
 const webAppEnabled =
   WEB_APPLICATION?.value === 'yes' && WEB_INTERFACE?.value === 'yes'
 const mapEnabled = BOT_MAPS?.value === 'yes'

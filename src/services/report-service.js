@@ -1,5 +1,6 @@
 import { createObjectCsvWriter as createCsvWriter } from 'csv-writer'
-import { logger, apiService } from '../helpers/constants'
+import { apiService } from '../helpers/constants'
+import logger from '../helpers/logger'
 import StatusService from './status-service'
 
 class ReportService {

@@ -1,4 +1,5 @@
-import { logger, LIMIT_FILE_ENTRIES, FILE_ENTRY_SIZE } from './constants'
+import { LIMIT_FILE_ENTRIES, FILE_ENTRY_SIZE } from './constants'
+import logger from './logger'
 import ButtonHelper from './button-helper'
 import fs from 'fs'
 import util from 'util'

@@ -55,9 +55,9 @@ import {
   apiService,
   RESPONSES_ENABLED,
   ADMINISTRATORS_CHOICE,
-  logger,
 } from './helpers/constants'
 import writeFile from './helpers/message-writer.js'
+import logger from './helpers/logger'
 
 // TODO how can we use a new Broadcast service each time???
 class Factory {

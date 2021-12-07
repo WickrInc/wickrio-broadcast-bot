@@ -3,7 +3,8 @@ import { existsSync, mkdirSync } from 'fs'
 import FileHandler from '../helpers/file-handler'
 import WickrIOBotAPI from 'wickrio-bot-api'
 import ButtonHelper from '../helpers/button-helper'
-import { logger, BROADCAST_ENABLED } from '../helpers/constants'
+import { BROADCAST_ENABLED } from '../helpers/constants'
+import logger from '../helpers/logger'
 const bot = new WickrIOBotAPI.WickrIOBot()
 
 // TODO make fs a variable that is passed into the constructor

@@ -4,7 +4,8 @@ import WickrIOBotAPI from 'wickrio-bot-api'
 import ButtonHelper from '../helpers/button-helper'
 // TODO proper form??
 import updateLastID from '../helpers/message-id-helper'
-import { logger, BROADCAST_ENABLED } from '../helpers/constants'
+import { BROADCAST_ENABLED } from '../helpers/constants'
+import logger from '../helpers/logger'
 const bot = new WickrIOBotAPI.WickrIOBot()
 
 class BroadcastService {

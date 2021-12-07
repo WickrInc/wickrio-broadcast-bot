@@ -1,10 +1,6 @@
 import jwt from 'jsonwebtoken'
-import {
-  bot,
-  client_auth_codes,
-  logger,
-  BOT_AUTH_TOKEN,
-} from '../helpers/constants'
+import { bot, client_auth_codes, BOT_AUTH_TOKEN } from '../helpers/constants'
+import logger from '../helpers/logger'
 
 const checkAuth = (req, res, next) => {
   res.set('Authorization', 'Basic base64_auth_token')
