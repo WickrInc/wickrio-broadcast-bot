@@ -47,7 +47,9 @@ const {
   ADMINISTRATORS_CHOICE,
 } = JSON.parse(process.env.tokens)
 
-const { LOG_LEVEL, LOG_FILE_SIZE } = JSON.parse(process.env.log_tokens)
+const { LOG_LEVEL, LOG_FILE_SIZE, LOG_MAX_FILES } = JSON.parse(
+  process.env.log_tokens
+)
 
 const updateLastID = () => {
   try {
@@ -127,4 +129,5 @@ export {
   ADMINISTRATORS_CHOICE,
   LOG_LEVEL,
   LOG_FILE_SIZE,
+  LOG_MAX_FILES,
 }
