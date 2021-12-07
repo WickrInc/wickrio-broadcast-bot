@@ -47,9 +47,47 @@ const {
   ADMINISTRATORS_CHOICE,
 } = JSON.parse(process.env.tokens)
 
-const { LOG_LEVEL, LOG_FILE_SIZE, LOG_MAX_FILES } = JSON.parse(
+let { LOG_LEVEL, LOG_FILE_SIZE, LOG_MAX_FILES } = JSON.parse(
   process.env.log_tokens
 )
+
+if (LOG_LEVEL?.value === undefined) {
+  if (LOG_LEVEL === undefined) {
+    processesJsonObject.apps[0].env.log_tokens.LOG_LEVEL = {}
+    LOG_LEVEL = {}
+  }
+  LOG_LEVEL.value = 'info'
+  processesJsonObject.apps[0].env.log_tokens.LOG_LEVEL.value = 'info'
+}
+if (LOG_FILE_SIZE?.value === undefined) {
+  if (LOG_FILE_SIZE === undefined) {
+    processesJsonObject.apps[0].env.log_tokens.LOG_FILE_SIZE = {}
+    LOG_FILE_SIZE = {}
+  }
+  LOG_FILE_SIZE.value = '10m'
+  processesJsonObject.apps[0].env.log_tokens.LOG_FILE_SIZE.value = '10m'
+}
+if (LOG_MAX_FILES?.value === undefined) {
+  if (LOG_MAX_FILES === undefined) {
+    processesJsonObject.apps[0].env.log_tokens.LOG_MAX_FILES = {}
+    LOG_MAX_FILES = {}
+  }
+  LOG_MAX_FILES.value = '5'
+  processesJsonObject.apps[0].env.log_tokens.LOG_MAX_FILES.value = '5'
+}
+
+try {
+  fs.writeFileSync(
+    processesJsonFile,
+    // Write the JSON object with 2 spaces and indentation
+    JSON.stringify(processesJsonObject, null, 2),
+    err => {
+      if (err) throw err
+    }
+  )
+} catch (err) {
+  console.error(err)
+}
 
 const updateLastID = () => {
   try {

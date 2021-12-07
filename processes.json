@@ -17,6 +17,10 @@
           "LOG_FILE_SIZE": {
             "value": "10m",
             "encrypted": false
+          },
+          "LOG_MAX_FILES": {
+            "value": "5",
+            "encrypted": false
           }
         },
         "tokens": {}

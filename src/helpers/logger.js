@@ -1,9 +1,9 @@
 import winston from 'winston'
 import 'winston-daily-rotate-file'
+import fs from 'fs'
+import path from 'path'
 import { LOG_LEVEL, LOG_FILE_SIZE, LOG_MAX_FILES } from './constants'
 
-const fs = require('fs')
-const path = require('path')
 const logDir = 'logs'
 if (!fs.existsSync(logDir)) {
   // Create the directory if it does not exist
@@ -14,20 +14,8 @@ const level = LOG_LEVEL !== undefined ? LOG_LEVEL?.value : 'info'
 const maxSize = LOG_FILE_SIZE !== undefined ? LOG_FILE_SIZE?.value : '10m'
 const maxFiles = LOG_MAX_FILES !== undefined ? LOG_MAX_FILES?.value : '5'
 
-// const myFormat = winston.format.printf(
-//   ({ level, message, timestamp, stack }) => {
-//     if (stack) {
-//       return `${timestamp} ${level}: ${message}\n${stack}`
-//     } else {
-//       return `${timestamp} ${level}: ${message}`
-//     }
-//   }
-// )
-
 const rotateTransport = new winston.transports.DailyRotateFile({
   filename: path.join(logDir, 'log-%DATE%.output'),
-  // datePattern: 'YYYY-MM-DD-HH',
-  // maxSize: '1k',
   level,
   maxSize,
   maxFiles,
