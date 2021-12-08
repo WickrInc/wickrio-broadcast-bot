@@ -2,7 +2,6 @@ import fs from 'fs'
 import startServer from './api'
 import {
   bot,
-  logger,
   WICKRIO_BOT_NAME,
   VERIFY_USERS,
   WickrIOAPI,
@@ -10,6 +9,7 @@ import {
   REST_APPLICATION,
   apiService,
 } from './helpers/constants'
+import logger from './helpers/logger'
 import Factory from './factory'
 import SetupService from './services/setup-service'
 import JSONCredentialsHandler from './helpers/json-credentials-handler'

@@ -9,6 +9,20 @@
       "watch": ["package.json"],
       "ignore_watch": [".git"],
       "env": {
+        "log_tokens": {
+          "LOG_LEVEL": {
+            "value": "info",
+            "encrypted": false
+          },
+          "LOG_FILE_SIZE": {
+            "value": "10m",
+            "encrypted": false
+          },
+          "LOG_MAX_FILES": {
+            "value": "5",
+            "encrypted": false
+          }
+        },
         "tokens": {}
       },
       "out_file": "log.output",

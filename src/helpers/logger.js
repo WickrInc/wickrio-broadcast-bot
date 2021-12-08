@@ -1,20 +1,30 @@
 import winston from 'winston'
 import 'winston-daily-rotate-file'
+import fs from 'fs'
+import path from 'path'
+import { LOG_LEVEL, LOG_FILE_SIZE, LOG_MAX_FILES } from './constants'
 
-// const { combine, timestamp, label, prettyPrint } = format
+const logDir = 'logs'
+if (!fs.existsSync(logDir)) {
+  // Create the directory if it does not exist
+  fs.mkdirSync(logDir)
+}
+
+const level = LOG_LEVEL !== undefined ? LOG_LEVEL?.value : 'info'
+const maxSize = LOG_FILE_SIZE !== undefined ? LOG_FILE_SIZE?.value : '10m'
+const maxFiles = LOG_MAX_FILES !== undefined ? LOG_MAX_FILES?.value : '5'
 
 const rotateTransport = new winston.transports.DailyRotateFile({
-  filename: 'broadcast-%DATE%-log.output',
-  // datePattern: 'YYYY-MM-DD-HH',
-  // maxSize: '1k',
-  maxSize: '10m',
-  maxFiles: '5',
+  filename: path.join(logDir, 'log-%DATE%.output'),
+  level,
+  maxSize,
+  maxFiles,
 })
 
 const errorTransport = new winston.transports.DailyRotateFile({
-  filename: 'broadcast-%DATE%-error.output',
-  maxSize: '10m',
-  maxFiles: '5',
+  filename: path.join(logDir, 'error-%DATE%.output'),
+  maxSize,
+  maxFiles,
   level: 'error',
 })
 
@@ -26,7 +36,7 @@ const logConfiguration = {
   transports: [rotateTransport, errorTransport],
   format: winston.format.combine(
     winston.format.timestamp({
-      format: 'MMM-DD-YYYY HH:mm:ss',
+      format: 'YYYY-MM-DDTHH:mm:ss',
     }),
     winston.format.colorize(),
     winston.format.printf(info =>

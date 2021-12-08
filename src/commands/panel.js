@@ -3,7 +3,6 @@ import {
   // bot,
   // WickrUser,
   client_auth_codes,
-  // logger,
   BOT_AUTH_TOKEN,
   WEBAPP_HOST,
   WEBAPP_PORT,

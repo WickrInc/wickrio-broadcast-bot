@@ -1,5 +1,6 @@
 import { schedule } from 'node-cron'
-import { logger, apiService } from '../helpers/constants'
+import { apiService } from '../helpers/constants'
+import logger from '../helpers/logger'
 import ButtonHelper from '../helpers/button-helper.js'
 
 class StatusService {

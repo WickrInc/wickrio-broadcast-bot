@@ -7,9 +7,9 @@ import {
   BOT_KEY,
   BOT_AUTH_TOKEN,
   WICKRIO_BOT_NAME,
-  logger,
   // cronJob
 } from '../helpers/constants'
+import logger from '../helpers/logger'
 import BroadcastService from '../services/broadcast-service'
 
 // set upload destination for attachments sent to broadcast with multer
