@@ -11,16 +11,13 @@
       "env": {
         "log_tokens": {
           "LOG_LEVEL": {
-            "value": "info",
-            "encrypted": false
+            "value": "info"
           },
           "LOG_FILE_SIZE": {
-            "value": "10m",
-            "encrypted": false
+            "value": "10m"
           },
           "LOG_MAX_FILES": {
-            "value": "5",
-            "encrypted": false
+            "value": "5"
           }
         },
         "tokens": {}

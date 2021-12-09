@@ -1,5 +1,5 @@
 import fs from 'fs'
-import logger from '../logger'
+import logger from './logger'
 
 class JSONCredentialsHandler {
   constructor(defaultData, credentialFile) {
