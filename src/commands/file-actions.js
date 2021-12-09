@@ -1,5 +1,4 @@
 import State from '../state'
-// import { logger } from '../logger'
 import FileHandler from '../helpers/file-handler'
 
 class FileActions {
