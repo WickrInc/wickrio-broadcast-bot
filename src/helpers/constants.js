@@ -47,33 +47,52 @@ const {
   ADMINISTRATORS_CHOICE,
 } = JSON.parse(process.env.tokens)
 
-let { LOG_LEVEL, LOG_FILE_SIZE, LOG_MAX_FILES } = JSON.parse(
-  process.env.log_tokens
-)
+let LOG_LEVEL
+let LOG_FILE_SIZE
+let LOG_MAX_FILES
 
-if (LOG_LEVEL?.value === undefined) {
-  if (LOG_LEVEL === undefined) {
-    processesJsonObject.apps[0].env.log_tokens.LOG_LEVEL = {}
-    LOG_LEVEL = {}
-  }
+if (process.env.log_tokens === 'undefined') {
+  processesJsonObject.apps[0].env.log_tokens = {}
+  LOG_LEVEL = {}
+  LOG_FILE_SIZE = {}
+  LOG_MAX_FILES = {}
   LOG_LEVEL.value = 'info'
-  processesJsonObject.apps[0].env.log_tokens.LOG_LEVEL.value = 'info'
-}
-if (LOG_FILE_SIZE?.value === undefined) {
-  if (LOG_FILE_SIZE === undefined) {
-    processesJsonObject.apps[0].env.log_tokens.LOG_FILE_SIZE = {}
-    LOG_FILE_SIZE = {}
-  }
   LOG_FILE_SIZE.value = '10m'
-  processesJsonObject.apps[0].env.log_tokens.LOG_FILE_SIZE.value = '10m'
-}
-if (LOG_MAX_FILES?.value === undefined) {
-  if (LOG_MAX_FILES === undefined) {
-    processesJsonObject.apps[0].env.log_tokens.LOG_MAX_FILES = {}
-    LOG_MAX_FILES = {}
-  }
   LOG_MAX_FILES.value = '5'
+  processesJsonObject.apps[0].env.log_tokens.LOG_LEVEL = {}
+  processesJsonObject.apps[0].env.log_tokens.LOG_LEVEL.value = 'info'
+  processesJsonObject.apps[0].env.log_tokens.LOG_FILE_SIZE = {}
+  processesJsonObject.apps[0].env.log_tokens.LOG_FILE_SIZE.value = '10m'
+  processesJsonObject.apps[0].env.log_tokens.LOG_MAX_FILES = {}
   processesJsonObject.apps[0].env.log_tokens.LOG_MAX_FILES.value = '5'
+} else {
+  let { LOG_LEVEL, LOG_FILE_SIZE, LOG_MAX_FILES } = JSON.parse(
+    process.env.log_tokens
+  )
+  if (LOG_LEVEL?.value === undefined) {
+    if (LOG_LEVEL === undefined) {
+      processesJsonObject.apps[0].env.log_tokens.LOG_LEVEL = {}
+      LOG_LEVEL = {}
+    }
+    LOG_LEVEL.value = 'info'
+    processesJsonObject.apps[0].env.log_tokens.LOG_LEVEL.value = 'info'
+  }
+  if (LOG_FILE_SIZE?.value === undefined) {
+    if (LOG_FILE_SIZE === undefined) {
+      processesJsonObject.apps[0].env.log_tokens.LOG_FILE_SIZE = {}
+      LOG_FILE_SIZE = {}
+    }
+    LOG_FILE_SIZE.value = '10m'
+    processesJsonObject.apps[0].env.log_tokens.LOG_FILE_SIZE.value = '10m'
+  }
+  if (LOG_MAX_FILES?.value === undefined) {
+    if (LOG_MAX_FILES === undefined) {
+      processesJsonObject.apps[0].env.log_tokens.LOG_MAX_FILES = {}
+      LOG_MAX_FILES = {}
+    }
+    LOG_MAX_FILES.value = '5'
+    processesJsonObject.apps[0].env.log_tokens.LOG_MAX_FILES.value = '5'
+  }
 }
 
 try {
