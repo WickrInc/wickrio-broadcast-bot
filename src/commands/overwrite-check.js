@@ -1,5 +1,5 @@
 import State from '../state'
-import { logger } from '../helpers/logger'
+import logger from '../helpers/logger'
 import FileHandler from '../helpers/file-handler'
 import ButtonHelper from '../helpers/button-helper.js'
 

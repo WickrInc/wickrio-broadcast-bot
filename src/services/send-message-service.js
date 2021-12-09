@@ -1,7 +1,7 @@
 import StatusService from './status-service'
 import ButtonHelper from '../helpers/button-helper'
 import updateLastID from '../helpers/message-id-helper'
-import { logger } from '../helpers/constants'
+import logger from '../helpers/logger'
 
 // TODO reduce magic chars
 const dir = `${process.cwd()}/files`

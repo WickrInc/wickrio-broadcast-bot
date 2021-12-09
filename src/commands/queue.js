@@ -1,5 +1,5 @@
 import WickrIOBotAPI from 'wickrio-bot-api'
-import { logger } from '../helpers/constants'
+import logger from '../helpers/logger'
 const bot = new WickrIOBotAPI.WickrIOBot()
 
 class Queue {

@@ -1,7 +1,7 @@
 'use strict'
 
 import fs from 'fs'
-import { logger } from './constants'
+import logger from './logger'
 
 const writeFile = message => {
   const path = process.cwd() + '/attachments/messages.txt'

@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { logger } from './constants'
+import logger from './logger'
 
 function updateLastID() {
   try {
