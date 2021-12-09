@@ -1,6 +1,6 @@
 import { BROADCAST_ENABLED } from '../helpers/constants'
 import State from '../state'
-// import { logger } from '../helpers/constants'
+// import logger from '../helpers/logger'
 
 class InitializeBroadcast {
   constructor({ broadcastService, messageService, apiService }) {

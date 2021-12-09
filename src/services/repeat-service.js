@@ -1,6 +1,6 @@
 import { schedule } from 'node-cron'
 // import APIService from './api-service'
-import { logger } from '../helpers/constants'
+import logger from '../helpers/logger'
 
 class RepeatService {
   constructor({

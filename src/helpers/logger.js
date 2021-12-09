@@ -3,6 +3,7 @@ import 'winston-daily-rotate-file'
 import fs from 'fs'
 import path from 'path'
 import { LOG_LEVEL, LOG_FILE_SIZE, LOG_MAX_FILES } from './constants'
+const util = require('util')
 
 const logDir = 'logs'
 if (!fs.existsSync(logDir)) {
@@ -45,6 +46,13 @@ const logConfiguration = {
         : `${[info.timestamp]} ${info.level}: ${info.message}`
     )
   ),
+}
+
+console.log = function () {
+  logger.info(util.format.apply(null, arguments))
+}
+console.error = function () {
+  logger.error(util.format.apply(null, arguments))
 }
 
 const logger = winston.createLogger(logConfiguration)

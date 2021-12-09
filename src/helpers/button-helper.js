@@ -1,4 +1,4 @@
-import { logger } from './constants'
+import logger from './logger'
 
 class ButtonHelper {
   // TODO replace entries parameter with table

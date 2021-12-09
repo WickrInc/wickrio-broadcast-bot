@@ -1,6 +1,6 @@
 import State from '../state'
 import ButtonHelper from '../helpers/button-helper.js'
-import { logger } from '../helpers/constants'
+import logger from '../helpers/logger'
 
 class AskForAck {
   constructor({ broadcastService, messageService }) {

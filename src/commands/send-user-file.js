@@ -1,5 +1,5 @@
 import State from '../state'
-import { logger } from '../helpers/constants'
+import logger from '../helpers/logger'
 
 // This class is used to send the user their selected file.
 
