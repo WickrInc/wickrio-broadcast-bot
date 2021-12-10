@@ -1,6 +1,6 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "5.92.3",
+  "version": "5.92.4",
   "description": "WickrIO Broadcast Bot",
   "main": "./build/broadcast-bot.js",
   "author": "Paul Cushman",
@@ -16,7 +16,7 @@
     "express": "^4.17.1",
     "helmet": "^3.23.3",
     "jsonwebtoken": "^8.5.1",
-    "log4js": "^5.3.0",
+    "log4js": ">=6.3.0",
     "mocha": "^8.3.2",
     "multer": "^1.4.2",
     "node-cron": "^2.0.3",
