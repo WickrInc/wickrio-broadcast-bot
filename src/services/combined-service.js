@@ -274,7 +274,7 @@ class CombinedService {
     // TODO check button list cut on iOS
     if (!fileArr || fileArr.length === 0) {
       reply =
-        "Broadcast to multiple users by clicking on the '+' sign and uploading a .txt file containig a list of usernames in line-separated format - with only one username per line."
+        "Broadcast to multiple users by clicking on the '+' sign and uploading a .txt file containing a list of usernames in line-separated format - with only one username per line."
     } else {
       reply = 'Select a user file:\n'
       const baseReplyLength = reply.length
