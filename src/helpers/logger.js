@@ -16,14 +16,16 @@ const maxSize = LOG_FILE_SIZE !== undefined ? LOG_FILE_SIZE?.value : '10m'
 const maxFiles = LOG_MAX_FILES !== undefined ? LOG_MAX_FILES?.value : '5'
 
 const rotateTransport = new winston.transports.DailyRotateFile({
-  filename: path.join(logDir, 'log-%DATE%.output'),
+  filename: path.join(logDir, 'log'),
+  datePattern: 'output',
   level,
   maxSize,
   maxFiles,
 })
 
 const errorTransport = new winston.transports.DailyRotateFile({
-  filename: path.join(logDir, 'error-%DATE%.output'),
+  filename: path.join(logDir, 'error'),
+  datePattern: 'output',
   maxSize,
   maxFiles,
   level: 'error',
