@@ -6,7 +6,6 @@ import path from 'path'
 dotenv.config()
 
 const WickrUser = WickrIOBotAPI.WickrUser
-const WickrLogger = new WickrIOBotAPI.WickrLogger()
 const bot = new WickrIOBotAPI.WickrIOBot()
 const WickrIOAPI = bot.getWickrIOAddon()
 const client_auth_codes = {}
@@ -124,5 +123,4 @@ export {
   LIMIT_FILE_ENTRIES,
   FILE_ENTRY_SIZE,
   ADMINISTRATORS_CHOICE,
-  WickrLogger,
 }

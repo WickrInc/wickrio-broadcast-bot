@@ -1,8 +1,8 @@
-import { WickrLogger } from './constants'
+// import { WickrLogger } from './constants'
+import { WickrLogger } from 'wickrio-bot-api'
 const util = require('util')
 
-const logger = WickrLogger.getLogger()
-logger.info('Broadcast bot logged from bot-api')
+const logger = new WickrLogger().getLogger()
 
 console.log = function () {
   logger.info(util.format.apply(null, arguments))
