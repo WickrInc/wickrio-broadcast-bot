@@ -10,7 +10,7 @@ const bot = new WickrIOBotAPI.WickrIOBot()
 const WickrIOAPI = bot.getWickrIOAddon()
 const client_auth_codes = {}
 
-// Read in the processes.json file
+// // Read in the processes.json file
 const processesJsonFile = path.join(process.cwd(), 'processes.json')
 if (!fs.existsSync(processesJsonFile)) {
   console.error(processesJsonFile + ' does not exist!')
@@ -46,67 +46,6 @@ const {
   FILE_ENTRY_SIZE,
   ADMINISTRATORS_CHOICE,
 } = JSON.parse(process.env.tokens)
-
-let LOG_LEVEL
-let LOG_FILE_SIZE
-let LOG_MAX_FILES
-
-if (process.env.log_tokens === 'undefined') {
-  processesJsonObject.apps[0].env.log_tokens = {}
-  LOG_LEVEL = {}
-  LOG_FILE_SIZE = {}
-  LOG_MAX_FILES = {}
-  LOG_LEVEL.value = 'info'
-  LOG_FILE_SIZE.value = '10m'
-  LOG_MAX_FILES.value = '5'
-  processesJsonObject.apps[0].env.log_tokens.LOG_LEVEL = {}
-  processesJsonObject.apps[0].env.log_tokens.LOG_LEVEL.value = 'info'
-  processesJsonObject.apps[0].env.log_tokens.LOG_FILE_SIZE = {}
-  processesJsonObject.apps[0].env.log_tokens.LOG_FILE_SIZE.value = '10m'
-  processesJsonObject.apps[0].env.log_tokens.LOG_MAX_FILES = {}
-  processesJsonObject.apps[0].env.log_tokens.LOG_MAX_FILES.value = '5'
-} else {
-  let { LOG_LEVEL, LOG_FILE_SIZE, LOG_MAX_FILES } = JSON.parse(
-    process.env.log_tokens
-  )
-  if (LOG_LEVEL?.value === undefined) {
-    if (LOG_LEVEL === undefined) {
-      processesJsonObject.apps[0].env.log_tokens.LOG_LEVEL = {}
-      LOG_LEVEL = {}
-    }
-    LOG_LEVEL.value = 'info'
-    processesJsonObject.apps[0].env.log_tokens.LOG_LEVEL.value = 'info'
-  }
-  if (LOG_FILE_SIZE?.value === undefined) {
-    if (LOG_FILE_SIZE === undefined) {
-      processesJsonObject.apps[0].env.log_tokens.LOG_FILE_SIZE = {}
-      LOG_FILE_SIZE = {}
-    }
-    LOG_FILE_SIZE.value = '10m'
-    processesJsonObject.apps[0].env.log_tokens.LOG_FILE_SIZE.value = '10m'
-  }
-  if (LOG_MAX_FILES?.value === undefined) {
-    if (LOG_MAX_FILES === undefined) {
-      processesJsonObject.apps[0].env.log_tokens.LOG_MAX_FILES = {}
-      LOG_MAX_FILES = {}
-    }
-    LOG_MAX_FILES.value = '5'
-    processesJsonObject.apps[0].env.log_tokens.LOG_MAX_FILES.value = '5'
-  }
-}
-
-try {
-  fs.writeFileSync(
-    processesJsonFile,
-    // Write the JSON object with 2 spaces and indentation
-    JSON.stringify(processesJsonObject, null, 2),
-    err => {
-      if (err) throw err
-    }
-  )
-} catch (err) {
-  console.error(err)
-}
 
 const updateLastID = () => {
   try {
@@ -184,7 +123,4 @@ export {
   LIMIT_FILE_ENTRIES,
   FILE_ENTRY_SIZE,
   ADMINISTRATORS_CHOICE,
-  LOG_LEVEL,
-  LOG_FILE_SIZE,
-  LOG_MAX_FILES,
 }
