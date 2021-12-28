@@ -9,11 +9,6 @@
       "watch": ["package.json"],
       "ignore_watch": [".git"],
       "env": {
-        "log_tokens": {
-          "LOG_LEVEL": "info",
-          "LOG_FILE_SIZE": "10m",
-          "LOG_MAX_FILES": "5"
-        },
         "tokens": {}
       }
     }
