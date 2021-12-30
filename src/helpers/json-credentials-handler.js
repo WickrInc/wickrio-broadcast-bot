@@ -9,28 +9,47 @@ class JSONCredentialsHandler {
 
   readCredentials = () => {
     // TODO improve this!
-    if (!fs.existsSync(this.credentialFile)) {
+    if (fs.existsSync(this.credentialFile)) {
+      try {
+        const rawCreds = fs.readFileSync(this.credentialFile, (err, data) => {
+          // TODO need more error handling here!
+          if (err) {
+            logger.error({ err })
+            throw err
+          } else if (data.length === 0) {
+            logger.warn(`${this.credentialFile} is empty`)
+            return this.writeDefaultFile()
+          } else if (data) {
+            return data
+          }
+        })
+        const parsedCreds = JSON.parse(rawCreds)
+        return parsedCreds
+      } catch (err) {
+        logger.error(err)
+        logger.warn('Credential file could not be read')
+      }
+    }
+    return this.writeDefaultFile()
+  }
+
+  writeDefaultFile() {
+    try {
       fs.writeFile(
         this.credentialFile,
         JSON.stringify(this.defaultData),
         err => {
-          if (err) logger.error({ err })
+          if (err) {
+            logger.error({ err })
+          }
           logger.debug('creating credenitals.json')
         }
       )
       logger.debug({ defaultData: this.defaultData })
       return this.defaultData
+    } catch (err) {
+      logger.error(`Failed to write to ${this.credentialFile}`)
     }
-    const rawcreds = fs.readFileSync(this.credentialFile, (err, data) => {
-      // TODO need more error handling here!
-      if (err) {
-        logger.error({ err })
-      } else if (data) {
-        return data
-      }
-    })
-    const parsedCreds = JSON.parse(rawcreds)
-    return parsedCreds
   }
 
   saveData(writeObject) {

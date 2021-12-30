@@ -131,6 +131,7 @@ async function main() {
         welcomeMessagemeta
       )
     }
+    setupService.saveData()
     // Passes a callback function that will receive incoming messages into the bot client
     bot.startListening(listen)
   } catch (err) {
