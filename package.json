@@ -1,6 +1,6 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "5.96.9",
+  "version": "5.98.1",
   "description": "WickrIO Broadcast Bot",
   "main": "./build/broadcast-bot.js",
   "author": "Paul Cushman",
@@ -23,7 +23,7 @@
     "nyc": "^15.1.0",
     "pino": "^5.17.0",
     "prompt": "^1.0.0",
-    "wickrio-bot-api": "5.96.x"
+    "wickrio-bot-api": "5.98.x"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.4",
