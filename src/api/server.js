@@ -92,9 +92,13 @@ const startServer = () => {
         })
     } else {
       host = `http://${WEBAPP_HOST.value}`
-      app.listen(BOT_PORT.value, () => {
-        console.log('We are live on ' + BOT_PORT.value)
-      })
+      app
+        .listen(BOT_PORT.value, () => {
+          console.log('We are live on ' + BOT_PORT.value)
+        })
+        .on('error', function (err) {
+          console.error('ERROR on Port:' + BOT_PORT.value + err.stack)
+        })
     }
     if (WEB_APPLICATION.value === 'yes') {
       useWebAndRoutes(app)
