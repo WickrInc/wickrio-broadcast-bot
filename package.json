@@ -1,6 +1,6 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "5.98.1",
+  "version": "5.113.1",
   "description": "WickrIO Broadcast Bot",
   "main": "./build/broadcast-bot.js",
   "author": "Paul Cushman",
@@ -16,14 +16,14 @@
     "express": "^4.17.1",
     "helmet": "^3.23.3",
     "jsonwebtoken": "^8.5.1",
-    "log4js": "^5.3.0",
-    "mocha": "^8.3.2",
+    "log4js": "^6.6.1",
+    "mocha": "^10.0.0",
     "multer": "^1.4.2",
     "node-cron": "^2.0.3",
     "nyc": "^15.1.0",
     "pino": "^5.17.0",
     "prompt": "^1.0.0",
-    "wickrio-bot-api": "5.98.x"
+    "wickrio-bot-api": "5.113.x"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.4",
