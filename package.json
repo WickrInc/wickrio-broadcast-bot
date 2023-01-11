@@ -63,7 +63,7 @@
     "lint": "eslint src/**/*.js --fix --color",
     "prettier": "prettier --write ./src",
     "restart": "forever restartall",
-    "start": "forever start -m 5 ./forever.json",
+    "start": "wpm2 start ./wpm.json",
     "stop": "forever stopall",
     "test": "nyc --reporter=text-summary  --reporter=text mocha test"
   },
