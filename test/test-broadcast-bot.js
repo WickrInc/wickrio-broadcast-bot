@@ -102,36 +102,15 @@ describe('abort validation', function () {
   /* ================================================================================ */
   it('shouldExecute false if /abort is not the command', async function () {
     const Abort = require('../build/commands/abort')
-    const { apiService } = require('../build/helpers/constants')
-    const GenericService = require('../build/services/generic-service')
-    const bot = new WickrIOBotAPI.WickrIOBot()
-    const status = await bot.startForTesting('clientName')
 
-    const messageObject = {
-      message_id: '1234',
-      message: '/help',
-      sender: 'testuser@wickr.com',
-      users: ['user1@wickr.com', 'user2@wickr.com'],
-      vgroupid: '3423423423423423423',
+    const genericService = {}
+    const messageService = {
+      getCommand: sinon.fake.returns('/cancel'),
     }
-    const rawMessage = JSON.stringify(messageObject)
-    if (debug) console.log('rawMessage=' + rawMessage)
-
-    const msgSvc = bot.messageService({
-      rawMessage,
-      testOnly: true,
-    })
-    if (debug) console.log('messageService=' + JSON.stringify(msgSvc))
-
-    const genericService = new GenericService({
-      endIndex: 10,
-      messageService: msgSvc,
-      apiService: apiService,
-    })
 
     const abort = new Abort({
-      genericService: genericService,
-      messageService: msgSvc,
+      genericService,
+      messageService,
     })
 
     assert.equal(abort.shouldExecute(), false)
@@ -140,36 +119,15 @@ describe('abort validation', function () {
   /* ================================================================================ */
   it('shouldExecute true if /abort is the command', async function () {
     const Abort = require('../build/commands/abort')
-    const { apiService } = require('../build/helpers/constants')
-    const GenericService = require('../build/services/generic-service')
-    const bot = new WickrIOBotAPI.WickrIOBot()
-    const status = await bot.startForTesting('clientName')
 
-    const messageObject = {
-      message_id: '1234',
-      message: '/abort',
-      sender: 'testuser@wickr.com',
-      users: ['user1@wickr.com', 'user2@wickr.com'],
-      vgroupid: '3423423423423423423',
+    const genericService = {}
+    const messageService = {
+      getCommand: sinon.fake.returns('/abort'),
     }
-    const rawMessage = JSON.stringify(messageObject)
-    if (debug) console.log('rawMessage=' + rawMessage)
-
-    const msgSvc = bot.messageService({
-      rawMessage,
-      testOnly: true,
-    })
-    if (debug) console.log('messageService=' + JSON.stringify(msgSvc))
-
-    const genericService = new GenericService({
-      endIndex: 10,
-      messageService: msgSvc,
-      apiService: apiService,
-    })
 
     const abort = new Abort({
-      genericService: genericService,
-      messageService: msgSvc,
+      genericService,
+      messageService,
     })
 
     assert.equal(abort.shouldExecute(), true)
@@ -178,36 +136,15 @@ describe('abort validation', function () {
   /* ================================================================================ */
   it('execute() returns a reply', async function () {
     const Abort = require('../build/commands/abort')
-    const { apiService } = require('../build/helpers/constants')
-    const GenericService = require('../build/services/generic-service')
-    const bot = new WickrIOBotAPI.WickrIOBot()
-    const status = await bot.startForTesting('clientName')
 
-    const messageObject = {
-      message_id: '1234',
-      message: '/abort',
-      sender: 'testuser@wickr.com',
-      users: ['user1@wickr.com', 'user2@wickr.com'],
-      vgroupid: '3423423423423423423',
+    const genericService = {}
+    const messageService = {
+      getCommand: sinon.fake.returns('/abort'),
     }
-    const rawMessage = JSON.stringify(messageObject)
-    if (debug) console.log('rawMessage=' + rawMessage)
-
-    const msgSvc = bot.messageService({
-      rawMessage,
-      testOnly: true,
-    })
-    if (debug) console.log('messageService=' + JSON.stringify(msgSvc))
-
-    const genericService = new GenericService({
-      endIndex: 1,
-      messageService: msgSvc,
-      apiService: apiService,
-    })
 
     const abort = new Abort({
-      genericService: genericService,
-      messageService: msgSvc,
+      genericService,
+      messageService,
     })
 
     const entry1 = { message_id: '1234' }
@@ -225,7 +162,6 @@ describe('abort validation', function () {
     getMsgEntry.restore()
 
     assert.ok(replyvalue.reply)
-    //    sinon.assert.calledOnce(send)
   })
 })
 
