@@ -1,7 +1,0 @@
-{
-    "uid": "WickrIO-Broadcast-Bot_pauls-bcast-bot",
-    "append": true,
-    "watch": false,
-    "script": "./build/index.js",
-    "sourceDir": ""
-}
