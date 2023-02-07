@@ -3,61 +3,46 @@
 import assert from 'assert/strict'
 
 const sinon = require('sinon')
-const Start = require('../build/commands/start')
+const Version = require('../build/commands/version')
 
 describe('start validation', function () {
   /* ================================================================================ */
   it('shouldExecute false if /start is not the command', async function () {
     const messageService = {
-      getCommand: sinon.fake.returns('/cancel'),
+      command: '/cancel',
     }
 
-    const combinedService = {}
-    const setupService = {}
-
-    const start = new Start({
+    const start = new Version({
       messageService: messageService,
-      combinedService: combinedService,
-      setupService: setupService,
     })
 
-    assert.strictequal(start.shouldExecute(messageService), false)
+    assert.equal(start.shouldExecute(messageService), false)
   })
 
   /* ================================================================================ */
   it('shouldExecute true if /start is the command', async function () {
-    const combinedService = {}
-    const setupService = {}
-
     const messageService = {
-      getCommand: sinon.fake.returns('/start'),
+      command: '/version',
     }
 
     const start = new Version({
       messageService: messageService,
-      combinedService: combinedService,
-      setupService: setupService,
     })
 
-    assert.strictequal(start.shouldExecute(messageService), true)
+    assert.equal(start.shouldExecute(messageService), true)
   })
 
   /* ================================================================================ */
   it('execute() returns a reply', async function () {
-    const combinedService = {
-      clearValues: sinon.fake.clearValues,
-      setUserEmail: sinon.fake.setUserEmail,
+    const messageService = {
+      command: '/version',
     }
-    const setupService = {}
-    const messageService = {}
 
-    const start = new Version({
+    const version = new Version({
       messageService: messageService,
-      combinedService: combinedService,
-      setupService: setupService,
     })
 
-    const replyValue = start.execute()
+    const replyValue = version.execute()
 
     // sinon.assert.called(bot.getVersions)
     assert.ok(replyValue.reply)

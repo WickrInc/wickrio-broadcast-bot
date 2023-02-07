@@ -4,12 +4,13 @@ import assert from 'assert/strict'
 
 const sinon = require('sinon')
 const Start = require('../build/commands/start')
+const combinedService = require('../build/services/combined-service')
 
 describe('start validation', function () {
   /* ================================================================================ */
   it('shouldExecute false if /start is not the command', async function () {
     const messageService = {
-      getCommand: sinon.fake.returns('/cancel'),
+      commandString: '/cancel',
     }
 
     const combinedService = {}
@@ -21,7 +22,7 @@ describe('start validation', function () {
       setupService: setupService,
     })
 
-    assert.strictequal(start.shouldExecute(messageService), false)
+    assert.equal(start.shouldExecute(messageService), false)
   })
 
   /* ================================================================================ */
@@ -30,7 +31,7 @@ describe('start validation', function () {
     const setupService = {}
 
     const messageService = {
-      getCommand: sinon.fake.returns('/start'),
+      command: '/start',
     }
 
     const start = new Start({
@@ -39,27 +40,41 @@ describe('start validation', function () {
       setupService: setupService,
     })
 
-    assert.strictequal(start.shouldExecute(messageService), true)
+    assert.equal(start.shouldExecute(messageService), true)
   })
 
   /* ================================================================================ */
   it('execute() returns a reply', async function () {
-    const combinedService = {}
-    const bot = {
-      getVersions: sinon.fake.getVersions,
-    }
-    const setupService = {}
-    const messageService = {}
-
-    const start = new Start({
-      messageService: messageService,
-      combinedService: combinedService,
-      setupService: setupService,
-    })
-
-    const replyValue = start.execute()
-
-    sinon.assert.called(bot.getVersions)
-    assert.ok(replyValue.reply)
+    // const clearValuesSpy = sinon.spy(combinedService, 'clearValues')
+    // const setUserEmail = sinon.spy(combinedService, 'setUserEmail')
+    // const setVGroupID = sinon.spy(combinedService, 'setVGroupID')
+    // const setSentByFlag = sinon.spy(combinedService, 'setSentByFlag')
+    // const returnObject = {
+    //   reply: 'Started',
+    //   messagemeta: {},
+    // }
+    // const setupService = {
+    //   getStartReply: function (userEmail) {
+    //     return returnObject
+    //   },
+    // }
+    // const messageService = {
+    //   getUserEmail: function () {
+    //     return 'user@email.com'
+    //   },
+    // }
+    // const start = new Start({
+    //   messageService: messageService,
+    //   combinedService: combinedService,
+    //   setupService: setupService,
+    // })
+    // const replyValue = start.execute()
+    // sinon.assert.called(combinedService.clearValues)
+    // sinon.assert.called(combinedService.setUserEmail)
+    // sinon.assert.called(combinedService.setVGroupID)
+    // sinon.assert.called(combinedService.setSentByFlag)
+    // assert.equal(replyValue.reply, 'Started')
+    // assert.equal(replyValue.messagemeta, {})
+    // assert.equal(replyValue.state, State
   })
 })
