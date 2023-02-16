@@ -1,6 +1,6 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "6.8.3",
+  "version": "6.8.4",
   "description": "WickrIO Broadcast Bot",
   "main": "./build/broadcast-bot.js",
   "author": "Paul Cushman",
@@ -192,7 +192,6 @@
       "scratchpad/*.js",
       ".npm/**/*.js",
       ".git",
-      "wickrio-bot-web",
       "node_modules",
       "public",
       "src",
