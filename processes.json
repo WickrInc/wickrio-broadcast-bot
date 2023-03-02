@@ -4,6 +4,7 @@
       "name": "WickrIO-Broadcast-Bot",
       "args": [],
       "script": "./build/index.js",
+      "process_manager": "wpm",
       "exec_interpreter": "node",
       "autorestart": false,
       "watch": ["package.json"],
