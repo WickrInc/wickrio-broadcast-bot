@@ -1,6 +1,6 @@
 {
   "name": "wickrio-broadcast-bot",
-  "version": "6.8.8",
+  "version": "6.8.9",
   "description": "WickrIO Broadcast Bot",
   "main": "./build/broadcast-bot.js",
   "author": "Paul Cushman",
@@ -62,8 +62,8 @@
     "build": "rm -rf build && babel ./src --out-dir ./build --ignore node_modules",
     "lint": "eslint src/**/*.js --fix --color",
     "prettier": "prettier --write ./src",
-    "restart": "kill $(cat $(cat pidLocation.json)) && nohup wpm2 start ./wpm.json >>wpm2.output 2>&1 & echo $! > $(cat pidLocation.json)",
-    "start": "nohup wpm2 start ./wpm.json >>wpm2.output 2>&1 & echo $! > $(cat pidLocation.json)",
+    "restart": "kill $(cat $(cat pidLocation.json)) && nohup wpm2 start --no-metrics ./wpm.json >>wpm2.output 2>&1 & echo $! > $(cat pidLocation.json)",
+    "start": "nohup wpm2 start --no-metrics ./wpm.json >>wpm2.output 2>&1 & echo $! > $(cat pidLocation.json)",
     "stop": "kill $(cat $(cat pidLocation.json))",
     "test": "nyc --reporter=text-summary  --reporter=text mocha test"
   },
