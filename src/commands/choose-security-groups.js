@@ -19,7 +19,7 @@ class ChooseSecurityGroups {
     let state
     let messagemeta = {}
 
-    const groups = this.messageService.getMessage().split(/[^0-9]/)
+    const groups = this.messageService.getMessage().trim().split(/[^0-9]/)
     const securityGroupList = this.broadcastService.getAPISecurityGroups()
     let groupsToSend = []
     let groupsString = ''
