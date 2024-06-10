@@ -18,7 +18,7 @@ class AskDMRecipient {
     return commandStatusMatches
   }
 
-  execute() {
+  async execute() {
     let reply = ''
     let messagemeta
     let state
@@ -28,7 +28,7 @@ class AskDMRecipient {
     } else {
       let userInfo
       try {
-        userInfo = this.apiService.getUserInfo([userID])
+        userInfo = await this.apiService.getUserInfo([userID])
       } catch {
         reply = `The user: ${userID} does not exist in your network. Type in the username of the Wickr user to whom you want to direct these responses. \nElse type "Confirm" to confirm your broadcast. Or type /cancel to cancel flow`
         state = State.ASK_DM_RECIPIENT
@@ -59,7 +59,7 @@ class AskDMRecipient {
       this.broadcastService.getSendFile() !== ''
     ) {
       state = State.NONE
-      reply = this.broadcastService.sendToFile()
+      reply = await this.broadcastService.sendToFile()
     } else {
       reply = 'Would you like to repeat this broadcast message?'
       state = State.ASK_REPEAT

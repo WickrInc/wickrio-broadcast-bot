@@ -8,7 +8,7 @@ const dir = `${process.cwd()}/files`
 
 class SendMessageService {
   // TODO rename to sendToUserList
-  static sendToFile(apiService, user) {
+  static async sendToFile(apiService, user) {
     const fileName = user.sendfile
     let sentBy = `Broadcast message sent by: ${user.userEmail}`
     let messageToSend = `${sentBy}\n\n${user.message}`
@@ -37,7 +37,7 @@ class SendMessageService {
     let uMessage
     const messageID = updateLastID()
     if (user.voiceMemo !== undefined && user.voiceMemo !== '') {
-      apiService.writeMessageIDDB(
+      await apiService.writeMessageIDDB(
         messageID,
         user.userEmail,
         filePath,
@@ -47,7 +47,7 @@ class SendMessageService {
       if (!fileName.endsWith('hash') && !fileName.endsWith('user')) {
         return 'User file is not in the proper format please upload a .txt file with a return-separated list of users in your network'
       } else if (fileName.endsWith('hash')) {
-        uMessage = apiService.sendVoiceMemoUserHashFile(
+        uMessage = await apiService.sendVoiceMemoUserHashFile(
           filePath,
           user.voiceMemo,
           user.voiceMemoDuration,
@@ -58,7 +58,7 @@ class SendMessageService {
           sentBy
         )
       } else if (fileName.endsWith('user')) {
-        uMessage = apiService.sendVoiceMemoUserNameFile(
+        uMessage = await apiService.sendVoiceMemoUserNameFile(
           filePath,
           user.voiceMemo,
           user.voiceMemoDuration,
@@ -78,7 +78,7 @@ class SendMessageService {
         file: user.sendfile,
         display: user.display,
       })
-      apiService.writeMessageIDDB(
+      await apiService.writeMessageIDDB(
         messageID,
         user.userEmail,
         filePath,
@@ -88,7 +88,7 @@ class SendMessageService {
       if (!fileName.endsWith('hash') && !fileName.endsWith('user')) {
         return 'User file is not in the proper format please upload a .txt file with a return-separated list of users in your network'
       } else if (fileName.endsWith('hash')) {
-        uMessage = apiService.sendAttachmentUserHashFile(
+        uMessage = await apiService.sendAttachmentUserHashFile(
           filePath,
           user.file,
           user.display,
@@ -99,7 +99,7 @@ class SendMessageService {
           sentBy
         )
       } else if (fileName.endsWith('user')) {
-        uMessage = apiService.sendAttachmentUserNameFile(
+        uMessage = await apiService.sendAttachmentUserNameFile(
           filePath,
           user.file,
           user.display,
@@ -118,7 +118,7 @@ class SendMessageService {
         jsonDateTime,
         message: user.message,
       })
-      apiService.writeMessageIDDB(
+      await apiService.writeMessageIDDB(
         messageID,
         user.userEmail,
         filePath,
@@ -128,7 +128,7 @@ class SendMessageService {
       if (!fileName.endsWith('hash') && !fileName.endsWith('user')) {
         return 'User file is not in the proper format please upload a .txt file with a return-separated list of users in your network'
       } else if (fileName.endsWith('hash')) {
-        uMessage = apiService.sendMessageUserHashFile(
+        uMessage = await apiService.sendMessageUserHashFile(
           filePath,
           messageToSend,
           user.ttl,
@@ -138,7 +138,7 @@ class SendMessageService {
           metaString
         )
       } else if (fileName.endsWith('user')) {
-        uMessage = apiService.sendMessageUserNameFile(
+        uMessage = await apiService.sendMessageUserNameFile(
           filePath,
           messageToSend,
           user.ttl,

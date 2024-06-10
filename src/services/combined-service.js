@@ -5,6 +5,7 @@ import WickrIOBotAPI from 'wickrio-bot-api'
 import ButtonHelper from '../helpers/button-helper'
 import { BROADCAST_ENABLED } from '../helpers/constants'
 import logger from '../helpers/logger'
+import { error } from 'console'
 const bot = new WickrIOBotAPI.WickrIOBot()
 
 // TODO make fs a variable that is passed into the constructor
@@ -156,8 +157,8 @@ class CombinedService {
     return BROADCAST_ENABLED === undefined || BROADCAST_ENABLED.value === 'yes'
   }
 
-  getAPISecurityGroups() {
-    this.user.APISecurityGroups = this.apiService.getSecurityGroups()
+  async getAPISecurityGroups() {
+    this.user.APISecurityGroups = await this.apiService.getSecurityGroups()
     return this.user.APISecurityGroups
   }
 
@@ -228,8 +229,8 @@ class CombinedService {
     this.user.count = this.user.count + 1
   }
 
-  getSecurityGroupReply() {
-    const securityGroupList = this.getAPISecurityGroups()
+  async getSecurityGroupReply() {
+    const securityGroupList = await this.getAPISecurityGroups()
     let groupsString = ''
     for (let i = 0; i < securityGroupList.length; i += 1) {
       // Check if the securityGroup has a size
@@ -254,9 +255,9 @@ class CombinedService {
     // }
   }
 
-  getQueueInfo() {
+  async getQueueInfo() {
     // Check the queue and send info message if pending broadcasts
-    const txQInfo = bot.getTransmitQueueInfo()
+    const txQInfo = await bot.getTransmitQueueInfo()
     const broadcastsInQueue = txQInfo.tx_queue.length
     let broadcastDelay = txQInfo.estimated_time
     broadcastDelay = broadcastDelay + 30
@@ -302,12 +303,12 @@ class CombinedService {
 
   recallBroadcast() {}
 
-  broadcastMessage() {
+  async broadcastMessage() {
     const util = require('util')
     logger.debug(util.inspect(this.user, { depth: null }))
-    const queueInfo = this.getQueueInfo()
+    const queueInfo = await this.getQueueInfo()
     if (queueInfo !== '') {
-      this.apiService.sendRoomMessage(
+      await this.apiService.sendRoomMessage(
         this.user.vGroupID,
         queueInfo,
         '',
@@ -317,18 +318,18 @@ class CombinedService {
         ''
       )
     }
-    this.broadcastMessageService.broadcastMessage(this.apiService, this.user)
+    await this.broadcastMessageService.broadcastMessage(this.apiService, this.user)
     const reply = `Your broadcast is being sent to the users in your network. This may take a few minutes. Type /status to check the status of your broadcast.\n\nTo start a new broadcast, type /start`
     this.clearValues()
     return reply
   }
 
-  sendToFile() {
+  async sendToFile() {
     const util = require('util')
     logger.debug(util.inspect(this.user, { depth: null }))
-    const queueInfo = this.getQueueInfo()
+    const queueInfo = await this.getQueueInfo()
     if (queueInfo !== '') {
-      this.apiService.sendRoomMessage(
+      await this.apiService.sendRoomMessage(
         this.user.vGroupID,
         queueInfo,
         '',
@@ -353,10 +354,10 @@ class CombinedService {
   }
 
   // TODO this.apiService vs importing apiService??
-  retrieveFile(filePath, vGroupID) {
-    this.apiService.sendRoomAttachment(vGroupID, filePath, filePath)
-  }
-
+   async retrieveFile(filePath, vGroupID) {
+    // const promise = this.apiService.sendRoomAttachment(vGroupID, filePath, filePath)
+    await this.apiService.sendRoomAttachment(vGroupID, filePath, filePath)
+   }
   // TODO should these all be in the constructor?
   clearValues() {
     logger.verbose('Clear values called')

@@ -14,7 +14,7 @@ class AskRepeat {
     })
   }
 
-  execute() {
+  async execute() {
     let state
     let reply
     let messagemeta = {}
@@ -33,7 +33,7 @@ class AskRepeat {
     } else if (this.messageService.negativeReply()) {
       this.combinedService.setActiveRepeat(false)
       // Send the broadcast
-      reply = this.combinedService.broadcastMessage()
+      reply = await this.combinedService.broadcastMessage()
       state = State.NONE
     } else {
       reply = 'Invalid input, please reply with (y)es or (n)o'

@@ -15,10 +15,10 @@ class Version {
     return false
   }
 
-  execute() {
+  async execute() {
     try {
       const packageJsonFile = path.join(process.cwd(), 'package.json')
-      const reply = bot.getVersions(packageJsonFile)
+      const reply = await bot.getVersions(packageJsonFile)
 
       return {
         reply,

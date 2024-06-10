@@ -13,12 +13,16 @@ class Start {
   shouldExecute() {
     logger.verbose('Start shouldExecute called')
     if (this.messageService.command === this.commandString) {
+      console.log("Inside should             start_________________________________________________________________________")
+      console.log(this.messageService.command)
+      console.log(this.commandString)
       return true
     }
     return false
   }
 
   execute() {
+    console.log("Inside start_________________________________________________________________________")
     logger.verbose('Start execute called')
     this.combinedService.clearValues()
     this.combinedService.setUserEmail(this.messageService.getUserEmail())

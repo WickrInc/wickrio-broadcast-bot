@@ -15,7 +15,7 @@ class Status {
     return false
   }
 
-  execute() {
+  async execute() {
     const userEmail = this.messageService.userEmail
     let messagemeta = {}
     let reply
@@ -23,8 +23,8 @@ class Status {
     this.genericService.resetIndexes()
 
     // TODO add a string of status as the second parameter to this command
-    const entries = this.genericService.getMessageEntries(userEmail, false)
-    const entriesString = this.genericService.getEntriesString(userEmail, false)
+    const entries = await this.genericService.getMessageEntries(userEmail, false)
+    const entriesString = await this.genericService.getEntriesString(userEmail, false)
 
     if (!entries || entries.length === 0) {
       reply = entriesString

@@ -16,7 +16,7 @@ class SelectRecipients {
     })
   }
 
-  execute() {
+  async execute() {
     let reply
     let state
     let messagemeta = {}
@@ -27,13 +27,15 @@ class SelectRecipients {
         message.toLowerCase() === 's') &&
       this.broadcastService.getBroadcastEnabled()
     ) {
-      reply = this.broadcastService.getSecurityGroupReply()
+      reply = await this.broadcastService.getSecurityGroupReply()
+      console.log("here in select recipients")
+      console.log("reply", reply)
       state = State.WHICH_GROUPS
     } else if (
       message.toLowerCase() === 'user file' ||
       message.toLowerCase() === 'u'
     ) {
-      const sendObj = this.sendService.getFilesForSending(
+      const sendObj =  this.sendService.getFilesForSending(
         this.messageService.getUserEmail()
       )
       state = State.CHOOSE_FILE

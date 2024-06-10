@@ -4,7 +4,7 @@ import logger from '../helpers/logger'
 import StatusService from './status-service'
 
 class ReportService {
-  static getReport(messageID, vGroupID) {
+  static async getReport(messageID, vGroupID) {
     let inc = 0
     const csvArray = []
     let messageStatus
@@ -13,7 +13,7 @@ class ReportService {
       return csvArray
     }
     while (true) {
-      const reportData = apiService.getMessageStatus(
+      const reportData = await apiService.getMessageStatus(
         messageID,
         'full',
         `${inc}`,
@@ -52,7 +52,7 @@ class ReportService {
     const filename = `report-${dateString}.csv`
     const path = `${process.cwd()}/attachments/${filename}`
     ReportService.writeCSVReport(path, csvArray)
-    apiService.sendRoomAttachment(vGroupID, path, filename)
+    await apiService.sendRoomAttachment(vGroupID, path, filename)
     // TODO make a reply like here is the attachment
     // TODO can replies just be empty?
     return csvArray

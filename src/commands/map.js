@@ -16,7 +16,7 @@ class Map {
     return false
   }
 
-  execute() {
+  async execute() {
     let reply
     let state
     let messagemeta = {}
@@ -24,8 +24,8 @@ class Map {
     if (mapEnabled === true) {
       const { userEmail } = this.messageService
       this.genericService.resetIndexes()
-      const entries = this.genericService.getMessageEntries(userEmail, false)
-      const entriesString = this.genericService.getEntriesString(
+      const entries = await this.genericService.getMessageEntries(userEmail, false)
+      const entriesString = await this.genericService.getEntriesString(
         userEmail,
         false
       )

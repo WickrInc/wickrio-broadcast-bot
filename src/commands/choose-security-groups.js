@@ -14,13 +14,12 @@ class ChooseSecurityGroups {
     })
   }
 
-  execute() {
+  async execute() {
     let reply
     let state
     let messagemeta = {}
-
     const groups = this.messageService.getMessage().trim().split(/[^0-9]/)
-    const securityGroupList = this.broadcastService.getAPISecurityGroups()
+    const securityGroupList = await this.broadcastService.getAPISecurityGroups()
     let groupsToSend = []
     let groupsString = ''
     let validInput = true

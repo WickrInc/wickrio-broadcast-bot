@@ -269,11 +269,11 @@ const useWebAndRoutes = app => {
     }
   )
 
-  app.get(endpoint + '/SecGroups', checkAuth, (req, res) => {
+  app.get(endpoint + '/SecGroups', checkAuth, async (req, res) => {
     try {
       // how does cmdGetSecurityGroups know what user to get security groups for?
       // could we get securityg groups for a targeted user?
-      const response = apiService.getSecurityGroups()
+      const response = await apiService.getSecurityGroups()
       res.json(response)
     } catch (err) {
       console.log(err)
@@ -285,7 +285,7 @@ const useWebAndRoutes = app => {
   const buildEntry = async (entry, page, size) => {
     // console.log({ entry })
     const contentData = JSON.parse(
-      apiService.getMessageIDEntry(entry.message_id)
+     await apiService.getMessageIDEntry(entry.message_id)
     )
     entry.message = contentData.message
     try {
@@ -314,7 +314,7 @@ const useWebAndRoutes = app => {
         ).toLocaleDateString('en-US')
 
         const statusSummary = JSON.parse(
-          apiService.getMessageStatus(
+          await apiService.getMessageStatus(
             String(entry.message_id),
             'summary',
             '',
@@ -339,7 +339,7 @@ const useWebAndRoutes = app => {
 
   const getStatus = async (page, size, email) => {
     // if user hasn't sent a message in the last 'size' messages, will it show zero messages unless we search a larger index that captures the user's message?
-    const tableDataRaw = apiService.getMessageIDTable(
+    const tableDataRaw =await apiService.getMessageIDTable(
       String(page),
       String(size),
       String(email)
@@ -390,7 +390,7 @@ const useWebAndRoutes = app => {
   app.get(
     endpoint + '/Report/:messageID/:page/:size',
     checkAuth,
-    (req, res) => {
+    async (req, res) => {
       res.set('Content-Type', 'application/json')
       res.set('Authorization', 'Basic base64_auth_token')
 
@@ -399,10 +399,10 @@ const useWebAndRoutes = app => {
       }
 
       const broadcast = JSON.parse(
-        apiService.getMessageIDEntry(req.params.messageID)
+        await apiService.getMessageIDEntry(req.params.messageID)
       )
       const parsedBroadcastStatus = JSON.parse(
-        apiService.getMessageStatus(
+        await apiService.getMessageStatus(
           req.params.messageID,
           'full',
           req.params.page,
@@ -410,7 +410,7 @@ const useWebAndRoutes = app => {
         )
       )
       const statusData = JSON.parse(
-        apiService.getMessageStatus(
+        await apiService.getMessageStatus(
           String(req.params.messageID),
           'summary',
           '',

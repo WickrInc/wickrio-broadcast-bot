@@ -13,8 +13,8 @@ class GenericService {
     this.user = messageService.user
   }
 
-  setMessageStatus(messageID, userID, statusNumber, statusMessage) {
-    const reply = this.apiService.setMessageStatus(
+  async setMessageStatus(messageID, userID, statusNumber, statusMessage) {
+    const reply = await this.apiService.setMessageStatus(
       messageID,
       userID,
       statusNumber,
@@ -22,17 +22,17 @@ class GenericService {
     )
     if (RESPONSES_ENABLED === undefined || RESPONSES_ENABLED.value === 'yes') {
       const userArray = [userID]
-      this.apiService.send1to1Message(userArray, reply, '', '', '', [], '')
+      await this.apiService.send1to1Message(userArray, reply, '', '', '', [], '')
     }
     return reply
   }
 
-  cancelMessageID(messageID) {
-    return this.apiService.cancelMessageID(messageID)
+  async cancelMessageID(messageID) {
+    return await this.apiService.cancelMessageID(messageID)
   }
 
-  getEntriesString(userEmail, abort) {
-    const currentEntries = this.getMessageEntries(userEmail, abort)
+  async getEntriesString(userEmail, abort) {
+    const currentEntries = await this.getMessageEntries(userEmail, abort)
     let reply
     if (
       currentEntries.length < 1 ||
@@ -49,7 +49,7 @@ class GenericService {
       let messageString = ''
       // TODO fix extra \n in more functionality
       for (let i = this.user.startIndex; i < this.user.endIndex; i += 1) {
-        contentData = this.getMessageEntry(currentEntries[i].message_id)
+        contentData = await this.getMessageEntry(currentEntries[i].message_id)
         const contentParsed = JSON.parse(contentData)
         const messageDisplayed = this.truncate(
           contentParsed.message,
@@ -67,12 +67,12 @@ class GenericService {
     return reply
   }
 
-  getMessageEntries(userEmail, abort) {
+  async getMessageEntries(userEmail, abort) {
     let pageNum = 0
     const pageSize = 1000
     const messageEntries = []
     while (true) {
-      const tableDataRaw = this.apiService.getMessageIDTable(
+      const tableDataRaw = await this.apiService.getMessageIDTable(
         `${pageNum}`,
         `${pageSize}`,
         userEmail
@@ -107,8 +107,8 @@ class GenericService {
     return messageEntries
   }
 
-  getMessageEntry(messageID) {
-    return this.apiService.getMessageIDEntry(messageID)
+  async getMessageEntry(messageID) {
+    return await this.apiService.getMessageIDEntry(messageID)
   }
 
   // TODO should we trim white space too?

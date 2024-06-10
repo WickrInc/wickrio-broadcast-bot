@@ -15,11 +15,11 @@ class Report {
     return false
   }
 
-  execute() {
+  async execute() {
     const userEmail = this.messageService.userEmail
     this.genericService.resetIndexes()
-    const entriesString = this.genericService.getEntriesString(userEmail)
-    const entries = this.genericService.getMessageEntries(userEmail, false)
+    const entriesString = await this.genericService.getEntriesString(userEmail)
+    const entries = await this.genericService.getMessageEntries(userEmail, false)
     let reply
     let messagemeta = {}
     if (!entries || entries.length === 0) {
