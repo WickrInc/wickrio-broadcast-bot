@@ -32,7 +32,7 @@ class Panel {
     return false
   }
 
-  execute() {
+  async execute() {
     if (webAppEnabled) {
       // Check if this user is an administrator
       // var adminUser = bot.myAdmins.getAdmin(userEmail);
@@ -68,9 +68,9 @@ class Panel {
       )
 
       const reply = encodeURI(`${host}:${WEBAPP_PORT.value}/?token=${token}`)
-      this.apiService.sendRoomMessage(this.messageService.vGroupID, reply)
+      await this.apiService.sendRoomMessage(this.messageService.vGroupID, reply)
     } else if (!webAppEnabled) {
-      this.apiService.sendRoomMessage(
+      await this.apiService.sendRoomMessage(
         this.messageService.vGroupID,
         'panel disabled, to use panel, run /configure to enable web and app interfaces!'
       )

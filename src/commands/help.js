@@ -26,7 +26,7 @@ class Help {
     return false
   }
 
-  execute() {
+  async execute() {
     const { isAdmin, vGroupID } = this.messageService
 
     let webAppString = ''
@@ -82,7 +82,7 @@ class Help {
         helpString = helpString.replace('%{adminHelpHeader}', '')
       }
 
-      const sMessage = this.apiService.sendRoomMessage(vGroupID, helpString)
+      const sMessage = await this.apiService.sendRoomMessage(vGroupID, helpString)
       logger.debug(sMessage)
       // user.currentState = State.NONE
       return

@@ -17,7 +17,7 @@ class InitializeBroadcast {
     return false
   }
 
-  execute() {
+  async execute() {
     let reply
     const messagemeta = {}
     let state
@@ -45,7 +45,7 @@ class InitializeBroadcast {
       this.broadcastService.setSentByFlag(true)
       // TODO check for undefined??
       if (message2send) {
-        reply = this.broadcastService.getSecurityGroupReply()
+        reply = await this.broadcastService.getSecurityGroupReply()
         state = State.WHICH_GROUPS
       } else {
         reply =

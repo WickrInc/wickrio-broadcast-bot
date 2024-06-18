@@ -4,7 +4,7 @@ import updateLastID from '../helpers/message-id-helper'
 import logger from '../helpers/logger'
 
 class BroadcastMessageService {
-  static broadcastMessage(apiService, user) {
+  static async broadcastMessage(apiService, user) {
     // logger.debug({
     //   file: user.file,
     //   message: user.message,
@@ -66,7 +66,7 @@ class BroadcastMessageService {
     // if (user.file !== undefined && user.file !== '') {
     if (user.file) {
       logger.debug(`display:${user.display}:`)
-      apiService.writeMessageIDDB(
+      await apiService.writeMessageIDDB(
         messageID,
         user.userEmail,
         target,
@@ -75,7 +75,7 @@ class BroadcastMessageService {
       )
       // } else if (user.voiceMemo !== undefined && user.voiceMemo !== '') {
     } else if (user.voiceMemo) {
-      apiService.writeMessageIDDB(
+      await apiService.writeMessageIDDB(
         messageID,
         user.userEmail,
         target,
@@ -83,7 +83,7 @@ class BroadcastMessageService {
         `VoiceMemo-${jsonDateTime}`
       )
     } else {
-      apiService.writeMessageIDDB(
+      await apiService.writeMessageIDDB(
         messageID,
         user.userEmail,
         target,
@@ -94,7 +94,7 @@ class BroadcastMessageService {
     if (target === 'USERS') {
       if (user.flags === undefined) user.flags = []
 
-      uMessage = apiService.send1to1MessageLowPriority(
+      uMessage = await apiService.send1to1MessageLowPriority(
         user.users,
         messageToSend,
         user.ttl,
@@ -110,7 +110,7 @@ class BroadcastMessageService {
       reply.message = messageToSend
     } else if (target === 'NETWORK') {
       if (user.voiceMemo) {
-        uMessage = apiService.sendNetworkVoiceMemo(
+        uMessage = await apiService.sendNetworkVoiceMemo(
           user.voiceMemo,
           user.voiceMemoDuration,
           user.ttl,
@@ -123,7 +123,7 @@ class BroadcastMessageService {
         reply.rawMessage = user.message
         reply.message = messageToSend
       } else if (user.file) {
-        uMessage = apiService.sendNetworkAttachment(
+        uMessage = await apiService.sendNetworkAttachment(
           user.file,
           user.display,
           user.ttl,
@@ -140,7 +140,7 @@ class BroadcastMessageService {
         //
         if (user.webapp && user.message) {
           logger.verbose('from webapp')
-          uMessage = apiService.sendNetworkMessage(
+          uMessage = await apiService.sendNetworkMessage(
             user.message,
             user.ttl,
             user.bor,
@@ -150,7 +150,7 @@ class BroadcastMessageService {
           )
         }
       } else {
-        uMessage = apiService.sendNetworkMessage(
+        uMessage = await apiService.sendNetworkMessage(
           messageToSend,
           user.ttl,
           user.bor,
@@ -163,7 +163,7 @@ class BroadcastMessageService {
         reply.message = messageToSend
       }
     } else if (user.voiceMemo) {
-      uMessage = apiService.sendSecurityGroupVoiceMemo(
+      uMessage = await apiService.sendSecurityGroupVoiceMemo(
         user.securityGroups,
         user.voiceMemo,
         user.voiceMemoDuration,
@@ -178,7 +178,7 @@ class BroadcastMessageService {
       reply.rawMessage = user.message
       reply.message = messageToSend
     } else if (user.file) {
-      uMessage = apiService.sendSecurityGroupAttachment(
+      uMessage = await apiService.sendSecurityGroupAttachment(
         user.securityGroups,
         user.file,
         user.display,
@@ -194,7 +194,7 @@ class BroadcastMessageService {
       reply.message = messageToSend
       if (user.webapp && user.message) {
         logger.verbose('webapp sec group')
-        uMessage = apiService.sendSecurityGroupMessage(
+        uMessage = await apiService.sendSecurityGroupMessage(
           user.securityGroups,
           user.message,
           user.ttl,
@@ -205,7 +205,7 @@ class BroadcastMessageService {
         )
       }
     } else {
-      uMessage = apiService.sendSecurityGroupMessage(
+      uMessage = await apiService.sendSecurityGroupMessage(
         user.securityGroups,
         messageToSend,
         user.ttl,

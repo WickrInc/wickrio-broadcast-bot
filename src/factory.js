@@ -346,7 +346,7 @@ class Factory {
     ]
   }
 
-  execute() {
+  async execute() {
     const defaultReply =
       'This command is not recognized. Check the format and spelling and try again. For a list of available commands, type in /help'
     // If the constructor did not validate the user then return!
@@ -355,7 +355,7 @@ class Factory {
 
     for (const command of this.commandList) {
       if (command.shouldExecute()) {
-        return command.execute()
+        return await command.execute()
       }
     }
 

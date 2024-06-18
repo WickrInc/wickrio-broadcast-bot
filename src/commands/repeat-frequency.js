@@ -16,7 +16,7 @@ class RepeatFrequency {
     })
   }
 
-  execute() {
+  async execute() {
     let state
     let reply
     // TODO more checks required
@@ -26,10 +26,10 @@ class RepeatFrequency {
       (message === '5' || message === '10' || message === '15')
     ) {
       this.combinedService.setFrequency(message)
-      this.repeatService.repeatMessage()
+      await this.repeatService.repeatMessage()
       // Check the queue and send info message if pending broadcasts
       // TODO use the queueInfo in combined service
-      const txQInfo = bot.getTransmitQueueInfo()
+      const txQInfo = await bot.getTransmitQueueInfo()
       const broadcastsInQueue = txQInfo.tx_queue.length
       let broadcastDelay = txQInfo.estimated_time
       broadcastDelay = broadcastDelay + 30

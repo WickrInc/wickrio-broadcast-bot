@@ -13,10 +13,10 @@ class TimesRepeat {
     })
   }
 
-  execute() {
+  async execute() {
     let state
     let reply
-    const message = this.messageService.getMessage()
+    const message =  this.messageService.getMessage()
     if (this.messageService.isInt() && parseInt(message, 10) > 0) {
       this.combinedService.setRepeats(parseInt(message, 10))
       reply =

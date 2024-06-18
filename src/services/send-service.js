@@ -101,8 +101,8 @@ class SendService {
     this.setBOR('')
   }
 
-  getQueueInfo() {
-    const txQInfo = bot.getTransmitQueueInfo()
+  async getQueueInfo() {
+    const txQInfo = await bot.getTransmitQueueInfo()
     const broadcastsInQueue = txQInfo.tx_queue.length
     let broadcastDelay = txQInfo.estimated_time
     broadcastDelay = broadcastDelay + 30
@@ -144,7 +144,7 @@ class SendService {
     }
   }
 
-  sendToFile() {
+  async sendToFile() {
     const fileName = this.messageService.user.sendfile
     const sentBy = `\n\nBroadcast message sent by: ${this.messageService.user.userEmail}`
     let messageToSend = this.messageService.user.message + sentBy
@@ -182,7 +182,7 @@ class SendService {
         file: this.messageService.user.sendfile,
         display: this.messageService.user.display,
       })
-      apiService.writeMessageIDDB(
+      await apiService.writeMessageIDDB(
         messageID,
         this.messageService.user.userEmail,
         filePath,
@@ -190,7 +190,7 @@ class SendService {
         this.messageService.user.display
       )
       if (fileName.endsWith('hash')) {
-        uMessage = apiService.sendAttachmentUserHashFile(
+        uMessage = await apiService.sendAttachmentUserHashFile(
           filePath,
           this.messageService.user.file,
           this.messageService.user.display,
@@ -201,7 +201,7 @@ class SendService {
           sentBy
         )
       } else if (fileName.endsWith('user')) {
-        uMessage = apiService.sendAttachmentUserNameFile(
+        uMessage = await apiService.sendAttachmentUserNameFile(
           filePath,
           this.messageService.user.file,
           this.messageService.user.display,
@@ -220,7 +220,7 @@ class SendService {
         jsonDateTime,
         message: this.messageService.user.message,
       })
-      apiService.writeMessageIDDB(
+      await apiService.writeMessageIDDB(
         messageID,
         this.messageService.user.userEmail,
         filePath,
@@ -228,7 +228,7 @@ class SendService {
         this.messageService.user.message
       )
       if (fileName.endsWith('hash')) {
-        uMessage = apiService.sendMessageUserHashFile(
+        uMessage = await apiService.sendMessageUserHashFile(
           filePath,
           messageToSend,
           this.messageService.user.ttl,
@@ -238,7 +238,7 @@ class SendService {
           metaString
         )
       } else if (fileName.endsWith('user')) {
-        uMessage = apiService.sendMessageUserNameFile(
+        uMessage = await apiService.sendMessageUserNameFile(
           filePath,
           messageToSend,
           this.messageService.user.ttl,
@@ -274,8 +274,8 @@ class SendService {
   }
 
   // This function is used to send a file to a room.
-  retrieveFile(filePath, vGroupID) {
-    apiService.sendRoomAttachment(vGroupID, filePath, filePath)
+  async retrieveFile(filePath, vGroupID) {
+    await apiService.sendRoomAttachment(vGroupID, filePath, filePath)
   }
 }
 

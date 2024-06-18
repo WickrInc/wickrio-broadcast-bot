@@ -4,10 +4,11 @@ import logger from '../helpers/logger'
 import ButtonHelper from '../helpers/button-helper.js'
 
 class StatusService {
-  static getStatus(messageID, asyncStatus) {
-    let statusData
+  static async getStatus(messageID, asyncStatus) 
+  {
+    let statusData;
     try {
-      statusData = status(messageID)
+      statusData = await status(messageID)
     } catch (err) {
       if (asyncStatus) {
         return {
@@ -21,7 +22,6 @@ class StatusService {
     // logger.debug({ messageStatus })
     // TODO what do we do when no Records are found?
     // is this because of sending to empty security group??
-
     let statusString = StatusService.getStatusString(messageStatus)
     let complete = messageStatus.pending === 0
     const preparing =
@@ -69,22 +69,22 @@ class StatusService {
     }
     user.asyncStatusMap.set(messageID, 0)
     // let preparing;
-    const cronJob = schedule(timeString, () => {
+    const cronJob = schedule(timeString, async () => {
       // logger.debug('Running cronjob')
-      const statusObj = StatusService.getStatus(messageID, true)
+      const statusObj =  StatusService.getStatus(messageID, true)
       const { preparing } = statusObj
       const count = user.asyncStatusMap.get(messageID)
       user.asyncStatusMap.set(messageID, count + 1)
       let reply = statusObj.statusString
       if (!preparing && statusObj.complete) {
         const metastring = JSON.stringify(ButtonHelper.makeStartButtons(false))
-        apiService.sendRoomMessage(vGroupID, reply, '', '', '', [], metastring)
+        await apiService.sendRoomMessage(vGroupID, reply, '', '', '', [], metastring)
       } else if (user.asyncStatusMap.get(messageID) === 9) {
         const metastring = JSON.stringify(
           ButtonHelper.makeCommandButtons(['Status'])
         )
         reply = `${reply}\nTo get the latest status of a broadcast, type /status at any time.`
-        apiService.sendRoomMessage(vGroupID, reply, '', '', '', [], metastring)
+        await apiService.sendRoomMessage(vGroupID, reply, '', '', '', [], metastring)
       }
       if (statusObj.complete) {
         return cronJob.stop()
@@ -95,7 +95,7 @@ class StatusService {
   }
 }
 
-const status = messageID =>
-  apiService.getMessageStatus(messageID, 'summary', '0', '1000') // need to make this '1000' value dynamically reference the intended number broadcasts kept in the history
+const status = async messageID =>
+  await apiService.getMessageStatus(messageID, 'summary', '0', '1000') // need to make this '1000' value dynamically reference the intended number broadcasts kept in the history
 
 export default StatusService

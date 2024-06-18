@@ -15,16 +15,16 @@ class WhichStatus {
     })
   }
 
-  execute() {
+  async execute() {
     let reply
     let state
     const userEmail = this.messageService.userEmail
-    const entries = this.genericService.getMessageEntries(userEmail, false)
+    const entries = await this.genericService.getMessageEntries(userEmail, false)
     const index = this.messageService.message
     // const endIndex = this.genericService.getEndIndex()
     if (index === 'more') {
       this.genericService.incrementIndexes()
-      reply = this.genericService.getEntriesString(userEmail)
+      reply = await this.genericService.getEntriesString(userEmail)
       if (entries.length > this.genericService.getEndIndex()) {
         reply += 'Or to see more messages reply more'
       }
@@ -39,7 +39,7 @@ class WhichStatus {
     } else {
       // Subtract one to account for 0 based indexes
       const messageID = `${entries[parseInt(index, 10) - 1].message_id}`
-      reply = this.statusService.getStatus(messageID, false)
+      reply = await this.statusService.getStatus(messageID, false)
       state = State.NONE
     }
     return {

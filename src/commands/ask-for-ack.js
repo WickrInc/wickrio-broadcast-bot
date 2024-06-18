@@ -18,7 +18,7 @@ class AskForAck {
     return commandStatusMatches
   }
 
-  execute() {
+  async execute() {
     let state = State.ASK_DM_RECIPIENT
     let reply = ''
     let messagemeta = {}
@@ -36,7 +36,7 @@ class AskForAck {
         this.broadcastService.getSendFile() !== ''
       ) {
         state = State.NONE
-        reply = this.broadcastService.sendToFile()
+        reply = await this.broadcastService.sendToFile()
       } else {
         state = State.ASK_REPEAT
         reply = 'Would you like to repeat this broadcast message?'

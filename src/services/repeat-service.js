@@ -40,7 +40,7 @@ class RepeatService {
     this.combinedService.user.vGroupID = vGroupID
   }
 
-  repeatMessage() {
+  async repeatMessage() {
     logger.debug('Enter repeatMessage')
     logger.debug(`combined message!:${this.combinedService.getMessage()}`)
     this.combinedService.setCount(0)
@@ -49,10 +49,10 @@ class RepeatService {
     // const repeatUser = this.combinedService.user
     logger.debug(`message:${repeatUser.message}`)
     logger.debug(`repeats:${this.combinedService.getRepeats()}`)
-    this.combinedService.broadcastMessage()
+    await this.combinedService.broadcastMessage()
     logger.debug('Frequency:' + this.combinedService.getFrequency())
     const timeString = `*/${this.combinedService.getFrequency()} * * * *`
-    const cronJob = schedule(timeString, () => {
+    const cronJob = schedule(timeString, async () => {
       // logger.debug('Running repeat cronjob')
       this.combinedService.incCount()
       const reply = `Broadcast message #${
@@ -70,11 +70,11 @@ class RepeatService {
         }`
       )
       try {
-        this.apiService.sendRoomMessage(
+        await this.apiService.sendRoomMessage(
           this.combinedService.getVGroupID(),
           reply
         )
-        this.broadcastMessageService.broadcastMessage(
+        await this.broadcastMessageService.broadcastMessage(
           this.apiService,
           repeatUser
         )
