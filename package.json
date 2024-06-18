@@ -23,7 +23,7 @@
     "nyc": "^15.1.0",
     "pino": "^5.17.0",
     "prompt": "^1.0.0",
-    "wickrio-bot-api": "7.1.1-beta.01"
+    "wickrio-bot-api": "7.1.1-beta.02"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.4",
