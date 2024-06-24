@@ -71,7 +71,7 @@ const useRESTRoutes = app => {
   app.post(
     endpoint + '/Broadcast',
     [checkBasicAuth, upload.single('attachment')],
-    (req, res) => {
+    async (req, res) => {
       let obj
       let userNewFile
       let fileData
@@ -197,7 +197,7 @@ const useRESTRoutes = app => {
       }
 
       const response = {}
-      response.data = newBroadcast.broadcastMessage()
+      response.data = await newBroadcast.broadcastMessage()
       // todo: send status on error
       res.send(response)
     }

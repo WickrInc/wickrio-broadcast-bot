@@ -14,7 +14,7 @@ class ActiveRepeat {
     })
   }
 
-  execute() {
+  async execute() {
     let state
     let reply
     let messagemeta = {}

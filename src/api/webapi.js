@@ -173,7 +173,7 @@ const useWebAndRoutes = app => {
   app.post(
     endpoint + '/Message',
     [checkAuth, upload.single('attachment')],
-    (req, res) => {
+    async (req, res) => {
       // typecheck and validate parameters
       let {
         message,
@@ -262,7 +262,7 @@ const useWebAndRoutes = app => {
 
       const response = {}
       console.log({ newBroadcast })
-      response.data = newBroadcast.broadcastMessage()
+      response.data = await newBroadcast.broadcastMessage()
 
       // todo: send status on error
       res.send(response)

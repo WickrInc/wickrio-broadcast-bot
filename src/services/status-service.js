@@ -71,7 +71,7 @@ class StatusService {
     // let preparing;
     const cronJob = schedule(timeString, async () => {
       // logger.debug('Running cronjob')
-      const statusObj =  StatusService.getStatus(messageID, true)
+      const statusObj =  await StatusService.getStatus(messageID, true)
       const { preparing } = statusObj
       const count = user.asyncStatusMap.get(messageID)
       user.asyncStatusMap.set(messageID, count + 1)
