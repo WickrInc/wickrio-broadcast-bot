@@ -18,7 +18,7 @@ class Ack {
     await this.genericService.setMessageStatus(
       '',
       this.messageService.userEmail,
-      '3',
+      3,
       ''
     )
     const reply = ''
