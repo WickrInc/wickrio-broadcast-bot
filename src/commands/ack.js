@@ -14,11 +14,11 @@ class Ack {
     return false
   }
 
-  execute() {
-    this.genericService.setMessageStatus(
+  async execute() {
+    await this.genericService.setMessageStatus(
       '',
       this.messageService.userEmail,
-      '3',
+      3,
       ''
     )
     const reply = ''

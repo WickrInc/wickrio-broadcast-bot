@@ -14,9 +14,9 @@ class Queue {
     return false
   }
 
-  execute() {
+  async execute() {
     try {
-      const txQInfo = bot.getTransmitQueueInfo()
+      const txQInfo = await bot.getTransmitQueueInfo()
       let reply
 
       if (txQInfo === undefined) {

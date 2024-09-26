@@ -77,17 +77,17 @@ async function main() {
     // set the verification mode to true
     let verifyUsersMode
     if (VERIFY_USERS.encrypted) {
-      verifyUsersMode = WickrIOAPI.cmdDecryptString(VERIFY_USERS.value)
+      verifyUsersMode = await WickrIOAPI.cmdDecryptString(VERIFY_USERS.value)
     } else {
       verifyUsersMode = VERIFY_USERS.value
     }
 
     bot.setVerificationMode(verifyUsersMode)
 
-    WickrIOAPI.cmdSetControl('cleardb', 'false')
-    WickrIOAPI.cmdSetControl('contactbackup', 'false')
-    WickrIOAPI.cmdSetControl('convobackup', 'false')
-    WickrIOAPI.cmdSetControl('readreceipt', 'true')
+    await WickrIOAPI.cmdSetControl('cleardb', 'false')
+    await WickrIOAPI.cmdSetControl('contactbackup', 'false')
+    await WickrIOAPI.cmdSetControl('convobackup', 'false')
+    await WickrIOAPI.cmdSetControl('readreceipt', 'true')
 
     if (WEB_APPLICATION?.value === 'yes' || REST_APPLICATION?.value === 'yes') {
       startServer()
@@ -121,7 +121,7 @@ async function main() {
     const welcomeMessagemeta = JSON.stringify(welcomeObj.messagemeta)
     logger.debug(welcomeMessagemeta)
     if (setupAdmins.length > 0) {
-      apiService.send1to1Message(
+      await apiService.send1to1Message(
         setupAdmins,
         welcomeMessage,
         '',
@@ -185,20 +185,20 @@ async function listen(rawMessage) {
     if (!fs.existsSync(`${process.cwd()}/files/${userEmail}`)) {
       fs.mkdirSync(`${process.cwd()}/files/${userEmail}`)
     }
-
+    
     const factory = new Factory({
       messageService,
     })
     let cmdResult
     if (msgType !== 'location') {
-      cmdResult = factory.execute()
+      cmdResult = await factory.execute()
     }
 
     if (cmdResult?.reply) {
       if (cmdResult?.messagemeta) {
         logger.verbose('Object has a reply and message meta')
         const metastring = JSON.stringify(cmdResult.messagemeta)
-        WickrIOAPI.cmdSendRoomMessage(
+        await WickrIOAPI.cmdSendRoomMessage(
           vGroupID,
           cmdResult.reply,
           '',
@@ -208,7 +208,7 @@ async function listen(rawMessage) {
           metastring
         )
       } else {
-        WickrIOAPI.cmdSendRoomMessage(vGroupID, cmdResult.reply)
+        await WickrIOAPI.cmdSendRoomMessage(vGroupID, cmdResult.reply)
       }
     }
 

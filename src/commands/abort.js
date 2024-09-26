@@ -15,15 +15,15 @@ class Abort {
     return false
   }
 
-  execute() {
+  async execute() {
     const userEmail = this.messageService.userEmail
     let messagemeta = {}
     let reply
 
     this.genericService.resetIndexes()
 
-    const entries = this.genericService.getMessageEntries(userEmail, true)
-    const entriesString = this.genericService.getEntriesString(userEmail, true)
+    const entries = await this.genericService.getMessageEntries(userEmail, true)
+    const entriesString = await this.genericService.getEntriesString(userEmail, true)
 
     if (!entries || entries.length === 0) {
       reply = entriesString

@@ -19,7 +19,7 @@ class ChooseFile {
   }
 
   // TODO add more function here as well
-  execute() {
+  async execute() {
     const {
       // argument,
       message,

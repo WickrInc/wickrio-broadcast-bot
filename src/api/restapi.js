@@ -71,7 +71,7 @@ const useRESTRoutes = app => {
   app.post(
     endpoint + '/Broadcast',
     [checkBasicAuth, upload.single('attachment')],
-    (req, res) => {
+    async (req, res) => {
       let obj
       let userNewFile
       let fileData
@@ -197,7 +197,7 @@ const useRESTRoutes = app => {
       }
 
       const response = {}
-      response.data = newBroadcast.broadcastMessage()
+      response.data = await newBroadcast.broadcastMessage()
       // todo: send status on error
       res.send(response)
     }
@@ -403,7 +403,7 @@ const useRESTRoutes = app => {
     res.send(response)
   })
 
-  app.post(endpoint + '/Abort', checkBasicAuth, (req, res) => {
+  app.post(endpoint + '/Abort', checkBasicAuth, async (req, res) => {
     if (!req.query.messageID)
       return res
         .status(400)
@@ -411,7 +411,7 @@ const useRESTRoutes = app => {
     const messageID = req.query.messageID
 
     // Make sure the MessageID entry exists
-    const msgIDJSON = apiService.getMessageIDEntry(messageID)
+    const msgIDJSON = await apiService.getMessageIDEntry(messageID)
     if (msgIDJSON === undefined) {
       return res.status(404).send('Not Found: Message ID entry does not exist.')
     }
@@ -425,16 +425,16 @@ const useRESTRoutes = app => {
     }
 
     const reply = {}
-    reply.result = apiService.cancelMessageID(messageID)
-    reply.status = apiService.getMessageStatus(messageID, 'summary', '', '')
+    reply.result = await apiService.cancelMessageID(messageID)
+    reply.status = await apiService.getMessageStatus(messageID, 'summary', '', '')
     res.json(reply)
   })
 
-  app.get(endpoint + '/SecGroups', checkBasicAuth, (req, res) => {
+  app.get(endpoint + '/SecGroups', checkBasicAuth, async (req, res) => {
     try {
       // how does cmdGetSecurityGroups know what user to get security groups for?
       // could we get securityg groups for a targeted user?
-      const response = apiService.getSecurityGroups()
+      const response = await apiService.getSecurityGroups()
       res.json(response)
     } catch (err) {
       logger.error(err)
@@ -452,7 +452,7 @@ const useRESTRoutes = app => {
       return res.status(400).send('Bad request: limit missing from request.')
     const page = req.query.page
     const limit = req.query.limit
-    const tableDataRaw = apiService.getMessageIDTable(
+    const tableDataRaw = await apiService.getMessageIDTable(
       page,
       limit,
       WICKRIO_BOT_NAME.value
@@ -494,7 +494,7 @@ const useRESTRoutes = app => {
     messageIdEntries?.map(async entry => {
       logger.debug({ entry })
       const contentData = JSON.parse(
-        apiService.getMessageIDEntry(entry.message_id)
+        await apiService.getMessageIDEntry(entry.message_id)
       )
       entry.message = contentData.message
       const statusdata = await apiService.getMessageStatus(
@@ -533,7 +533,7 @@ const useRESTRoutes = app => {
 
   const getStatus = async (page, size, email) => {
     // if user hasn't sent a message in the last 'size' messages, will it show zero messages unless we search a larger index that captures the user's message?
-    const tableDataRaw = apiService.getMessageIDTable(
+    const tableDataRaw = await apiService.getMessageIDTable(
       String(page),
       String(size),
       String(email)
@@ -561,7 +561,7 @@ const useRESTRoutes = app => {
     }
   }
 
-  app.get(endpoint + '/Report', checkBasicAuth, (req, res) => {
+  app.get(endpoint + '/Report', checkBasicAuth, async (req, res) => {
     if (!req.query.messageID)
       return res
         .status(400)
@@ -575,7 +575,7 @@ const useRESTRoutes = app => {
     const limit = req.query.limit
 
     // Make sure the MessageID entry exists
-    const msgIDJSON = apiService.getMessageIDEntry(messageID)
+    const msgIDJSON = await apiService.getMessageIDEntry(messageID)
     if (msgIDJSON === undefined) {
       return res.status(404).send('Not Found: Message ID entry does not exist.')
     }
@@ -597,7 +597,7 @@ const useRESTRoutes = app => {
     if (req.query.filter || req.query.users) {
       const filter = req.query.filter ? req.query.filter : ''
       const users = req.query.users ? req.query.users : ''
-      statusData = apiService.getMessageStatusFiltered(
+      statusData = await apiService.getMessageStatusFiltered(
         messageID,
         'full',
         page,
@@ -606,7 +606,7 @@ const useRESTRoutes = app => {
         users
       )
     } else {
-      statusData = apiService.getMessageStatus(messageID, 'full', page, limit)
+      statusData = await apiService.getMessageStatus(messageID, 'full', page, limit)
     }
     if (statusData) {
       const messageStatus = JSON.parse(statusData)
@@ -681,14 +681,14 @@ const useRESTRoutes = app => {
     return res.send(reply)
   })
 
-  app.post(endpoint + '/EventRecvCallback', checkBasicAuth, function (
+  app.post(endpoint + '/EventRecvCallback', checkBasicAuth, async function (
     req,
     res
   ) {
     const callbackUrl = req.query.callbackurl
     logger.debug('callbackUrl:', callbackUrl)
     try {
-      const csmc = apiService.setEventCallback(callbackUrl)
+      const csmc = await apiService.setEventCallback(callbackUrl)
       logger.debug(csmc)
       res.type('txt').send(csmc)
     } catch (err) {
@@ -698,9 +698,9 @@ const useRESTRoutes = app => {
     }
   })
 
-  app.get(endpoint + '/EventRecvCallback', checkBasicAuth, function (req, res) {
+  app.get(endpoint + '/EventRecvCallback', checkBasicAuth, async function (req, res) {
     try {
-      const cgmc = apiService.getEventCallback()
+      const cgmc = await apiService.getEventCallback()
       res.type('txt').send(cgmc)
     } catch (err) {
       logger.error(err)
@@ -709,12 +709,12 @@ const useRESTRoutes = app => {
     }
   })
 
-  app.delete(endpoint + '/EventRecvCallback', checkBasicAuth, function (
+  app.delete(endpoint + '/EventRecvCallback', checkBasicAuth, async function (
     req,
     res
   ) {
     try {
-      const cdmc = apiService.deleteEventCallback()
+      const cdmc = await apiService.deleteEventCallback()
       logger.debug(cdmc)
       res.type('txt').send(cdmc)
     } catch (err) {

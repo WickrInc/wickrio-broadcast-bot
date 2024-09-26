@@ -48,12 +48,12 @@ class MapService {
     }
   }
 
-  getMap(messageID, maxUsers) {
+  async getMap(messageID, maxUsers) {
     // get status to check if acknowledged messages exists, and then, if they include the status_message that is added to the repo
     let link
     try {
       const messageStatus = JSON.parse(
-        this.apiService.getMessageStatus(
+        await this.apiService.getMessageStatus(
           String(messageID),
           'full',
           String(0),

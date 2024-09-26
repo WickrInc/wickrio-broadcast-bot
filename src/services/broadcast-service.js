@@ -57,8 +57,8 @@ class BroadcastService {
     this.user.users = users
   }
 
-  getAPISecurityGroups() {
-    this.user.APISecurityGroups = this.apiService.getSecurityGroups()
+  async getAPISecurityGroups() {
+    this.user.APISecurityGroups = await this.apiService.getSecurityGroups()
     return this.user.APISecurityGroups
   }
 
@@ -106,8 +106,8 @@ class BroadcastService {
     return BROADCAST_ENABLED === undefined || BROADCAST_ENABLED === 'yes'
   }
 
-  getSecurityGroupReply() {
-    const securityGroupList = this.getAPISecurityGroups()
+  async getSecurityGroupReply() {
+    const securityGroupList = await this.getAPISecurityGroups()
     let groupsString = ''
     for (let i = 0; i < securityGroupList.length; i += 1) {
       // Check if the securityGroup has a size
@@ -132,9 +132,9 @@ class BroadcastService {
     // }
   }
 
-  getQueueInfo() {
+  async getQueueInfo() {
     // Check the queue and send info message if pending broadcasts
-    const txQInfo = bot.getTransmitQueueInfo()
+    const txQInfo = await bot.getTransmitQueueInfo()
     const broadcastsInQueue = txQInfo.tx_queue.length
     let broadcastDelay = txQInfo.estimated_time
     broadcastDelay = broadcastDelay + 30
@@ -147,7 +147,7 @@ class BroadcastService {
 
   recallBroadcast() {}
 
-  broadcastMessage() {
+  async broadcastMessage() {
     // console.log({
     //   file: this.user.file,
     //   message: this.user.message,
@@ -215,7 +215,7 @@ class BroadcastService {
     // if (this.user.file !== undefined && this.user.file !== '') {
     if (this.user.file) {
       logger.debug(`display:${this.user.display}:`)
-      this.apiService.writeMessageIDDB(
+      await this.apiService.writeMessageIDDB(
         messageID,
         this.user.userEmail,
         target,
@@ -224,7 +224,7 @@ class BroadcastService {
       )
       // } else if (this.user.voiceMemo !== undefined && this.user.voiceMemo !== '') {
     } else if (this.user.voiceMemo) {
-      this.apiService.writeMessageIDDB(
+      await this.apiService.writeMessageIDDB(
         messageID,
         this.user.userEmail,
         target,
@@ -232,7 +232,7 @@ class BroadcastService {
         `VoiceMemo-${jsonDateTime}`
       )
     } else {
-      this.apiService.writeMessageIDDB(
+      await this.apiService.writeMessageIDDB(
         messageID,
         this.user.userEmail,
         target,
@@ -244,7 +244,7 @@ class BroadcastService {
     if (target === 'USERS') {
       if (this.user.flags === undefined) this.user.flags = []
 
-      uMessage = this.apiService.send1to1MessageLowPriority(
+      uMessage = await this.apiService.send1to1MessageLowPriority(
         this.user.users,
         messageToSend,
         this.user.ttl,
@@ -260,7 +260,7 @@ class BroadcastService {
       reply.message = messageToSend
     } else if (target === 'NETWORK') {
       if (this.user.voiceMemo) {
-        uMessage = this.apiService.sendNetworkVoiceMemo(
+        uMessage = await this.apiService.sendNetworkVoiceMemo(
           this.user.voiceMemo,
           this.user.duration,
           this.user.ttl,
@@ -273,7 +273,7 @@ class BroadcastService {
         reply.rawMessage = this.user.message
         reply.message = messageToSend
       } else if (this.user.file) {
-        uMessage = this.apiService.sendNetworkAttachment(
+        uMessage = await this.apiService.sendNetworkAttachment(
           this.user.file,
           this.user.display,
           this.user.ttl,
@@ -290,7 +290,7 @@ class BroadcastService {
         //
         if (this.user.webapp && this.user.message) {
           console.log('from webapp')
-          uMessage = this.apiService.sendNetworkMessage(
+          uMessage = await this.apiService.sendNetworkMessage(
             this.user.message,
             this.user.ttl,
             this.user.bor,
@@ -300,7 +300,7 @@ class BroadcastService {
           )
         }
       } else {
-        uMessage = this.apiService.sendNetworkMessage(
+        uMessage = await this.apiService.sendNetworkMessage(
           messageToSend,
           this.user.ttl,
           this.user.bor,
@@ -313,7 +313,7 @@ class BroadcastService {
         reply.message = messageToSend
       }
     } else if (this.user.voiceMemo) {
-      uMessage = this.apiService.sendSecurityGroupVoiceMemo(
+      uMessage = await this.apiService.sendSecurityGroupVoiceMemo(
         this.user.securityGroups,
         this.user.voiceMemo,
         this.user.duration,
@@ -328,7 +328,7 @@ class BroadcastService {
       reply.rawMessage = this.user.message
       reply.message = messageToSend
     } else if (this.user.file) {
-      uMessage = this.apiService.sendSecurityGroupAttachment(
+      uMessage = await this.apiService.sendSecurityGroupAttachment(
         this.user.securityGroups,
         this.user.file,
         this.user.display,
@@ -355,7 +355,7 @@ class BroadcastService {
         )
       }
     } else {
-      uMessage = this.apiService.sendSecurityGroupMessage(
+      uMessage = await this.apiService.sendSecurityGroupMessage(
         this.user.securityGroups,
         messageToSend,
         this.user.ttl,

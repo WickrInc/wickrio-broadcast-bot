@@ -22,7 +22,7 @@ class OverwriteCheck {
     })
   }
 
-  execute() {
+  async execute() {
     const userEmail = this.messageService.getUserEmail()
     const file = this.fileService.getFilePath()
     logger.debug(`Here is the file ${file}`)
