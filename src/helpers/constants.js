@@ -1,4 +1,5 @@
 import * as WickrIOBotAPI from 'wickrio-bot-api'
+import WickrIOBot from '../models/WickrIOBot'
 import fs from 'fs'
 import dotenv from 'dotenv'
 import path from 'path'
@@ -6,7 +7,7 @@ import path from 'path'
 dotenv.config()
 
 const WickrUser = WickrIOBotAPI.WickrUser
-const bot = new WickrIOBotAPI.WickrIOBot()
+const bot = WickrIOBot.getInstance()
 const WickrIOAPI = bot.getWickrIOAddon()
 const client_auth_codes = {}
 

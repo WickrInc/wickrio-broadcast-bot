@@ -1,6 +1,6 @@
 import State from '../state'
-import WickrIOBotAPI from 'wickrio-bot-api'
-const bot = new WickrIOBotAPI.WickrIOBot()
+import WickrIOBot from '../models/WickrIOBot'
+const bot = WickrIOBot.getInstance()
 
 class RepeatFrequency {
   constructor({ repeatService, combinedService, messageService }) {

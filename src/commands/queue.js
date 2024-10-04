@@ -1,6 +1,6 @@
-import WickrIOBotAPI from 'wickrio-bot-api'
+import WickrIOBot from '../models/WickrIOBot'
 import logger from '../helpers/logger'
-const bot = new WickrIOBotAPI.WickrIOBot()
+const bot = WickrIOBot.getInstance()
 
 class Queue {
   constructor({ messageService }) {
