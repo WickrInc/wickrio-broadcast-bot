@@ -1,12 +1,12 @@
 // import APIService from './api-service'
 import StatusService from './status-service'
-import WickrIOBotAPI from 'wickrio-bot-api'
+import WickrIOBot from '../models/WickrIOBot'
 import ButtonHelper from '../helpers/button-helper'
 // TODO proper form??
 import updateLastID from '../helpers/message-id-helper'
 import { BROADCAST_ENABLED } from '../helpers/constants'
 import logger from '../helpers/logger'
-const bot = new WickrIOBotAPI.WickrIOBot()
+const bot = WickrIOBot.getInstance()
 
 class BroadcastService {
   constructor({ messageService, apiService }) {

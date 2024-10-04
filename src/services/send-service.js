@@ -6,8 +6,9 @@ import updateLastID from '../helpers/message-id-helper'
 import { apiService } from '../helpers/constants'
 import logger from '../helpers/logger'
 import WickrIOBotAPI from 'wickrio-bot-api'
+import WickrIOBot from '../models/WickrIOBot'
 import ButtonHelper from '../helpers/button-helper'
-const bot = new WickrIOBotAPI.WickrIOBot()
+const bot = WickrIOBot.getInstance()
 
 // TODO make fs a variable that is passed into the constructor
 if (!existsSync(`${process.cwd()}/files`)) {

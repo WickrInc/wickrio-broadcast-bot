@@ -1,12 +1,12 @@
 import { existsSync, mkdirSync } from 'fs'
 
 import FileHandler from '../helpers/file-handler'
-import WickrIOBotAPI from 'wickrio-bot-api'
+import WickrIOBot from '../models/WickrIOBot'
 import ButtonHelper from '../helpers/button-helper'
 import { BROADCAST_ENABLED } from '../helpers/constants'
 import logger from '../helpers/logger'
 import { error } from 'console'
-const bot = new WickrIOBotAPI.WickrIOBot()
+const bot = WickrIOBot.getInstance()
 
 // TODO make fs a variable that is passed into the constructor
 if (!existsSync(`${process.cwd()}/files`)) {

@@ -1,7 +1,7 @@
 import path from 'path'
 
-import WickrIOBotAPI from 'wickrio-bot-api'
-const bot = new WickrIOBotAPI.WickrIOBot()
+import WickrIOBot from '../models/WickrIOBot'
+const bot = WickrIOBot.getInstance()
 
 class Version {
   constructor({ messageService }) {
