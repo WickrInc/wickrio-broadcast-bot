@@ -103,7 +103,7 @@ class Factory {
         RESPONSES_ENABLED === undefined ||
         RESPONSES_ENABLED.value === 'yes'
       ) {
-        const reply = `Hey this bot is just for announcements and can't respond to you personally, or ${this.messageService.userEmail} is not authorized to use this bot. If you have a question, please get a hold of us at wickr-support@amazon.com or visit us at support.wickr.com. Thanks, Team Wickr`
+        const reply = `Hey this bot is just for announcements and can't respond to you personally, or ${this.messageService.userEmail} is not authorized to use this bot. If you have a question, please get a hold of us at wickr-support@amazon.com. Thanks, Team Wickr`
         WickrIOAPI.cmdSendRoomMessage(this.messageService.vGroupID, reply)
         // logger.debug({ sMessage })
         writeFile(this.messageService.message)
