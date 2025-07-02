@@ -1,7 +1,7 @@
 {
   "apps": [
     {
-      "name": "WickrIO-Broadcast-Bot",
+      "name": "brbottest",
       "args": [],
       "script": "./build/index.js",
       "process_manager": "wpm",
