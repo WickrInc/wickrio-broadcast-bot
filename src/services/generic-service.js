@@ -28,7 +28,15 @@ class GenericService {
   }
 
   async cancelMessageID(messageID) {
-    return await this.apiService.cancelMessageID(messageID)
+    try {
+      console.log('Attempting to cancel messageID:', messageID)
+      const result = await this.apiService.cancelMessageID(messageID)
+      console.log('Cancel result:', result)
+      return result || 'Message cancellation attempted'
+    } catch (error) {
+      console.error('Error cancelling message:', error)
+      return 'Error: Unable to cancel message. The cancelMessageID API may not be available.'
+    }
   }
 
   async getEntriesString(userEmail, abort) {
