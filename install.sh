@@ -1,5 +1,6 @@
-#!/bin/sh
+!/bin/sh
 
+comment out for testing
 if [ -f "/usr/local/nvm/nvm.sh" ]; then
   . /usr/local/nvm/nvm.sh
 fi

@@ -2,6 +2,7 @@ import { schedule } from 'node-cron'
 import { apiService } from '../helpers/constants'
 import logger from '../helpers/logger'
 import ButtonHelper from '../helpers/button-helper.js'
+import ackTracker from '../helpers/ack-tracker'
 
 class StatusService {
   static async getStatus(messageID, asyncStatus) 
@@ -22,7 +23,7 @@ class StatusService {
     // logger.debug({ messageStatus })
     // TODO what do we do when no Records are found?
     // is this because of sending to empty security group??
-    let statusString = StatusService.getStatusString(messageStatus)
+    let statusString = StatusService.getStatusString(messageStatus, messageID)
     let complete = messageStatus.pending === 0
     const preparing =
       messageStatus.status === 'preparing' || messageStatus.status === 'created'
@@ -42,7 +43,7 @@ class StatusService {
     return statusString
   }
 
-  static getStatusString(messageStatus) {
+  static getStatusString(messageStatus, messageID = null) {
     let statusString =
       '*Message Status:*\n' +
       `Total Users: ${messageStatus.num2send}\n` +
@@ -50,8 +51,16 @@ class StatusService {
       `Messages pending to Users: ${messageStatus.pending}\n` +
       `Messages failed to send: ${messageStatus.failed}\n` +
       `Messages aborted: ${messageStatus.aborted}\n` +
-      `Messages acknowledged: ${messageStatus.acked}\n` +
       `Messages read: ${messageStatus.read}\n`
+    
+    // Use custom ack tracker if messageID is available, otherwise use WickrIO's count
+    if (messageID) {
+      const customAckCount = ackTracker.getAckCount(messageID)
+      statusString += `Messages acknowledged: ${customAckCount}\n`
+    } else {
+      statusString += `Messages acknowledged: ${messageStatus.acked}\n`
+    }
+    
     if (messageStatus.ignored !== undefined) {
       statusString = `${statusString}Messages Ignored: ${messageStatus.ignored}`
     }
