@@ -3,7 +3,7 @@
     "name": "WickrIO-Broadcast-Bot",
     "script": "./build/index.js",
     "instances": 1,
-    "max_memory_restart": "128M",
+    "max_memory_restart": "1G",
     "node_args": ["--nouse-idle-notification"],
     "env": {
       "NODE_ENV": "production"
