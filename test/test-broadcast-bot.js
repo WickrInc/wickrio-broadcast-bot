@@ -291,10 +291,16 @@ describe('ack validation', function () {
     const setMsgStatus = sinon
       .stub(genericService, 'setMessageStatus')
       .returns('Set status')
+    
+    // Mock getMessageIDTable to prevent sendMessage undefined error
+    const getMsgIDTable = sinon
+      .stub(apiService, 'getMessageIDTable')
+      .returns('{"list": []}')
 
-    const replyvalue = ack.execute()
+    const replyvalue = await ack.execute()
 
     setMsgStatus.restore()
+    getMsgIDTable.restore()
 
     assert.ok(replyvalue.reply !== undefined)
   })
@@ -420,7 +426,7 @@ describe('cancel validation', function () {
     const Cancel = require('../build/commands/cancel')
     const BroadcastService = require('../build/services/broadcast-service')
     const SendService = require('../build/services/send-service')
-    const { apiService } = require('../src/helpers/constants')
+    const { apiService } = require('../build/helpers/constants')
     const bot = new WickrIOBotAPI.WickrIOBot()
     const status = await bot.startForTesting('clientName')
 
@@ -461,7 +467,7 @@ describe('cancel validation', function () {
     const Cancel = require('../build/commands/cancel')
     const BroadcastService = require('../build/services/broadcast-service')
     const SendService = require('../build/services/send-service')
-    const { apiService } = require('../src/helpers/constants')
+    const { apiService } = require('../build/helpers/constants')
     const bot = new WickrIOBotAPI.WickrIOBot()
     const status = await bot.startForTesting('clientName')
 
@@ -502,7 +508,7 @@ describe('cancel validation', function () {
     const Cancel = require('../build/commands/cancel')
     const BroadcastService = require('../build/services/broadcast-service')
     const SendService = require('../build/services/send-service')
-    const { apiService } = require('../src/helpers/constants')
+    const { apiService } = require('../build/helpers/constants')
     const bot = new WickrIOBotAPI.WickrIOBot()
     const status = await bot.startForTesting('clientName')
 
@@ -1063,7 +1069,7 @@ describe('report validation', function () {
       .stub(genericService, 'getMessageEntry')
       .returns('{ "message": "This is a message" }')
 
-    const replyvalue = report.execute()
+    const replyvalue = await report.execute()
 
     getMsgIDTable.restore()
     msgEntries.restore()
@@ -1392,7 +1398,7 @@ describe('version validation', function () {
       messageService: msgSvc,
     })
 
-    const replyvalue = ver.execute()
+    const replyvalue = await ver.execute()
     assert.ok(replyvalue.reply)
   })
 })
@@ -1484,7 +1490,7 @@ describe('version validation', function () {
       messageService: msgSvc,
     })
 
-    const replyvalue = ver.execute()
+    const replyvalue = await ver.execute()
     assert.ok(replyvalue.reply)
   })
 })

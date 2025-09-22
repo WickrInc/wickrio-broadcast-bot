@@ -10,7 +10,16 @@
       "watch": ["package.json"],
       "ignore_watch": [".git"],
       "env": {
-        "tokens": {}
+        "tokens": {
+          "WICKRIO_BOT_NAME": {
+            "value": "test",
+            "encrypted": false
+          },
+          "BOT_MAPS": {
+            "value": "yes",
+            "encrypted": false
+          }
+        }
       }
     }
   ]

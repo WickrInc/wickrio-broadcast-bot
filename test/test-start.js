@@ -1,7 +1,5 @@
 // const expect = require('chai').expect;
-// const assert = require('assert')
-import assert from 'assert/strict'
-
+const assert = require('assert')
 const sinon = require('sinon')
 const Start = require('../build/commands/start')
 const combinedService = require('../build/services/combined-service')
