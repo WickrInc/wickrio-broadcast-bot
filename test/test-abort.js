@@ -1,5 +1,4 @@
-import assert from 'assert'
-
+const assert = require('assert')
 const sinon = require('sinon')
 const Abort = require('../build/commands/abort')
 
@@ -43,16 +42,17 @@ describe('abort validation', function () {
   it('execute() no entries', async function () {
     const entries = []
     const genericService = {
-      getMessageEntries: sinon.fake.returns(entries),
-      getEntriesString: sinon.fake.returns(
+      getMessageEntries: sinon.fake.returns(Promise.resolve(entries)),
+      getEntriesString: sinon.fake.returns(Promise.resolve(
         'There are no active messages to display'
-      ),
+      )),
       resetIndexes: sinon.spy(),
       getEndIndex: sinon.fake.returns(0),
     }
 
     const messageService = {
       command: '/abort',
+      userEmail: 'test@example.com',
     }
 
     const abort = new Abort({
@@ -65,7 +65,7 @@ describe('abort validation', function () {
       reply: 'There are no active messages to display',
       state: 12,
     }
-    const actualReply = abort.execute()
+    const actualReply = await abort.execute()
 
     assert.equal(actualReply.reply, expectedReply.reply)
     // assert.equal(actualReply.messagemeta, expectedReply.messagemeta)

@@ -1,7 +1,5 @@
 // const expect = require('chai').expect;
-// const assert = require('assert')
-import assert from 'assert/strict'
-
+const assert = require('assert')
 const sinon = require('sinon')
 const Version = require('../build/commands/version')
 
@@ -42,7 +40,7 @@ describe('start validation', function () {
       messageService: messageService,
     })
 
-    const replyValue = version.execute()
+    const replyValue = await version.execute()
 
     // sinon.assert.called(bot.getVersions)
     assert.ok(replyValue.reply)
