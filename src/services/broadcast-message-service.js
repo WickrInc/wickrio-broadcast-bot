@@ -5,6 +5,7 @@ import logger from '../helpers/logger'
 
 class BroadcastMessageService {
   static async broadcastMessage(apiService, user) {
+    logger.info(`[BROADCAST START] Starting broadcast for user: ${user.userEmail}`)
     // logger.debug({
     //   file: user.file,
     //   message: user.message,
@@ -40,13 +41,16 @@ class BroadcastMessageService {
     let target
     if (user.users !== undefined && user.users.length !== 0) {
       target = 'USERS'
+      logger.info(`[BROADCAST TARGET] Sending to ${user.users.length} individual users`)
     } else if (
       user.securityGroups === undefined ||
       user.securityGroups.length < 1
     ) {
       target = 'NETWORK'
+      logger.info(`[BROADCAST TARGET] Sending to entire NETWORK`)
     } else {
       target = user.securityGroups.join()
+      logger.info(`[BROADCAST TARGET] Sending to security groups: ${target}`)
     }
 
     logger.debug(`target${target}`)
@@ -94,6 +98,7 @@ class BroadcastMessageService {
     if (target === 'USERS') {
       if (user.flags === undefined) user.flags = []
 
+      logger.info(`[BROADCAST SEND] Calling send1to1MessageLowPriority for ${user.users.length} users, messageID: ${messageID}`)
       uMessage = await apiService.send1to1MessageLowPriority(
         user.users,
         messageToSend,
@@ -103,6 +108,7 @@ class BroadcastMessageService {
         user.flags,
         metaString
       )
+      logger.info(`[BROADCAST SEND] send1to1MessageLowPriority completed, result: ${uMessage}`)
       logger.debug(`send1to1Messge returns=${uMessage}`)
       reply.pending =
         'Broadcast message in process of being sent to list of users'
@@ -220,9 +226,11 @@ class BroadcastMessageService {
       reply.message = messageToSend
     }
     if (user.vGroupID !== '' && user.vGroupID !== undefined) {
+      logger.info(`[BROADCAST ASYNC] Starting asyncStatus polling for messageID: ${messageID}, vGroupID: ${user.vGroupID}`)
       StatusService.asyncStatus(messageID, user.vGroupID, user)
     }
     logger.debug(`Broadcast uMessage=${uMessage}`)
+    logger.info(`[BROADCAST END] Broadcast function completed for messageID: ${messageID}`)
     reply.message_id = messageID
     if (target === 'USERS') {
       reply.users = user.users

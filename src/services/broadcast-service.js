@@ -370,7 +370,7 @@ class BroadcastService {
       reply.message = messageToSend
     }
     if (this.user.vGroupID !== '' && this.user.vGroupID !== undefined) {
-      logger.debug(`About to call asyncStatus - vGroupID: ${this.user.vGroupID}, user: ${this.user}`)
+      logger.info(`About to call asyncStatus - vGroupID: ${this.user.vGroupID}, user: ${this.user}`)
       StatusService.asyncStatus(messageID, this.user.vGroupID)
     }
     logger.debug(`Broadcast uMessage=${uMessage}`)
