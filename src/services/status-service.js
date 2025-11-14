@@ -69,6 +69,7 @@ class StatusService {
 
   static asyncStatus(messageID, vGroupID, user) {
     logger.debug('Enter asyncStatus ')
+    logger.debug(`asyncStatus params - messageID: ${messageID}, vGroupID: ${vGroupID}, user: ${user}`)
     const timeString = '*/30 * * * * *'
     if (
       user.asyncStatusMap === undefined ||
@@ -79,8 +80,9 @@ class StatusService {
     user.asyncStatusMap.set(messageID, 0)
     // let preparing;
     const cronJob = schedule(timeString, async () => {
-      // logger.debug('Running cronjob')
+      logger.debug(`Cron job running for messageID: ${messageID}`)
       const statusObj =  await StatusService.getStatus(messageID, true)
+      logger.debug(`statusObj.complete: ${statusObj.complete}, statusObj.preparing: ${statusObj.preparing}`)
       const { preparing } = statusObj
       const count = user.asyncStatusMap.get(messageID)
       user.asyncStatusMap.set(messageID, count + 1)
@@ -96,6 +98,7 @@ class StatusService {
         await apiService.sendRoomMessage(vGroupID, reply, '', '', '', [], metastring)
       }
       if (statusObj.complete) {
+        logger.debug(`Stopping cron job for messageID: ${messageID}`)
         return cronJob.stop()
       }
       return false
