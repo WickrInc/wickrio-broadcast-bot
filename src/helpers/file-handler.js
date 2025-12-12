@@ -95,7 +95,7 @@ class FileHandler {
         filePath,
         newFilePath,
         userEmail,
-        fileName: filename,
+        fileName: filename.toString(),
         fileAppend,
       })
 
