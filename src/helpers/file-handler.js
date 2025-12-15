@@ -5,8 +5,6 @@ import fs from 'fs'
 import util from 'util'
 import State from '../state'
 
-const execSync = require('child_process').execSync
-
 util.promisify(fs.copyFile)
 
 class FileHandler {
@@ -41,19 +39,17 @@ class FileHandler {
   }
 
   static checkFileSize(filePath) {
+    if (LIMIT_FILE_ENTRIES.value !== 'yes') {
+      return false
+    }
     let lines = 0
     try {
-      const results = execSync(`wc -l < ${filePath}`)
-      lines = parseInt(results)
+      const content = fs.readFileSync(filePath, 'utf-8')
+      lines = content.split('\n').length
     } catch (err) {
       logger.error(err)
     }
-    if (LIMIT_FILE_ENTRIES.value === 'yes') {
-      if (lines > parseInt(FILE_ENTRY_SIZE.value)) {
-        return true
-      }
-    }
-    return false
+    return lines > parseInt(FILE_ENTRY_SIZE.value)
   }
 
   // Funtion to delete a user or hash file.
