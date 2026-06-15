@@ -34,13 +34,11 @@
     "axios": "^1.11.0",
     "babel-jest": "^29.7.0",
     "babel-preset-airbnb": "^5.0.0",
-    "chai": "^4.3.4",
     "eslint": "^7.4.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-config-standard": "^14.1.1",
     "eslint-plugin-import": "^2.22.0",
-    "eslint-plugin-mocha": "^9.0.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-promise": "^4.2.1",
@@ -48,12 +46,11 @@
     "form-data": "^4.0.4",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.10",
-    "mocha": "^10.0.0",
     "nodemon": "^3.1.7",
     "path": "0.12.7",
     "pino-pretty": "^3.5.0",
     "prettier": "2.0.5",
-    "sinon": "11.1.1"
+    "vitest": "^4.1.9"
   },
   "scripts": {
     "dev": "nodemon --exec 'babel-node --inspect=0.0.0.0 src/index.js'",
@@ -63,7 +60,7 @@
     "restart": "kill $(cat $(cat pidLocation.json)) && nohup wpm2 start --no-metrics ./wpm.json >>wpm2.output 2>&1 & echo $! > $(cat pidLocation.json)",
     "start": "nohup wpm2 start --no-metrics ./wpm.json >>wpm2.output 2>&1 & echo $! > $(cat pidLocation.json)",
     "stop": "kill $(cat $(cat pidLocation.json))",
-    "test": "mocha test"
+    "test": "vitest run"
   },
   "husky": {
     "hooks": {
@@ -87,13 +84,11 @@
     "parser": "babel-eslint",
     "extends": [
       "standard",
-      "plugin:mocha/recommended",
       "prettier",
       "prettier/standard"
     ],
     "plugins": [
       "import",
-      "mocha",
       "prettier",
       "standard"
     ],
