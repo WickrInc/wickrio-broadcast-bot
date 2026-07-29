@@ -395,12 +395,35 @@ const useWebAndRoutes = app => {
       res.set('Authorization', 'Basic base64_auth_token')
 
       if (!req.params.messageID) {
-        res.send('need a message id')
+        return res.status(400).send('Bad request: need a message id')
       }
 
-      const broadcast = JSON.parse(
-        await apiService.getMessageIDEntry(req.params.messageID)
-      )
+      // Make sure the MessageID entry exists
+      const msgIDJSON = await apiService.getMessageIDEntry(req.params.messageID)
+      if (msgIDJSON === undefined) {
+        return res
+          .status(404)
+          .send('Not Found: Message ID entry does not exist.')
+      }
+
+      const broadcast = JSON.parse(msgIDJSON)
+
+      // A report is readable only by the identity that created it. Broadcasts
+      // sent from the web panel are stored under the sending admin's email, so
+      // an admin may read only their own. Broadcasts created over the REST API
+      // are stored under the bot name because checkBasicAuth authenticates a
+      // shared bot token rather than an admin, so they have no admin owner and
+      // are readable only over the REST API, which applies the same check
+      // against the bot name.
+      //
+      // This runs before any status lookup so that the response cannot
+      // distinguish an unauthorized report from a nonexistent one.
+      if (broadcast?.sender !== req.user.email) {
+        return res
+          .status(401)
+          .send('Unauthorized: Message is not from this user.')
+      }
+
       const parsedBroadcastStatus = JSON.parse(
         await apiService.getMessageStatus(
           req.params.messageID,
