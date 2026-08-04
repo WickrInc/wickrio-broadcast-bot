@@ -1,4 +1,5 @@
 import { bot } from './constants'
+import { incrementMetric, BROADCAST_ACKS } from './metrics'
 
 // Use bot's existing database system for acknowledgment tracking
 class AckTracker {
@@ -27,6 +28,8 @@ class AckTracker {
     // Add messageID if not already acknowledged
     if (!user.acknowledgments.includes(messageID)) {
       user.acknowledgments.push(messageID)
+      // Only new acks are counted, repeat /ack replies are not
+      incrementMetric(BROADCAST_ACKS)
       console.log('ACK TRACKER stored ack:', { userEmail, messageID, totalAcks: user.acknowledgments.length })
     } else {
       console.log('ACK TRACKER already acked:', { userEmail, messageID })

@@ -6,6 +6,11 @@ import ButtonHelper from '../helpers/button-helper'
 import { BROADCAST_ENABLED } from '../helpers/constants'
 import logger from '../helpers/logger'
 import { error } from 'console'
+import {
+  setMetric,
+  BROADCAST_QUEUE_DEPTH,
+  BROADCAST_QUEUE_DELAY_SEC,
+} from '../helpers/metrics'
 const bot = WickrIOBot.getInstance()
 
 // TODO make fs a variable that is passed into the constructor
@@ -260,6 +265,11 @@ class CombinedService {
     const txQInfo = await bot.getTransmitQueueInfo()
     const broadcastsInQueue = txQInfo.tx_queue.length
     let broadcastDelay = txQInfo.estimated_time
+
+    // Queue depth and delay are gauges, they describe the queue right now
+    setMetric(BROADCAST_QUEUE_DEPTH, broadcastsInQueue)
+    setMetric(BROADCAST_QUEUE_DELAY_SEC, Math.round(broadcastDelay))
+
     broadcastDelay = broadcastDelay + 30
     broadcastDelay = Math.round(broadcastDelay / 60)
     if (broadcastsInQueue > 0) {

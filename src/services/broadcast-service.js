@@ -6,6 +6,18 @@ import ButtonHelper from '../helpers/button-helper'
 import updateLastID from '../helpers/message-id-helper'
 import { BROADCAST_ENABLED } from '../helpers/constants'
 import logger from '../helpers/logger'
+import {
+  incrementMetric,
+  setMetric,
+  BROADCASTS_SENT,
+  BROADCASTS_FAILED,
+  BROADCASTS_TEXT,
+  BROADCASTS_FILE,
+  BROADCASTS_VOICEMEMO,
+  BROADCAST_RECIPIENTS,
+  BROADCAST_QUEUE_DEPTH,
+  BROADCAST_QUEUE_DELAY_SEC,
+} from '../helpers/metrics'
 const bot = WickrIOBot.getInstance()
 
 class BroadcastService {
@@ -137,6 +149,11 @@ class BroadcastService {
     const txQInfo = await bot.getTransmitQueueInfo()
     const broadcastsInQueue = txQInfo.tx_queue.length
     let broadcastDelay = txQInfo.estimated_time
+
+    // Queue depth and delay are gauges, they describe the queue right now
+    setMetric(BROADCAST_QUEUE_DEPTH, broadcastsInQueue)
+    setMetric(BROADCAST_QUEUE_DELAY_SEC, Math.round(broadcastDelay))
+
     broadcastDelay = broadcastDelay + 30
     broadcastDelay = Math.round(broadcastDelay / 60)
     if (broadcastsInQueue > 0) {
@@ -148,6 +165,17 @@ class BroadcastService {
   recallBroadcast() {}
 
   async broadcastMessage() {
+    try {
+      const reply = await this.sendBroadcast()
+      incrementMetric(BROADCASTS_SENT)
+      return reply
+    } catch (err) {
+      incrementMetric(BROADCASTS_FAILED)
+      throw err
+    }
+  }
+
+  async sendBroadcast() {
     // console.log({
     //   file: this.user.file,
     //   message: this.user.message,
@@ -214,6 +242,7 @@ class BroadcastService {
 
     // if (this.user.file !== undefined && this.user.file !== '') {
     if (this.user.file) {
+      incrementMetric(BROADCASTS_FILE)
       logger.debug(`display:${this.user.display}:`)
       await this.apiService.writeMessageIDDB(
         messageID,
@@ -224,6 +253,7 @@ class BroadcastService {
       )
       // } else if (this.user.voiceMemo !== undefined && this.user.voiceMemo !== '') {
     } else if (this.user.voiceMemo) {
+      incrementMetric(BROADCASTS_VOICEMEMO)
       await this.apiService.writeMessageIDDB(
         messageID,
         this.user.userEmail,
@@ -232,6 +262,7 @@ class BroadcastService {
         `VoiceMemo-${jsonDateTime}`
       )
     } else {
+      incrementMetric(BROADCASTS_TEXT)
       await this.apiService.writeMessageIDDB(
         messageID,
         this.user.userEmail,
@@ -243,6 +274,10 @@ class BroadcastService {
 
     if (target === 'USERS') {
       if (this.user.flags === undefined) this.user.flags = []
+
+      if (Array.isArray(this.user.users) && this.user.users.length > 0) {
+        incrementMetric(BROADCAST_RECIPIENTS, this.user.users.length)
+      }
 
       uMessage = await this.apiService.send1to1MessageLowPriority(
         this.user.users,
