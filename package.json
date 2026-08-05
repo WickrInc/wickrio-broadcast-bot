@@ -20,7 +20,7 @@
     "node-cron": "^2.0.3",
     "pino": "^5.17.0",
     "prompt": "^1.0.0",
-    "wickrio-bot-api": "7.2.0-beta.1"
+    "wickrio-bot-api": "7.2.0-beta.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.4",
