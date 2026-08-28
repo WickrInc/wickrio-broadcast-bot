@@ -1,5 +1,6 @@
 // import APIfrom './api-service'
 import { RESPONSES_ENABLED } from '../helpers/constants'
+import { incrementMetric, BROADCAST_ABORTS } from '../helpers/metrics'
 
 const maxStringLength = 50
 // TODO put this in the constructor??
@@ -32,6 +33,7 @@ class GenericService {
       console.log('Attempting to cancel messageID:', messageID)
       const result = await this.apiService.cancelMessageID(messageID)
       console.log('Cancel result:', result)
+      incrementMetric(BROADCAST_ABORTS)
       return result || 'Message cancellation attempted'
     } catch (error) {
       console.error('Error cancelling message:', error)

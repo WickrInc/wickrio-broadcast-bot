@@ -11,6 +11,7 @@ import {
 } from '../helpers/constants'
 import logger from '../helpers/logger'
 import BroadcastService from '../services/broadcast-service'
+import { incrementMetric, BROADCAST_ABORTS } from '../helpers/metrics'
 
 // set upload destination for attachments sent to broadcast with multer
 const useRESTRoutes = app => {
@@ -426,6 +427,7 @@ const useRESTRoutes = app => {
 
     const reply = {}
     reply.result = await apiService.cancelMessageID(messageID)
+    incrementMetric(BROADCAST_ABORTS)
     reply.status = await apiService.getMessageStatus(messageID, 'summary', '', '')
     res.json(reply)
   })

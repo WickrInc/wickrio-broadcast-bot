@@ -1,6 +1,7 @@
 import { schedule } from 'node-cron'
 // import APIService from './api-service'
 import logger from '../helpers/logger'
+import { incrementMetric, REPEAT_SERIES_ABORTED } from '../helpers/metrics'
 
 class RepeatService {
   constructor({
@@ -81,6 +82,7 @@ class RepeatService {
       } catch (err) {
         this.combinedService.setActiveRepeat(false)
         // logger.debug('rock the cron job')
+        incrementMetric(REPEAT_SERIES_ABORTED)
         logger.error(err)
         return cronJob.stop()
       }

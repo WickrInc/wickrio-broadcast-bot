@@ -2,9 +2,33 @@ import StatusService from './status-service'
 import ButtonHelper from '../helpers/button-helper'
 import updateLastID from '../helpers/message-id-helper'
 import logger from '../helpers/logger'
+import {
+  incrementMetric,
+  BROADCASTS_SENT,
+  BROADCASTS_FAILED,
+  BROADCASTS_TEXT,
+  BROADCASTS_FILE,
+  BROADCASTS_VOICEMEMO,
+  BROADCAST_RECIPIENTS,
+} from '../helpers/metrics'
 
 class BroadcastMessageService {
+
   static async broadcastMessage(apiService, user) {
+    try {
+      const reply = await BroadcastMessageService.sendBroadcast(
+        apiService,
+        user
+      )
+      incrementMetric(BROADCASTS_SENT)
+      return reply
+    } catch (err) {
+      incrementMetric(BROADCASTS_FAILED)
+      throw err
+    }
+  }
+
+  static async sendBroadcast(apiService, user) {
     // logger.debug({
     //   file: user.file,
     //   message: user.message,
@@ -65,6 +89,7 @@ class BroadcastMessageService {
     )
     // if (user.file !== undefined && user.file !== '') {
     if (user.file) {
+      incrementMetric(BROADCASTS_FILE)
       logger.debug(`display:${user.display}:`)
       await apiService.writeMessageIDDB(
         messageID,
@@ -75,6 +100,7 @@ class BroadcastMessageService {
       )
       // } else if (user.voiceMemo !== undefined && user.voiceMemo !== '') {
     } else if (user.voiceMemo) {
+      incrementMetric(BROADCASTS_VOICEMEMO)
       await apiService.writeMessageIDDB(
         messageID,
         user.userEmail,
@@ -83,6 +109,7 @@ class BroadcastMessageService {
         `VoiceMemo-${jsonDateTime}`
       )
     } else {
+      incrementMetric(BROADCASTS_TEXT)
       await apiService.writeMessageIDDB(
         messageID,
         user.userEmail,
@@ -93,6 +120,10 @@ class BroadcastMessageService {
     }
     if (target === 'USERS') {
       if (user.flags === undefined) user.flags = []
+
+      if (Array.isArray(user.users) && user.users.length > 0) {
+        incrementMetric(BROADCAST_RECIPIENTS, user.users.length)
+      }
 
       uMessage = await apiService.send1to1MessageLowPriority(
         user.users,

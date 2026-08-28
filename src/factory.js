@@ -58,6 +58,11 @@ import {
 } from './helpers/constants'
 import writeFile from './helpers/message-writer.js'
 import logger from './helpers/logger'
+import {
+  incrementMetric,
+  COMMANDS_REJECTED_UNAUTHORIZED,
+  COMMANDS_UNRECOGNIZED,
+} from './helpers/metrics'
 
 // TODO how can we use a new Broadcast service each time???
 class Factory {
@@ -108,6 +113,8 @@ class Factory {
         // logger.debug({ sMessage })
         writeFile(this.messageService.message)
       }
+      // Counted whether or not a reply was sent back to the user
+      incrementMetric(COMMANDS_REJECTED_UNAUTHORIZED)
       this.validatedUser = false
       return
     }
@@ -359,6 +366,7 @@ class Factory {
       }
     }
 
+    incrementMetric(COMMANDS_UNRECOGNIZED)
     return {
       reply: defaultReply,
     }
