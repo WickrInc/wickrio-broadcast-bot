@@ -1,5 +1,5 @@
 import multer from 'multer'
-import fs from 'fs'
+import path from 'path'
 import {
   bot,
   apiService,
@@ -84,8 +84,6 @@ const useRESTRoutes = app => {
         logger.debug('form data body: ', formData.body)
 
         fileData = req.file
-        let userAttachments
-        let inFile
 
         if (fileData === undefined) {
           logger.info('attachment is not defined!')
@@ -95,14 +93,8 @@ const useRESTRoutes = app => {
           logger.debug('destination: ', fileData.destination)
           logger.debug('filename: ', fileData.filename)
 
-          userAttachments =
-            process.cwd() + '/attachments/' + WICKRIO_BOT_NAME.value
-          userNewFile = userAttachments + '/' + fileData.originalname
-          inFile = process.cwd() + '/attachments/' + fileData.filename
-
-          fs.mkdirSync(userAttachments, { recursive: true })
-          if (fs.existsSync(userNewFile)) fs.unlinkSync(userNewFile)
-          fs.renameSync(inFile, userNewFile)
+          // Send the file from multer's unique, randomly-named staging path
+          userNewFile = process.cwd() + '/attachments/' + fileData.filename
         }
 
         obj = JSON.parse(formData.body)
@@ -173,7 +165,7 @@ const useRESTRoutes = app => {
         newBroadcast.setFile('')
       } else {
         newBroadcast.setFile(userNewFile)
-        newBroadcast.setDisplay(fileData.originalname)
+        newBroadcast.setDisplay(path.basename(fileData.originalname))
       }
 
       // set repeats and durations
@@ -213,9 +205,7 @@ const useRESTRoutes = app => {
       logger.debug('form data body: ', formData.body)
 
       const fileData = req.file
-      let userAttachments
       let userNewFile
-      let inFile
 
       if (fileData === undefined) {
         logger.info('attachment is not defined!')
@@ -225,14 +215,8 @@ const useRESTRoutes = app => {
         logger.debug('destination: ', fileData.destination)
         logger.debug('filename: ', fileData.filename)
 
-        userAttachments =
-          process.cwd() + '/attachments/' + WICKRIO_BOT_NAME.value
-        userNewFile = userAttachments + '/' + fileData.originalname
-        inFile = process.cwd() + '/attachments/' + fileData.filename
-
-        fs.mkdirSync(userAttachments, { recursive: true })
-        if (fs.existsSync(userNewFile)) fs.unlinkSync(userNewFile)
-        fs.renameSync(inFile, userNewFile)
+        // Send the file from multer's unique, randomly-named staging path.
+        userNewFile = process.cwd() + '/attachments/' + fileData.filename
       }
 
       const obj = JSON.parse(formData.body)
@@ -287,7 +271,7 @@ const useRESTRoutes = app => {
         newBroadcast.setFile('')
       } else {
         newBroadcast.setFile(userNewFile)
-        newBroadcast.setDisplay(fileData.originalname)
+        newBroadcast.setDisplay(path.basename(fileData.originalname))
       }
 
       // set repeats and durations

@@ -1,7 +1,7 @@
 import express from 'express'
 import jwt from 'jsonwebtoken'
 import multer from 'multer'
-import fs from 'fs'
+import path from 'path'
 import {
   bot,
   apiService,
@@ -231,20 +231,14 @@ const useWebAndRoutes = app => {
       if (req.file) {
         const fileData = req?.file
 
-        // merge with /files?
-        const userAttachments = process.cwd() + '/attachments/' + req.user.email
-        const userNewFile = userAttachments + '/' + fileData?.originalname
-        const inFile = process.cwd() + '/attachments/' + fileData?.filename
-
-        fs.mkdirSync(userAttachments, { recursive: true })
-        if (fs.existsSync(userNewFile)) fs.unlinkSync(userNewFile)
-        fs.renameSync(inFile, userNewFile)
+        // Send the file from multer's unique, randomly-named staging path.
+        const userNewFile = process.cwd() + '/attachments/' + fileData?.filename
 
         if (userNewFile === undefined) {
           newBroadcast.setFile('')
         } else {
           newBroadcast.setFile(userNewFile)
-          newBroadcast.setDisplay(fileData.originalname)
+          newBroadcast.setDisplay(path.basename(fileData.originalname))
         }
       }
 
