@@ -279,15 +279,27 @@ class BroadcastService {
         incrementMetric(BROADCAST_RECIPIENTS, this.user.users.length)
       }
 
-      uMessage = await this.apiService.send1to1MessageLowPriority(
-        this.user.users,
-        messageToSend,
-        this.user.ttl,
-        this.user.bor,
-        messageID,
-        this.user.flags,
-        metaString
-      )
+      if (this.user.file) {
+        uMessage = await this.apiService.send1to1AttachmentLowPriority(
+          this.user.users,
+          this.user.file,
+          this.user.display,
+          this.user.ttl,
+          this.user.bor,
+          messageID,
+          metaString
+        )
+      } else {
+        uMessage = await this.apiService.send1to1MessageLowPriority(
+          this.user.users,
+          messageToSend,
+          this.user.ttl,
+          this.user.bor,
+          messageID,
+          this.user.flags,
+          metaString
+        )
+      }
       logger.debug(`send1to1Messge returns=${uMessage}`)
       reply.pending =
         'Broadcast message in process of being sent to list of users'
