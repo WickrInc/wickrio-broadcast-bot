@@ -492,8 +492,8 @@ const useRESTRoutes = app => {
     res.json(status)
   })
 
-  const mapEntries = (messageIdEntries, type, page, size) => {
-    messageIdEntries?.map(async entry => {
+  const mapEntries = async (messageIdEntries, type, page, size) => {
+    await Promise.all((messageIdEntries || []).map(async entry => {
       logger.debug({ entry })
       const contentData = JSON.parse(
         await apiService.getMessageIDEntry(entry.message_id)
@@ -529,7 +529,7 @@ const useRESTRoutes = app => {
           entry.summary.ack += 1
         }
       })
-    })
+    }))
     return messageIdEntries
   }
 
@@ -541,11 +541,11 @@ const useRESTRoutes = app => {
       String(email)
     )
 
-    const messageIdEntries = JSON.parse(tableDataRaw).filter(entry => {
-      return entry.sender === email
-    })
-
     try {
+      // get_message_id_table returns { list: [...], max_entries, source }
+      const messageIdEntries = (JSON.parse(tableDataRaw).list || []).filter(entry => {
+        return entry.sender === email
+      })
       const builtStatus = await mapEntries(messageIdEntries, 'full', page, size)
 
       const reply = {}
